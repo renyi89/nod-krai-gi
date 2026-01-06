@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+enum FoundationStatus {
+	FoundationStatus_NONE = 0;
+	FoundationStatus_INIT = 1;
+	FoundationStatus_BUILDING = 2;
+	FoundationStatus_BUILT = 3;
+}

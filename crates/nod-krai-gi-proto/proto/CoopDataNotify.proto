@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "CoopChapter.proto";
+
+
+message CoopDataNotify {
+	bool is_have_progress = 4;
+	uint32 cur_coop_point = 5;
+	repeated uint32 viewed_chapter_lists = 2;
+	repeated CoopChapter chapter_list = 9;
+}

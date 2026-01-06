@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message ChangeTeamNameRsp {
+	string team_name = 2;
+	int32 team_id = 7;
+	int32 retcode = 1;
+}

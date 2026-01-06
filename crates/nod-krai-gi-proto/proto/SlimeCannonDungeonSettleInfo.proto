@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message SlimeCannonDungeonSettleInfo {
+	bool is_new_record = 12;
+	uint32 use_time = 3;
+	uint32 score = 13;
+	uint32 level_id = 5;
+}

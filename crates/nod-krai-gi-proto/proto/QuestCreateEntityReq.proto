@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "CreateEntityInfo.proto";
+
+
+message QuestCreateEntityReq {
+	bool is_rewind = 2;
+	uint32 parent_quest_id = 5;
+	uint32 quest_id = 12;
+	CreateEntityInfo entity = 10;
+}

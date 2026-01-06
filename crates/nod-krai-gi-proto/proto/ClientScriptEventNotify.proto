@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message ClientScriptEventNotify {
+	uint32 event_type = 3;
+	uint32 source_entity_id = 1;
+	uint32 target_entity_id = 7;
+	repeated int32 param_list = 13;
+}

@@ -1,0 +1,24 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "MovingPlatformType.proto";
+import "Route.proto";
+import "MathQuaternion.proto";
+import "Vector.proto";
+
+
+message PlatformInfo {
+	int32 start_index = 2;
+	bool is_started = 8;
+	bool is_active = 14;
+	uint32 stop_scene_time = 10;
+	uint32 start_route_time = 3;
+	uint32 start_scene_time = 4;
+	uint32 route_id = 1;
+	uint32 point_id = 16;
+	MovingPlatformType moving_platform_type = 13;
+	Vector pos_offset = 11;
+	Vector start_pos = 7;
+	MathQuaternion rot_offset = 12;
+	MathQuaternion start_rot = 9;
+	Route route = 15;
+}

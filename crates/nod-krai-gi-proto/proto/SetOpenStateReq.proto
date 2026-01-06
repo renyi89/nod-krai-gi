@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message SetOpenStateReq {
+	uint32 key = 11;
+	uint32 value = 8;
+}

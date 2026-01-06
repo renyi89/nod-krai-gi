@@ -1,0 +1,41 @@
+[package]
+name = "game-server-core"
+edition = "2021"
+version.workspace = true
+
+[dependencies]
+tokio.workspace = true
+
+# Logic
+bevy_app.workspace = true
+bevy_ecs.workspace = true
+
+# Serialization
+serde_json.workspace = true
+
+# Error processing
+
+# Logging
+tracing.workspace = true
+
+# Util
+hex.workspace = true
+
+# Internal
+common.workspace = true
+nod-krai-gi-entity.workspace = true
+nod-krai-gi-scene.workspace = true
+nod-krai-gi-avatar.workspace = true
+nod-krai-gi-environment.workspace = true
+nod-krai-gi-pathfinding.workspace = true
+nod-krai-gi-combat.workspace = true
+nod-krai-gi-ability.workspace = true
+nod-krai-gi-time.workspace = true
+nod-krai-gi-command.workspace = true
+nod-krai-gi-map.workspace = true
+nod-krai-gi-inventory.workspace = true
+nod-krai-gi-message.workspace = true
+nod-krai-gi-persistence.workspace = true
+nod-krai-gi-luashell.workspace = true
+nod-krai-gi-data.workspace = true
+nod-krai-gi-proto.workspace = true

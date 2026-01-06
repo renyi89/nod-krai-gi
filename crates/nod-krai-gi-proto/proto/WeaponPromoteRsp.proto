@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message WeaponPromoteRsp {
+	uint64 target_weapon_guid = 4;
+	int32 retcode = 6;
+	uint32 cur_promote_level = 8;
+	uint32 old_promote_level = 3;
+}

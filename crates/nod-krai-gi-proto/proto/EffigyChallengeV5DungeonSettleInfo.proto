@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message EffigyChallengeV5DungeonSettleInfo {
+	bool is_new_record = 13;
+	uint32 difficulty_id = 4;
+	uint32 cost_time = 3;
+	repeated uint32 player_uid_list = 2;
+}

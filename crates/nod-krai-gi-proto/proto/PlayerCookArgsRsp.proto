@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message PlayerCookArgsRsp {
+	float qte_range_ratio = 2;
+	int32 retcode = 13;
+}

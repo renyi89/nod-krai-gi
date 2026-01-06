@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "ForwardType.proto";
+
+
+message EvtBulletDeactiveNotify {
+	uint32 disappear_pos = 13;
+	uint32 entity_id = 4;
+	ForwardType forward_type = 1;
+}

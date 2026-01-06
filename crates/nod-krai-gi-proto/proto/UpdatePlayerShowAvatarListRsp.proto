@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message UpdatePlayerShowAvatarListRsp {
+	int32 retcode = 8;
+	bool is_show_constellation_num = 11;
+	bool is_show_avatar = 7;
+	repeated uint32 show_avatar_id_list = 15;
+}

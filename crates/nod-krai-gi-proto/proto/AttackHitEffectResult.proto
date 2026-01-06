@@ -1,0 +1,13 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message AttackHitEffectResult {
+	float air_strength = 3;
+	float hit_halt_time = 6;
+	float hit_halt_time_scale = 5;
+	float retreat_strength = 1;
+	uint32 hit_eff_level = 4;
+	uint32 original_hit_eff_level = 2;
+}

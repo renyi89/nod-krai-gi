@@ -1,0 +1,13 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "Vector.proto";
+
+
+message WidgetSorushInfo {
+	bool is_can_shot_transfer = 4;
+	bool is_destroy_vehicle = 5;
+	bool is_enter_vehicle = 3;
+	uint32 slot = 6;
+	Vector rot = 2;
+	Vector pos = 1;
+}

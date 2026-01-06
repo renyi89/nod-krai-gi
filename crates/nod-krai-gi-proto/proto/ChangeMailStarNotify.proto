@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message ChangeMailStarNotify {
+	bool is_star = 11;
+	repeated uint32 mail_id_list = 7;
+}

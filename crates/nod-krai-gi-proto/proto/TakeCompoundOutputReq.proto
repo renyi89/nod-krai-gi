@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message TakeCompoundOutputReq {
+	uint32 compound_group_id = 10;
+	uint32 compound_id = 3;
+}

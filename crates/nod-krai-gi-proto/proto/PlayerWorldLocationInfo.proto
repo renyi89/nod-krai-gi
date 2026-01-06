@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "PlayerLocationInfo.proto";
+
+
+message PlayerWorldLocationInfo {
+	uint32 scene_id = 13;
+	PlayerLocationInfo player_loc = 4;
+}

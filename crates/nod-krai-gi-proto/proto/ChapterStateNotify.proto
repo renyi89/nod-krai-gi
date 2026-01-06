@@ -1,0 +1,19 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "ChapterState.proto";
+
+
+message ChapterStateNotify {
+	uint32 chapter_id = 8;
+	NeedBeginTime need_begin_time = 6;
+	NeedPlayerLevel need_player_level = 12;
+	ChapterState chapter_state = 11;
+	message NeedPlayerLevel {
+		bool is_limit = 5;
+		uint32 config_need_player_level = 6;
+	}
+	message NeedBeginTime {
+		bool is_limit = 11;
+		uint32 config_need_begin_time = 15;
+	}
+}

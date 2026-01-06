@@ -1,0 +1,30 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "MapLayerInfo.proto";
+import "Vector.proto";
+import "EnterType.proto";
+
+
+message PlayerEnterSceneNotify {
+	uint64 scene_begin_time = 13;
+	string scene_transaction = 153;
+	bool is_skip_ui = 1830;
+	bool is_first_login_enter_scene = 10;
+	uint32 prev_scene_id = 5;
+	uint32 dungeon_prev_scene_id = 1284;
+	uint32 enter_reason = 1420;
+	uint32 create_player_uid = 693;
+	uint32 world_type = 1719;
+	uint32 template_loading_id = 151;
+	uint32 world_level = 12;
+	uint32 enter_scene_token = 7;
+	uint32 target_uid = 3;
+	uint32 dungeon_id = 15;
+	uint32 scene_id = 11;
+	EnterType type = 4;
+	MapLayerInfo map_layer_info = 1736;
+	Vector prev_pos = 6;
+	Vector dungeon_prev_pos = 953;
+	Vector pos = 8;
+	repeated uint32 scene_tag_id_list = 1;
+}

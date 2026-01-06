@@ -1,0 +1,12 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "Vector.proto";
+
+
+message EvtAvatarLockChairRsp {
+	uint64 chair_id = 6;
+	int32 direction = 1;
+	int32 retcode = 15;
+	uint32 entity_id = 13;
+	Vector position = 3;
+}

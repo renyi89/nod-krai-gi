@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message AcrobaticsBattleDungeonSettleInfo {
+	uint32 cost_time = 7;
+	uint32 difficulty = 12;
+	uint32 stage_id = 10;
+}

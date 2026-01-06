@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message SceneTimeNotify {
+	uint64 scene_time = 13;
+	bool is_paused = 4;
+	uint32 scene_id = 10;
+}

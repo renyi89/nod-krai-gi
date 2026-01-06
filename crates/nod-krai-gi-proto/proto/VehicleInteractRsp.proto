@@ -1,0 +1,19 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "VehicleInteractType.proto";
+import "Vector.proto";
+import "VehicleInteractReason.proto";
+import "VehicleMember.proto";
+
+
+message VehicleInteractRsp {
+	int32 retcode = 12;
+	uint32 vehicle_type = 14;
+	uint32 gadget_id = 11;
+	uint32 entity_id = 2;
+	VehicleInteractReason interact_reason = 7;
+	VehicleMember member = 9;
+	VehicleInteractType interact_type = 5;
+	Vector vehicle_rot = 6;
+	Vector vehicle_pos = 15;
+}

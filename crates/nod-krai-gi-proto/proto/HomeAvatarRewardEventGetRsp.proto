@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "ItemParam.proto";
+
+
+message HomeAvatarRewardEventGetRsp {
+	int32 retcode = 8;
+	uint32 event_id = 7;
+	repeated ItemParam item_list = 12;
+}

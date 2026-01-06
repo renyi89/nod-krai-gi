@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message ReliquaryDecomposeRsp {
+	int32 retcode = 4;
+	repeated uint64 guid_list = 1;
+}

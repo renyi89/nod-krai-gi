@@ -1,0 +1,8 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message MonsterForceAlertNotify {
+	uint32 monster_entity_id = 10;
+}

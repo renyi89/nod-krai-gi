@@ -1,0 +1,28 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message GetPlayerTokenReq {
+	string account_ext = 4;
+	string account_token = 6;
+	string client_rand_key = 2;
+	string psn_region = 8;
+	string ticket = 1;
+	string client_ip_str = 7;
+	string account_uid = 5;
+	string country_code = 10;
+	string birthday = 9;
+	string psn_id = 3;
+	string online_id = 11;
+	bool is_guest = 18;
+	uint32 lang = 12;
+	uint32 cloud_client_ip = 17;
+	uint32 key_id = 16;
+	uint32 minors_reg_min_age = 21;
+	uint32 account_type = 13;
+	uint32 sub_channel_id = 20;
+	uint32 platform_type = 15;
+	uint32 channel_id = 19;
+	uint32 uid = 14;
+}

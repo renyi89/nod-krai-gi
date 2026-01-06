@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message TakeFurnitureMakeReq {
+	bool is_fast_finish = 14;
+	uint32 make_id = 6;
+	uint32 index = 13;
+}

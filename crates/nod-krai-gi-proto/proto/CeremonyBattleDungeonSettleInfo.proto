@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message CeremonyBattleDungeonSettleInfo {
+	bool is_new_record = 4;
+	uint32 score = 2;
+	uint32 level_id = 10;
+}

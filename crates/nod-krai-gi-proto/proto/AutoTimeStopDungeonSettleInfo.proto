@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message AutoTimeStopDungeonSettleInfo {
+	bool is_new_record = 2;
+	uint32 score = 10;
+	uint32 level_id = 1;
+}

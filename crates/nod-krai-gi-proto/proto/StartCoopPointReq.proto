@@ -1,0 +1,8 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message StartCoopPointReq {
+	uint32 coop_point = 10;
+}

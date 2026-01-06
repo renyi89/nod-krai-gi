@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "LunchBoxData.proto";
+
+
+message SetUpLunchBoxWidgetRsp {
+	int32 retcode = 10;
+	LunchBoxData lunch_box_data = 5;
+}

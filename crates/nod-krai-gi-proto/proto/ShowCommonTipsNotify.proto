@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message ShowCommonTipsNotify {
+	string title = 3;
+	string content = 12;
+	uint32 close_time = 1;
+}

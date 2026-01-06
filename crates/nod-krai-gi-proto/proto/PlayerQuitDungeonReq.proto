@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message PlayerQuitDungeonReq {
+	bool is_quit_immediately = 2;
+	uint32 point_id = 12;
+}

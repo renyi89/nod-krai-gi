@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message QuickTimeCombatDungeonSettleInfo {
+	bool is_new_record = 12;
+	uint32 total_score = 7;
+	uint32 difficulty = 3;
+	uint32 stage_id = 1;
+}

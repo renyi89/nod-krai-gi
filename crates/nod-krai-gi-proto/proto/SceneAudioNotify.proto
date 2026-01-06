@@ -1,0 +1,12 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message SceneAudioNotify {
+	int32 type = 6;
+	uint32 source_uid = 8;
+	repeated float param2 = 14;
+	repeated string param3 = 10;
+	repeated uint32 param1 = 12;
+}

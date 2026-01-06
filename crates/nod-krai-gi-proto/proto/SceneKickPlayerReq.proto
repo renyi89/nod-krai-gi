@@ -1,0 +1,8 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message SceneKickPlayerReq {
+	uint32 target_uid = 2;
+}

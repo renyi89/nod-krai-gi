@@ -1,0 +1,8 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "AvatarWeaponSkin.proto";
+
+message AvatarWeaponSkinDataNotify {
+  repeated uint32 weapon_skin_id_list = 11;
+  repeated AvatarWeaponSkin weapon_skin_list = 3;
+}

@@ -1,0 +1,13 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message GetAuthkeyRsp {
+	string authkey = 7;
+	string game_biz = 6;
+	string auth_appid = 12;
+	int32 retcode = 9;
+	uint32 authkey_ver = 15;
+	uint32 sign_type = 10;
+}

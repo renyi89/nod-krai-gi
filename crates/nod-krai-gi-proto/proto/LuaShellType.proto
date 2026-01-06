@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+enum LuaShellType {
+	LuaShellType_LUASHELL_NONE = 0;
+	LuaShellType_LUASHELL_NORMAL = 1;
+	LuaShellType_LUASHELL_SECURITY = 2;
+	LuaShellType_LUASHELL_SHELL_CODE = 3;
+}
