@@ -1,5 +1,7 @@
 use bevy_ecs::prelude::*;
-use nod_krai_gi_entity::common::{FightProperties, Guid, OwnerPlayerUID, ProtocolEntityID};
+use nod_krai_gi_entity::common::{
+    EntityById, FightProperties, Guid, OwnerPlayerUID, ProtocolEntityID,
+};
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_proto::{
     AttackResult, AvatarFightPropUpdateNotify, EntityFightPropUpdateNotify, ProtEntityType,
@@ -11,6 +13,7 @@ pub struct EntityBeingHitEvent(pub u32, pub AttackResult);
 
 #[instrument(skip_all)]
 pub fn deal_damage_on_hit(
+    index: Res<EntityById>,
     mut events: MessageReader<EntityBeingHitEvent>,
     mut entities: Query<(
         &mut FightProperties,
@@ -20,10 +23,12 @@ pub fn deal_damage_on_hit(
 ) {
     for EntityBeingHitEvent(originator_uid, attack_result) in events.read() {
         if (attack_result.attacker_id >> 22) < ProtEntityType::ProtEntityMax as u32 {
-            let Some((_, _, attacker_owner)) = entities
-                .iter()
-                .find(|(_, id, __)| id.0 == attack_result.attacker_id)
-            else {
+            let attacker_entity = match index.0.get(&attack_result.attacker_id) {
+                Some(e) => *e,
+                None => continue,
+            };
+
+            let Ok((_, _, attacker_owner)) = entities.get(attacker_entity) else {
                 debug!("attacker with id {} not found", attack_result.attacker_id);
                 continue;
             };
@@ -39,10 +44,12 @@ pub fn deal_damage_on_hit(
             }
         }
 
-        let Some((mut defender_props, _, _)) = entities
-            .iter_mut()
-            .find(|(_, id, _)| id.0 == attack_result.defense_id)
-        else {
+        let defense_entity = match index.0.get(&attack_result.defense_id) {
+            Some(e) => *e,
+            None => continue,
+        };
+
+        let Ok((mut defender_props, _, _)) = entities.get_mut(defense_entity) else {
             debug!("defender with id {} not found", attack_result.defense_id);
             continue;
         };

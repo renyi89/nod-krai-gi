@@ -51,6 +51,9 @@ pub struct GadgetID(pub u32);
 #[derive(Resource, Default)]
 pub struct EntityCounter(u32);
 
+#[derive(Resource, Default)]
+pub struct EntityById(pub HashMap<u32, Entity>);
+
 impl EntityCounter {
     pub fn inc(&mut self) -> u32 {
         self.0 += 1;

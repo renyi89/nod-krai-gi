@@ -1,13 +1,16 @@
 use avatar::{AvatarAppearanceChangeEvent, AvatarEquipChangeEvent};
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
-use common::{EntityCounter, FightProperties, LifeState, ProtocolEntityID, ToBeRemovedMarker};
+use common::{
+    EntityById, EntityCounter, FightProperties, LifeState, ProtocolEntityID, ToBeRemovedMarker,
+};
 use nod_krai_gi_data::prop_type::FightPropType;
 use nod_krai_gi_message::output::MessageOutput;
 
 pub mod ability;
 pub mod avatar;
 pub mod common;
+pub mod gadget;
 pub mod monster;
 pub mod mp_level;
 pub mod play_team;
@@ -15,7 +18,6 @@ pub mod team;
 pub mod transform;
 pub mod util;
 pub mod weapon;
-pub mod gadget;
 
 use crate::avatar::CurrentPlayerAvatarMarker;
 use crate::common::Visible;
@@ -27,10 +29,12 @@ pub struct EntityPlugin;
 impl Plugin for EntityPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(EntityCounter::default())
+            .insert_resource(EntityById::default())
             .add_message::<EntityPropertySeparateUpdateEvent>()
             .add_message::<EntityDisappearEvent>()
             .add_message::<AvatarEquipChangeEvent>()
             .add_message::<AvatarAppearanceChangeEvent>()
+            .add_systems(Update, update_entity_index)
             .add_systems(Update, update_separate_property_entity)
             .add_systems(Update, avatar::update_avatar_appearance)
             .add_systems(
@@ -136,10 +140,23 @@ fn notify_disappear_entities(
 }
 
 fn remove_marked_entities(
+    mut index: ResMut<EntityById>,
     mut commands: Commands,
     entities: Query<Entity, With<ToBeRemovedMarker>>,
 ) {
     entities
         .iter()
-        .for_each(|entity| commands.entity(entity).despawn());
+        .for_each(|entity| {
+            index.0.retain(|_, e| *e != entity);
+            commands.entity(entity).despawn()
+        });
+}
+
+fn update_entity_index(
+    mut index: ResMut<EntityById>,
+    query: Query<(Entity, &ProtocolEntityID), Changed<ProtocolEntityID>>,
+) {
+    for (entity, id) in query.iter() {
+        index.0.insert(id.0, entity);
+    }
 }

@@ -8,19 +8,25 @@ use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::EntityMoveInfo;
 use tracing::log::trace;
 use tracing::{debug, instrument};
+use nod_krai_gi_entity::common::EntityById;
 
 #[derive(Message)]
 pub struct EntityMoveEvent(pub u32, pub EntityMoveInfo);
 
 #[instrument(skip_all)]
 pub fn entity_movement(
+    index: Res<EntityById>,
     mut events: MessageReader<EntityMoveEvent>,
     mut entities: Query<(&mut Transform, &ProtocolEntityID, Option<&OwnerPlayerUID>)>,
 ) {
     for EntityMoveEvent(originator_uid, info) in events.read() {
-        let Some((mut transform, _, owner_uid)) = entities
-            .iter_mut()
-            .find(|(_, id, _)| id.0 == info.entity_id)
+
+        let move_entity = match index.0.get(&info.entity_id) {
+            Some(e) => *e,
+            None => continue,
+        };
+
+        let Ok((mut transform, _, owner_uid)) = entities.get_mut(move_entity)
         else {
             debug!("entity with id {} not found", info.entity_id);
             continue;
