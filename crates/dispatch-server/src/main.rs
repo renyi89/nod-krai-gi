@@ -103,7 +103,7 @@ async fn main() -> Result<()> {
 
     let app = Router::new().merge(handlers::routes()).with_state(state);
 
-    axum_server::bind(CONFIG.http_addr.parse()?)
+    axum_server::bind(CONFIG.http_addr)
         .serve(app.into_make_service())
         .await?;
 

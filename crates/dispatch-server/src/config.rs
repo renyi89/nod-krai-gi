@@ -1,9 +1,10 @@
+use std::net::SocketAddr;
 use common::TomlConfig;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
 pub struct DispatchConfig {
-    pub http_addr: String,
+    pub http_addr: SocketAddr,
     pub forbid_first_dispatch: bool,
     pub region: RegionConfig,
 }
