@@ -12,10 +12,10 @@ use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::{
     scene_entity_info, AbilitySyncStateInfo, AnimatorParameterValueInfo,
-    AnimatorParameterValueInfoPair, AvatarExcelInfo, EntityAuthorityInfo, EntityClientData,
-    EntityClientExtraInfo, EntityRendererChangedInfo, FightPropPair, MotionInfo, ProtEntityType,
-    SceneAvatarInfo, SceneEntityInfo, SceneTeamAvatar, SceneTeamUpdateNotify, SceneWeaponInfo,
-    Vector,
+    AnimatorParameterValueInfoPair, AvatarExcelInfo, AvatarSkillInfo, AvatarSkillInfoNotify,
+    EntityAuthorityInfo, EntityClientData, EntityClientExtraInfo, EntityRendererChangedInfo,
+    FightPropPair, MotionInfo, ProtEntityType, SceneAvatarInfo, SceneEntityInfo, SceneTeamAvatar,
+    SceneTeamUpdateNotify, SceneWeaponInfo, Vector,
 };
 
 #[derive(Message)]
@@ -121,8 +121,16 @@ pub fn notify_scene_team_update(
                                     peer_id: avatar_data.control_peer.0,
                                     equip_id_list: vec![weapon_data.weapon_id.0],
                                     skill_depot_id: avatar_data.skill_depot.0,
-                                    talent_id_list: skill_depot_data.talents,
-                                    core_proud_skill_level: 6,
+                                    talent_id_list: if avatar_data.core_proud_skill_level.0 as usize
+                                        > skill_depot_data.talents.len()
+                                    {
+                                        skill_depot_data.talents
+                                    } else {
+                                        skill_depot_data.talents
+                                            [0..avatar_data.core_proud_skill_level.0 as usize]
+                                            .to_vec()
+                                    },
+                                    core_proud_skill_level: avatar_data.core_proud_skill_level.0,
                                     weapon: Some(SceneWeaponInfo {
                                         guid: weapon_data.guid.0,
                                         entity_id: weapon_data.entity_id.0,
@@ -162,5 +170,28 @@ pub fn notify_scene_team_update(
                 is_in_mp: false,
             },
         );
+        avatar_query.iter().for_each(|(avatar_data, _, _)| {
+            message_output.send(
+                avatar_data.owner_player_uid.0,
+                "AvatarSkillInfoNotify",
+                AvatarSkillInfoNotify {
+                    guid: avatar_data.guid.0,
+                    skill_map: avatar_data
+                        .skill_extra_charge_map
+                        .0
+                        .iter()
+                        .map(|(k, v)| {
+                            (
+                                *k,
+                                AvatarSkillInfo {
+                                    max_charge_count: *v,
+                                    ..Default::default()
+                                },
+                            )
+                        })
+                        .collect(),
+                },
+            );
+        });
     }
 }

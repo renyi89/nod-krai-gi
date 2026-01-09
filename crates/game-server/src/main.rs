@@ -15,6 +15,7 @@ use std::fs;
 use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, LazyLock, OnceLock};
 use tokio::net::UdpSocket;
+use nod_krai_gi_data::config::load_avatar_talent_configs_from_bin;
 
 mod config;
 mod db_worker;
@@ -59,6 +60,11 @@ async fn main() -> Result<()> {
     tokio::spawn(async move {
         load_avatar_configs_from_bin("assets/BinOutput").unwrap();
         tracing::info!("load_avatar_configs_from_bin end");
+    });
+
+    tokio::spawn(async move {
+        load_avatar_talent_configs_from_bin("assets/BinOutput").unwrap();
+        tracing::info!("load_avatar_talent_configs_from_bin end");
     });
 
     excel::load_all("assets/ExcelBinOutput")?;

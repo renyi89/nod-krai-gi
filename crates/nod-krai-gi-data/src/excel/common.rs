@@ -213,3 +213,11 @@ impl GrowCurveInfo {
         }
     }
 }
+
+
+#[derive(Debug, Clone, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AddProp {
+    pub prop_type: String,
+    pub value: f32,
+}

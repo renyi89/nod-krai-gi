@@ -99,27 +99,59 @@ const DEFAULT_TEAM_ABILITIES: [&str; 16] = [
 ];
 
 impl Ability {
-    pub fn new_for_avatar(id: u32) -> Self {
+    fn add_common_avatar_abilities(ability_map: &mut HashMap<u32, u32>) {
+        for name in COMMON_AVATAR_ABILITIES.iter() {
+            let data = AbilityData::new(name, "Default");
+            ability_map.insert(data.ability_name_hash, data.ability_override_name_hash);
+        }
+    }
+
+    fn process_open_configs(
+        open_configs: Vec<String>,
+        name: &str,
+        ability_map: &mut HashMap<u32, u32>,
+    ) {
+        if let Some(talent_config) = config::get_avatar_talent_config(name) {
+            for open_config in open_configs {
+                match talent_config.talents.get(&open_config) {
+                    None => continue,
+                    Some(talent_action) => {
+                        for action in talent_action {
+                            if let config::TalentAction::AddAbility { ability_name } = action {
+                                let data = AbilityData::new(&ability_name, "Default");
+                                ability_map.insert(
+                                    data.ability_name_hash,
+                                    data.ability_override_name_hash,
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn new_for_avatar(id: u32, open_configs: Vec<String>) -> Self {
         let avatar_excel_config_collection_clone =
             std::sync::Arc::clone(avatar_excel_config_collection::get());
         let avatar = avatar_excel_config_collection_clone.get(&id).unwrap();
-        let name = avatar.icon_name.replace("UI_AvatarIcon_", "");
+        let avatar_name = avatar.icon_name.replace("UI_AvatarIcon_", "");
 
-        if let Some(config) = config::get_avatar_config(&name) {
+        if let Some(config) = config::get_avatar_config(&avatar_name) {
             let mut ability_map: HashMap<u32, u32> = HashMap::new();
             for ability in config.abilities.iter() {
                 let data = AbilityData::new(&ability.ability_name, &ability.ability_override);
                 ability_map.insert(data.ability_name_hash, data.ability_override_name_hash);
             }
-            for name in COMMON_AVATAR_ABILITIES.iter() {
-                let data = AbilityData::new(name, "Default");
-                ability_map.insert(data.ability_name_hash, data.ability_override_name_hash);
-            }
+
+            Self::add_common_avatar_abilities(&mut ability_map);
+            Self::process_open_configs(open_configs, &avatar_name, &mut ability_map);
+
             Self {
                 target_ability_map: ability_map,
             }
         } else {
-            tracing::warn!("missing ConfigAvatar for {name}");
+            tracing::warn!("missing ConfigAvatar for {avatar_name}");
             let mut ability_map: HashMap<u32, u32> = HashMap::new();
             match Arc::clone(&get_temp_abilities()).get(&id) {
                 None => {}
@@ -129,10 +161,9 @@ impl Ability {
                     });
                 }
             }
-            for name in COMMON_AVATAR_ABILITIES.iter() {
-                let data = AbilityData::new(name, "Default");
-                ability_map.insert(data.ability_name_hash, data.ability_override_name_hash);
-            }
+            Self::add_common_avatar_abilities(&mut ability_map);
+            Self::process_open_configs(open_configs, &avatar_name, &mut ability_map);
+
             Self {
                 target_ability_map: ability_map,
             }

@@ -4,8 +4,10 @@ use common::time_util;
 use nod_krai_gi_data::excel::{
     avatar_costume_excel_config_collection, avatar_excel_config_collection,
     avatar_flycloak_excel_config_collection, avatar_skill_depot_excel_config_collection,
-    avatar_trace_effect_excel_config_collection, weapon_excel_config_collection, AvatarExcelConfig,
-    AvatarUseType,
+    avatar_skill_excel_config_collection, avatar_talent_excel_config_collection,
+    avatar_trace_effect_excel_config_collection, proud_skill_excel_config_collection,
+    weapon_excel_config_collection, AvatarExcelConfig, AvatarTalentExcelConfig, AvatarUseType,
+    ProudSkillExcelConfig,
 };
 
 use nod_krai_gi_persistence::player_information::*;
@@ -111,6 +113,7 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerI
 fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelConfig) {
     const DEFAULT_AVATAR_LEVEL: u32 = 100;
     const DEFAULT_AVATAR_BREAK_LEVEL: u32 = 6;
+    const DEFAULT_CORE_PROUD_SKILL_LEVEL: u32 = 6;
     const DEFAULT_WEAPON_LEVEL: u32 = 90;
     const DEFAULT_WEAPON_PROMOTE_LEVEL: u32 = 6;
     const DEFAULT_FLYCLOAK_ID: u32 = 140001;
@@ -121,8 +124,20 @@ fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelCon
     let mut skill_level_map = HashMap::new();
     let mut inherent_proud_skill_list = Vec::new();
 
+    let avatar_excel_config_collection_clone =
+        std::sync::Arc::clone(avatar_excel_config_collection::get());
+
     let avatar_skill_depot_excel_config_collection_clone =
         std::sync::Arc::clone(avatar_skill_depot_excel_config_collection::get());
+
+    let avatar_skill_excel_config_collection_clone =
+        std::sync::Arc::clone(avatar_skill_excel_config_collection::get());
+
+    let avatar_talent_collection_clone =
+        std::sync::Arc::clone(avatar_talent_excel_config_collection::get());
+
+    let proud_skill_collection_clone =
+        std::sync::Arc::clone(proud_skill_excel_config_collection::get());
 
     if let Some(skill_depot) =
         avatar_skill_depot_excel_config_collection_clone.get(&avatar.skill_depot_id)
@@ -148,8 +163,63 @@ fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelCon
         skill_depot
             .inherent_proud_skill_opens
             .iter()
-            .filter(|s| s.proud_skill_group_id != 0)
+            .filter(|s| {
+                s.proud_skill_group_id != 0 && s.need_avatar_promote_level <= DEFAULT_AVATAR_LEVEL
+            })
             .for_each(|s| inherent_proud_skill_list.push(s.proud_skill_group_id * 100 + 1));
+    }
+
+    let avatar = avatar_excel_config_collection_clone
+        .get(&avatar.id)
+        .unwrap();
+    let avatar_name = avatar.icon_name.replace("UI_AvatarIcon_", "");
+
+    let skill_depot = avatar_skill_depot_excel_config_collection_clone
+        .get(&avatar.skill_depot_id)
+        .unwrap();
+
+    let talent_id_list: Vec<u32> =
+        if DEFAULT_CORE_PROUD_SKILL_LEVEL as usize > skill_depot.talents.len() {
+            skill_depot.talents.clone()
+        } else {
+            skill_depot.talents[0..DEFAULT_CORE_PROUD_SKILL_LEVEL as usize].to_vec()
+        };
+
+    let mut open_configs = Vec::new();
+    open_configs.extend(process_talent_ids(
+        &talent_id_list,
+        &avatar_talent_collection_clone,
+    ));
+    open_configs.extend(process_inherent_proud_skills(
+        &inherent_proud_skill_list,
+        &proud_skill_collection_clone,
+    ));
+
+    let mut skill_extra_charge_map: HashMap<u32, u32> = HashMap::new();
+
+    if let Some(talent_config) = nod_krai_gi_data::config::get_avatar_talent_config(&avatar_name) {
+        for open_config in &open_configs {
+            match talent_config.talents.get(open_config) {
+                None => continue,
+                Some(talent_action) => {
+                    for action in talent_action {
+                        if let nod_krai_gi_data::config::TalentAction::ModifySkillPoint {
+                            skill_id,
+                            point_delta,
+                        } = action
+                        {
+                            if let Some(skill_config) =
+                                avatar_skill_excel_config_collection_clone.get(&skill_id)
+                            {
+                                let max_charge_num = skill_config.max_charge_num;
+                                let extra_charge = max_charge_num + point_delta;
+                                skill_extra_charge_map.insert(*skill_id, extra_charge);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     player.avatar_module.avatar_map.insert(
@@ -158,6 +228,9 @@ fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelCon
             avatar_id: avatar.id,
             level: DEFAULT_AVATAR_LEVEL,
             break_level: DEFAULT_AVATAR_BREAK_LEVEL,
+            core_proud_skill_level: DEFAULT_CORE_PROUD_SKILL_LEVEL,
+            skill_extra_charge_map,
+            open_configs,
             skill_depot_id: avatar.skill_depot_id,
             born_time: time_util::unix_timestamp() as u32,
             guid: avatar_guid,
@@ -182,4 +255,30 @@ fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelCon
             is_locked: false,
         },
     );
+}
+
+fn process_talent_ids(
+    talent_id_list: &[u32],
+    avatar_talent_collection: &std::sync::Arc<HashMap<u32, AvatarTalentExcelConfig>>,
+) -> Vec<String> {
+    let mut open_configs = Vec::new();
+    for talent_id in talent_id_list {
+        if let Some(talent_config) = avatar_talent_collection.get(talent_id) {
+            open_configs.push(talent_config.open_config.clone());
+        }
+    }
+    open_configs
+}
+
+fn process_inherent_proud_skills(
+    inherent_proud_skill_list: &[u32],
+    proud_skill_collection: &std::sync::Arc<HashMap<u32, ProudSkillExcelConfig>>,
+) -> Vec<String> {
+    let mut open_configs = Vec::new();
+    for proud_skill_id in inherent_proud_skill_list {
+        if let Some(proud_skill_config) = proud_skill_collection.get(proud_skill_id) {
+            open_configs.push(proud_skill_config.open_config.clone());
+        }
+    }
+    open_configs
 }

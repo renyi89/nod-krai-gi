@@ -46,6 +46,7 @@ pub fn scene_init_finish_send_rsp(
     mut scene_init_finish_events: MessageReader<SceneInitFinishEvent>,
     player_scene_states: Res<PlayerSceneStates>,
     message_output: Res<MessageOutput>,
+    mut lua_shell_events: MessageWriter<nod_krai_gi_luashell::LuaShellEvent>,
 ) {
     for event in scene_init_finish_events.read() {
         let uid = event.0;
@@ -65,5 +66,7 @@ pub fn scene_init_finish_send_rsp(
                 ),
             },
         );
+
+        lua_shell_events.write(nod_krai_gi_luashell::LuaShellEvent());
     }
 }

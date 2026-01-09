@@ -6,6 +6,8 @@ mod avatar_excel_config;
 mod avatar_flycloak_excel_config;
 mod avatar_promote_excel_config;
 mod avatar_skill_depot_excel_config;
+mod avatar_skill_excel_config;
+mod avatar_talent_excel_config;
 mod avatar_trace_effect_excel_config;
 mod daily_dungeon_config;
 mod dungeon_excel_config;
@@ -19,6 +21,7 @@ mod monster_excel_config;
 mod open_state_config;
 pub mod scene_point_config;
 mod scene_tag_config;
+mod proud_skill_excel_config;
 mod weapon_curve_excel_config;
 mod weapon_excel_config;
 
@@ -28,6 +31,8 @@ pub use avatar_excel_config::*;
 pub use avatar_flycloak_excel_config::*;
 pub use avatar_promote_excel_config::*;
 pub use avatar_skill_depot_excel_config::*;
+pub use avatar_skill_excel_config::*;
+pub use avatar_talent_excel_config::*;
 pub use avatar_trace_effect_excel_config::*;
 pub use daily_dungeon_config::*;
 pub use dungeon_excel_config::*;
@@ -40,6 +45,7 @@ pub use monster_curve_excel_config::*;
 pub use monster_excel_config::*;
 pub use open_state_config::*;
 pub use scene_tag_config::*;
+pub use proud_skill_excel_config::*;
 pub use weapon_curve_excel_config::*;
 pub use weapon_excel_config::*;
 
@@ -92,13 +98,15 @@ macro_rules! excel_loader {
 }
 
 excel_loader! {
-    AvatarExcelConfig;
     AvatarCostumeExcelConfig;
-    AvatarTraceEffectExcelConfig;
-    AvatarFlycloakExcelConfig;
-    AvatarSkillDepotExcelConfig;
     AvatarCurveExcelConfig;
+    AvatarExcelConfig;
+    AvatarFlycloakExcelConfig;
     AvatarPromoteExcelConfig;
+    AvatarSkillDepotExcelConfig;
+    AvatarSkillExcelConfig;
+    AvatarTalentExcelConfig;
+    AvatarTraceEffectExcelConfig;
     DailyDungeonConfig;
     DungeonExcelConfig;
     FetterDataConfig;
@@ -109,6 +117,7 @@ excel_loader! {
     MonsterCurveExcelConfig;
     MonsterExcelConfig;
     OpenStateConfig;
+    ProudSkillExcelConfig;
     SceneTagConfig;
     WeaponCurveExcelConfig;
     WeaponExcelConfig;

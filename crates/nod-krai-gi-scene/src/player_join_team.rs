@@ -4,7 +4,8 @@ use nod_krai_gi_entity::{
     ability::Ability,
     avatar::{
         AvatarAppearance, AvatarBundle, AvatarID, BornTime, ControlPeer, CurrentPlayerAvatarMarker,
-        Equipment, IndexInSceneTeam, InherentProudSkillList, SkillDepot, SkillLevelMap,
+        Equipment, IndexInSceneTeam, InherentProudSkillList, SkillDepot, SkillExtraChargeMap,
+        SkillLevelMap,
     },
     common::*,
     transform::Transform,
@@ -22,6 +23,7 @@ pub struct PlayerJoinTeamEvent {
     pub avatar_guid_list: Vec<u64>,
     pub appear_avatar_guid: u64,
 }
+
 
 pub fn player_join_team(
     mut events: MessageReader<PlayerJoinTeamEvent>,
@@ -85,6 +87,7 @@ pub fn player_join_team(
                 guid: Guid(to_spawn.guid),
                 control_peer: ControlPeer(peer_mgr.get_peer_id_by_uid(uid)),
                 skill_depot: SkillDepot(to_spawn.skill_depot_id),
+                core_proud_skill_level: CoreProudSkillLevel(to_spawn.core_proud_skill_level),
                 level: Level(to_spawn.level),
                 break_level: BreakLevel(to_spawn.break_level),
                 owner_player_uid: OwnerPlayerUID(player_info.uid),
@@ -111,13 +114,14 @@ pub fn player_join_team(
                     position: player_info.world_position.position.into(),
                     rotation: player_info.world_position.rotation.into(),
                 },
-                ability: Ability::new_for_avatar(to_spawn.avatar_id),
+                ability: Ability::new_for_avatar(to_spawn.avatar_id, to_spawn.open_configs.clone()),
                 born_time: BornTime(to_spawn.born_time),
                 index_in_scene_team: IndexInSceneTeam(idx as u8),
                 inherent_proud_skill_list: InherentProudSkillList(
                     to_spawn.inherent_proud_skill_list.clone(),
                 ),
                 skill_level_map: SkillLevelMap(to_spawn.skill_level_map.clone()),
+                skill_extra_charge_map: SkillExtraChargeMap(to_spawn.skill_extra_charge_map.clone()),
             });
 
             if *to_spawn_guid == event.appear_avatar_guid {

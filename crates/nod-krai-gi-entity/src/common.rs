@@ -21,6 +21,10 @@ pub struct Level(pub u32);
 pub struct BreakLevel(pub u32);
 
 #[derive(Component)]
+pub struct CoreProudSkillLevel(pub u32);
+
+
+#[derive(Component)]
 pub struct Guid(pub u64);
 
 #[derive(Component)]

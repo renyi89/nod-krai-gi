@@ -143,8 +143,15 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                             guid: a.guid,
                             equip_guid_list: vec![a.weapon_guid],
                             skill_depot_id: a.skill_depot_id,
-                            talent_id_list: skill_depot_data.talents,
-                            core_proud_skill_level: 6,
+                            talent_id_list: if a.core_proud_skill_level as usize
+                                > skill_depot_data.talents.len()
+                            {
+                                skill_depot_data.talents
+                            } else {
+                                skill_depot_data.talents[0..a.core_proud_skill_level as usize]
+                                    .to_vec()
+                            },
+                            core_proud_skill_level: a.core_proud_skill_level,
                             born_time: a.born_time,
                             life_state: (a.cur_hp > 0.0)
                                 .then_some(LifeState::Alive)
@@ -166,6 +173,20 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                                 ..Default::default()
                             }),
                             skill_level_map: a.skill_level_map.clone(),
+                            // map 转换 HashMap<u32, AvatarSkillInfo, RandomState>
+                            skill_map: a
+                                .skill_extra_charge_map
+                                .iter()
+                                .map(|(k, v)| {
+                                    (
+                                        *k,
+                                        AvatarSkillInfo {
+                                            max_charge_count: *v,
+                                            ..Default::default()
+                                        },
+                                    )
+                                })
+                                .collect(),
                             inherent_proud_skill_list: a.inherent_proud_skill_list.clone(),
                             prop_map: int_prop_map! {
                                 PROP_LEVEL: a.level;

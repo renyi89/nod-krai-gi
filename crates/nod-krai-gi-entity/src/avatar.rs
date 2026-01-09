@@ -73,6 +73,9 @@ pub struct ReplaceCurrentPlayerAvatarMarker;
 pub struct SkillLevelMap(pub HashMap<u32, u32>);
 
 #[derive(Component)]
+pub struct SkillExtraChargeMap(pub HashMap<u32, u32>);
+
+#[derive(Component)]
 pub struct InherentProudSkillList(pub Vec<u32>);
 
 #[derive(Bundle)]
@@ -82,6 +85,7 @@ pub struct AvatarBundle {
     pub guid: Guid,
     pub level: Level,
     pub break_level: BreakLevel,
+    pub core_proud_skill_level: CoreProudSkillLevel,
     pub control_peer: ControlPeer,
     pub skill_depot: SkillDepot,
     pub equipment: Equipment,
@@ -94,6 +98,7 @@ pub struct AvatarBundle {
     pub born_time: BornTime,
     pub index_in_scene_team: IndexInSceneTeam,
     pub skill_level_map: SkillLevelMap,
+    pub skill_extra_charge_map: SkillExtraChargeMap,
     pub inherent_proud_skill_list: InherentProudSkillList,
 }
 
@@ -104,6 +109,7 @@ pub struct AvatarQueryReadOnly {
     pub guid: &'static Guid,
     pub level: &'static Level,
     pub break_level: &'static BreakLevel,
+    pub core_proud_skill_level: &'static CoreProudSkillLevel,
     pub control_peer: &'static ControlPeer,
     pub skill_depot: &'static SkillDepot,
     pub equipment: &'static Equipment,
@@ -116,6 +122,7 @@ pub struct AvatarQueryReadOnly {
     pub born_time: &'static BornTime,
     pub index_in_scene_team: &'static IndexInSceneTeam,
     pub skill_level_map: &'static SkillLevelMap,
+    pub skill_extra_charge_map: &'static SkillExtraChargeMap,
     pub inherent_proud_skill_list: &'static InherentProudSkillList,
 }
 
@@ -261,7 +268,11 @@ fn build_fake_avatar_entity_info(
             guid: avatar.guid,
             equip_id_list: vec![*weapon_id],
             skill_depot_id: avatar.skill_depot_id,
-            talent_id_list: skill_depot_data.talents,
+            talent_id_list: if avatar.core_proud_skill_level as usize > skill_depot_data.talents.len() {
+                skill_depot_data.talents
+            } else {
+                skill_depot_data.talents[0..avatar.core_proud_skill_level as usize].to_vec()
+            },
             weapon: Some(SceneWeaponInfo {
                 guid: avatar.weapon_guid,
                 item_id: *weapon_id,
@@ -271,7 +282,7 @@ fn build_fake_avatar_entity_info(
                 ..Default::default()
             }),
             reliquary_list: Vec::with_capacity(0),
-            core_proud_skill_level: 6,
+            core_proud_skill_level: avatar.core_proud_skill_level,
             inherent_proud_skill_list: avatar.inherent_proud_skill_list.clone(),
             skill_level_map: avatar.skill_level_map.clone(),
             proud_skill_extra_level_map: HashMap::with_capacity(0),
@@ -353,7 +364,11 @@ pub fn build_avatar_entity_info(
             peer_id: avatar_data.control_peer.0,
             equip_id_list: vec![weapon_data.weapon_id.0],
             skill_depot_id: avatar_data.skill_depot.0,
-            talent_id_list: skill_depot_data.talents,
+            talent_id_list: if avatar_data.core_proud_skill_level.0 as usize > skill_depot_data.talents.len() {
+                skill_depot_data.talents
+            } else {
+                skill_depot_data.talents[0..avatar_data.core_proud_skill_level.0 as usize].to_vec()
+            },
             weapon: Some(SceneWeaponInfo {
                 guid: weapon_data.guid.0,
                 entity_id: weapon_data.entity_id.0,
@@ -367,7 +382,7 @@ pub fn build_avatar_entity_info(
                 ..Default::default()
             }),
             reliquary_list: Vec::with_capacity(0),
-            core_proud_skill_level: 6,
+            core_proud_skill_level: avatar_data.core_proud_skill_level.0,
             inherent_proud_skill_list: avatar_data.inherent_proud_skill_list.0.clone(),
             skill_level_map: avatar_data.skill_level_map.0.clone(),
             proud_skill_extra_level_map: HashMap::with_capacity(0),
