@@ -10,3 +10,4 @@ tokio.workspace = true
 paste.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+common.workspace = true
