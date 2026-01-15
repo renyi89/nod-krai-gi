@@ -106,6 +106,9 @@ fn init_scene(
         marker: TeamEntityMarker,
         entity_id: to_protocol_entity_id(ProtEntityType::ProtEntityTeam, entity_counter.inc()),
         ability: Ability::new_for_team(),
+        instanced_abilities: Default::default(),
+        instanced_modifiers: Default::default(),
+        global_ability_values: Default::default(),
     });
 
     commands.spawn(MpLevelBundle {

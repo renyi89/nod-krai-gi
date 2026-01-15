@@ -91,6 +91,7 @@ regex = "1.11.1"
 hex = "0.4.3"
 num_enum = "0.7.3"
 dashmap = "6.1.0"
+indexmap = { version = "2.7.1", features = ["serde"] }
 notify = "8.0.0"
 notify-debouncer-mini = "0.7.0"
 

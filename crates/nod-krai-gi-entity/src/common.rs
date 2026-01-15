@@ -1,7 +1,9 @@
+use indexmap::IndexMap;
 use std::collections::HashMap;
 
 use bevy_ecs::prelude::*;
 
+use nod_krai_gi_data::ability::{AbilityData, AbilityModifier};
 use nod_krai_gi_data::{
     excel::{
         avatar_curve_excel_config_collection, avatar_promote_excel_config_collection,
@@ -23,7 +25,6 @@ pub struct BreakLevel(pub u32);
 #[derive(Component)]
 pub struct CoreProudSkillLevel(pub u32);
 
-
 #[derive(Component)]
 pub struct Guid(pub u64);
 
@@ -34,7 +35,45 @@ pub struct OwnerPlayerUID(pub u32);
 pub struct ProtocolEntityID(pub u32);
 
 #[derive(Component)]
+pub struct OwnerProtocolEntityID(pub u32);
+
+#[derive(Component)]
 pub struct FightProperties(pub HashMap<FightPropType, f32>);
+
+#[derive(Component, Default)]
+pub struct InstancedAbilities(pub HashMap<u32, InstancedAbility>);
+
+#[derive(Component, Default)]
+pub struct InstancedModifiers(pub HashMap<u32, AbilityModifierController>);
+
+#[derive(Component, Default)]
+pub struct GlobalAbilityValues(pub HashMap<String, f32>);
+
+#[derive(Default, Clone)]
+pub struct InstancedAbility {
+    pub ability_data: Option<&'static AbilityData>,
+    pub modifiers: IndexMap<String, &'static AbilityModifier>,
+    pub ability_specials: HashMap<String, f32>,
+}
+
+impl InstancedAbility {
+    pub fn new(ability_data: Option<&'static AbilityData>) -> Self {
+        Self {
+            ability_data: ability_data,
+            modifiers: IndexMap::new(),
+            ability_specials: ability_data
+                .and_then(|ability_data| Some(ability_data.ability_specials.clone()))
+                .unwrap_or_default(),
+        }
+    }
+}
+
+pub struct AbilityModifierController {
+    pub target_entity: Option<Entity>,
+    pub ability_index: Option<u32>,
+    pub ability_data: Option<&'static AbilityData>,
+    pub modifier_data: Option<&'static AbilityModifier>,
+}
 
 #[derive(Component, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]

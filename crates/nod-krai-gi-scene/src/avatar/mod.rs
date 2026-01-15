@@ -49,12 +49,14 @@ pub fn change_avatar(
         match message.message_name() {
             "ChangeAvatarReq" => {
                 if let Some(request) = message.decode::<ChangeAvatarReq>() {
-                    let (cur_entity, _, _, cur_avatar_data, _) = avatars
-                        .iter()
-                        .find(|(_, _, _, data, is_cur)| {
+                    let Some((cur_entity, _, _, cur_avatar_data, _)) =
+                        avatars.iter().find(|(_, _, _, data, is_cur)| {
                             data.owner_player_uid.0 == message.sender_uid() && is_cur.is_some()
                         })
-                        .unwrap();
+                    else {
+                        tracing::error!("ChangeAvatarReq error");
+                        continue;
+                    };
 
                     if cur_avatar_data.guid.0 != request.guid {
                         if let Some((new_entity, _, _, new_avatar_data, _)) =
@@ -372,10 +374,9 @@ pub fn replace_avatar_team(
     for event in events.read() {
         // TODO: multiple teams - check if modified team is active
 
-        for (avatar_entity, avatar_data) in avatars
-            .iter()
-            .filter(|(_, a)| a.owner_player_uid.0 == event.uid)
-        {
+        for (avatar_entity, avatar_data) in avatars.iter().filter(|(_, a)| {
+            a.owner_player_uid.0 == event.uid && !event.avatar_team_guid_list.contains(&a.guid.0)
+        }) {
             commands.entity(avatar_entity).insert(ToBeRemovedMarker);
             commands
                 .entity(avatar_data.equipment.weapon)

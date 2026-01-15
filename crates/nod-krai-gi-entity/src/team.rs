@@ -1,6 +1,8 @@
 use bevy_ecs::prelude::*;
 
-use crate::common::ProtocolEntityID;
+use crate::common::{
+    GlobalAbilityValues, InstancedAbilities, InstancedModifiers, ProtocolEntityID,
+};
 
 use super::ability::Ability;
 
@@ -9,6 +11,9 @@ pub struct TeamEntityBundle {
     pub marker: TeamEntityMarker,
     pub entity_id: ProtocolEntityID,
     pub ability: Ability,
+    pub instanced_abilities: InstancedAbilities,
+    pub instanced_modifiers: InstancedModifiers,
+    pub global_ability_values: GlobalAbilityValues,
 }
 
 #[derive(Component)]

@@ -7,6 +7,8 @@ use dashmap::DashMap;
 use db_worker::DbWorkerHandle;
 use game_server_core::LogicSimulator;
 use net::UdpServer;
+use nod_krai_gi_data::ability::load_ability_configs_from_bin;
+use nod_krai_gi_data::config::load_avatar_talent_configs_from_bin;
 use nod_krai_gi_data::excel::scene_point_config::load_scene_point_configs_from_bin;
 use nod_krai_gi_data::{config::load_avatar_configs_from_bin, excel};
 use nod_krai_gi_encryption::{rsa::RsaKeyPair, xor::MhyXorpad};
@@ -15,7 +17,6 @@ use std::fs;
 use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, LazyLock, OnceLock};
 use tokio::net::UdpSocket;
-use nod_krai_gi_data::config::load_avatar_talent_configs_from_bin;
 
 mod config;
 mod db_worker;
@@ -52,6 +53,8 @@ async fn main() -> Result<()> {
     static CONFIG: LazyLock<GameServerConfig> =
         LazyLock::new(|| GameServerConfig::load_or_create("game-server.toml"));
 
+    excel::load_all("assets/ExcelBinOutput")?;
+
     tokio::spawn(async move {
         load_scene_point_configs_from_bin("assets/BinOutput");
         tracing::info!("load_scene_point_configs_from_bin end");
@@ -67,15 +70,10 @@ async fn main() -> Result<()> {
         tracing::info!("load_avatar_talent_configs_from_bin end");
     });
 
-    excel::load_all("assets/ExcelBinOutput")?;
-    loop {
-        tracing::info!("excel::load_all wait");
-        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
-        if excel::load_is_ok() {
-            tracing::info!("excel::load_all end");
-            break;
-        }
-    }
+    tokio::spawn(async move {
+        load_ability_configs_from_bin("assets/BinOutput").unwrap();
+        tracing::info!("load_avatar_talent_configs_from_bin end");
+    });
 
     let db_connection = nod_krai_gi_database::connect_to(&CONFIG.database).await?;
     nod_krai_gi_database::run_migrations(&db_connection).await?;

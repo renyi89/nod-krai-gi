@@ -7,10 +7,11 @@ version.workspace = true
 bevy_app.workspace = true
 bevy_ecs.workspace = true
 tracing.workspace = true
-serde.workspace = true
-serde_json.workspace = true
 
 nod-krai-gi-entity.workspace = true
 nod-krai-gi-proto.workspace = true
 nod-krai-gi-message.workspace = true
 nod-krai-gi-persistence.workspace = true
+nod-krai-gi-data.workspace = true
+
+hex.workspace = true

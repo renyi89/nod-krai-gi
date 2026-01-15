@@ -1,10 +1,16 @@
-use crate::util::create_fight_properties_by_gadget_config;
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::excel::{gadget_excel_config_collection, monster_excel_config_collection};
+use nod_krai_gi_entity::common::OwnerProtocolEntityID;
 use nod_krai_gi_entity::gadget::{GadgetBundle, GadgetID};
+use nod_krai_gi_entity::util::{
+    create_fight_properties_by_gadget_config, create_fight_properties_by_monster_config,
+};
 use nod_krai_gi_entity::{
-    common::{EntityCounter, GrowCurveConfigType, Level, LifeState, Visible},
+    common::{
+        EntityCounter, GlobalAbilityValues, GrowCurveConfigType, InstancedAbilities,
+        InstancedModifiers, Level, LifeState, Visible,
+    },
     monster::{MonsterBundle, MonsterID},
     transform::{Transform, Vector3},
     util::to_protocol_entity_id,
@@ -14,9 +20,7 @@ use nod_krai_gi_persistence::Players;
 use nod_krai_gi_scene::ScenePlayerJumpEvent;
 use rand::RngCore;
 use tracing::{debug, instrument};
-use util::create_fight_properties_by_monster_config;
 
-mod util;
 
 pub struct CommandPlugin;
 
@@ -123,6 +127,9 @@ pub fn debug_command_handler(
                             rotation: Vector3::default(),
                         },
                         fight_properties,
+                        instanced_abilities: InstancedAbilities::default(),
+                        instanced_modifiers: InstancedModifiers::default(),
+                        global_ability_values: GlobalAbilityValues::default(),
                         life_state: LifeState::Alive,
                     })
                     .insert(Visible);
@@ -157,6 +164,7 @@ pub fn debug_command_handler(
                             ProtEntityType::ProtEntityGadget,
                             entity_counter.inc(),
                         ),
+                        owner_entity_id: OwnerProtocolEntityID(0),
                         level: Level(level),
                         transform: Transform {
                             // Take Y (height) from player's pos, spawn a bit above
@@ -169,6 +177,9 @@ pub fn debug_command_handler(
                             rotation: Vector3::default(),
                         },
                         fight_properties,
+                        instanced_abilities: InstancedAbilities::default(),
+                        instanced_modifiers: InstancedModifiers::default(),
+                        global_ability_values: GlobalAbilityValues::default(),
                         life_state: LifeState::Alive,
                     })
                     .insert(Visible);

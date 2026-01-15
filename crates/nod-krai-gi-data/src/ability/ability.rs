@@ -1,25 +1,29 @@
-use crate::dynamic_float::{dynamic_float, dynamic_float_hashmap, dynamic_float_vec, skip_strings_in_vec};
-use serde::{Deserialize, Serialize};
+use crate::{
+    dynamic_float::{any_to_float, any_to_float_hashmap},
+    DynamicFloat,
+};
+use indexmap::IndexMap;
+use serde::Deserialize;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct AbilityConfigWrapper {
     #[serde(rename = "Default")]
     pub default: AbilityData,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AbilityData {
     #[serde(rename = "$type")]
     pub type_name: Option<String>,
     pub ability_name: String,
-    #[serde(default)]
-    pub modifiers: HashMap<String, AbilityModifier>,
+    #[serde(default, deserialize_with = "deserialize_modifiers")]
+    pub modifiers: IndexMap<String, AbilityModifier>,
     #[serde(default)]
     pub ability_mixins: Vec<AbilityMixinData>,
-    #[serde(default, deserialize_with = "dynamic_float_hashmap")]
-    pub ability_specials: HashMap<String, Option<f32>>,
+    #[serde(default, deserialize_with = "any_to_float_hashmap")]
+    pub ability_specials: HashMap<String, f32>,
     #[serde(default)]
     pub is_dynamic_ability: bool,
     #[serde(default, deserialize_with = "skip_strings_in_vec")]
@@ -33,7 +37,7 @@ pub struct AbilityData {
     #[serde(default, deserialize_with = "skip_strings_in_vec")]
     pub on_field_enter: Vec<AbilityModifierAction>,
     #[serde(default, deserialize_with = "skip_strings_in_vec")]
-    pub on_exit: Vec<AbilityModifierAction>,
+    pub on_field_exit: Vec<AbilityModifierAction>,
     #[serde(default, deserialize_with = "skip_strings_in_vec")]
     pub on_attach: Vec<AbilityModifierAction>,
     #[serde(default, deserialize_with = "skip_strings_in_vec")]
@@ -50,10 +54,10 @@ pub struct AbilityData {
     pub on_vehicle_out: Vec<AbilityModifierAction>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AbilityModifier {
-    #[serde(default)]
+    #[serde(skip)]
     pub modifier_name: String,
     #[serde(default)]
     pub bonus_critical: Option<f32>,
@@ -99,46 +103,44 @@ pub struct AbilityModifier {
     pub properties: Option<AbilityModifierProperty>,
     #[serde(default)]
     pub stacking: Option<String>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub duration: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub think_interval: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub element_durability: Option<f32>,
+    #[serde(default)]
+    pub duration: Option<DynamicFloat>,
+    #[serde(default)]
+    pub think_interval: Option<DynamicFloat>,
+    #[serde(default)]
+    pub element_durability: Option<DynamicFloat>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AbilityModifierAction {
     #[serde(rename = "$type")]
     pub type_name: Option<String>,
     #[serde(default)]
-    pub target: Option<String>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub amount: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub amount_by_caster_attack_ratio: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub amount_by_caster_current_hp_ratio: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub amount_by_caster_max_hp_ratio: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub amount_by_get_damage: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub amount_by_target_current_hp_ratio: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub amount_by_target_max_hp_ratio: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub limbo_by_target_max_hp_ratio: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub heal_ratio: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub speed: Option<f32>,
+    pub target: Option<AbilityTargettingEnum>,
+    pub amount: Option<DynamicFloat>,
+    #[serde(rename = "amountByCasterAttackRatio")]
+    pub amount_by_caster_attack_ratio: Option<DynamicFloat>,
+    #[serde(rename = "amountByCasterCurrentHPRatio")]
+    pub amount_by_caster_current_hp_ratio: Option<DynamicFloat>,
+    #[serde(rename = "amountByCasterMaxHPRatio")]
+    pub amount_by_caster_max_hp_ratio: Option<DynamicFloat>,
+    #[serde(rename = "amountByGetDamage")]
+    pub amount_by_get_damage: Option<DynamicFloat>,
+    #[serde(rename = "amountByTargetCurrentHPRatio")]
+    pub amount_by_target_current_hp_ratio: Option<DynamicFloat>,
+    #[serde(rename = "amountByTargetMaxHPRatio")]
+    pub amount_by_target_max_hp_ratio: Option<DynamicFloat>,
+    #[serde(rename = "limboByTargetMaxHPRatio")]
+    pub limbo_by_target_max_hp_ratio: Option<DynamicFloat>,
+    pub heal_ratio: Option<DynamicFloat>,
+    pub speed: Option<DynamicFloat>,
     #[serde(default)]
     pub ignore_ability_property: Option<bool>,
     #[serde(default)]
     pub modifier_name: Option<String>,
     #[serde(default)]
+    #[serde(rename = "enableLockHP")]
     pub enable_lock_hp: Option<bool>,
     #[serde(default)]
     pub lethal: Option<bool>,
@@ -158,36 +160,36 @@ pub struct AbilityModifierAction {
     pub monster_id: Option<u32>,
     #[serde(default)]
     pub summon_tag: Option<u32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub min_value: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub max_value: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub target_value: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub cost_stamina_ratio: Option<f32>,
+    #[serde(default)]
+    pub min_value: Option<DynamicFloat>,
+    #[serde(default)]
+    pub max_value: Option<DynamicFloat>,
+    #[serde(default)]
+    pub target_value: Option<DynamicFloat>,
+    #[serde(default)]
+    pub cost_stamina_ratio: Option<DynamicFloat>,
     #[serde(default)]
     pub use_limit_range: Option<bool>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub base_energy: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub ratio: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub value_range_min: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub value_range_max: Option<f32>,
+    #[serde(default)]
+    pub base_energy: Option<DynamicFloat>,
+    #[serde(default)]
+    pub ratio: Option<DynamicFloat>,
+    #[serde(default, deserialize_with = "any_to_float")]
+    pub value_range_min: f32,
+    #[serde(default, deserialize_with = "any_to_float")]
+    pub value_range_max: f32,
     #[serde(default)]
     pub determine_type: Option<String>,
     #[serde(default)]
     pub override_map_key: Option<String>,
     #[serde(default)]
     pub param_num: Option<u32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub param1: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub param2: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub param3: Option<f32>,
+    #[serde(default)]
+    pub param1: Option<DynamicFloat>,
+    #[serde(default)]
+    pub param2: Option<DynamicFloat>,
+    #[serde(default)]
+    pub param3: Option<DynamicFloat>,
     #[serde(default)]
     pub key: Option<String>,
     #[serde(default)]
@@ -221,18 +223,19 @@ pub struct AbilityModifierAction {
     #[serde(default)]
     pub type_field: Option<String>,
     #[serde(default)]
-    pub heal_limited_by_caster_max_hp_ratio: Option<String>,
+    #[serde(rename = "healLimitedByCasterMaxHPRatio")]
+    pub heal_limited_by_caster_max_hp_ratio: Option<DynamicFloat>,
     #[serde(default)]
     pub effect_templete_id: Option<f32>,
     #[serde(default)]
     pub born: Option<serde_json::Value>,
     #[serde(default)]
     pub predicates: Option<Vec<serde_json::Value>>,
-    #[serde(default, deserialize_with = "skip_strings_in_vec")]
+    #[serde(default)]
     pub actions: Vec<AbilityModifierAction>,
-    #[serde(default, deserialize_with = "skip_strings_in_vec")]
+    #[serde(default)]
     pub success_actions: Vec<AbilityModifierAction>,
-    #[serde(default, deserialize_with = "skip_strings_in_vec")]
+    #[serde(default)]
     pub fail_actions: Vec<AbilityModifierAction>,
     #[serde(default)]
     pub other_targets: Option<Box<AbilityModifierAction>>,
@@ -240,7 +243,7 @@ pub struct AbilityModifierAction {
     pub call_param_list: Option<Vec<u32>>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AbilityMixinData {
     #[serde(rename = "$type")]
@@ -251,37 +254,122 @@ pub struct AbilityMixinData {
     pub state_ids: Vec<String>,
     #[serde(default)]
     pub global_value_key: Option<String>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub speed: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub cost_stamina_delta: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub ratio: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub default_global_value_on_create: Option<f32>,
-    #[serde(default, deserialize_with = "dynamic_float_vec")]
-    pub ratio_steps: Vec<Option<f32>>,
+    #[serde(default)]
+    pub speed: Option<DynamicFloat>,
+    #[serde(default)]
+    pub cost_stamina_delta: Option<DynamicFloat>,
+    #[serde(default)]
+    pub ratio: Option<DynamicFloat>,
+    #[serde(default)]
+    pub default_global_value_on_create: Option<DynamicFloat>,
     #[serde(default)]
     pub modifier_name_steps: Vec<String>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AbilityModifierProperty {
     #[serde(rename = "Actor_HpThresholdRatio")]
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub actor_hp_threshold_ratio: Option<f32>,
+    #[serde(default)]
+    pub actor_hp_threshold_ratio: Option<DynamicFloat>,
     #[serde(rename = "Actor_MaxHPRatio")]
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub actor_max_hp_ratio: Option<f32>,
+    #[serde(default)]
+    pub actor_max_hp_ratio: Option<DynamicFloat>,
     #[serde(rename = "Actor_AttackSRatio")]
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub actor_attack_s_ratio: Option<f32>,
+    #[serde(default)]
+    pub actor_attack_s_ratio: Option<DynamicFloat>,
     #[serde(rename = "Actor_HealedAddDelta")]
-    #[serde(default, deserialize_with = "dynamic_float")]
-    pub actor_healed_add_delta: Option<f32>,
+    #[serde(default)]
+    pub actor_healed_add_delta: Option<DynamicFloat>,
 }
 
+#[derive(Default, Clone, serde::Deserialize, Debug)]
+pub enum AbilityTargettingEnum {
+    #[default]
+    #[serde(alias = "Self")]
+    Self_ = 0,
+    #[serde(alias = "Caster")]
+    Caster = 1,
+    #[serde(alias = "Target")]
+    Target = 2,
+    #[serde(alias = "SelfAttackTarget")]
+    SelfAttackTarget = 3,
+    #[serde(alias = "Other")]
+    Other = 4,
+    #[serde(alias = "Applier")]
+    Applier = 5,
+    #[serde(alias = "Owner")]
+    Owner = 6,
+    #[serde(alias = "CurTeamAvatars")]
+    CurTeamAvatars = 7,
+    #[serde(alias = "CurLocalAvatar")]
+    CurLocalAvatar = 8,
+    #[serde(alias = "OriginOwner")]
+    OriginOwner = 9,
+    #[serde(alias = "Team")]
+    Team = 10,
+    #[serde(alias = "TargetOwner")]
+    TargetOwner = 11,
+    #[serde(alias = "TargetOriginOwner")]
+    TargetOriginOwner = 12,
+    #[serde(alias = "AllPlayerAvatars")]
+    AllPlayerAvatars = 13,
+    #[serde(alias = "AllTeams")]
+    AllTeams = 14,
+    #[serde(alias = "RemoteTeams")]
+    RemoteTeams = 15,
+    #[serde(alias = "TargetTeam")]
+    TargetTeam = 16,
+    #[serde(alias = "CasterOwner")]
+    CasterOwner = 17,
+    #[serde(alias = "CasterOriginOwner")]
+    CasterOriginOwner = 18,
+    #[serde(alias = "MPLevel")]
+    MPLevel = 19,
+}
+
+use serde::Deserializer;
+use serde_json::Value;
+
+fn deserialize_modifiers<'de, D>(
+    deserializer: D,
+) -> Result<IndexMap<String, AbilityModifier>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let mut map = IndexMap::<String, AbilityModifier>::deserialize(deserializer)?;
+
+    for (k, v) in map.iter_mut() {
+        v.modifier_name = k.clone();
+    }
+
+    Ok(map)
+}
+
+pub fn skip_strings_in_vec<'de, T, D>(deserializer: D) -> Result<Vec<T>, D::Error>
+where
+    T: Deserialize<'de>,
+    D: Deserializer<'de>,
+{
+    let value = Value::deserialize(deserializer)?;
+    match value {
+        Value::Array(arr) => {
+            let mut result = vec![];
+            for item in arr {
+                if !item.is_string() {
+                    if let Ok(t) = T::deserialize(item) {
+                        result.push(t);
+                    }
+                } else {
+                    println!("skip string: {:?}", item);
+                }
+            }
+            Ok(result)
+        }
+        Value::Null => Ok(vec![]),
+        _ => Ok(vec![]),
+    }
+}
 static ABILITY_DATA_MAP: std::sync::OnceLock<HashMap<String, AbilityData>> =
     std::sync::OnceLock::new();
 
@@ -343,8 +431,14 @@ pub fn load_ability_configs_from_bin(bin_output_path: &str) -> std::io::Result<(
     Ok(())
 }
 
-pub fn get_ability_data(name: &str) -> Option<&AbilityData> {
+pub fn get_ability_data(name: &str) -> Option<&'static AbilityData> {
     ABILITY_DATA_MAP.get().and_then(|map| map.get(name))
+}
+
+pub fn get_ability_name_by_hash(hash: u32) -> Option<String> {
+    ABILITY_HASH_MAP
+        .get()
+        .and_then(|map| map.get(&hash).cloned())
 }
 
 pub fn iter_ability_data_map() -> std::collections::hash_map::Iter<'static, String, AbilityData> {

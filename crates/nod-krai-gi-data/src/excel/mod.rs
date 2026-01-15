@@ -71,9 +71,6 @@ macro_rules! excel_loader {
                     DATA.get().unwrap()
                 }
 
-                pub fn load_is_ok() -> bool {
-                    DATA.get().is_some()
-                }
             }
         })*
 
@@ -85,15 +82,6 @@ macro_rules! excel_loader {
             Ok(())
         }
 
-        pub fn load_is_ok() -> bool {
-            paste!{
-                $(
-                let [<$name:snake _ok>] = [<$name:snake _collection>]::load_is_ok();
-                )*
-                let all_ok = true $(&& [<$name:snake _ok>])*;
-            }
-            all_ok
-        }
     };
 }
 

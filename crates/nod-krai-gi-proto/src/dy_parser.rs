@@ -382,7 +382,18 @@ where
         Some(message) => {
             let mut data = message.new_instance();
 
-            data.merge_from_bytes_dyn(body).unwrap();
+            match data.merge_from_bytes_dyn(body) {
+                Ok(_) => {}
+                Err(error) => {
+                    tracing::error!(
+                        "failed to merge_from_bytes_dyn version:{} message_name:{} error:{}",
+                        version,
+                        message_name,
+                        error,
+                    );
+                    return None;
+                }
+            }
 
             match serde_json::from_str(
                 &*protobuf_json_mapping::print_to_string_with_options(

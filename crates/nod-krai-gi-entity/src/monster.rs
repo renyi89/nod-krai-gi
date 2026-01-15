@@ -12,6 +12,9 @@ pub struct MonsterBundle {
     pub level: Level,
     pub transform: Transform,
     pub fight_properties: FightProperties,
+    pub instanced_abilities: InstancedAbilities,
+    pub instanced_modifiers: InstancedModifiers,
+    pub global_ability_values: GlobalAbilityValues,
     pub life_state: LifeState,
 }
 
@@ -22,6 +25,9 @@ pub struct MonsterQueryReadOnly {
     pub level: &'static Level,
     pub transform: &'static Transform,
     pub fight_properties: &'static FightProperties,
+    pub instanced_abilities: &'static InstancedAbilities,
+    pub instanced_modifiers: &'static InstancedModifiers,
+    pub global_ability_values: &'static GlobalAbilityValues,
     pub life_state: &'static LifeState,
 }
 

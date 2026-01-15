@@ -4,7 +4,7 @@ pub mod dynamic_float;
 pub mod excel;
 pub mod prop_type;
 
-pub use dynamic_float::{DynamicFloat, StackOp};
+pub use dynamic_float::DynamicFloat;
 
 #[cfg(test)]
 mod tests {

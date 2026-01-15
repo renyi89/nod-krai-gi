@@ -1,4 +1,4 @@
-use crate::dynamic_float::dynamic_float;
+use crate::dynamic_float::any_to_float;
 use std::collections::HashMap;
 
 #[derive(Debug, serde::Deserialize)]
@@ -26,9 +26,9 @@ pub enum TalentAction {
     ModifyAbility {
         #[serde(rename = "abilityName")]
         ability_name: String,
-        #[serde(deserialize_with = "dynamic_float")]
+        #[serde(deserialize_with = "any_to_float")]
         #[serde(default, rename = "paramDelta")]
-        param_delta: Option<f32>,
+        param_delta: f32,
         #[serde(default, rename = "paramSpecial")]
         param_special: String,
     },
