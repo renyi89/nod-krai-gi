@@ -70,7 +70,7 @@ pub fn server_invoke(
         let mut ability = None;
 
         if ability.is_none() && head.instanced_modifier_id != 0 {
-            if let Ok((_instanced_abilities, instanced_modifiers, _)) = entities.get(entity) {
+            if let Ok((_, instanced_modifiers, _)) = entities.get(entity) {
                 if let Some(modifier) = instanced_modifiers.0.get(&head.instanced_modifier_id) {
                     if let Some(idx) = modifier.ability_index {
                         let entity_to_get = modifier.target_entity.unwrap_or(entity);
@@ -96,7 +96,7 @@ pub fn server_invoke(
             Some(data) => data,
             None => {
                 tracing::debug!(
-                                "[server_invoke] Ability not found: instanced_ability_id : {} instanced_modifier_id : {} invoke.entity_id : {}",
+                                "[server_invoke] Ability not found: instanced_ability_id: {} instanced_modifier_id: {} invoke.entity_id: {}",
                                 head.instanced_ability_id,
                                 head.instanced_modifier_id,
                                 invoke.entity_id

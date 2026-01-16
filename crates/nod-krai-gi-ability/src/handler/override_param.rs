@@ -36,7 +36,7 @@ pub fn handle_override_param(
 
         if !instanced_abilities.0.contains_key(&instanced_ability_id) {
             tracing::debug!(
-                "[OverrideParam] Invalid instanced_ability_id : {} for entity {}",
+                "[OverrideParam] Invalid instanced_ability_id: {} for entity {}",
                 instanced_ability_id,
                 invoke.entity_id
             );
@@ -52,7 +52,7 @@ pub fn handle_override_param(
             Some(data) => data,
             None => {
                 tracing::debug!(
-                    "[OverrideParam] No ability data for instanced_ability_id : {}",
+                    "[OverrideParam] No ability data for instanced_ability_id: {}",
                     instanced_ability_id
                 );
                 continue;

@@ -1,6 +1,6 @@
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::excel::{avatar_excel_config_collection, weapon_excel_config_collection};
-use nod_krai_gi_entity::avatar::AvatarQueryReadOnly;
+use nod_krai_gi_entity::avatar::{AvatarQueryReadOnly, CurrentTeam};
 use nod_krai_gi_entity::{
     ability::Ability,
     avatar::{
@@ -49,12 +49,14 @@ pub fn player_join_team(
         for (idx, to_spawn_guid) in event.avatar_guid_list.iter().enumerate() {
             match avatars
                 .iter()
-                .find(|(_, data)| data.guid.0 == *to_spawn_guid)
+                .find(|(_, data)| data.guid.0 == *to_spawn_guid && data.owner_player_uid.0 == uid)
             {
                 Some((avatar_entity, _)) => {
                     commands
                         .entity(avatar_entity)
-                        .insert(IndexInSceneTeam(idx as u8));
+                        .insert(IndexInSceneTeam(idx as u8))
+                        .insert(CurrentTeam);
+
                     if *to_spawn_guid == event.appear_avatar_guid {
                         commands
                             .entity(avatar_entity)
@@ -150,6 +152,8 @@ pub fn player_join_team(
                             to_spawn.skill_extra_charge_map.clone(),
                         ),
                     });
+
+                    avatar_entity.insert(CurrentTeam);
 
                     if *to_spawn_guid == event.appear_avatar_guid {
                         avatar_entity.insert(CurrentPlayerAvatarMarker);

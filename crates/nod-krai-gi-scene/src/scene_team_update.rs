@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::excel;
+use nod_krai_gi_entity::avatar::CurrentTeam;
 use nod_krai_gi_entity::{
     avatar::{AvatarQueryReadOnly, CurrentPlayerAvatarMarker, IndexInSceneTeam},
     common::ToBeRemovedMarker,
@@ -29,7 +30,7 @@ pub fn notify_scene_team_update(
             &IndexInSceneTeam,
             Option<&CurrentPlayerAvatarMarker>,
         ),
-        Without<ToBeRemovedMarker>,
+        (With<CurrentTeam>, Without<ToBeRemovedMarker>),
     >,
     weapon_query: Query<WeaponQueryReadOnly>,
     players: Res<Players>,

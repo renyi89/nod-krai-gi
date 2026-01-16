@@ -85,7 +85,7 @@ pub fn ability_action_lose_hp_event(
                 };
 
                 tracing::debug!(
-                    "[AbilityActionLoseHPEvent] change_cur_hp_value : {}",
+                    "[AbilityActionLoseHPEvent] change_cur_hp_value: {}",
                     -amount
                 );
 

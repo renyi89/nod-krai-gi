@@ -6,6 +6,7 @@ use common::{
 };
 use nod_krai_gi_data::prop_type::FightPropType;
 use nod_krai_gi_message::output::MessageOutput;
+use std::collections::HashMap;
 
 pub mod ability;
 pub mod avatar;
@@ -22,7 +23,7 @@ pub mod weapon;
 use crate::avatar::CurrentPlayerAvatarMarker;
 use crate::common::Visible;
 pub use nod_krai_gi_proto::ProtEntityType;
-use nod_krai_gi_proto::{LifeStateChangeNotify, VisionType};
+use nod_krai_gi_proto::{LifeStateChangeNotify, SceneEntityDisappearNotify, VisionType};
 
 pub struct EntityPlugin;
 
@@ -46,6 +47,8 @@ impl Plugin for EntityPlugin {
                     remove_marked_entities,
                     avatar::notify_avatar_appearance_change,
                     avatar::notify_appear_avatar_entities
+                        .run_if(avatar::run_if_avatar_entities_appeared),
+                    avatar::notify_appear_replace_avatar_entities
                         .run_if(avatar::run_if_avatar_entities_appeared),
                     monster::notify_appear_monster_entities
                         .run_if(monster::run_if_monster_entities_appeared),
@@ -123,20 +126,22 @@ fn notify_disappear_entities(
     mut events: MessageReader<EntityDisappearEvent>,
     message_output: Res<MessageOutput>,
 ) {
-    use nod_krai_gi_proto::*;
+    let mut grouped: HashMap<VisionType, Vec<u32>> = HashMap::new();
 
-    events
-        .read()
-        .for_each(|EntityDisappearEvent(id, disappear_type)| {
-            message_output.send_to_all(
-                "SceneEntityDisappearNotify",
-                Some(SceneEntityDisappearNotify {
-                    disappear_type: (*disappear_type).into(),
-                    param: 0,
-                    entity_list: vec![*id],
-                }),
-            )
-        });
+    for EntityDisappearEvent(id, disappear_type) in events.read() {
+        grouped.entry(*disappear_type).or_default().push(*id);
+    }
+
+    for (disappear_type, ids) in grouped {
+        message_output.send_to_all(
+            "SceneEntityDisappearNotify",
+            Some(SceneEntityDisappearNotify {
+                disappear_type: disappear_type.into(),
+                param: 0,
+                entity_list: ids,
+            }),
+        );
+    }
 }
 
 fn remove_marked_entities(
@@ -144,12 +149,10 @@ fn remove_marked_entities(
     mut commands: Commands,
     entities: Query<Entity, With<ToBeRemovedMarker>>,
 ) {
-    entities
-        .iter()
-        .for_each(|entity| {
-            index.0.retain(|_, e| *e != entity);
-            commands.entity(entity).despawn()
-        });
+    entities.iter().for_each(|entity| {
+        index.0.retain(|_, e| *e != entity);
+        commands.entity(entity).despawn()
+    });
 }
 
 fn update_entity_index(

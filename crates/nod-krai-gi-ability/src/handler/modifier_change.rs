@@ -49,10 +49,10 @@ pub fn handle_modifier_change(
                         match mod_change.action() {
                             ModifierAction::Added => {
                                 tracing::debug!(
-                                    "[ModifierChange] invoke.entity_id : {}",
+                                    "[ModifierChange] invoke.entity_id: {}",
                                     invoke.entity_id
                                 );
-                                tracing::debug!("[ModifierChange] instanced_ability_id : {} instanced_modifier_id : {} modifier_local_id : {} target_id : {}", instanced_ability_id,instanced_modifier_id,modifier_local_id,target_id);
+                                tracing::debug!("[ModifierChange] instanced_ability_id: {} instanced_modifier_id: {} modifier_local_id: {} target_id: {}", instanced_ability_id,instanced_modifier_id,modifier_local_id,target_id);
 
                                 let mut instanced_ability_data = None;
 
@@ -144,14 +144,14 @@ pub fn handle_modifier_change(
                                     .contains_key(&instanced_modifier_id);
 
                                 if is_replacing {
-                                    tracing::debug!("[ModifierChange] Replacing entity {} instanced_modifier_id : {} with ability {} modifier {}",
+                                    tracing::debug!("[ModifierChange] Replacing entity {} instanced_modifier_id: {} with ability {} modifier {}",
                                         invoke.entity_id,
                                         instanced_modifier_id,
                                         ability_data.ability_name,
                                         modifier_data.modifier_name
                                     );
                                 } else {
-                                    tracing::debug!("[ModifierChange] Adding entity {} instanced_modifier_id : {} with ability {} modifier {}",
+                                    tracing::debug!("[ModifierChange] Adding entity {} instanced_modifier_id: {} with ability {} modifier {}",
                                         invoke.entity_id,
                                         instanced_modifier_id,
                                         ability_data.ability_name,
@@ -182,7 +182,7 @@ pub fn handle_modifier_change(
                                 };
 
                                 tracing::debug!(
-                                    "[ModifierChange] Removed on entity {} instanced_modifier_id : {}",
+                                    "[ModifierChange] Removed on entity {} instanced_modifier_id: {}",
                                     invoke.entity_id,
                                     instanced_modifier_id,
                                 );

@@ -1,14 +1,12 @@
 use crate::player_join_team::PlayerJoinTeamEvent;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::prop_type::FightPropType;
-use nod_krai_gi_entity::avatar::{build_avatar_entity_info, ReplaceCurrentPlayerAvatarMarker};
+use nod_krai_gi_entity::avatar::{CurrentTeam, ReplaceCurrentPlayerAvatarMarker};
 use nod_krai_gi_entity::common::{FightProperties, LifeState, Visible};
 use nod_krai_gi_entity::transform::Transform;
-use nod_krai_gi_entity::weapon::WeaponQueryReadOnly;
 use nod_krai_gi_entity::{
     avatar::{AvatarQueryReadOnly, CurrentPlayerAvatarMarker},
-    common::ToBeRemovedMarker,
-    EntityPropertySeparateUpdateEvent,
+    EntityDisappearEvent, EntityPropertySeparateUpdateEvent,
 };
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput, USER_VERSION};
 use nod_krai_gi_persistence::Players;
@@ -17,8 +15,8 @@ use nod_krai_gi_proto::dy_parser::{
 };
 use nod_krai_gi_proto::{
     retcode::Retcode, AvatarDieAnimationEndReq, AvatarDieAnimationEndRsp, AvatarTeam,
-    AvatarTeamUpdateNotify, ChangeAvatarReq, ChangeAvatarRsp, MotionInfo, SceneEntityInfo,
-    SetUpAvatarTeamReq, SetUpAvatarTeamRsp, Vector, VisionType,
+    AvatarTeamUpdateNotify, ChangeAvatarReq, ChangeAvatarRsp, SetUpAvatarTeamReq,
+    SetUpAvatarTeamRsp, VisionType,
 };
 use std::collections::HashSet;
 use tracing::{debug, instrument};
@@ -41,9 +39,9 @@ pub fn change_avatar(
         AvatarQueryReadOnly,
         Option<&CurrentPlayerAvatarMarker>,
     )>,
-    weapons: Query<WeaponQueryReadOnly>,
     message_output: Res<MessageOutput>,
     mut update_separate_property_entity_events: MessageWriter<EntityPropertySeparateUpdateEvent>,
+    mut disappear_events: MessageWriter<EntityDisappearEvent>,
 ) {
     for message in client_messages.read() {
         match message.message_name() {
@@ -59,7 +57,7 @@ pub fn change_avatar(
                     };
 
                     if cur_avatar_data.guid.0 != request.guid {
-                        if let Some((new_entity, _, _, new_avatar_data, _)) =
+                        if let Some((new_entity, _, _, _, _)) =
                             avatars.iter().find(|(_, _, _, data, _)| {
                                 data.owner_player_uid.0 == message.sender_uid()
                                     && data.guid.0 == request.guid
@@ -70,37 +68,18 @@ pub fn change_avatar(
                                 .remove::<CurrentPlayerAvatarMarker>()
                                 .remove::<Visible>();
 
+                            disappear_events.write(EntityDisappearEvent(
+                                cur_avatar_data.entity_id.0,
+                                VisionType::VisionReplace.into(),
+                            ));
+
                             commands
                                 .entity(new_entity)
                                 .insert(CurrentPlayerAvatarMarker)
                                 .insert(Visible)
-                                .insert(ReplaceCurrentPlayerAvatarMarker);
-
-                            match weapons.get(new_avatar_data.equipment.weapon) {
-                                Ok(new_weapon) => {
-                                    message_output.send_to_all(
-                                        "SceneEntityDisappearNotify",
-                                        Some(nod_krai_gi_proto::SceneEntityDisappearNotify {
-                                            disappear_type: VisionType::VisionReplace.into(),
-                                            param: 0,
-                                            entity_list: vec![cur_avatar_data.entity_id.0],
-                                        }),
-                                    );
-
-                                    message_output.send_to_all(
-                                        "SceneEntityAppearNotify",
-                                        nod_krai_gi_proto::SceneEntityAppearNotify {
-                                            appear_type: VisionType::VisionReplace.into(),
-                                            param: cur_avatar_data.entity_id.0,
-                                            entity_list: vec![build_avatar_entity_info(
-                                                &new_avatar_data,
-                                                &new_weapon,
-                                            )],
-                                        },
-                                    );
-                                }
-                                Err(_) => {}
-                            }
+                                .insert(ReplaceCurrentPlayerAvatarMarker(
+                                    cur_avatar_data.entity_id.0,
+                                ));
 
                             message_output.send(
                                 message.sender_uid(),
@@ -152,30 +131,8 @@ pub fn change_avatar(
                                 .entity(avatar_entity)
                                 .insert(CurrentPlayerAvatarMarker)
                                 .insert(Visible)
-                                .insert(ReplaceCurrentPlayerAvatarMarker);
-
-                            match weapons.get(avatar_data.equipment.weapon) {
-                                Ok(new_weapon) => {
-                                    let temp = build_avatar_entity_info(&avatar_data, &new_weapon);
-                                    message_output.send_to_all(
-                                        "SceneEntityAppearNotify",
-                                        nod_krai_gi_proto::SceneEntityAppearNotify {
-                                            appear_type: VisionType::VisionReplace.into(),
-                                            param: 0,
-                                            entity_list: vec![SceneEntityInfo {
-                                                motion_info: Some(MotionInfo {
-                                                    pos: Some(transform.position.into()),
-                                                    rot: Some(transform.rotation.into()),
-                                                    speed: Some(Vector::default()),
-                                                    ..Default::default()
-                                                }),
-                                                ..temp
-                                            }],
-                                        },
-                                    );
-                                }
-                                Err(_) => {}
-                            }
+                                .insert(ReplaceCurrentPlayerAvatarMarker(0))
+                                .insert(transform.clone());
                         }
                     }
 
@@ -213,31 +170,8 @@ pub fn change_avatar(
                                     .entity(avatar_entity)
                                     .insert(CurrentPlayerAvatarMarker)
                                     .insert(Visible)
-                                    .insert(ReplaceCurrentPlayerAvatarMarker);
-
-                                match weapons.get(avatar_data.equipment.weapon) {
-                                    Ok(new_weapon) => {
-                                        let temp =
-                                            build_avatar_entity_info(&avatar_data, &new_weapon);
-                                        message_output.send_to_all(
-                                            "SceneEntityAppearNotify",
-                                            nod_krai_gi_proto::SceneEntityAppearNotify {
-                                                appear_type: VisionType::VisionReplace.into(),
-                                                param: 0,
-                                                entity_list: vec![SceneEntityInfo {
-                                                    motion_info: Some(MotionInfo {
-                                                        pos: Some(transform.position.into()),
-                                                        rot: Some(transform.rotation.into()),
-                                                        speed: Some(Vector::default()),
-                                                        ..Default::default()
-                                                    }),
-                                                    ..temp
-                                                }],
-                                            },
-                                        );
-                                    }
-                                    Err(_) => {}
-                                }
+                                    .insert(ReplaceCurrentPlayerAvatarMarker(0))
+                                    .insert(transform.clone());
                             }
                         }
                     };
@@ -310,8 +244,12 @@ pub fn set_up_avatar_team(
 
                         if !request
                             .avatar_team_guid_list
-                            .contains(&request.cur_avatar_guid)
+                            .contains(&cur_avatar_guid)
                         {
+                            tracing::warn!(
+                                "SetUpAvatarTeamReq cur_avatar_guid:{}",
+                                cur_avatar_guid
+                            );
                             cur_avatar_guid =
                                 request.avatar_team_guid_list.first().unwrap().clone();
                         }
@@ -370,17 +308,30 @@ pub fn replace_avatar_team(
     mut commands: Commands,
     avatars: Query<(Entity, AvatarQueryReadOnly)>,
     mut join_team_events: MessageWriter<PlayerJoinTeamEvent>,
+    mut disappear_events: MessageWriter<EntityDisappearEvent>,
 ) {
     for event in events.read() {
         // TODO: multiple teams - check if modified team is active
 
-        for (avatar_entity, avatar_data) in avatars.iter().filter(|(_, a)| {
-            a.owner_player_uid.0 == event.uid && !event.avatar_team_guid_list.contains(&a.guid.0)
-        }) {
-            commands.entity(avatar_entity).insert(ToBeRemovedMarker);
+        for (avatar_entity, avatar_data) in avatars
+            .iter()
+            .filter(|(_, a)| a.owner_player_uid.0 == event.uid)
+        {
             commands
-                .entity(avatar_data.equipment.weapon)
-                .insert(ToBeRemovedMarker);
+                .entity(avatar_entity)
+                .remove::<CurrentTeam>()
+                .remove::<CurrentPlayerAvatarMarker>()
+                .remove::<Visible>();
+
+            disappear_events.write(EntityDisappearEvent(
+                avatar_data.entity_id.0,
+                VisionType::VisionRemove.into(),
+            ));
+
+            // commands.entity(avatar_entity).insert(ToBeRemovedMarker);
+            // commands
+            //     .entity(avatar_data.equipment.weapon)
+            //     .insert(ToBeRemovedMarker);
         }
 
         join_team_events.write(PlayerJoinTeamEvent {

@@ -40,7 +40,7 @@ pub fn handle_add_new_ability(
                                     .contains_key(&ability.instanced_ability_id)
                                 {
                                     tracing::debug!(
-                                        "[AddNewAbility] change ability.instanced_ability_id : {} ability_override",
+                                        "[AddNewAbility] change ability.instanced_ability_id: {} ability_override",
                                         ability.instanced_ability_id
                                     );
                                 }
@@ -49,7 +49,7 @@ pub fn handle_add_new_ability(
                         };
 
                         tracing::debug!(
-                            "[AddNewAbility] instanced_ability_id : {} ability_name : {} invoke.entity_id : {}",
+                            "[AddNewAbility] instanced_ability_id: {} ability_name: {} invoke.entity_id: {}",
                             ability.instanced_ability_id,
                             ability_name,
                             invoke.entity_id

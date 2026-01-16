@@ -38,7 +38,7 @@ pub fn handle_reinit_override_map(
 
         if !instanced_abilities.0.contains_key(&instanced_ability_id) {
             tracing::debug!(
-                "[ReinitOverrideMap] Invalid instanced_ability_id : {} for entity {}",
+                "[ReinitOverrideMap] Invalid instanced_ability_id: {} for entity {}",
                 instanced_ability_id,
                 invoke.entity_id
             );
@@ -54,7 +54,7 @@ pub fn handle_reinit_override_map(
             Some(data) => data,
             None => {
                 tracing::debug!(
-                    "[ReinitOverrideMap] No ability data for instanced_ability_id : {}",
+                    "[ReinitOverrideMap] No ability data for instanced_ability_id: {}",
                     instanced_ability_id
                 );
                 continue;

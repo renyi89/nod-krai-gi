@@ -89,7 +89,7 @@ pub fn ability_action_heal_hp_event(
                     amount * ability_ratio * eval_option(ability, &action.heal_ratio, 1.0);
 
                 tracing::debug!(
-                    "[AbilityActionHealHPEvent] change_cur_hp_value : {}",
+                    "[AbilityActionHealHPEvent] change_cur_hp_value: {}",
                     change_cur_hp_value
                 );
 

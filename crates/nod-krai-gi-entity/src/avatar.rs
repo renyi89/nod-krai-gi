@@ -7,7 +7,9 @@ use nod_krai_gi_persistence::{
     player_information::{AvatarInformation, ItemInformation},
     Players,
 };
-use nod_krai_gi_proto::{AvatarChangeCostumeNotify, AvatarChangeTraceEffectNotify, SceneEntityInfo};
+use nod_krai_gi_proto::{
+    AvatarChangeCostumeNotify, AvatarChangeTraceEffectNotify, SceneEntityInfo,
+};
 
 use crate::{
     int_prop_pair,
@@ -64,10 +66,13 @@ pub struct BornTime(pub u32);
 pub struct IndexInSceneTeam(pub u8);
 
 #[derive(Component)]
+pub struct CurrentTeam;
+
+#[derive(Component)]
 pub struct CurrentPlayerAvatarMarker;
 
 #[derive(Component)]
-pub struct ReplaceCurrentPlayerAvatarMarker;
+pub struct ReplaceCurrentPlayerAvatarMarker(pub u32);
 
 #[derive(Component)]
 pub struct SkillLevelMap(pub HashMap<u32, u32>);
@@ -230,11 +235,54 @@ pub fn notify_appear_avatar_entities(
                 .iter()
                 .map(|avatar_data| {
                     let weapon_data = weapons.get(avatar_data.equipment.weapon).unwrap();
-                    build_avatar_entity_info(&avatar_data, &weapon_data)
+                    SceneEntityInfo {
+                        motion_info: Some(MotionInfo {
+                            pos: Some(avatar_data.transform.position.into()),
+                            rot: Some(avatar_data.transform.rotation.into()),
+                            speed: Some(Vector::default()),
+                            ..Default::default()
+                        }),
+                        ..build_avatar_entity_info(&avatar_data, &weapon_data)
+                    }
                 })
                 .collect(),
         },
     );
+}
+
+pub fn notify_appear_replace_avatar_entities(
+    appear_avatars: Query<
+        (AvatarQueryReadOnly, &ReplaceCurrentPlayerAvatarMarker),
+        (
+            Added<Visible>,
+            Without<ToBeRemovedMarker>,
+            With<ReplaceCurrentPlayerAvatarMarker>,
+        ),
+    >,
+    weapons: Query<WeaponQueryReadOnly>,
+    message_output: Res<MessageOutput>,
+) {
+    use nod_krai_gi_proto::*;
+
+    appear_avatars.iter().for_each(|(avatar_data, param)| {
+        let weapon_data = weapons.get(avatar_data.equipment.weapon).unwrap();
+        message_output.send_to_all(
+            "SceneEntityAppearNotify",
+            SceneEntityAppearNotify {
+                appear_type: VisionType::VisionReplace.into(),
+                param: param.0,
+                entity_list: vec![SceneEntityInfo {
+                    motion_info: Some(MotionInfo {
+                        pos: Some(avatar_data.transform.position.into()),
+                        rot: Some(avatar_data.transform.rotation.into()),
+                        speed: Some(Vector::default()),
+                        ..Default::default()
+                    }),
+                    ..build_avatar_entity_info(&avatar_data, &weapon_data)
+                }],
+            },
+        );
+    });
 }
 
 pub fn run_if_avatar_entities_appeared(
@@ -274,7 +322,9 @@ fn build_fake_avatar_entity_info(
             guid: avatar.guid,
             equip_id_list: vec![*weapon_id],
             skill_depot_id: avatar.skill_depot_id,
-            talent_id_list: if avatar.core_proud_skill_level as usize > skill_depot_data.talents.len() {
+            talent_id_list: if avatar.core_proud_skill_level as usize
+                > skill_depot_data.talents.len()
+            {
                 skill_depot_data.talents
             } else {
                 skill_depot_data.talents[0..avatar.core_proud_skill_level as usize].to_vec()
@@ -370,7 +420,9 @@ pub fn build_avatar_entity_info(
             peer_id: avatar_data.control_peer.0,
             equip_id_list: vec![weapon_data.weapon_id.0],
             skill_depot_id: avatar_data.skill_depot.0,
-            talent_id_list: if avatar_data.core_proud_skill_level.0 as usize > skill_depot_data.talents.len() {
+            talent_id_list: if avatar_data.core_proud_skill_level.0 as usize
+                > skill_depot_data.talents.len()
+            {
                 skill_depot_data.talents
             } else {
                 skill_depot_data.talents[0..avatar_data.core_proud_skill_level.0 as usize].to_vec()
