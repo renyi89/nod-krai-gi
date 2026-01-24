@@ -172,7 +172,6 @@ fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelCon
     let avatar = avatar_excel_config_collection_clone
         .get(&avatar.id)
         .unwrap();
-    let avatar_name = avatar.icon_name.replace("UI_AvatarIcon_", "");
 
     let skill_depot = avatar_skill_depot_excel_config_collection_clone
         .get(&avatar.skill_depot_id)
@@ -197,24 +196,22 @@ fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelCon
 
     let mut skill_extra_charge_map: HashMap<u32, u32> = HashMap::new();
 
-    if let Some(talent_config) = nod_krai_gi_data::config::get_avatar_talent_config(&avatar_name) {
-        for open_config in &open_configs {
-            match talent_config.talents.get(open_config) {
-                None => continue,
-                Some(talent_action) => {
-                    for action in talent_action {
-                        if let nod_krai_gi_data::config::TalentAction::ModifySkillPoint {
-                            skill_id,
-                            point_delta,
-                        } = action
+    for open_config in &open_configs {
+        match nod_krai_gi_data::config::get_avatar_talent_config(open_config) {
+            None => continue,
+            Some(talent_action) => {
+                for action in talent_action {
+                    if let nod_krai_gi_data::config::TalentAction::ModifySkillPoint {
+                        skill_id,
+                        point_delta,
+                    } = action
+                    {
+                        if let Some(skill_config) =
+                            avatar_skill_excel_config_collection_clone.get(&skill_id)
                         {
-                            if let Some(skill_config) =
-                                avatar_skill_excel_config_collection_clone.get(&skill_id)
-                            {
-                                let max_charge_num = skill_config.max_charge_num;
-                                let extra_charge = max_charge_num + point_delta;
-                                skill_extra_charge_map.insert(*skill_id, extra_charge);
-                            }
+                            let max_charge_num = skill_config.max_charge_num;
+                            let extra_charge = max_charge_num + point_delta;
+                            skill_extra_charge_map.insert(*skill_id, extra_charge);
                         }
                     }
                 }

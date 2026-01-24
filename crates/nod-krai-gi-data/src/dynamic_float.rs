@@ -1,8 +1,7 @@
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 
-#[derive(Debug, Clone, Deserialize)]
-#[serde(untagged)]
+#[derive(Debug, Clone)]
 pub enum DynamicFloat {
     Number(f64),
     String(String),
@@ -15,6 +14,51 @@ pub enum NumberOrString {
     Number(f64),
     String(String),
 }
+
+impl<'de> Deserialize<'de> for DynamicFloat {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        // 只消费一次
+        let v = Value::deserialize(deserializer)?;
+
+        // number
+        if let Some(n) = v.as_f64() {
+            return Ok(DynamicFloat::Number(n));
+        }
+
+        // string
+        if let Some(s) = v.as_str() {
+            return Ok(DynamicFloat::String(s.to_string()));
+        }
+
+        // array
+        if let Some(arr) = v.as_array() {
+            let parsed: Result<Vec<NumberOrString>, _> =
+                arr.iter().map(|x| serde_json::from_value(x.clone())).collect();
+
+            if let Ok(a) = parsed {
+                return Ok(DynamicFloat::Array(a));
+            }
+        }
+
+        // 特殊结构：__exp_DynamicFloat
+        if let Some(obj) = v.as_object() {
+            if let Some(inner) = obj.get("__exp_DynamicFloat") {
+                if let Some(fixed) = inner.get("__exp_FixedValue").and_then(|x| x.as_f64()) {
+                    return Ok(DynamicFloat::Number(fixed));
+                }
+            }else {
+                return Ok(DynamicFloat::Number(0.0));
+            }
+        }
+
+        Err(serde::de::Error::custom("invalid DynamicFloat"))
+    }
+}
+
+
 
 fn parse_any_to_float(value: &Value) -> f32 {
     match value {

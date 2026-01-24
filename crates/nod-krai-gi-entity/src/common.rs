@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use bevy_ecs::prelude::*;
 
-use nod_krai_gi_data::ability::{AbilityData, AbilityModifier};
+use nod_krai_gi_data::ability::{get_ability_data, AbilityData, AbilityModifier};
 use nod_krai_gi_data::{
     excel::{
         avatar_curve_excel_config_collection, avatar_promote_excel_config_collection,
@@ -41,7 +41,7 @@ pub struct OwnerProtocolEntityID(pub u32);
 pub struct FightProperties(pub HashMap<FightPropType, f32>);
 
 #[derive(Component, Default)]
-pub struct InstancedAbilities(pub HashMap<u32, InstancedAbility>);
+pub struct InstancedAbilities(pub Vec<InstancedAbility>);
 
 #[derive(Component, Default)]
 pub struct InstancedModifiers(pub HashMap<u32, AbilityModifierController>);
@@ -51,14 +51,171 @@ pub struct GlobalAbilityValues(pub HashMap<String, f32>);
 
 #[derive(Default, Clone)]
 pub struct InstancedAbility {
+    pub instanced_ability_id: Option<u32>,
     pub ability_data: Option<&'static AbilityData>,
     pub modifiers: IndexMap<String, &'static AbilityModifier>,
     pub ability_specials: HashMap<String, f32>,
 }
 
+impl InstancedAbilities {
+    pub fn add_or_replace_by_instanced_ability_id(
+        &mut self,
+        instanced_ability_id: u32,
+        ability_name: String,
+    ) -> Option<(u32, &InstancedAbility)> {
+        if self.0.len() > 100 {
+            tracing::warn!("InstancedAbilities len > 100");
+            return None;
+        }
+        if !self
+            .0
+            .iter()
+            .any(|x| x.instanced_ability_id == Some(instanced_ability_id))
+        {
+            let ability_data = match get_ability_data(&ability_name) {
+                Some(data) => data,
+                None => {
+                    let instanced_ability = InstancedAbility::new(Some(instanced_ability_id), None);
+
+                    self.0.push(instanced_ability);
+
+                    let index = self.0.len() - 1;
+
+                    return Some((index as u32, self.0.get(index)?));
+                }
+            };
+
+            let instanced_ability =
+                InstancedAbility::new(Some(instanced_ability_id), Some(ability_data));
+
+            self.0.push(instanced_ability);
+
+            let index = self.0.len() - 1;
+
+            Some((index as u32, self.0.get(index)?))
+        } else {
+            let ability_data = match get_ability_data(&ability_name) {
+                Some(data) => data,
+                None => {
+                    return None;
+                }
+            };
+            for (index, instanced_ability) in self.0.iter_mut().enumerate() {
+                match instanced_ability.instanced_ability_id {
+                    None => {}
+                    Some(id) => {
+                        if id == instanced_ability_id {
+                            instanced_ability.ability_data = Some(ability_data);
+                            return Some((index as u32, instanced_ability));
+                        }
+                    }
+                }
+            }
+            None
+        }
+    }
+
+    pub fn find_or_add_by_ability_name(
+        &mut self,
+        ability_name: String,
+    ) -> Option<(u32, &InstancedAbility)> {
+        if self.0.len() > 100 {
+            tracing::warn!("InstancedAbilities len > 100");
+            return None;
+        }
+        if !self.0.iter().any(|x| match x.ability_data {
+            None => false,
+            Some(ability_data) => ability_name == ability_data.ability_name,
+        }) {
+            let ability_data = match get_ability_data(&ability_name) {
+                Some(data) => data,
+                None => {
+                    return None;
+                }
+            };
+
+            let instanced_ability = InstancedAbility::new(None, Some(ability_data));
+
+            self.0.push(instanced_ability);
+
+            let index = self.0.len() - 1;
+
+            Some((index as u32, self.0.get(index)?))
+        } else {
+            for (index, instanced_ability) in self.0.iter().enumerate() {
+                match instanced_ability.ability_data {
+                    None => {}
+                    Some(ability_data) => {
+                        if ability_name == ability_data.ability_name {
+                            return Some((index as u32, instanced_ability));
+                        }
+                    }
+                }
+            }
+            None
+        }
+    }
+
+    pub fn find_by_instanced_ability_id_mut(
+        &mut self,
+        instanced_ability_id: u32,
+    ) -> Option<(u32, &mut InstancedAbility)> {
+        if self.0.len() > 100 {
+            tracing::warn!("InstancedAbilities len > 100");
+            return None;
+        }
+        if !self
+            .0
+            .iter()
+            .any(|x| x.instanced_ability_id == Some(instanced_ability_id))
+        {
+            let instanced_ability = InstancedAbility::new(Some(instanced_ability_id), None);
+
+            self.0.push(instanced_ability);
+
+            let index = self.0.len() - 1;
+
+            Some((index as u32, self.0.get_mut(index)?))
+        } else {
+            for (index, instanced_ability) in self.0.iter_mut().enumerate() {
+                match instanced_ability.instanced_ability_id {
+                    None => {}
+                    Some(id) => {
+                        if id == instanced_ability_id {
+                            return Some((index as u32, instanced_ability));
+                        }
+                    }
+                }
+            }
+            None
+        }
+    }
+
+    pub fn find_by_instanced_ability_id(
+        &self,
+        instanced_ability_id: u32,
+    ) -> Option<(u32, &InstancedAbility)> {
+        for (index, instanced_ability) in self.0.iter().enumerate() {
+            match instanced_ability.instanced_ability_id {
+                None => {}
+                Some(id) => {
+                    if id == instanced_ability_id {
+                        return Some((index as u32, instanced_ability));
+                    }
+                }
+            }
+        }
+        None
+    }
+}
+
 impl InstancedAbility {
-    pub fn new(ability_data: Option<&'static AbilityData>) -> Self {
+    pub fn new(
+        instanced_ability_id: Option<u32>,
+        ability_data: Option<&'static AbilityData>,
+    ) -> Self {
         Self {
+            instanced_ability_id,
             ability_data: ability_data,
             modifiers: IndexMap::new(),
             ability_specials: ability_data

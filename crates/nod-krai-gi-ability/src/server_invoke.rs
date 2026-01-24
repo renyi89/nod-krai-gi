@@ -75,7 +75,7 @@ pub fn server_invoke(
                     if let Some(idx) = modifier.ability_index {
                         let entity_to_get = modifier.target_entity.unwrap_or(entity);
                         if let Ok((target_abilities, _, _)) = entities.get(entity_to_get) {
-                            if let Some(item) = target_abilities.0.get(&idx) {
+                            if let Some(item) = target_abilities.0.get(idx as usize) {
                                 ability = Some(item.clone());
                             }
                         }
@@ -86,8 +86,11 @@ pub fn server_invoke(
 
         if ability.is_none() && head.instanced_ability_id != 0 {
             if let Ok((instanced_abilities, _, _)) = entities.get(entity) {
-                if let Some(item) = instanced_abilities.0.get(&head.instanced_ability_id) {
-                    ability = Some(item.clone());
+                match instanced_abilities.find_by_instanced_ability_id(head.instanced_ability_id) {
+                    None => {}
+                    Some((_index, item)) => {
+                        ability = Some(item.clone());
+                    }
                 }
             }
         }

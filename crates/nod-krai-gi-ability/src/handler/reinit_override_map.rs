@@ -1,11 +1,9 @@
 use bevy_ecs::prelude::*;
-use nod_krai_gi_entity::common::{
-    EntityById, InstancedAbilities, ProtocolEntityID,
-};
+use nod_krai_gi_entity::common::{EntityById, InstancedAbilities, ProtocolEntityID};
 use nod_krai_gi_proto::AbilityMetaReInitOverrideMap;
 
-use crate::ReinitOverrideMapEvent;
 use crate::util::get_ability_name;
+use crate::ReinitOverrideMapEvent;
 
 pub fn handle_reinit_override_map(
     index: Res<EntityById>,
@@ -36,63 +34,61 @@ pub fn handle_reinit_override_map(
             continue;
         };
 
-        if !instanced_abilities.0.contains_key(&instanced_ability_id) {
-            tracing::debug!(
-                "[ReinitOverrideMap] Invalid instanced_ability_id: {} for entity {}",
-                instanced_ability_id,
-                invoke.entity_id
-            );
-            continue;
-        }
-
-        let instanced_ability = instanced_abilities
-            .0
-            .get_mut(&instanced_ability_id)
-            .unwrap();
-
-        let ability_data = match instanced_ability.ability_data {
-            Some(data) => data,
+        match instanced_abilities.find_by_instanced_ability_id_mut(instanced_ability_id) {
             None => {
                 tracing::debug!(
-                    "[ReinitOverrideMap] No ability data for instanced_ability_id: {}",
-                    instanced_ability_id
+                    "[ReinitOverrideMap] Invalid instanced_ability_id: {} for entity {}",
+                    instanced_ability_id,
+                    invoke.entity_id
                 );
                 continue;
             }
-        };
+            Some((_index, instanced_ability)) => {
+                match nod_krai_gi_proto::dy_parser::decode_from_vec_by_name_version::<
+                    AbilityMetaReInitOverrideMap,
+                >(
+                    version,
+                    "AbilityMetaReInitOverrideMap",
+                    &invoke.ability_data,
+                ) {
+                    None => {
+                        tracing::debug!(
+                            "[ReinitOverrideMap] Failed to decode AbilityMetaReInitOverrideMap"
+                        );
+                    }
+                    Some(reinit_data) => {
+                        for entry in reinit_data.override_map {
+                            match get_ability_name(entry.key) {
+                                None => {
+                                    tracing::debug!(
+                                        "[ReinitOverrideMap] No key provided for override param"
+                                    );
+                                    continue;
+                                }
+                                Some(key) => {
+                                    let value = entry.float_value;
 
-        match nod_krai_gi_proto::dy_parser::decode_from_vec_by_name_version::<
-            AbilityMetaReInitOverrideMap,
-        >(
-            version,
-            "AbilityMetaReInitOverrideMap",
-            &invoke.ability_data,
-        ) {
-            None => {
-                tracing::debug!(
-                    "[ReinitOverrideMap] Failed to decode AbilityMetaReInitOverrideMap"
-                );
-            }
-            Some(reinit_data) => {
-                for entry in reinit_data.override_map {
-                    match get_ability_name(entry.key) {
-                        None => {
-                            tracing::debug!(
-                                "[ReinitOverrideMap] No key provided for override param"
-                            );
-                            continue;
-                        }
-                        Some(key) => {
-                            let value = entry.float_value;
+                                    match instanced_ability.ability_data {
+                                        None => {
+                                            tracing::debug!("[ReinitOverrideMap] Reinit ability_specials {} = {} None ability on entity {}",
+                                                key,
+                                                value,
+                                                invoke.entity_id
+                                            );
+                                        }
+                                        Some(ability_data) => {
+                                            tracing::debug!("[ReinitOverrideMap] Reinit ability_specials {} = {} for ability {} on entity {}",
+                                                key,
+                                                value,
+                                                ability_data.ability_name,
+                                                invoke.entity_id
+                                            );
+                                        }
+                                    }
 
-                            tracing::debug!("[ReinitOverrideMap] Reinit ability_specials {} = {} for ability {} on entity {}",
-                                key,
-                                value,
-                                ability_data.ability_name,
-                                invoke.entity_id
-                            );
-
-                            instanced_ability.ability_specials.insert(key, value);
+                                    instanced_ability.ability_specials.insert(key, value);
+                                }
+                            }
                         }
                     }
                 }

@@ -106,25 +106,13 @@ impl Ability {
         }
     }
 
-    fn process_open_configs(
-        open_configs: Vec<String>,
-        name: &str,
-        ability_map: &mut HashMap<u32, u32>,
-    ) {
-        if let Some(talent_config) = config::get_avatar_talent_config(name) {
-            for open_config in open_configs {
-                match talent_config.talents.get(&open_config) {
-                    None => continue,
-                    Some(talent_action) => {
-                        for action in talent_action {
-                            if let config::TalentAction::AddAbility { ability_name } = action {
-                                let data = AbilityData::new(&ability_name, "Default");
-                                ability_map.insert(
-                                    data.ability_name_hash,
-                                    data.ability_override_name_hash,
-                                );
-                            }
-                        }
+    fn process_open_configs(open_configs: Vec<String>, ability_map: &mut HashMap<u32, u32>) {
+        for open_config in open_configs {
+            if let Some(talent_action) = config::get_avatar_talent_config(open_config.as_str()) {
+                for action in talent_action {
+                    if let config::TalentAction::AddAbility { ability_name } = action {
+                        let data = AbilityData::new(&ability_name, "Default");
+                        ability_map.insert(data.ability_name_hash, data.ability_override_name_hash);
                     }
                 }
             }
@@ -145,7 +133,7 @@ impl Ability {
             }
 
             Self::add_common_avatar_abilities(&mut ability_map);
-            Self::process_open_configs(open_configs, &avatar_name, &mut ability_map);
+            Self::process_open_configs(open_configs, &mut ability_map);
 
             Self {
                 target_ability_map: ability_map,
@@ -162,7 +150,7 @@ impl Ability {
                 }
             }
             Self::add_common_avatar_abilities(&mut ability_map);
-            Self::process_open_configs(open_configs, &avatar_name, &mut ability_map);
+            Self::process_open_configs(open_configs, &mut ability_map);
 
             Self {
                 target_ability_map: ability_map,

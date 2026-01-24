@@ -1,12 +1,11 @@
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::ability::get_ability_data;
 use nod_krai_gi_entity::common::{
     AbilityModifierController, EntityById, InstancedAbilities, InstancedModifiers,
 };
 use nod_krai_gi_proto::{AbilityMetaModifierChange, ModifierAction};
 
-use crate::ModifierChangeEvent;
 use crate::util::get_ability_name;
+use crate::ModifierChangeEvent;
 
 pub fn handle_modifier_change(
     index: Res<EntityById>,
@@ -64,13 +63,15 @@ pub fn handle_modifier_change(
                                         if let Ok((target_abilities, _)) =
                                             entities.get_mut(*target_entity)
                                         {
-                                            match target_abilities.0.get(&instanced_ability_id) {
+                                            match target_abilities
+                                                .find_by_instanced_ability_id(instanced_ability_id)
+                                            {
                                                 None => {}
-                                                Some(target_ability) => {
+                                                Some((target_index, target_ability)) => {
                                                     instanced_ability_data =
                                                         target_ability.ability_data;
-                                                    if instanced_ability_data.is_none() {
-                                                        ability_index = Some(instanced_ability_id);
+                                                    if instanced_ability_data.is_some() {
+                                                        ability_index = Some(target_index);
                                                         target_entity_ref = Some(*target_entity);
                                                     }
                                                 }
@@ -79,8 +80,10 @@ pub fn handle_modifier_change(
                                     }
                                 }
 
-                                let Ok((this_instanced_abilities, mut this_instanced_modifiers)) =
-                                    entities.get_mut(entity)
+                                let Ok((
+                                    mut this_instanced_abilities,
+                                    mut this_instanced_modifiers,
+                                )) = entities.get_mut(entity)
                                 else {
                                     tracing::debug!(
                                         "[ModifierChange] Failed to get entity components for {}",
@@ -90,30 +93,39 @@ pub fn handle_modifier_change(
                                 };
 
                                 if instanced_ability_data.is_none() {
-                                    match this_instanced_abilities.0.get(&instanced_ability_id) {
-                                        None => {}
-                                        Some(this_ability) => {
-                                            instanced_ability_data = this_ability.ability_data;
-                                            if instanced_ability_data.is_none() {
-                                                ability_index = Some(instanced_ability_id);
+                                    let parent_ability_name =
+                                        get_ability_name(mod_change.parent_ability_name.clone())
+                                            .unwrap_or_else(|| "".to_string());
+                                    if parent_ability_name != "" {
+                                        match this_instanced_abilities.find_or_add_by_ability_name(
+                                            parent_ability_name.clone(),
+                                        ) {
+                                            None => {
+                                                tracing::debug!(
+                                                    "[ModifierChange] No ability found: {}",
+                                                    parent_ability_name
+                                                );
+                                            }
+                                            Some((this_index, this_ability)) => {
+                                                instanced_ability_data = this_ability.ability_data;
+                                                if instanced_ability_data.is_some() {
+                                                    ability_index = Some(this_index);
+                                                }
                                             }
                                         }
                                     }
                                 }
 
                                 if instanced_ability_data.is_none() {
-                                    let parent_ability_name =
-                                        get_ability_name(mod_change.parent_ability_name.clone())
-                                            .unwrap_or_else(|| "".to_string());
-                                    match get_ability_data(&parent_ability_name) {
-                                        Some(data) => {
-                                            instanced_ability_data = Some(data);
-                                        }
-                                        None => {
-                                            tracing::debug!(
-                                                "[ModifierChange] No ability found: {}",
-                                                parent_ability_name
-                                            );
+                                    match this_instanced_abilities
+                                        .find_by_instanced_ability_id(instanced_ability_id)
+                                    {
+                                        None => {}
+                                        Some((this_index, this_ability)) => {
+                                            instanced_ability_data = this_ability.ability_data;
+                                            if instanced_ability_data.is_some() {
+                                                ability_index = Some(this_index);
+                                            }
                                         }
                                     }
                                 }
