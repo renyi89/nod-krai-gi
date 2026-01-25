@@ -75,7 +75,7 @@ pub fn server_invoke(
                     if let Some(idx) = modifier.ability_index {
                         let entity_to_get = modifier.target_entity.unwrap_or(entity);
                         if let Ok((target_abilities, _, _)) = entities.get(entity_to_get) {
-                            if let Some(item) = target_abilities.0.get(idx as usize) {
+                            if let Some(item) = target_abilities.list.get(idx as usize) {
                                 ability = Some(item.clone());
                             }
                         }

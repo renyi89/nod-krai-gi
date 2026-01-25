@@ -44,6 +44,7 @@ pub fn handle_modifier_change(
                         let instanced_modifier_id = head.instanced_modifier_id;
                         let modifier_local_id = mod_change.modifier_local_id as usize;
                         let target_id = head.target_id;
+                        let mut log_string: String = "unknown".to_string();
 
                         match mod_change.action() {
                             ModifierAction::Added => {
@@ -71,6 +72,10 @@ pub fn handle_modifier_change(
                                                     instanced_ability_data =
                                                         target_ability.ability_data;
                                                     if instanced_ability_data.is_some() {
+                                                        log_string = format!(
+                                                            "get from target_id:{} instanced_ability_id:{}",
+                                                            target_id,instanced_ability_id
+                                                        );
                                                         ability_index = Some(target_index);
                                                         target_entity_ref = Some(*target_entity);
                                                     }
@@ -109,6 +114,10 @@ pub fn handle_modifier_change(
                                             Some((this_index, this_ability)) => {
                                                 instanced_ability_data = this_ability.ability_data;
                                                 if instanced_ability_data.is_some() {
+                                                    log_string = format!(
+                                                        "get from parent_ability_name:{}",
+                                                        parent_ability_name
+                                                    );
                                                     ability_index = Some(this_index);
                                                 }
                                             }
@@ -124,6 +133,10 @@ pub fn handle_modifier_change(
                                         Some((this_index, this_ability)) => {
                                             instanced_ability_data = this_ability.ability_data;
                                             if instanced_ability_data.is_some() {
+                                                log_string = format!(
+                                                    "get from entity instanced_ability_id:{}",
+                                                    instanced_ability_id
+                                                );
                                                 ability_index = Some(this_index);
                                             }
                                         }
@@ -155,6 +168,8 @@ pub fn handle_modifier_change(
                                     .0
                                     .contains_key(&instanced_modifier_id);
 
+                                tracing::debug!("[ModifierChange] log_string:{}", log_string);
+
                                 if is_replacing {
                                     tracing::debug!("[ModifierChange] Replacing entity {} instanced_modifier_id: {} with ability {} modifier {}",
                                         invoke.entity_id,
@@ -174,7 +189,6 @@ pub fn handle_modifier_change(
                                 let modifier_controller = AbilityModifierController {
                                     target_entity: target_entity_ref,
                                     ability_index,
-                                    ability_data: Some(ability_data),
                                     modifier_data: Some(modifier_data),
                                 };
 

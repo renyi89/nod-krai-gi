@@ -9,6 +9,8 @@ use nod_krai_gi_data::excel::gadget_excel_config_collection;
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
 use nod_krai_gi_proto::{EvtCreateGadgetNotify, EvtDestroyGadgetNotify};
 
+use super::ability::Ability;
+
 #[derive(Component)]
 pub struct GadgetID(pub u32);
 
@@ -20,6 +22,7 @@ pub struct GadgetBundle {
     pub level: Level,
     pub transform: Transform,
     pub fight_properties: FightProperties,
+    pub ability: Ability,
     pub instanced_abilities: InstancedAbilities,
     pub instanced_modifiers: InstancedModifiers,
     pub global_ability_values: GlobalAbilityValues,
@@ -34,6 +37,7 @@ pub struct GadgetQueryReadOnly {
     pub level: &'static Level,
     pub transform: &'static Transform,
     pub fight_properties: &'static FightProperties,
+    pub ability: &'static Ability,
     pub instanced_abilities: &'static InstancedAbilities,
     pub instanced_modifiers: &'static InstancedModifiers,
     pub global_ability_values: &'static GlobalAbilityValues,
@@ -143,6 +147,17 @@ pub fn handle_evt_update_gadget(
                     let mut fight_properties = create_fight_properties_by_gadget_config(config);
                     fight_properties.apply_base_values();
 
+                    let ability = Ability::new_for_gadget(config.json_name.as_str());
+                    let mut instanced_abilities: InstancedAbilities = InstancedAbilities::default();
+                    for (index, (ability_name, _ability_data)) in
+                        ability.target_ability_map.iter().enumerate()
+                    {
+                        instanced_abilities.add_or_replace_by_instanced_ability_id(
+                            (index + 1) as u32,
+                            ability_name.clone(),
+                        );
+                    }
+
                     commands.spawn(GadgetBundle {
                         gadget_id: GadgetID(gadget_id),
                         entity_id: ProtocolEntityID(notify.entity_id),
@@ -154,7 +169,8 @@ pub fn handle_evt_update_gadget(
                             rotation: Vector3::default(),
                         },
                         fight_properties,
-                        instanced_abilities: InstancedAbilities::default(),
+                        ability: ability,
+                        instanced_abilities: instanced_abilities,
                         instanced_modifiers: InstancedModifiers::default(),
                         global_ability_values: GlobalAbilityValues::default(),
                         life_state: LifeState::Alive,

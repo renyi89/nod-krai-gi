@@ -42,11 +42,14 @@ impl PlayerWorld {
             .add_plugins(EnvironmentPlugin)
             .add_plugins(PathfindingPlugin)
             .add_plugins(CombatPlugin)
-            .add_plugins(AbilityPlugin)
             .add_plugins(TimePlugin)
             .add_plugins(CommandPlugin)
             .add_plugins(MapPlugin)
             .add_plugins(LuaShellPlugin);
+
+        if false {
+            app.add_plugins(AbilityPlugin);
+        }
 
         app.world_mut()
             .get_resource_mut::<WorldOwnerUID>()

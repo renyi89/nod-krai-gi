@@ -1,6 +1,7 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::excel::{gadget_excel_config_collection, monster_excel_config_collection};
+use nod_krai_gi_entity::ability::Ability;
 use nod_krai_gi_entity::common::OwnerProtocolEntityID;
 use nod_krai_gi_entity::gadget::{GadgetBundle, GadgetID};
 use nod_krai_gi_entity::util::{
@@ -20,7 +21,6 @@ use nod_krai_gi_persistence::Players;
 use nod_krai_gi_scene::ScenePlayerJumpEvent;
 use rand::RngCore;
 use tracing::{debug, instrument};
-
 
 pub struct CommandPlugin;
 
@@ -157,6 +157,17 @@ pub fn debug_command_handler(
                 let mut fight_properties = create_fight_properties_by_gadget_config(config);
                 fight_properties.apply_base_values();
 
+                let ability = Ability::new_for_gadget(config.json_name.as_str());
+                let mut instanced_abilities: InstancedAbilities = InstancedAbilities::default();
+                for (index, (ability_name, _ability_data)) in
+                    ability.target_ability_map.iter().enumerate()
+                {
+                    instanced_abilities.add_or_replace_by_instanced_ability_id(
+                        (index + 1) as u32,
+                        ability_name.clone(),
+                    );
+                }
+
                 commands
                     .spawn(GadgetBundle {
                         gadget_id: GadgetID(gadget_id),
@@ -177,7 +188,8 @@ pub fn debug_command_handler(
                             rotation: Vector3::default(),
                         },
                         fight_properties,
-                        instanced_abilities: InstancedAbilities::default(),
+                        ability: ability,
+                        instanced_abilities: instanced_abilities,
                         instanced_modifiers: InstancedModifiers::default(),
                         global_ability_values: GlobalAbilityValues::default(),
                         life_state: LifeState::Alive,

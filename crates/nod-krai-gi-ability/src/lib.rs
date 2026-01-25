@@ -7,11 +7,24 @@ use crate::handler::{
     handle_modifier_change, handle_override_param, handle_reinit_override_map,
 };
 
+use crate::actions::ability_action_get_hp_paid_debts::{
+    ability_action_get_hp_paid_debts_event, AbilityActionGetHPPaidDebtsEvent,
+};
 use crate::actions::ability_action_heal_hp::{
     ability_action_heal_hp_event, AbilityActionHealHPEvent,
 };
 use crate::actions::ability_action_lose_hp::{
     ability_action_lose_hp_event, AbilityActionLoseHPEvent,
+};
+use crate::actions::ability_action_set_global_value_to_override_map::{
+    ability_action_set_global_value_to_override_map_event,
+    AbilityActionSetGlobalValueToOverrideMapEvent,
+};
+use crate::actions::ability_action_set_override_map_value::{
+    ability_action_set_override_map_value_event, AbilityActionSetOverrideMapValueEvent,
+};
+use crate::actions::ability_action_set_random_override_map_value::{
+    ability_action_set_random_override_map_value_event, AbilityActionSetRandomOverrideMapValueEvent,
 };
 use crate::actions::execute_action_system;
 use crate::mixins::execute_mixin_system;
@@ -22,7 +35,7 @@ use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_proto::{
     AbilityInvocationsNotify, AbilityInvokeArgument, AbilityInvokeEntry,
     ClientAbilitiesInitFinishCombineNotify, ClientAbilityChangeNotify,
-    ClientAbilityInitFinishNotify, ForwardType, ProtEntityType,
+    ClientAbilityInitFinishNotify, ForwardType,
 };
 
 mod actions;
@@ -65,6 +78,10 @@ impl Plugin for AbilityPlugin {
             .add_message::<ExecuteMixinEvent>()
             .add_message::<AbilityActionHealHPEvent>()
             .add_message::<AbilityActionLoseHPEvent>()
+            .add_message::<AbilityActionSetGlobalValueToOverrideMapEvent>()
+            .add_message::<AbilityActionGetHPPaidDebtsEvent>()
+            .add_message::<AbilityActionSetOverrideMapValueEvent>()
+            .add_message::<AbilityActionSetRandomOverrideMapValueEvent>()
             .add_systems(PreUpdate, on_ability_notify)
             .add_systems(
                 Update,
@@ -84,6 +101,10 @@ impl Plugin for AbilityPlugin {
                         execute_mixin_system,
                         ability_action_heal_hp_event,
                         ability_action_lose_hp_event,
+                        ability_action_set_global_value_to_override_map_event,
+                        ability_action_get_hp_paid_debts_event,
+                        ability_action_set_override_map_value_event,
+                        ability_action_set_random_override_map_value_event,
                     ),
                 )
                     .chain(),
@@ -163,6 +184,8 @@ fn on_ability_notify(
                             },
                         );
                     }
+                } else {
+                    tracing::error!("AbilityInvocationsNotify forward_type not support");
                 }
             }
             "ClientAbilityInitFinishNotify" => {
@@ -227,6 +250,8 @@ fn on_ability_notify(
                             },
                         );
                     }
+                } else {
+                    tracing::error!("ClientAbilityInitFinishNotify forward_type not support");
                 }
             }
             "ClientAbilitiesInitFinishCombineNotify" => {
@@ -246,6 +271,10 @@ fn on_ability_notify(
                             );
                         }
                     }
+                } else {
+                    tracing::error!(
+                        "ClientAbilitiesInitFinishCombineNotify forward_type not support"
+                    );
                 }
             }
             "ClientAbilityChangeNotify" => {
@@ -263,6 +292,8 @@ fn on_ability_notify(
                             &mut server_invoke_events,
                         );
                     }
+                } else {
+                    tracing::error!("ClientAbilityChangeNotify forward_type not support");
                 }
             }
             &_ => {}
@@ -281,37 +312,34 @@ pub fn on_ability_invoke(
     clear_global_float_value_events: &mut MessageWriter<ClearGlobalFloatValueEvent>,
     server_invoke_events: &mut MessageWriter<ServerInvokeEvent>,
 ) {
-    if (invoke.entity_id >> 22) < ProtEntityType::ProtEntityMax as u32 {
-        if let Some(head) = invoke.head {
-            if head.local_id != 0 {
-                server_invoke_events.write(ServerInvokeEvent(invoke.clone()));
-                return;
-            }
+    if let Some(head) = invoke.head {
+        if head.local_id != 0 {
+            server_invoke_events.write(ServerInvokeEvent(invoke.clone()));
+            return;
         }
+    }
 
-        match invoke.argument_type() {
-            AbilityInvokeArgument::AbilityMetaModifierChange => {
-                modifier_events.write(ModifierChangeEvent(invoke.clone(), version.clone()));
-            }
-            AbilityInvokeArgument::AbilityMetaOverrideParam => {
-                override_param_events.write(OverrideParamEvent(invoke.clone(), version.clone()));
-            }
-            AbilityInvokeArgument::AbilityMetaReinitOverridemap => {
-                reinit_overridemap_events
-                    .write(ReinitOverrideMapEvent(invoke.clone(), version.clone()));
-            }
-            AbilityInvokeArgument::AbilityMetaGlobalFloatValue => {
-                global_float_value_events
-                    .write(GlobalFloatValueEvent(invoke.clone(), version.clone()));
-            }
-            AbilityInvokeArgument::AbilityMetaClearGlobalFloatValue => {
-                clear_global_float_value_events
-                    .write(ClearGlobalFloatValueEvent(invoke.clone(), version.clone()));
-            }
-            AbilityInvokeArgument::AbilityMetaAddNewAbility => {
-                add_new_ability_events.write(AddNewAbilityEvent(invoke.clone(), version.clone()));
-            }
-            _ => {}
+    match invoke.argument_type() {
+        AbilityInvokeArgument::AbilityMetaModifierChange => {
+            modifier_events.write(ModifierChangeEvent(invoke.clone(), version.clone()));
         }
+        AbilityInvokeArgument::AbilityMetaOverrideParam => {
+            override_param_events.write(OverrideParamEvent(invoke.clone(), version.clone()));
+        }
+        AbilityInvokeArgument::AbilityMetaReinitOverridemap => {
+            reinit_overridemap_events
+                .write(ReinitOverrideMapEvent(invoke.clone(), version.clone()));
+        }
+        AbilityInvokeArgument::AbilityMetaGlobalFloatValue => {
+            global_float_value_events.write(GlobalFloatValueEvent(invoke.clone(), version.clone()));
+        }
+        AbilityInvokeArgument::AbilityMetaClearGlobalFloatValue => {
+            clear_global_float_value_events
+                .write(ClearGlobalFloatValueEvent(invoke.clone(), version.clone()));
+        }
+        AbilityInvokeArgument::AbilityMetaAddNewAbility => {
+            add_new_ability_events.write(AddNewAbilityEvent(invoke.clone(), version.clone()));
+        }
+        _ => {}
     }
 }

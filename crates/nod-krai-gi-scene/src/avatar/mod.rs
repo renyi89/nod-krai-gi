@@ -11,7 +11,7 @@ use nod_krai_gi_entity::{
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput, USER_VERSION};
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::dy_parser::{
-    replace_in_u32, replace_in_u64, replace_out_i32, replace_out_u32,
+    replace_in_u32, replace_in_u64, replace_out_i32, replace_out_u32, replace_out_u64,
 };
 use nod_krai_gi_proto::{
     retcode::Retcode, AvatarDieAnimationEndReq, AvatarDieAnimationEndRsp, AvatarTeam,
@@ -242,14 +242,7 @@ pub fn set_up_avatar_team(
                             request.cur_avatar_guid,
                         );
 
-                        if !request
-                            .avatar_team_guid_list
-                            .contains(&cur_avatar_guid)
-                        {
-                            tracing::warn!(
-                                "SetUpAvatarTeamReq cur_avatar_guid:{}",
-                                cur_avatar_guid
-                            );
+                        if !request.avatar_team_guid_list.contains(&cur_avatar_guid) {
                             cur_avatar_guid =
                                 request.avatar_team_guid_list.first().unwrap().clone();
                         }
@@ -276,7 +269,11 @@ pub fn set_up_avatar_team(
                                     "SetUpAvatarTeamRsp.team_id",
                                     team_id,
                                 ),
-                                cur_avatar_guid,
+                                cur_avatar_guid: replace_out_u64(
+                                    protocol_version,
+                                    "SetUpAvatarTeamRsp.cur_avatar_guid",
+                                    cur_avatar_guid,
+                                ),
                                 avatar_team_guid_list: request.avatar_team_guid_list.clone(),
                             },
                         );

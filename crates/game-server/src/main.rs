@@ -10,7 +10,9 @@ use net::UdpServer;
 use nod_krai_gi_data::ability::load_ability_configs_from_bin;
 use nod_krai_gi_data::config::load_avatar_talent_configs_from_bin;
 use nod_krai_gi_data::excel::scene_point_config::load_scene_point_configs_from_bin;
-use nod_krai_gi_data::{config::load_avatar_configs_from_bin, excel};
+use nod_krai_gi_data::{
+    config::load_avatar_configs_from_bin, config::load_gadget_configs_from_bin, excel,
+};
 use nod_krai_gi_encryption::{rsa::RsaKeyPair, xor::MhyXorpad};
 use std::collections::HashMap;
 use std::fs;
@@ -73,6 +75,11 @@ async fn main() -> Result<()> {
     tokio::spawn(async move {
         load_ability_configs_from_bin("assets/BinOutput").unwrap();
         tracing::info!("load_avatar_talent_configs_from_bin end");
+    });
+
+    tokio::spawn(async move {
+        load_gadget_configs_from_bin("assets/BinOutput").unwrap();
+        tracing::info!("load_gadget_configs_from_bin end");
     });
 
     let db_connection = nod_krai_gi_database::connect_to(&CONFIG.database).await?;

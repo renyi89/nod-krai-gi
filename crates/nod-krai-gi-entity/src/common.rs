@@ -41,13 +41,17 @@ pub struct OwnerProtocolEntityID(pub u32);
 pub struct FightProperties(pub HashMap<FightPropType, f32>);
 
 #[derive(Component, Default)]
-pub struct InstancedAbilities(pub Vec<InstancedAbility>);
+pub struct GlobalAbilityValues(pub HashMap<String, f32>);
+
+#[derive(Component, Default)]
+pub struct InstancedAbilities {
+    pub list: Vec<InstancedAbility>,
+    by_id: HashMap<u32, usize>,
+    by_name: HashMap<String, usize>,
+}
 
 #[derive(Component, Default)]
 pub struct InstancedModifiers(pub HashMap<u32, AbilityModifierController>);
-
-#[derive(Component, Default)]
-pub struct GlobalAbilityValues(pub HashMap<String, f32>);
 
 #[derive(Default, Clone)]
 pub struct InstancedAbility {
@@ -58,60 +62,54 @@ pub struct InstancedAbility {
 }
 
 impl InstancedAbilities {
+    pub fn new() -> Self {
+        Self {
+            list: Vec::new(),
+            by_id: HashMap::new(),
+            by_name: HashMap::new(),
+        }
+    }
+
+    #[inline]
+    fn check_len(&self) -> bool {
+        if self.list.len() > 100 {
+            tracing::warn!("InstancedAbilities len > 100");
+            return false;
+        }
+        true
+    }
+
     pub fn add_or_replace_by_instanced_ability_id(
         &mut self,
         instanced_ability_id: u32,
         ability_name: String,
     ) -> Option<(u32, &InstancedAbility)> {
-        if self.0.len() > 100 {
-            tracing::warn!("InstancedAbilities len > 100");
+        if !self.check_len() {
             return None;
         }
-        if !self
-            .0
-            .iter()
-            .any(|x| x.instanced_ability_id == Some(instanced_ability_id))
-        {
-            let ability_data = match get_ability_data(&ability_name) {
-                Some(data) => data,
-                None => {
-                    let instanced_ability = InstancedAbility::new(Some(instanced_ability_id), None);
 
-                    self.0.push(instanced_ability);
+        let ability_data = get_ability_data(&ability_name);
 
-                    let index = self.0.len() - 1;
-
-                    return Some((index as u32, self.0.get(index)?));
-                }
-            };
-
-            let instanced_ability =
-                InstancedAbility::new(Some(instanced_ability_id), Some(ability_data));
-
-            self.0.push(instanced_ability);
-
-            let index = self.0.len() - 1;
-
-            Some((index as u32, self.0.get(index)?))
-        } else {
-            let ability_data = match get_ability_data(&ability_name) {
-                Some(data) => data,
-                None => {
-                    return None;
-                }
-            };
-            for (index, instanced_ability) in self.0.iter_mut().enumerate() {
-                match instanced_ability.instanced_ability_id {
-                    None => {}
-                    Some(id) => {
-                        if id == instanced_ability_id {
-                            instanced_ability.ability_data = Some(ability_data);
-                            return Some((index as u32, instanced_ability));
-                        }
-                    }
-                }
+        match self.by_id.get(&instanced_ability_id).copied() {
+            Some(index) => {
+                let inst = &mut self.list[index];
+                inst.ability_data = ability_data;
+                Some((index as u32, inst))
             }
-            None
+
+            None => {
+                let inst = InstancedAbility::new(Some(instanced_ability_id), ability_data);
+
+                let index = self.list.len();
+                self.list.push(inst);
+
+                self.by_id.insert(instanced_ability_id, index);
+                if let Some(data) = &self.list[index].ability_data {
+                    self.by_name.insert(data.ability_name.clone(), index);
+                }
+
+                Some((index as u32, &self.list[index]))
+            }
         }
     }
 
@@ -119,75 +117,47 @@ impl InstancedAbilities {
         &mut self,
         ability_name: String,
     ) -> Option<(u32, &InstancedAbility)> {
-        if self.0.len() > 100 {
-            tracing::warn!("InstancedAbilities len > 100");
+        if !self.check_len() {
             return None;
         }
-        if !self.0.iter().any(|x| match x.ability_data {
-            None => false,
-            Some(ability_data) => ability_name == ability_data.ability_name,
-        }) {
-            let ability_data = match get_ability_data(&ability_name) {
-                Some(data) => data,
-                None => {
-                    return None;
-                }
-            };
 
-            let instanced_ability = InstancedAbility::new(None, Some(ability_data));
-
-            self.0.push(instanced_ability);
-
-            let index = self.0.len() - 1;
-
-            Some((index as u32, self.0.get(index)?))
-        } else {
-            for (index, instanced_ability) in self.0.iter().enumerate() {
-                match instanced_ability.ability_data {
-                    None => {}
-                    Some(ability_data) => {
-                        if ability_name == ability_data.ability_name {
-                            return Some((index as u32, instanced_ability));
-                        }
-                    }
-                }
-            }
-            None
+        if let Some(&index) = self.by_name.get(&ability_name) {
+            return Some((index as u32, &self.list[index]));
         }
+
+        let ability_data = get_ability_data(&ability_name)?;
+
+        let inst = InstancedAbility::new(None, Some(ability_data));
+
+        let index = self.list.len();
+        self.list.push(inst);
+
+        self.by_name.insert(ability_name, index);
+
+        Some((index as u32, &self.list[index]))
     }
 
     pub fn find_by_instanced_ability_id_mut(
         &mut self,
         instanced_ability_id: u32,
     ) -> Option<(u32, &mut InstancedAbility)> {
-        if self.0.len() > 100 {
-            tracing::warn!("InstancedAbilities len > 100");
+        if !self.check_len() {
             return None;
         }
-        if !self
-            .0
-            .iter()
-            .any(|x| x.instanced_ability_id == Some(instanced_ability_id))
-        {
-            let instanced_ability = InstancedAbility::new(Some(instanced_ability_id), None);
 
-            self.0.push(instanced_ability);
+        match self.by_id.get(&instanced_ability_id).copied() {
+            Some(index) => Some((index as u32, &mut self.list[index])),
 
-            let index = self.0.len() - 1;
+            None => {
+                let inst = InstancedAbility::new(Some(instanced_ability_id), None);
 
-            Some((index as u32, self.0.get_mut(index)?))
-        } else {
-            for (index, instanced_ability) in self.0.iter_mut().enumerate() {
-                match instanced_ability.instanced_ability_id {
-                    None => {}
-                    Some(id) => {
-                        if id == instanced_ability_id {
-                            return Some((index as u32, instanced_ability));
-                        }
-                    }
-                }
+                let index = self.list.len();
+                self.list.push(inst);
+
+                self.by_id.insert(instanced_ability_id, index);
+
+                Some((index as u32, &mut self.list[index]))
             }
-            None
         }
     }
 
@@ -195,17 +165,9 @@ impl InstancedAbilities {
         &self,
         instanced_ability_id: u32,
     ) -> Option<(u32, &InstancedAbility)> {
-        for (index, instanced_ability) in self.0.iter().enumerate() {
-            match instanced_ability.instanced_ability_id {
-                None => {}
-                Some(id) => {
-                    if id == instanced_ability_id {
-                        return Some((index as u32, instanced_ability));
-                    }
-                }
-            }
-        }
-        None
+        self.by_id
+            .get(&instanced_ability_id)
+            .map(|&index| (index as u32, &self.list[index]))
     }
 }
 
@@ -228,7 +190,6 @@ impl InstancedAbility {
 pub struct AbilityModifierController {
     pub target_entity: Option<Entity>,
     pub ability_index: Option<u32>,
-    pub ability_data: Option<&'static AbilityData>,
     pub modifier_data: Option<&'static AbilityModifier>,
 }
 

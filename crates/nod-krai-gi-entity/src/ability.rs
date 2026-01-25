@@ -1,5 +1,6 @@
 use bevy_ecs::component::Component;
 use common::string_util;
+use indexmap::IndexMap;
 use nod_krai_gi_data::{config, excel::avatar_excel_config_collection};
 use nod_krai_gi_proto::{AbilityControlBlock, AbilityEmbryo};
 use std::collections::HashMap;
@@ -7,7 +8,7 @@ use std::sync::{Arc, OnceLock};
 
 #[derive(Component, Default)]
 pub struct Ability {
-    pub target_ability_map: HashMap<u32, u32>,
+    pub target_ability_map: IndexMap<String, AbilityData>,
 }
 
 pub struct AbilityData {
@@ -42,7 +43,7 @@ fn get_temp_abilities() -> Arc<HashMap<u32, Vec<u32>>> {
     }
 }
 
-const COMMON_AVATAR_ABILITIES: [&str; 34] = [
+const COMMON_AVATAR_ABILITIES: [&str; 26] = [
     "Absorb_SealEcho_Bullet_01",
     "Absorb_SealEcho_Bullet_02",
     "Ability_Avatar_Dive_CrabShield",
@@ -69,14 +70,6 @@ const COMMON_AVATAR_ABILITIES: [&str; 34] = [
     "Avatar_Trampoline_Jump_Controller",
     "GrapplingHookSkill_Ability",
     "SceneAbility_DiveVolume",
-    "TeamResonance_Fire_Lv2",
-    "TeamResonance_Water_Lv2",
-    "TeamResonance_Ice_Lv2",
-    "TeamResonance_Electric_Lv2",
-    "TeamResonance_Rock_Lv2",
-    "TeamResonance_Wind_Lv2",
-    "TeamResonance_Grass_Lv2",
-    "TeamResonance_AllDifferent",
 ];
 
 const DEFAULT_TEAM_ABILITIES: [&str; 16] = [
@@ -99,20 +92,23 @@ const DEFAULT_TEAM_ABILITIES: [&str; 16] = [
 ];
 
 impl Ability {
-    fn add_common_avatar_abilities(ability_map: &mut HashMap<u32, u32>) {
+    fn add_common_avatar_abilities(ability_map: &mut IndexMap<String, AbilityData>) {
         for name in COMMON_AVATAR_ABILITIES.iter() {
             let data = AbilityData::new(name, "Default");
-            ability_map.insert(data.ability_name_hash, data.ability_override_name_hash);
+            ability_map.insert(name.to_string(), data);
         }
     }
 
-    fn process_open_configs(open_configs: Vec<String>, ability_map: &mut HashMap<u32, u32>) {
+    fn process_open_configs(
+        open_configs: Vec<String>,
+        ability_map: &mut IndexMap<String, AbilityData>,
+    ) {
         for open_config in open_configs {
             if let Some(talent_action) = config::get_avatar_talent_config(open_config.as_str()) {
                 for action in talent_action {
                     if let config::TalentAction::AddAbility { ability_name } = action {
                         let data = AbilityData::new(&ability_name, "Default");
-                        ability_map.insert(data.ability_name_hash, data.ability_override_name_hash);
+                        ability_map.insert(ability_name.clone(), data);
                     }
                 }
             }
@@ -126,10 +122,10 @@ impl Ability {
         let avatar_name = avatar.icon_name.replace("UI_AvatarIcon_", "");
 
         if let Some(config) = config::get_avatar_config(&avatar_name) {
-            let mut ability_map: HashMap<u32, u32> = HashMap::new();
+            let mut ability_map: IndexMap<String, AbilityData> = IndexMap::new();
             for ability in config.abilities.iter() {
                 let data = AbilityData::new(&ability.ability_name, &ability.ability_override);
-                ability_map.insert(data.ability_name_hash, data.ability_override_name_hash);
+                ability_map.insert(ability.ability_name.clone(), data);
             }
 
             Self::add_common_avatar_abilities(&mut ability_map);
@@ -140,12 +136,19 @@ impl Ability {
             }
         } else {
             tracing::warn!("missing ConfigAvatar for {avatar_name}");
-            let mut ability_map: HashMap<u32, u32> = HashMap::new();
+            let mut ability_map: IndexMap<String, AbilityData> = IndexMap::new();
             match Arc::clone(&get_temp_abilities()).get(&id) {
                 None => {}
                 Some(temp_abilities) => {
                     temp_abilities.iter().for_each(|ability| {
-                        ability_map.insert(*ability, string_util::get_string_hash("Default"));
+                        // 这里暂时使用空字符串作为键，因为我们没有实际的能力名称
+                        ability_map.insert(
+                            ability.to_string(),
+                            AbilityData {
+                                ability_name_hash: *ability,
+                                ability_override_name_hash: string_util::get_string_hash("Default"),
+                            },
+                        );
                     });
                 }
             }
@@ -159,13 +162,33 @@ impl Ability {
     }
 
     pub fn new_for_team() -> Self {
-        let mut ability_map: HashMap<u32, u32> = HashMap::new();
+        let mut ability_map: IndexMap<String, AbilityData> = IndexMap::new();
         for name in DEFAULT_TEAM_ABILITIES.iter() {
             let data = AbilityData::new(name, "Default");
-            ability_map.insert(data.ability_name_hash, data.ability_override_name_hash);
+            ability_map.insert(name.to_string(), data);
         }
         Self {
             target_ability_map: ability_map,
+        }
+    }
+
+    pub fn new_for_gadget(json_name: &str) -> Self {
+        if let Some(config) = config::get_gadget_config(json_name) {
+            let mut ability_map: IndexMap<String, AbilityData> = IndexMap::new();
+            for ability in config.abilities.iter() {
+                let data = AbilityData::new(&ability.ability_name, &ability.ability_override);
+                ability_map.insert(ability.ability_name.clone(), data);
+            }
+
+            Self {
+                target_ability_map: ability_map,
+            }
+        } else {
+            tracing::warn!("missing GadgetConfig for {json_name}");
+            let ability_map: IndexMap<String, AbilityData> = IndexMap::new();
+            Self {
+                target_ability_map: ability_map,
+            }
         }
     }
 
@@ -175,10 +198,10 @@ impl Ability {
                 .target_ability_map
                 .iter()
                 .enumerate()
-                .map(|(idx, (name_hash, override_hash))| AbilityEmbryo {
+                .map(|(idx, (_, data))| AbilityEmbryo {
                     ability_id: idx as u32 + 1,
-                    ability_name_hash: *name_hash,
-                    ability_override_name_hash: *override_hash,
+                    ability_name_hash: data.ability_name_hash,
+                    ability_override_name_hash: data.ability_override_name_hash,
                 })
                 .collect(),
         }

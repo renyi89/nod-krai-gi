@@ -38,6 +38,7 @@ impl Plugin for EntityPlugin {
             .add_systems(Update, update_entity_index)
             .add_systems(Update, update_separate_property_entity)
             .add_systems(Update, avatar::update_avatar_appearance)
+            .add_systems(Update, gadget::handle_evt_update_gadget)
             .add_systems(
                 Last,
                 (

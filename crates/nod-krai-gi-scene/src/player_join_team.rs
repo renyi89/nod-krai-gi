@@ -60,6 +60,7 @@ pub fn player_join_team(
                     if *to_spawn_guid == event.appear_avatar_guid {
                         commands
                             .entity(avatar_entity)
+                            .insert(Visible)
                             .insert(CurrentPlayerAvatarMarker);
                     }
                 }
@@ -156,7 +157,9 @@ pub fn player_join_team(
                     avatar_entity.insert(CurrentTeam);
 
                     if *to_spawn_guid == event.appear_avatar_guid {
-                        avatar_entity.insert(CurrentPlayerAvatarMarker);
+                        avatar_entity
+                            .insert(Visible)
+                            .insert(CurrentPlayerAvatarMarker);
                     }
                 }
             }
