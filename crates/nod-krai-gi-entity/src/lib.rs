@@ -10,6 +10,7 @@ use std::collections::HashMap;
 
 pub mod ability;
 pub mod avatar;
+pub mod client_gadget;
 pub mod common;
 pub mod gadget;
 pub mod monster;
@@ -20,8 +21,8 @@ pub mod transform;
 pub mod util;
 pub mod weapon;
 
-use crate::avatar::CurrentPlayerAvatarMarker;
 use crate::common::Visible;
+use crate::{avatar::CurrentPlayerAvatarMarker, client_gadget::EntitySystemSet};
 pub use nod_krai_gi_proto::ProtEntityType;
 use nod_krai_gi_proto::{LifeStateChangeNotify, SceneEntityDisappearNotify, VisionType};
 
@@ -38,7 +39,10 @@ impl Plugin for EntityPlugin {
             .add_systems(Update, update_entity_index)
             .add_systems(Update, update_separate_property_entity)
             .add_systems(Update, avatar::update_avatar_appearance)
-            .add_systems(Update, gadget::handle_evt_update_gadget)
+            .add_systems(
+                Update,
+                client_gadget::handle_evt_update_gadget.in_set(EntitySystemSet::HandleEvtGadgetUpdate),
+            )
             .add_systems(
                 Last,
                 (

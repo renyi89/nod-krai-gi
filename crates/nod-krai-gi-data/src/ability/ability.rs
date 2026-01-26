@@ -138,7 +138,7 @@ pub struct AbilityModifierAction {
     #[serde(default)]
     pub ignore_ability_property: Option<bool>,
     #[serde(default)]
-    pub modifier_name: Option<String>,
+    pub modifier_name: String,
     #[serde(default)]
     #[serde(rename = "enableLockHP")]
     pub enable_lock_hp: Option<bool>,
@@ -219,7 +219,7 @@ pub struct AbilityModifierAction {
     #[serde(default)]
     pub parameter: Option<String>,
     #[serde(default)]
-    pub value: Option<serde_json::Value>,
+    pub value: Option<DynamicFloat>,
     #[serde(default)]
     pub type_field: Option<String>,
     #[serde(default)]
@@ -227,10 +227,6 @@ pub struct AbilityModifierAction {
     pub heal_limited_by_caster_max_hp_ratio: Option<DynamicFloat>,
     #[serde(default)]
     pub effect_templete_id: Option<f32>,
-    #[serde(default)]
-    pub born: Option<serde_json::Value>,
-    #[serde(default)]
-    pub predicates: Option<Vec<serde_json::Value>>,
     #[serde(default)]
     pub actions: Vec<AbilityModifierAction>,
     #[serde(default)]

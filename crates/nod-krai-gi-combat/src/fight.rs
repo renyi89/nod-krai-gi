@@ -22,7 +22,8 @@ pub fn deal_damage_on_hit(
     )>,
 ) {
     for EntityBeingHitEvent(originator_uid, attack_result) in events.read() {
-        if (attack_result.attacker_id >> 22) < ProtEntityType::ProtEntityMax as u32 {
+        let entity_type = attack_result.attacker_id >> 22;
+        if entity_type < ProtEntityType::ProtEntityMax as u32 && entity_type != ProtEntityType::ProtEntityMpLevel as u32 {
             let attacker_entity = match index.0.get(&attack_result.attacker_id) {
                 Some(e) => *e,
                 None => continue,

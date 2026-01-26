@@ -1,13 +1,11 @@
 use crate::{
     common::*,
     int_prop_pair,
-    transform::{Transform, Vector3},
-    util::create_fight_properties_by_gadget_config,
+    transform::{Transform}
 };
 use bevy_ecs::{prelude::*, query::QueryData};
 use nod_krai_gi_data::excel::gadget_excel_config_collection;
-use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
-use nod_krai_gi_proto::{EvtCreateGadgetNotify, EvtDestroyGadgetNotify};
+use nod_krai_gi_message::{output::MessageOutput};
 
 use super::ability::Ability;
 
@@ -125,69 +123,3 @@ pub fn run_if_gadget_entities_appeared(
     !gadgets.is_empty()
 }
 
-pub fn handle_evt_update_gadget(
-    index: Res<EntityById>,
-    mut events: MessageReader<ClientMessageEvent>,
-    mut commands: Commands,
-) {
-    for message in events.read() {
-        match message.message_name() {
-            "EvtCreateGadgetNotify" => {
-                if let Some(notify) = message.decode::<EvtCreateGadgetNotify>() {
-                    let gadget_id = notify.config_id;
-
-                    let gadget_excel_config_collection_clone =
-                        std::sync::Arc::clone(gadget_excel_config_collection::get());
-
-                    let Some(config) = gadget_excel_config_collection_clone.get(&gadget_id) else {
-                        tracing::debug!("gadget config for id {gadget_id} not found");
-                        continue;
-                    };
-
-                    let mut fight_properties = create_fight_properties_by_gadget_config(config);
-                    fight_properties.apply_base_values();
-
-                    let ability = Ability::new_for_gadget(config.json_name.as_str());
-                    let mut instanced_abilities: InstancedAbilities = InstancedAbilities::default();
-                    for (index, (ability_name, _ability_data)) in
-                        ability.target_ability_map.iter().enumerate()
-                    {
-                        instanced_abilities.add_or_replace_by_instanced_ability_id(
-                            (index + 1) as u32,
-                            ability_name.clone(),
-                        );
-                    }
-
-                    commands.spawn(GadgetBundle {
-                        gadget_id: GadgetID(gadget_id),
-                        entity_id: ProtocolEntityID(notify.entity_id),
-                        owner_entity_id: OwnerProtocolEntityID(notify.owner_entity_id),
-                        level: Level(1),
-                        transform: Transform {
-                            // Take Y (height) from player's pos, spawn a bit above
-                            position: Vector3::default(),
-                            rotation: Vector3::default(),
-                        },
-                        fight_properties,
-                        ability: ability,
-                        instanced_abilities: instanced_abilities,
-                        instanced_modifiers: InstancedModifiers::default(),
-                        global_ability_values: GlobalAbilityValues::default(),
-                        life_state: LifeState::Alive,
-                    });
-                }
-            }
-            "EvtDestroyGadgetNotify" => {
-                if let Some(notify) = message.decode::<EvtDestroyGadgetNotify>() {
-                    let entity_id = notify.entity_id;
-                    let entity = match index.0.get(&entity_id) {
-                        Some(e) => *e,
-                        None => continue,
-                    };
-                    commands.entity(entity).insert(ToBeRemovedMarker);
-                }
-            }
-            &_ => {}
-        }
-    }
-}

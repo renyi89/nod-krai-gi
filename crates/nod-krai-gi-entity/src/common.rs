@@ -35,7 +35,7 @@ pub struct OwnerPlayerUID(pub u32);
 pub struct ProtocolEntityID(pub u32);
 
 #[derive(Component)]
-pub struct OwnerProtocolEntityID(pub u32);
+pub struct OwnerProtocolEntityID(pub Option<u32>);
 
 #[derive(Component)]
 pub struct FightProperties(pub HashMap<FightPropType, f32>);
@@ -116,6 +116,7 @@ impl InstancedAbilities {
     pub fn find_or_add_by_ability_name(
         &mut self,
         ability_name: String,
+        instanced_ability_id: u32,
     ) -> Option<(u32, &InstancedAbility)> {
         if !self.check_len() {
             return None;
@@ -125,16 +126,7 @@ impl InstancedAbilities {
             return Some((index as u32, &self.list[index]));
         }
 
-        let ability_data = get_ability_data(&ability_name)?;
-
-        let inst = InstancedAbility::new(None, Some(ability_data));
-
-        let index = self.list.len();
-        self.list.push(inst);
-
-        self.by_name.insert(ability_name, index);
-
-        Some((index as u32, &self.list[index]))
+        self.add_or_replace_by_instanced_ability_id(instanced_ability_id, ability_name)
     }
 
     pub fn find_by_instanced_ability_id_mut(

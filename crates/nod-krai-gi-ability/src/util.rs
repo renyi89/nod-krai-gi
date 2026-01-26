@@ -75,7 +75,10 @@ fn do_math(state: &mut MathState, input: &mut Vec<NumberOrString>) {
     let args: Vec<f32> = input
         .drain(index..index + 3)
         .take(2)
-        .map(|val| eval_number_or_string(&state.ability, &val, 0.0))
+        .map(|val| match val {
+            NumberOrString::Number(n) => n as f32,
+            NumberOrString::String(_) => 0.0, // This should never happen with preprocessed input
+        })
         .collect();
 
     if args.iter().any(|a| a.is_nan()) {
@@ -102,14 +105,12 @@ fn do_math(state: &mut MathState, input: &mut Vec<NumberOrString>) {
 
 #[derive(Clone)]
 struct MathState {
-    ability: InstancedAbility,
     busy: bool,
     val: f32,
 }
 
-fn calc(ability: &InstancedAbility, input: &mut Vec<NumberOrString>) -> f32 {
+fn calc(input: &mut Vec<NumberOrString>) -> f32 {
     let mut state = MathState {
-        ability: ability.clone(),
         busy: true,
         val: 0.0,
     };
@@ -121,7 +122,12 @@ fn calc(ability: &InstancedAbility, input: &mut Vec<NumberOrString>) -> f32 {
     state.val
 }
 
-fn eval_number_or_string(ability: &InstancedAbility, val: &NumberOrString, def_val: f32) -> f32 {
+fn eval_number_or_string(
+    ability: &InstancedAbility,
+    props: Option<&FightProperties>,
+    val: &NumberOrString,
+    def_val: f32,
+) -> f32 {
     match val {
         NumberOrString::Number(n) => *n as f32,
         NumberOrString::String(s) => {
@@ -131,20 +137,27 @@ fn eval_number_or_string(ability: &InstancedAbility, val: &NumberOrString, def_v
 
             if s.starts_with("FIGHT_PROP_") {
                 if let Some(prop_type) = FightPropType::from_str(s) {
-                    return ability
-                        .ability_specials
-                        .get(&format!("{:?}", prop_type))
-                        .copied()
-                        .unwrap_or(0.0);
+                    if let Some(props) = props {
+                        let result = props.get_property(prop_type);
+                        return result;
+                    } else {
+                        return 0.0;
+                    }
                 }
             }
 
-            ability.ability_specials.get(s).copied().unwrap_or(def_val)
+            let result = ability.ability_specials.get(s).copied().unwrap_or(def_val);
+            result
         }
     }
 }
 
-pub fn eval(ability: &InstancedAbility, val: &DynamicFloat, def_val: f32) -> f32 {
+pub fn eval(
+    ability: &InstancedAbility,
+    props: Option<&FightProperties>,
+    val: &DynamicFloat,
+    def_val: f32,
+) -> f32 {
     match val {
         DynamicFloat::Number(n) => {
             let result = *n as f32;
@@ -157,12 +170,12 @@ pub fn eval(ability: &InstancedAbility, val: &DynamicFloat, def_val: f32) -> f32
 
             if s.starts_with("FIGHT_PROP_") {
                 if let Some(prop_type) = FightPropType::from_str(s) {
-                    let result = ability
-                        .ability_specials
-                        .get(&format!("{:?}", prop_type))
-                        .copied()
-                        .unwrap_or(0.0);
-                    return result;
+                    if let Some(props) = props {
+                        let result = props.get_property(prop_type);
+                        return result;
+                    } else {
+                        return 0.0;
+                    }
                 }
             }
 
@@ -170,8 +183,30 @@ pub fn eval(ability: &InstancedAbility, val: &DynamicFloat, def_val: f32) -> f32
             result
         }
         DynamicFloat::Array(arr) => {
-            let mut input = arr.clone();
-            let result = calc(ability, &mut input);
+            let input = arr.clone();
+            // Preprocess array to convert all elements to numbers or operators
+            let mut preprocessed = Vec::new();
+            for item in input {
+                match &item {
+                    NumberOrString::String(s) => {
+                        // Check if it's an operator
+                        let upper = s.to_uppercase();
+                        if MathOp::from_str(&upper).is_some() {
+                            // Keep operators as strings
+                            preprocessed.push(NumberOrString::String(upper));
+                        } else {
+                            // Evaluate strings to numbers
+                            let num = eval_number_or_string(ability, props, &item, def_val);
+                            preprocessed.push(NumberOrString::Number(num as f64));
+                        }
+                    }
+                    NumberOrString::Number(_) => {
+                        // Keep numbers as they are
+                        preprocessed.push(item);
+                    }
+                }
+            }
+            let result = calc(&mut preprocessed);
             result
         }
     }
@@ -186,43 +221,43 @@ pub fn calc_amount(
     let target_max_hp = target_props.get_property(FightPropType::FIGHT_PROP_MAX_HP);
     let target_current_hp = target_props.get_property(FightPropType::FIGHT_PROP_CUR_HP);
 
-    let mut amount = eval_option(ability, &action.amount, 0.0);
+    let mut amount = eval_option(ability, Some(caster_props), &action.amount, 0.0);
 
     if let Some(ratio) = &action.amount_by_caster_max_hp_ratio {
         let caster_max_hp = caster_props.get_property(FightPropType::FIGHT_PROP_MAX_HP);
-        let ratio_val = eval(ability, ratio, 0.0);
+        let ratio_val = eval(ability, Some(caster_props), ratio, 0.0);
         let added = caster_max_hp * ratio_val;
         amount += added;
     }
 
     if let Some(ratio) = &action.amount_by_caster_attack_ratio {
         let caster_attack = caster_props.get_property(FightPropType::FIGHT_PROP_CUR_ATTACK);
-        let ratio_val = eval(ability, ratio, 0.0);
+        let ratio_val = eval(ability, Some(caster_props), ratio, 0.0);
         let added = caster_attack * ratio_val;
         amount += added;
     }
 
     if let Some(ratio) = &action.amount_by_caster_current_hp_ratio {
         let caster_current_hp = caster_props.get_property(FightPropType::FIGHT_PROP_CUR_HP);
-        let ratio_val = eval(ability, ratio, 0.0);
+        let ratio_val = eval(ability, Some(caster_props), ratio, 0.0);
         let added = caster_current_hp * ratio_val;
         amount += added;
     }
 
     if let Some(ratio) = &action.amount_by_target_max_hp_ratio {
-        let ratio_val = eval(ability, ratio, 0.0);
+        let ratio_val = eval(ability, Some(target_props), ratio, 0.0);
         let added = target_max_hp * ratio_val;
         amount += added;
     }
 
     if let Some(ratio) = &action.amount_by_target_current_hp_ratio {
-        let ratio_val = eval(ability, ratio, 0.0);
+        let ratio_val = eval(ability, Some(target_props), ratio, 0.0);
         let added = target_current_hp * ratio_val;
         amount += added;
     }
 
     if let Some(ratio) = &action.limbo_by_target_max_hp_ratio {
-        let eval_float = eval(ability, ratio, 0.0);
+        let eval_float = eval(ability, Some(target_props), ratio, 0.0);
         if eval_float > f32::EPSILON {
             let limbo_amount = f32::max(eval_float * target_max_hp, 1.0);
             let capped_amount = f32::max(target_current_hp - limbo_amount, 0.0);
@@ -233,9 +268,14 @@ pub fn calc_amount(
     amount
 }
 
-pub fn eval_option(ability: &InstancedAbility, val: &Option<DynamicFloat>, def_val: f32) -> f32 {
+pub fn eval_option(
+    ability: &InstancedAbility,
+    props: Option<&FightProperties>,
+    val: &Option<DynamicFloat>,
+    def_val: f32,
+) -> f32 {
     match val {
-        Some(v) => eval(ability, v, def_val),
+        Some(v) => eval(ability, props, v, def_val),
         None => def_val,
     }
 }

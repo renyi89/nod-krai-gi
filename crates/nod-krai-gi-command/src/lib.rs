@@ -158,15 +158,6 @@ pub fn debug_command_handler(
                 fight_properties.apply_base_values();
 
                 let ability = Ability::new_for_gadget(config.json_name.as_str());
-                let mut instanced_abilities: InstancedAbilities = InstancedAbilities::default();
-                for (index, (ability_name, _ability_data)) in
-                    ability.target_ability_map.iter().enumerate()
-                {
-                    instanced_abilities.add_or_replace_by_instanced_ability_id(
-                        (index + 1) as u32,
-                        ability_name.clone(),
-                    );
-                }
 
                 commands
                     .spawn(GadgetBundle {
@@ -175,7 +166,7 @@ pub fn debug_command_handler(
                             ProtEntityType::ProtEntityGadget,
                             entity_counter.inc(),
                         ),
-                        owner_entity_id: OwnerProtocolEntityID(0),
+                        owner_entity_id: OwnerProtocolEntityID(None),
                         level: Level(level),
                         transform: Transform {
                             // Take Y (height) from player's pos, spawn a bit above
@@ -189,7 +180,7 @@ pub fn debug_command_handler(
                         },
                         fight_properties,
                         ability: ability,
-                        instanced_abilities: instanced_abilities,
+                        instanced_abilities: InstancedAbilities::default(),
                         instanced_modifiers: InstancedModifiers::default(),
                         global_ability_values: GlobalAbilityValues::default(),
                         life_state: LifeState::Alive,

@@ -61,23 +61,60 @@ pub fn handle_modifier_change(
 
                                 if target_id != 0 {
                                     if let Some(target_entity) = index.0.get(&target_id) {
-                                        if let Ok((target_abilities, _)) =
+                                        if let Ok((mut target_abilities, _)) =
                                             entities.get_mut(*target_entity)
                                         {
-                                            match target_abilities
-                                                .find_by_instanced_ability_id(instanced_ability_id)
-                                            {
-                                                None => {}
-                                                Some((target_index, target_ability)) => {
-                                                    instanced_ability_data =
-                                                        target_ability.ability_data;
-                                                    if instanced_ability_data.is_some() {
-                                                        log_string = format!(
-                                                            "get from target_id:{} instanced_ability_id:{}",
-                                                            target_id,instanced_ability_id
-                                                        );
-                                                        ability_index = Some(target_index);
-                                                        target_entity_ref = Some(*target_entity);
+                                            if instanced_ability_data.is_none() {
+                                                match target_abilities.find_by_instanced_ability_id(
+                                                    instanced_ability_id,
+                                                ) {
+                                                    None => {}
+                                                    Some((target_index, target_ability)) => {
+                                                        instanced_ability_data =
+                                                            target_ability.ability_data;
+                                                        if instanced_ability_data.is_some() {
+                                                            log_string = format!(
+                                                                "get from target_id:{} instanced_ability_id:{}",
+                                                                target_id,instanced_ability_id
+                                                            );
+                                                            ability_index = Some(target_index);
+                                                            target_entity_ref =
+                                                                Some(*target_entity);
+                                                        }
+                                                    }
+                                                }
+                                            }
+
+                                            if instanced_ability_data.is_none() {
+                                                let parent_ability_name = get_ability_name(
+                                                    mod_change.parent_ability_name.clone(),
+                                                )
+                                                .unwrap_or_else(|| "".to_string());
+                                                if parent_ability_name != "" {
+                                                    match target_abilities
+                                                        .find_or_add_by_ability_name(
+                                                            parent_ability_name.clone(),
+                                                            instanced_ability_id,
+                                                        ) {
+                                                        None => {
+                                                            tracing::debug!(
+                                                                "[ModifierChange] No ability found: {}",
+                                                                parent_ability_name
+                                                            );
+                                                        }
+                                                        Some((target_index, target_ability)) => {
+                                                            instanced_ability_data =
+                                                                target_ability.ability_data;
+                                                            if instanced_ability_data.is_some() {
+                                                                log_string = format!(
+                                                                    "get from target_id:{}  parent_ability_name:{}",
+                                                                    target_id,parent_ability_name
+                                                                );
+                                                                ability_index = Some(target_index);
+                                                                target_entity_ref =
+                                                                    Some(*target_entity);
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
@@ -98,34 +135,6 @@ pub fn handle_modifier_change(
                                 };
 
                                 if instanced_ability_data.is_none() {
-                                    let parent_ability_name =
-                                        get_ability_name(mod_change.parent_ability_name.clone())
-                                            .unwrap_or_else(|| "".to_string());
-                                    if parent_ability_name != "" {
-                                        match this_instanced_abilities.find_or_add_by_ability_name(
-                                            parent_ability_name.clone(),
-                                        ) {
-                                            None => {
-                                                tracing::debug!(
-                                                    "[ModifierChange] No ability found: {}",
-                                                    parent_ability_name
-                                                );
-                                            }
-                                            Some((this_index, this_ability)) => {
-                                                instanced_ability_data = this_ability.ability_data;
-                                                if instanced_ability_data.is_some() {
-                                                    log_string = format!(
-                                                        "get from parent_ability_name:{}",
-                                                        parent_ability_name
-                                                    );
-                                                    ability_index = Some(this_index);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if instanced_ability_data.is_none() {
                                     match this_instanced_abilities
                                         .find_by_instanced_ability_id(instanced_ability_id)
                                     {
@@ -138,6 +147,35 @@ pub fn handle_modifier_change(
                                                     instanced_ability_id
                                                 );
                                                 ability_index = Some(this_index);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if instanced_ability_data.is_none() {
+                                    let parent_ability_name =
+                                        get_ability_name(mod_change.parent_ability_name.clone())
+                                            .unwrap_or_else(|| "".to_string());
+                                    if parent_ability_name != "" {
+                                        match this_instanced_abilities.find_or_add_by_ability_name(
+                                            parent_ability_name.clone(),
+                                            instanced_ability_id,
+                                        ) {
+                                            None => {
+                                                tracing::debug!(
+                                                    "[ModifierChange] No ability found: {}",
+                                                    parent_ability_name
+                                                );
+                                            }
+                                            Some((this_index, this_ability)) => {
+                                                instanced_ability_data = this_ability.ability_data;
+                                                if instanced_ability_data.is_some() {
+                                                    log_string = format!(
+                                                        "get from entity parent_ability_name:{}",
+                                                        parent_ability_name
+                                                    );
+                                                    ability_index = Some(this_index);
+                                                }
                                             }
                                         }
                                     }

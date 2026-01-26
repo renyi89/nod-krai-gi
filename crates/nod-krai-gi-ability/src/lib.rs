@@ -26,10 +26,17 @@ use crate::actions::ability_action_set_override_map_value::{
 use crate::actions::ability_action_set_random_override_map_value::{
     ability_action_set_random_override_map_value_event, AbilityActionSetRandomOverrideMapValueEvent,
 };
+use crate::actions::ability_action_add_hp_debts::{
+    ability_action_add_hp_debts_event, AbilityActionAddHPDebtsEvent,
+};
+use crate::actions::ability_action_reduce_hp_debts::{
+    ability_action_reduce_hp_debts_event, AbilityActionReduceHPDebtsEvent,
+};
 use crate::actions::execute_action_system;
 use crate::mixins::execute_mixin_system;
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
+use nod_krai_gi_entity::client_gadget::EntitySystemSet;
 use nod_krai_gi_message::event::ClientMessageEvent;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_proto::{
@@ -82,12 +89,14 @@ impl Plugin for AbilityPlugin {
             .add_message::<AbilityActionGetHPPaidDebtsEvent>()
             .add_message::<AbilityActionSetOverrideMapValueEvent>()
             .add_message::<AbilityActionSetRandomOverrideMapValueEvent>()
+            .add_message::<AbilityActionAddHPDebtsEvent>()
+            .add_message::<AbilityActionReduceHPDebtsEvent>()
             .add_systems(PreUpdate, on_ability_notify)
             .add_systems(
                 Update,
                 (
                     (
-                        handle_add_new_ability,
+                        handle_add_new_ability.after(EntitySystemSet::HandleEvtGadgetUpdate),
                         handle_modifier_change,
                         handle_override_param,
                         handle_reinit_override_map,
@@ -105,6 +114,8 @@ impl Plugin for AbilityPlugin {
                         ability_action_get_hp_paid_debts_event,
                         ability_action_set_override_map_value_event,
                         ability_action_set_random_override_map_value_event,
+                        ability_action_add_hp_debts_event,
+                        ability_action_reduce_hp_debts_event,
                     ),
                 )
                     .chain(),

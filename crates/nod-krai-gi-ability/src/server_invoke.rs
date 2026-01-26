@@ -14,19 +14,19 @@ pub struct ServerInvokeEvent(pub AbilityInvokeEntry);
 
 #[derive(Message)]
 pub struct ExecuteActionEvent(
-    pub InstancedAbility,
+    pub u32,
+    pub Entity,
     pub AbilityModifierAction,
     pub Vec<u8>,
-    pub Entity,
     pub Option<Entity>,
 );
 
 #[derive(Message)]
 pub struct ExecuteMixinEvent(
-    pub InstancedAbility,
+    pub u32,
+    pub Entity,
     pub AbilityMixinData,
     pub Vec<u8>,
-    pub Entity,
     pub Option<Entity>,
 );
 
@@ -67,7 +67,7 @@ pub fn server_invoke(
             Some(entity)
         };
 
-        let mut ability = None;
+        let mut ability: Option<(u32, Entity, InstancedAbility)> = None;
 
         if ability.is_none() && head.instanced_modifier_id != 0 {
             if let Ok((_, instanced_modifiers, _)) = entities.get(entity) {
@@ -76,7 +76,7 @@ pub fn server_invoke(
                         let entity_to_get = modifier.target_entity.unwrap_or(entity);
                         if let Ok((target_abilities, _, _)) = entities.get(entity_to_get) {
                             if let Some(item) = target_abilities.list.get(idx as usize) {
-                                ability = Some(item.clone());
+                                ability = Some((idx, entity_to_get, item.clone()));
                             }
                         }
                     }
@@ -88,14 +88,17 @@ pub fn server_invoke(
             if let Ok((instanced_abilities, _, _)) = entities.get(entity) {
                 match instanced_abilities.find_by_instanced_ability_id(head.instanced_ability_id) {
                     None => {}
-                    Some((_index, item)) => {
-                        ability = Some(item.clone());
+                    Some((index, item)) => {
+                        ability = Some((index, entity, item.clone()));
                     }
                 }
             }
         }
 
-        let ability_data = match ability.as_ref().and_then(|a| a.ability_data.as_ref()) {
+        let ability_data = match ability
+            .as_ref()
+            .and_then(|(_, _, a)| a.ability_data.as_ref())
+        {
             Some(data) => data,
             None => {
                 tracing::debug!(
@@ -171,12 +174,12 @@ pub fn server_invoke(
                                     local_id_info.action_idx,
                                     action.type_name
                                 );
-                    if let Some(ref ability_inst) = ability {
+                    if let Some((ability_index, ability_entity, _)) = ability {
                         execute_action_events.write(ExecuteActionEvent(
-                            ability_inst.clone(),
+                            ability_index,
+                            ability_entity,
                             action.clone(),
                             invoke.ability_data.clone(),
-                            entity,
                             target_entity,
                         ));
                     }
@@ -198,12 +201,12 @@ pub fn server_invoke(
                         local_id_info.mixin_idx,
                         mixin.type_name
                     );
-                    if let Some(ref ability_inst) = ability {
+                    if let Some((ability_index, ability_entity, _)) = ability {
                         execute_mixin_events.write(ExecuteMixinEvent(
-                            ability_inst.clone(),
+                            ability_index,
+                            ability_entity,
                             mixin.clone(),
                             invoke.ability_data.clone(),
-                            entity,
                             target_entity,
                         ));
                     }
@@ -296,12 +299,12 @@ pub fn server_invoke(
                                         local_id_info.action_idx,
                                         action.type_name
                                     );
-                        if let Some(ref ability_inst) = ability {
+                        if let Some((ability_index, ability_entity, _)) = ability {
                             execute_action_events.write(ExecuteActionEvent(
-                                ability_inst.clone(),
+                                ability_index,
+                                ability_entity,
                                 action.clone(),
                                 invoke.ability_data.clone(),
-                                entity,
                                 target_entity,
                             ));
                         }
@@ -340,12 +343,12 @@ pub fn server_invoke(
                                         local_id_info.mixin_idx,
                                         mixin.type_name
                                     );
-                        if let Some(ref ability_inst) = ability {
+                        if let Some((ability_index, ability_entity, _)) = ability {
                             execute_mixin_events.write(ExecuteMixinEvent(
-                                ability_inst.clone(),
+                                ability_index,
+                                ability_entity,
                                 mixin.clone(),
                                 invoke.ability_data.clone(),
-                                entity,
                                 target_entity,
                             ));
                         }
