@@ -1,0 +1,29 @@
+[package]
+name = "nod-krai-gi-proto"
+edition = "2021"
+build = "build/main.rs"
+version.workspace = true
+
+[dependencies]
+prost.workspace = true
+protobuf.workspace = true
+protobuf-parse.workspace = true
+protobuf-json-mapping.workspace = true
+
+serde.workspace = true
+serde_json.workspace = true
+rbase64.workspace = true
+tracing.workspace = true
+
+byteorder.workspace = true
+thiserror.workspace = true
+num_enum.workspace = true
+hex.workspace = true
+
+notify.workspace = true
+notify-debouncer-mini.workspace = true
+
+dashmap.workspace = true
+
+[build-dependencies]
+prost-build.workspace = true

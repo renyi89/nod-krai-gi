@@ -1,0 +1,40 @@
+[package]
+name = "nod-krai-gi-game-server"
+edition = "2021"
+version.workspace = true
+
+[dependencies]
+# Runtime
+tokio.workspace = true
+
+# Error processing
+thiserror.workspace = true
+anyhow.workspace = true
+
+# Serialization
+serde.workspace = true
+serde_json.workspace = true
+
+# Logging
+tracing.workspace = true
+
+# Util
+hex.workspace = true
+byteorder.workspace = true
+dashmap.workspace = true
+rand.workspace = true
+rbase64.workspace = true
+
+
+# Internal
+common.workspace = true
+game-server-core.workspace = true
+nod-krai-gi-database.workspace = true
+nod-krai-gi-message.workspace = true
+nod-krai-gi-persistence.workspace = true
+nod-krai-gi-data.workspace = true
+nod-krai-gi-proto.workspace = true
+nod-krai-gi-encryption.workspace = true
+
+# Network
+kcp.workspace = true

@@ -1,0 +1,28 @@
+use crate::server_invoke::ExecuteMixinEvent;
+use bevy_ecs::prelude::*;
+
+pub fn execute_mixin_system(
+    mut events: MessageReader<ExecuteMixinEvent>,
+    abilities_query: Query<&nod_krai_gi_entity::common::InstancedAbilities>,
+) {
+    for ExecuteMixinEvent(ability_index, ability_entity, mixin, _ability_data, _target_entity) in events.read()
+    {
+        let type_name = mixin.type_name.as_deref().unwrap_or("");
+
+        // Get ability from ability_index and ability_entity
+        let ability = match abilities_query.get(*ability_entity) {
+            Ok(abilities) => abilities.list.get(*ability_index as usize).cloned(),
+            Err(_) => None,
+        };
+        let Some(_ability) = ability else {
+            tracing::debug!("[execute_mixin_system] Ability not found for index: {} entity: {}", ability_index, ability_entity);
+            continue;
+        };
+
+        match type_name {
+            _ => {
+                tracing::debug!("Unhandled mixin type: {}", type_name);
+            }
+        }
+    }
+}

@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message MapLayerInfo {
+	repeated uint32 unlocked_map_layer_floor_id_list = 7;
+	repeated uint32 unlocked_map_layer_group_id_list = 8;
+	repeated uint32 unlocked_map_layer_id_list = 11;
+}

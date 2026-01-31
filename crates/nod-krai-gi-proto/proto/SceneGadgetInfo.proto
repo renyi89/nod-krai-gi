@@ -1,0 +1,75 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "GatherGadgetInfo.proto";
+import "ClientGadgetInfo.proto";
+import "GadgetPlayInfo.proto";
+import "FishPoolInfo.proto";
+import "CoinCollectOperatorInfo.proto";
+import "MpPlayRewardInfo.proto";
+import "NightCrowGadgetInfo.proto";
+import "GadgetGeneralRewardInfo.proto";
+import "PlatformInfo.proto";
+import "TrifleGadget.proto";
+import "DeshretObeliskGadgetInfo.proto";
+import "BlossomChestInfo.proto";
+import "GadgetBornType.proto";
+import "BossChestInfo.proto";
+import "EchoShellInfo.proto";
+import "StatueGadgetInfo.proto";
+import "OfferingInfo.proto";
+import "AbilityGadgetInfo.proto";
+import "CustomGadgetTreeInfo.proto";
+import "RoguelikeGadgetInfo.proto";
+import "FoundationInfo.proto";
+import "WorktopInfo.proto";
+import "VehicleInfo.proto";
+import "WeatherInfo.proto";
+import "ScreenInfo.proto";
+
+
+message SceneGadgetInfo {
+	bool is_show_cutscene = 8;
+	bool is_enable_interact = 10;
+	uint32 interact_id = 11;
+	uint32 gadget_talk_state = 26;
+	uint32 gadget_type = 7;
+	uint32 mark_flag = 21;
+	uint32 prop_owner_entity_id = 22;
+	uint32 init_pose_id = 28;
+	uint32 gadget_state = 6;
+	uint32 authority_peer_id = 9;
+	uint32 owner_entity_id = 4;
+	uint32 draft_id = 25;
+	uint32 gadget_id = 1;
+	uint32 config_id = 3;
+	uint32 group_id = 2;
+	GadgetBornType born_type = 5;
+	GadgetPlayInfo play_info = 100;
+	PlatformInfo platform = 23;
+	repeated uint32 interact_uid_list = 24;
+	repeated uint32 affix_list = 29;
+	oneof content {
+		WeatherInfo weather = 17;
+		OfferingInfo offering_info = 44;
+		CoinCollectOperatorInfo coin_collect_operator_info = 64;
+		NightCrowGadgetInfo night_crow_gadget_info = 62;
+		EchoShellInfo shell_info = 47;
+		StatueGadgetInfo statue_gadget = 19;
+		DeshretObeliskGadgetInfo deshret_obelisk_gadget_info = 63;
+		WorktopInfo worktop = 14;
+		GatherGadgetInfo gather_gadget = 13;
+		ScreenInfo screen_info = 48;
+		FishPoolInfo fish_pool_info = 59;
+		MpPlayRewardInfo mp_play_reward = 42;
+		AbilityGadgetInfo ability_gadget = 18;
+		RoguelikeGadgetInfo roguelike_gadget_info = 61;
+		FoundationInfo foundation_info = 45;
+		CustomGadgetTreeInfo custom_gadget_tree_info = 60;
+		BlossomChestInfo blossom_chest = 41;
+		GadgetGeneralRewardInfo general_reward = 43;
+		VehicleInfo vehicle_info = 46;
+		BossChestInfo boss_chest = 20;
+		ClientGadgetInfo client_gadget = 15;
+		TrifleGadget trifle_gadget = 67;
+	}
+}

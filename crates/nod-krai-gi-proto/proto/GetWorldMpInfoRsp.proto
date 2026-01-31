@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message GetWorldMpInfoRsp {
+	int32 retcode = 1;
+	bool is_in_mp_mode = 14;
+	uint32 quit_mp_valid_time = 10;
+}

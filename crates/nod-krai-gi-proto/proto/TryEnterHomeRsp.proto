@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message TryEnterHomeRsp {
+	int32 retcode = 4;
+	uint32 target_uid = 1;
+	repeated uint32 param_list = 13;
+}

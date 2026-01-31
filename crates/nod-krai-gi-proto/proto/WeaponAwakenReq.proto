@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message WeaponAwakenReq {
+	uint64 target_weapon_guid = 9;
+	uint32 item_guid = 5;
+	repeated uint64 item_guid_list = 11;
+}

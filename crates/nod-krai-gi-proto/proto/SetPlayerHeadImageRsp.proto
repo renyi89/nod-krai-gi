@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "ProfilePicture.proto";
+
+
+message SetPlayerHeadImageRsp {
+	int32 retcode = 7;
+	ProfilePicture profile_picture = 5;
+}

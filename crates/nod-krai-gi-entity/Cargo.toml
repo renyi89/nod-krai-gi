@@ -1,0 +1,16 @@
+[package]
+name = "nod-krai-gi-entity"
+edition = "2021"
+version.workspace = true
+
+[dependencies]
+bevy_app.workspace = true
+bevy_ecs.workspace = true
+tracing.workspace = true
+
+common.workspace = true
+nod-krai-gi-data.workspace = true
+nod-krai-gi-persistence.workspace = true
+nod-krai-gi-message.workspace = true
+nod-krai-gi-proto.workspace = true
+indexmap.workspace = true

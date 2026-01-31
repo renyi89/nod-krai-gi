@@ -1,0 +1,25 @@
+[package]
+name = "nod-krai-gi-dispatch-server"
+edition = "2021"
+version.workspace = true
+
+[dependencies]
+# Framework
+tokio.workspace = true
+axum.workspace = true
+axum-server.workspace = true
+
+# Serialization
+serde.workspace = true
+serde_json.workspace = true
+rbase64.workspace = true
+
+# Logging
+tracing.workspace = true
+
+# Error processing
+anyhow.workspace = true
+
+common.workspace = true
+prost.workspace = true
+nod-krai-gi-encryption.workspace = true

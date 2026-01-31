@@ -1,0 +1,16 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "ItemParam.proto";
+
+
+message CombineRsp {
+	uint64 avatar_guid = 2;
+	int32 retcode = 1;
+	uint32 combine_count = 7;
+	uint32 combine_id = 3;
+	repeated ItemParam totalExtraItemList = 14;
+	repeated ItemParam totalRandomItemList = 8;
+	repeated ItemParam result_item_list = 13;
+	repeated ItemParam total_return_item_list = 5;
+	repeated ItemParam cost_item_list = 6;
+}

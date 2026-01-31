@@ -1,0 +1,8 @@
+[package]
+name = "nod-krai-gi-persistence"
+edition = "2021"
+version.workspace = true
+
+[dependencies]
+bevy_ecs.workspace = true
+serde.workspace = true

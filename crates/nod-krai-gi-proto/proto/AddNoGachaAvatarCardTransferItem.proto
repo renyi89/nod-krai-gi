@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message AddNoGachaAvatarCardTransferItem {
+	bool is_new = 14;
+	uint32 count = 13;
+	uint32 item_id = 2;
+}

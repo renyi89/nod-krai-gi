@@ -1,0 +1,14 @@
+[package]
+name = "nod-krai-gi-combat"
+edition = "2021"
+version.workspace = true
+
+[dependencies]
+bevy_app.workspace = true
+bevy_ecs.workspace = true
+tracing.workspace = true
+
+nod-krai-gi-entity.workspace = true
+nod-krai-gi-proto.workspace = true
+nod-krai-gi-message.workspace = true
+nod-krai-gi-persistence.workspace = true

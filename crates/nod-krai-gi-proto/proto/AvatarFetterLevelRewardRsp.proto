@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message AvatarFetterLevelRewardRsp {
+	uint64 avatar_guid = 3;
+	int32 retcode = 1;
+	uint32 fetter_level = 9;
+	uint32 reward_id = 13;
+}

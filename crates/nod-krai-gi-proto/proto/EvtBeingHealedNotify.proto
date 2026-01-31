@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+message EvtBeingHealedNotify {
+	float heal_amount = 15;
+	float real_heal_amount = 9;
+	string heal_tag = 7;
+	uint32 source_id = 5;
+	uint32 target_id = 13;
+}

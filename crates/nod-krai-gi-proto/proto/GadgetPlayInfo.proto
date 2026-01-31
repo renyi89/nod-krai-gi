@@ -1,0 +1,16 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "GadgetCrucibleInfo.proto";
+
+
+message GadgetPlayInfo {
+	uint32 start_cd = 4;
+	uint32 duration = 2;
+	uint32 play_type = 1;
+	uint32 progress = 6;
+	uint32 start_time = 5;
+	repeated uint32 progress_stage_list = 3;
+	oneof play_info {
+		GadgetCrucibleInfo crucible_info = 21;
+	}
+}

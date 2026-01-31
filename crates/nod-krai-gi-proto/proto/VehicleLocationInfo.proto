@@ -1,0 +1,15 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "Vector.proto";
+
+
+message VehicleLocationInfo {
+	float cur_hp = 2;
+	float max_hp = 14;
+	uint32 owner_uid = 4;
+	uint32 gadget_id = 9;
+	uint32 entity_id = 1;
+	Vector rot = 6;
+	Vector pos = 7;
+	repeated uint32 uid_list = 5;
+}

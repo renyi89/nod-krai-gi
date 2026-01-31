@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message HomeAvatarSummonEventReq {
+	uint32 suit_id = 10;
+	uint32 guid = 7;
+	uint32 avatar_id = 15;
+}

@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "AvatarTeam.proto";
+
+
+message AvatarTeamAllDataNotify {
+	uint32 cur_avatar_team_id = 8;
+	repeated uint64 temp_avatar_guid_list = 1;
+	repeated uint32 backup_avatar_team_order_list = 11;
+	map<uint32, AvatarTeam> avatar_team_map = 6;
+}

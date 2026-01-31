@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "PacmanDungeonStopReason.proto";
+
+
+message PacmanDungeonSettleInfo {
+	bool is_new_record = 9;
+	uint32 coin_num = 6;
+	uint32 final_score = 1;
+	PacmanDungeonStopReason reason = 4;
+}

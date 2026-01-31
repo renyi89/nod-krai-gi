@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message BargainSnapshot {
+	int32 cur_mood = 7;
+	uint32 expected_price = 8;
+	uint32 lowest_price = 2;
+	uint32 bargain_id = 9;
+}

@@ -1,0 +1,13 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message DungeonChallengeBeginNotify {
+	uint32 father_index = 3;
+	uint32 challenge_index = 14;
+	uint32 challenge_id = 2;
+	uint32 group_id = 6;
+	repeated uint32 uid_list = 11;
+	repeated uint32 param_list = 7;
+}

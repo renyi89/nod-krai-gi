@@ -1,0 +1,14 @@
+[package]
+name = "nod-krai-gi-message"
+edition = "2021"
+version.workspace = true
+
+[dependencies]
+tracing.workspace = true
+hex.workspace = true
+tokio.workspace = true
+bevy_ecs.workspace = true
+
+nod-krai-gi-proto.workspace = true
+serde.workspace = true
+dashmap.workspace = true

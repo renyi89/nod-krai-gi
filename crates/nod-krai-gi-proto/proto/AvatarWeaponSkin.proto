@@ -1,0 +1,8 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+message AvatarWeaponSkin {
+  uint64 expire_time = 13;
+  uint32 weapon_skin_id = 15;
+}

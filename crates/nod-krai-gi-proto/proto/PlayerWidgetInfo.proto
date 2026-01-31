@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "WidgetSlotData.proto";
+
+
+message PlayerWidgetInfo {
+	uint32 uid = 3;
+	repeated WidgetSlotData slot_list = 11;
+}

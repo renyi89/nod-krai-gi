@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message TrialAvatarGrantRecord {
+	uint32 from_parent_quest_id = 2;
+	uint32 grant_reason = 1;
+}

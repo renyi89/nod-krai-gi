@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "PlayerDieType.proto";
+
+
+message DungeonPlayerDieReq {
+	uint32 dungeon_id = 11;
+	PlayerDieType die_type = 8;
+}

@@ -1,0 +1,9 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message SceneAreaUnlockNotify {
+	uint32 scene_id = 13;
+	repeated uint32 area_list = 11;
+}

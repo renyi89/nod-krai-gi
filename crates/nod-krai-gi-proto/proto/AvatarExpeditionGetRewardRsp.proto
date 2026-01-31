@@ -1,0 +1,11 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "AvatarExpeditionInfo.proto";
+import "RewardItemInfo.proto";
+
+
+message AvatarExpeditionGetRewardRsp {
+	int32 retcode = 2;
+	repeated RewardItemInfo reward_item_info = 13;
+	map<uint64, AvatarExpeditionInfo> expedition_info_map = 1;
+}

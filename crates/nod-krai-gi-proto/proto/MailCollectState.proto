@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+enum MailCollectState {
+	MailCollectState_MAIL_COLLECTIBLE_UNKONW = 0;
+	MailCollectState_MAIL_NOT_COLLECTIBLE = 1;
+	MailCollectState_MAIL_COLLECTIBLE_UNCOLLECTED = 2;
+	MailCollectState_MAIL_COLLECTIBLE_COLLECTED = 3;
+}

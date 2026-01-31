@@ -1,0 +1,16 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "Material.proto";
+import "Furniture.proto";
+import "Equip.proto";
+
+
+message Item {
+	uint64 guid = 2;
+	uint32 item_id = 1;
+	oneof detail {
+		Furniture furniture = 7;
+		Equip equip = 6;
+		Material material = 5;
+	}
+}

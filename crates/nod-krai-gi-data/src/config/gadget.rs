@@ -1,0 +1,75 @@
+use std::{
+    collections::HashMap,
+    fs::{self, ReadDir},
+    sync::OnceLock,
+};
+
+#[derive(Debug, serde::Deserialize)]
+pub struct GadgetConfig {
+    pub combat: Option<GadgetCombat>,
+    #[serde(default)]
+    pub abilities: Vec<GadgetAbility>,
+}
+
+#[derive(Debug, serde::Deserialize)]
+pub struct GadgetCombat {
+    pub property: Option<serde_json::Value>,
+    pub be_hit: Option<serde_json::Value>,
+    pub combat_lock: Option<serde_json::Value>,
+}
+
+#[derive(Debug, serde::Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GadgetAbility {
+    #[serde(default)]
+    pub ability_id: String,
+    pub ability_name: String,
+    #[serde(default)]
+    pub ability_override: String,
+}
+
+impl GadgetAbility {
+    pub const TYPE_IDENTIFIER: u32 = 7;
+    pub const DEFAULT_OVERRIDE: &str = "Default";
+}
+
+pub fn load_gadget_configs_from_bin(bin_output_path: &str) -> std::io::Result<()> {
+    load_gadget_configs(fs::read_dir(format!("{bin_output_path}/Gadget/"))?)?;
+
+    Ok(())
+}
+
+static GADGET_CONFIG_MAP: OnceLock<HashMap<String, GadgetConfig>> = OnceLock::new();
+
+fn load_gadget_configs(gadget_config_dir: ReadDir) -> std::io::Result<()> {
+    let mut map = HashMap::new();
+    for entry in gadget_config_dir {
+        let entry = entry?;
+        let data = fs::File::open(entry.path())?;
+        let reader = std::io::BufReader::new(data);
+
+        match serde_json::from_reader(reader) {
+            Ok(config) => {
+                let configs: HashMap<String, GadgetConfig> = config;
+                // 将所有解析出的配置添加到全局 map 中
+                for (key, config) in configs {
+                    map.insert(key, config);
+                }
+            }
+            Err(e) => {
+                println!("failed to parse gadget config: {:?} {:?}", e, entry.path());
+            }
+        }
+    }
+
+    let _ = GADGET_CONFIG_MAP.set(map);
+    Ok(())
+}
+
+pub fn get_gadget_config(name: &str) -> Option<&GadgetConfig> {
+    GADGET_CONFIG_MAP.get().unwrap().get(name)
+}
+
+pub fn iter_gadget_config_map() -> std::collections::hash_map::Iter<'static, String, GadgetConfig> {
+    GADGET_CONFIG_MAP.get().unwrap().iter()
+}

@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message HomeKickPlayerRsp {
+	int32 retcode = 11;
+	bool is_kick_all = 5;
+	uint32 target_uid = 2;
+}

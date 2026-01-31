@@ -1,0 +1,33 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+import "TowerCurLevelRecord.proto";
+import "TowerMonthlyBrief.proto";
+import "TowerFloorRecord.proto";
+
+
+message TowerAllDataRsp {
+	int32 retcode = 15;
+	bool is_finished_entrance_floor = 5;
+	bool is_first_interact = 8;
+	uint32 commemorative_reward_id = 7;
+	uint32 skip_to_floor_index = 13;
+	uint32 valid_tower_record_num = 1;
+	uint32 daily_floor_id = 14;
+	uint32 daily_level_index = 12;
+	uint32 next_schedule_change_time = 1258;
+	uint32 schedule_start_time = 2;
+	uint32 tower_schedule_id = 9;
+	TowerSkipFloorState tower_skip_floor_state = 2018;
+	TowerMonthlyBrief last_schedule_monthly_brief = 1932;
+	TowerMonthlyBrief monthly_brief = 4;
+	TowerCurLevelRecord cur_level_record = 6;
+	repeated TowerFloorRecord tower_floor_record_list = 11;
+	map<uint32, uint32> skip_floor_granted_reward_item_map = 3;
+	map<uint32, uint32> floor_open_time_map = 10;
+	enum TowerSkipFloorState {
+		TowerSkipFloorState_TOWER_SKIP_FLOOR_STATE_NONE = 0;
+		TowerSkipFloorState_TOWER_SKIP_FLOOR_STATE_CAN_NOT_SKIP = 1;
+		TowerSkipFloorState_TOWER_SKIP_FLOOR_STATE_HAS_REWARD = 2;
+		TowerSkipFloorState_TOWER_SKIP_FLOOR_STATE_TAKEN_REWARD = 3;
+	}
+}

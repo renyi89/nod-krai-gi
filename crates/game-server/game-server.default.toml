@@ -1,0 +1,9 @@
+cur_region_name = "dev_nod_krai_gi"
+region_list_path = "assets/region/region_list.json"
+encryption_config_path = "assets/region/encryption_config.json"
+
+[network]
+udp_host = "127.0.0.1:21002"
+
+[database]
+db_file = "game.db"

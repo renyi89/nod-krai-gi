@@ -1,0 +1,12 @@
+syntax = "proto3";
+option java_package = "emu.grasscutter.net.proto";
+
+
+
+message HomeAvatarRewardEventInfo {
+	uint32 random_position = 6;
+	uint32 suite_id = 8;
+	uint32 event_id = 11;
+	uint32 guid = 14;
+	uint32 avatar_id = 9;
+}
