@@ -23,7 +23,7 @@ pub struct Position {
 #[serde(default)]
 pub struct ScenePointData {
     #[serde(alias = "$type")]
-    pub r#type: String,
+    pub r#point_type: String,
     pub gadget_id: u32,
     pub area_id: u32,
     pub dungeon_ids: Vec<u32>,

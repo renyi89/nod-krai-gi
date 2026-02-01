@@ -7,7 +7,7 @@
 `nod-krai-gi` is forked from the [mavuika-rs](https://git.xeondev.com/mavuika-rs/mavuika-rs) project. Experimental implementation only.
 
 ## Feature Implementation/Differences
-- `sdk-server`: Removed from the project, using hoyo-sdk
+- `sdk-server`: Removed from the project, using hoyo-sdk (added dispatch redirection, because http was removed from the patch, only proxy can be used), set http_addr = "127.0.0.1:21000"
 - `nod-krai-gi-database`: Using sqlite
 - `nod-krai-gi-proto`: Modified to dynamically load protocol files
 - `nod-krai-gi-ability`: Implemented ability system (incorrect implementation)

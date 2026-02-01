@@ -98,7 +98,7 @@ fn data_request_processor(
                                 //     .points
                                 //     .iter()
                                 //     .filter(|(_point_id, point_data)| {
-                                //         point_data.r#type == "DungeonEntry"
+                                //         point_data.r#point_type == "DungeonEntry"
                                 //             && point_data.group_limit
                                 //     })
                                 //     .map(|(point_id, _point_data)| *point_id)
@@ -256,7 +256,7 @@ pub fn sync_group_unlimit_point_list_on_post_enter_scene(
                     .points
                     .iter()
                     .filter(|(_point_id, point_data)| {
-                        point_data.r#type == "DungeonEntry" && point_data.group_limit
+                        point_data.r#point_type == "DungeonEntry" && point_data.group_limit
                     })
                     .for_each(|(point_id, _point_data)| {
                         out.send(
