@@ -424,16 +424,16 @@ pub fn load_ability_configs_from_bin(bin_output_path: &str) -> std::io::Result<(
     let mut hash_map = HashMap::new();
     {
         let map_guard = map.lock().unwrap();
-        println!("Ability Name -> Hash Mapping:");
-        println!("================================");
+        // println!("Ability Name -> Hash Mapping:");
+        // println!("================================");
         for (name, _) in map_guard.iter() {
             let hash = common::string_util::get_string_hash(name);
-            println!("{} -> {}", name, hash);
+            // println!("{} -> {}", name, hash);
             hash_map.insert(hash, name.clone());
         }
 
-        println!("================================");
-        println!("Total abilities loaded: {}", map_guard.len());
+        // println!("================================");
+        // println!("Total abilities loaded: {}", map_guard.len());
     }
 
     let map_inner = map.into_inner().unwrap();

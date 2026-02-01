@@ -7,7 +7,9 @@
 `nod-krai-gi` 分叉自 [mavuika-rs](https://git.xeondev.com/mavuika-rs/mavuika-rs) 项目。仅实验性实现。
 
 
-## 功能实现
+## 功能实现/差异
+- `sdk-server`: 从项目中删除，使用hoyo-sdk
+- `nod-krai-gi-database`: 使用sqlite
 - `nod-krai-gi-proto`: 修改为动态加载协议文件
 - `nod-krai-gi-ability`: 实现能力系统（错误实现）
 - `nod-krai-gi-muip-server`: 提供指令，用于调试。（未完成，编译时删除此部分）
