@@ -139,3 +139,35 @@ mod u64_map_value_string {
             .collect()
     }
 }
+
+#[allow(dead_code)]
+mod u64_map_both_string {
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    use std::collections::HashMap;
+    use std::str::FromStr;
+
+    #[allow(dead_code)]
+    pub fn serialize<S: Serializer>(
+        map: &HashMap<u64, u64>,
+        s: S,
+    ) -> Result<S::Ok, S::Error> {
+        let string_both_map: HashMap<String, String> =
+            map.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect();
+        string_both_map.serialize(s)
+    }
+
+    #[allow(dead_code)]
+    pub fn deserialize<'de, D: Deserializer<'de>>(
+        d: D,
+    ) -> Result<HashMap<u64, u64>, D::Error> {
+        let string_both_map: HashMap<String, String> = HashMap::deserialize(d)?;
+        string_both_map
+            .into_iter()
+            .map(|(k, v)| {
+                let key = u64::from_str(&k).map_err(serde::de::Error::custom)?;
+                let value = u64::from_str(&v).map_err(serde::de::Error::custom)?;
+                Ok((key, value))
+            })
+            .collect()
+    }
+}

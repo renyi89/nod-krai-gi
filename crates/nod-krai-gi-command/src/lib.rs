@@ -172,7 +172,7 @@ pub fn debug_command_handler(
                             // Take Y (height) from player's pos, spawn a bit above
                             position: (
                                 position.0,
-                                player.world_position.position.1 + 1.0,
+                                player.world_position.position.1,
                                 position.1,
                             )
                                 .into(),

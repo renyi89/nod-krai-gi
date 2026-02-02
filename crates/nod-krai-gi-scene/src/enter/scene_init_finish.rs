@@ -12,32 +12,42 @@ pub struct SceneInitFinishEvent(pub u32);
 
 pub fn on_scene_init_finish(
     mut reader: MessageReader<SceneInitFinishEvent>,
-    players: Res<Players>,
+    mut players: ResMut<Players>,
     mut join_team_events: MessageWriter<PlayerJoinTeamEvent>,
 ) {
     for event in reader.read() {
         let uid = event.0;
-        let player_info = players.get(uid);
+        let player_info = players.get_mut(uid);
 
-        let appear_avatar_guid = player_info
-            .avatar_module
-            .team_map
-            .get(&1)
-            .unwrap()
-            .avatar_guid_list
-            .first()
-            .copied()
-            .unwrap();
+        if player_info.avatar_module.temp_avatar_guid_list.is_empty() {
+            player_info.avatar_module.temp_avatar_guid_list = player_info
+                .avatar_module
+                .team_map
+                .get(&player_info.avatar_module.cur_avatar_team_id)
+                .unwrap()
+                .avatar_guid_list
+                .clone();
+        }
+
+        let appear_avatar_guid = {
+            if !player_info
+                .avatar_module
+                .temp_avatar_guid_list
+                .contains(&player_info.avatar_module.cur_avatar_guid)
+            {
+                player_info.avatar_module.cur_avatar_guid = player_info
+                    .avatar_module
+                    .temp_avatar_guid_list
+                    .first()
+                    .copied()
+                    .unwrap();
+            }
+            player_info.avatar_module.cur_avatar_guid
+        };
 
         join_team_events.write(PlayerJoinTeamEvent {
             player_uid: uid,
-            avatar_guid_list: player_info
-                .avatar_module
-                .team_map
-                .get(&1)
-                .unwrap()
-                .avatar_guid_list
-                .clone(),
+            avatar_guid_list: player_info.avatar_module.temp_avatar_guid_list.clone(),
             appear_avatar_guid,
         });
     }

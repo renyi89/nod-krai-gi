@@ -44,10 +44,26 @@ pub fn main() {
         if line.trim_start().starts_with("#[prost(uint64, repeated,") {
             output1.push_str("    #[serde(with=\"crate::u64_repeated_string\")]\n");
         }
-        if line.trim_start().starts_with("#[prost(map = ")
-            && line.trim_start().starts_with(", uint64\"")
-        {
-            output1.push_str("    #[serde(with=\"crate::u64_map_value_string\")]\n");
+        if line.trim_start().starts_with("#[prost(map = ") {
+            let map_type = line
+                .trim_start()
+                .split("#[prost(map = \"")
+                .nth(1)
+                .unwrap_or("")
+                .split("\"")
+                .nth(0)
+                .unwrap_or("");
+            let parts: Vec<&str> = map_type.split(", ").collect();
+            if parts.len() == 2 {
+                let (key_type, value_type) = (parts[0], parts[1]);
+                if key_type == "uint64" && value_type == "uint64" {
+                    output1.push_str("    #[serde(with=\"crate::u64_map_both_string\")]\n");
+                } else if key_type == "uint64" {
+                    output1.push_str("    #[serde(with=\"crate::u64_map_key_string\")]\n");
+                } else if value_type == "uint64" {
+                    output1.push_str("    #[serde(with=\"crate::u64_map_value_string\")]\n");
+                }
+            }
         }
         if line.trim_start().starts_with("#[prost(oneof =") {
             output1.push_str("    #[serde(flatten)]\n");

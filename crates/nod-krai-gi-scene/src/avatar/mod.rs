@@ -81,6 +81,10 @@ pub fn change_avatar(
                                     cur_avatar_data.entity_id.0,
                                 ));
 
+                            let player = players.get_mut(message.sender_uid());
+
+                            player.avatar_module.cur_avatar_guid = request.guid;
+
                             message_output.send(
                                 message.sender_uid(),
                                 "ChangeAvatarRsp",
@@ -97,21 +101,17 @@ pub fn change_avatar(
             "AvatarDieAnimationEndReq" => {
                 if let Some(request) = message.decode::<AvatarDieAnimationEndReq>() {
                     let player = players.get_mut(message.sender_uid());
-                    let team = match player
-                        .avatar_module
-                        .team_map
-                        .get(&player.avatar_module.cur_avatar_team_id)
-                    {
-                        None => continue,
-                        Some(team) => team,
-                    };
+
                     let mut all_dead = true;
 
                     let mut is_first_avatar = true;
                     for (avatar_entity, _, life_state, avatar_data, _) in
                         avatars.iter().filter(|(_, _, _, a, _)| {
                             a.owner_player_uid.0 == message.sender_uid()
-                                && team.avatar_guid_list.contains(&a.guid.0)
+                                && player
+                                    .avatar_module
+                                    .temp_avatar_guid_list
+                                    .contains(&a.guid.0)
                         })
                     {
                         if *life_state == LifeState::Alive && is_first_avatar {
@@ -126,6 +126,8 @@ pub fn change_avatar(
                             };
 
                             debug!("transform:{}", transform);
+
+                            player.avatar_module.cur_avatar_guid = avatar_data.guid.0;
 
                             commands
                                 .entity(avatar_entity)
@@ -142,7 +144,10 @@ pub fn change_avatar(
                         for (avatar_entity, fight_props, _, avatar_data, _) in
                             avatars.iter().filter(|(_, _, _, a, _)| {
                                 a.owner_player_uid.0 == message.sender_uid()
-                                    && team.avatar_guid_list.contains(&a.guid.0)
+                                    && player
+                                        .avatar_module
+                                        .temp_avatar_guid_list
+                                        .contains(&a.guid.0)
                             })
                         {
                             let max_hp = fight_props.get_property(FightPropType::FIGHT_PROP_MAX_HP);
@@ -249,11 +254,17 @@ pub fn set_up_avatar_team(
 
                         team.avatar_guid_list = request.avatar_team_guid_list.clone();
 
-                        change_events.write(PlayerAvatarTeamChanged {
-                            uid: message.sender_uid(),
-                            avatar_team_guid_list: request.avatar_team_guid_list.clone(),
-                            cur_avatar_guid,
-                        });
+                        if team_id == player.avatar_module.cur_avatar_team_id {
+                            player.avatar_module.cur_avatar_guid = cur_avatar_guid;
+                            player.avatar_module.temp_avatar_guid_list =
+                                request.avatar_team_guid_list.clone();
+
+                            change_events.write(PlayerAvatarTeamChanged {
+                                uid: message.sender_uid(),
+                                avatar_team_guid_list: request.avatar_team_guid_list.clone(),
+                                cur_avatar_guid,
+                            });
+                        }
 
                         out.send(
                             message.sender_uid(),

@@ -341,23 +341,17 @@ fn get_cur_team_avatars(
     players: &Players,
 ) -> Vec<Entity> {
     let player = players.get(player_uid);
-    let team = player
-        .avatar_module
-        .team_map
-        .get(&player.avatar_module.cur_avatar_team_id);
-
-    if let Some(team) = team {
-        avatars
-            .iter()
-            .filter(|(_, data, _)| {
-                data.owner_player_uid.0 == player_uid
-                    && team.avatar_guid_list.contains(&data.guid.0)
-            })
-            .map(|(e, _, _)| e)
-            .collect()
-    } else {
-        Vec::new()
-    }
+    avatars
+        .iter()
+        .filter(|(_, data, _)| {
+            data.owner_player_uid.0 == player_uid
+                && player
+                    .avatar_module
+                    .temp_avatar_guid_list
+                    .contains(&data.guid.0)
+        })
+        .map(|(e, _, _)| e)
+        .collect()
 }
 
 fn get_cur_local_avatar(
@@ -370,24 +364,18 @@ fn get_cur_local_avatar(
     players: &Players,
 ) -> Vec<Entity> {
     let player = players.get(player_uid);
-    let team = player
-        .avatar_module
-        .team_map
-        .get(&player.avatar_module.cur_avatar_team_id);
-
-    if let Some(team) = team {
-        avatars
-            .iter()
-            .filter(|(_, data, is_cur)| {
-                data.owner_player_uid.0 == player_uid
-                    && team.avatar_guid_list.contains(&data.guid.0)
-                    && is_cur.is_some()
-            })
-            .map(|(e, _, _)| e)
-            .collect()
-    } else {
-        Vec::new()
-    }
+    avatars
+        .iter()
+        .filter(|(_, data, is_cur)| {
+            data.owner_player_uid.0 == player_uid
+                && player
+                    .avatar_module
+                    .temp_avatar_guid_list
+                    .contains(&data.guid.0)
+                && is_cur.is_some()
+        })
+        .map(|(e, _, _)| e)
+        .collect()
 }
 
 fn get_all_player_avatars(
@@ -402,14 +390,7 @@ fn get_all_player_avatars(
 
     for player_uid in players.keys() {
         let player = players.get(*player_uid);
-        let team = player
-            .avatar_module
-            .team_map
-            .get(&player.avatar_module.cur_avatar_team_id);
-
-        if let Some(team) = team {
-            all_team_guids.extend(team.avatar_guid_list.iter());
-        }
+        all_team_guids.extend(player.avatar_module.temp_avatar_guid_list.iter());
     }
 
     avatars

@@ -56,7 +56,7 @@ pub fn player_jump_by_point(
 
                     let destination = Vector3::from((
                         point_config.tran_pos.x,
-                        point_config.tran_pos.y,
+                        point_config.tran_pos.y + 2.5,
                         point_config.tran_pos.z,
                     ));
                     player.world_position.scene_id = *scene_id;

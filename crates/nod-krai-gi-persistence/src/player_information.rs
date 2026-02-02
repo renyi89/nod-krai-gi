@@ -32,6 +32,8 @@ pub struct BasicModuleInformation {
 #[derive(Serialize, Deserialize, Default)]
 pub struct AvatarModuleInformation {
     pub cur_avatar_team_id: u32,
+    pub cur_avatar_guid: u64,
+    pub temp_avatar_guid_list: Vec<u64>,
     pub avatar_map: HashMap<u64, AvatarInformation>,
     pub team_map: HashMap<u32, AvatarTeamInformation>,
     pub owned_flycloak_set: HashSet<u32>,

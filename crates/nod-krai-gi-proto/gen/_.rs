@@ -5241,6 +5241,7 @@ pub struct AvatarExpeditionAllDataRsp {
     #[prost(uint32, repeated, tag = "12")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub open_expedition_list: ::prost::alloc::vec::Vec<u32>,
+    #[serde(with="crate::u64_map_key_string")]
     #[prost(map = "uint64, message", tag = "8")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub expedition_info_map: ::std::collections::HashMap<u64, AvatarExpeditionInfo>,
@@ -5261,6 +5262,7 @@ pub struct AvatarExpeditionCallBackRsp {
     #[prost(int32, tag = "5")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub retcode: i32,
+    #[serde(with="crate::u64_map_key_string")]
     #[prost(map = "uint64, message", tag = "6")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub expedition_info_map: ::std::collections::HashMap<u64, AvatarExpeditionInfo>,
@@ -5269,6 +5271,7 @@ pub struct AvatarExpeditionCallBackRsp {
 #[serde(default)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AvatarExpeditionDataNotify {
+    #[serde(with="crate::u64_map_key_string")]
     #[prost(map = "uint64, message", tag = "10")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub expedition_info_map: ::std::collections::HashMap<u64, AvatarExpeditionInfo>,
@@ -5324,6 +5327,7 @@ pub struct AvatarExpeditionGetRewardRsp {
     #[prost(message, repeated, tag = "13")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub reward_item_info: ::prost::alloc::vec::Vec<RewardItemInfo>,
+    #[serde(with="crate::u64_map_key_string")]
     #[prost(map = "uint64, message", tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub expedition_info_map: ::std::collections::HashMap<u64, AvatarExpeditionInfo>,
@@ -5346,6 +5350,7 @@ pub struct AvatarExpeditionStartRsp {
     #[prost(message, repeated, tag = "5")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub expedition_start_info: ::prost::alloc::vec::Vec<AvatarExpeditionStartInfo>,
+    #[serde(with="crate::u64_map_key_string")]
     #[prost(map = "uint64, message", tag = "14")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub expedition_info_map: ::std::collections::HashMap<u64, AvatarExpeditionInfo>,
@@ -5354,6 +5359,7 @@ pub struct AvatarExpeditionStartRsp {
 #[serde(default)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AvatarFetterDataNotify {
+    #[serde(with="crate::u64_map_key_string")]
     #[prost(map = "uint64, message", tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub fetter_info_map: ::std::collections::HashMap<u64, AvatarFetterInfo>,
@@ -13922,6 +13928,7 @@ pub struct ItemGivingReq {
     #[prost(message, repeated, tag = "6")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub item_param_list: ::prost::alloc::vec::Vec<ItemParam>,
+    #[serde(with="crate::u64_map_key_string")]
     #[prost(map = "uint64, uint32", tag = "11")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub item_guid_count_map: ::std::collections::HashMap<u64, u32>,
