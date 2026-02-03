@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message ChooseCurAvatarTeamRsp {
-	int32 retcode = 15;
-	uint32 cur_team_id = 8;
-}

@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "Vector.proto";
-
-
-message WidgetCreateLocationInfo {
-	Vector rot = 9;
-	Vector pos = 8;
-}

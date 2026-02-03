@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-enum LifeByOwnerType {
-	LifeByOwnerType_LIFE_BY_OWNER_NONE = 0;
-	LifeByOwnerType_LIFE_BY_OWNER_V2 = 1;
-	LifeByOwnerType_LIFE_BY_OWNER_V3 = 2;
-}

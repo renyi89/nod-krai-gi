@@ -1,6 +1,5 @@
 use crate::{common::PlayerSceneStates, player_join_team::PlayerJoinTeamEvent};
 use bevy_ecs::prelude::*;
-use nod_krai_gi_entity::avatar::TransportFlag;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_message::USER_VERSION;
 use nod_krai_gi_persistence::Players;
@@ -19,8 +18,8 @@ pub fn on_scene_init_finish(
         let uid = event.0;
         let player_info = players.get_mut(uid);
 
-        if player_info.avatar_module.temp_avatar_guid_list.is_empty() {
-            player_info.avatar_module.temp_avatar_guid_list = player_info
+        if player_info.avatar_module.cur_avatar_guid_list.is_empty() {
+            player_info.avatar_module.cur_avatar_guid_list = player_info
                 .avatar_module
                 .team_map
                 .get(&player_info.avatar_module.cur_avatar_team_id)
@@ -32,12 +31,12 @@ pub fn on_scene_init_finish(
         let appear_avatar_guid = {
             if !player_info
                 .avatar_module
-                .temp_avatar_guid_list
+                .cur_avatar_guid_list
                 .contains(&player_info.avatar_module.cur_avatar_guid)
             {
                 player_info.avatar_module.cur_avatar_guid = player_info
                     .avatar_module
-                    .temp_avatar_guid_list
+                    .cur_avatar_guid_list
                     .first()
                     .copied()
                     .unwrap();
@@ -47,7 +46,7 @@ pub fn on_scene_init_finish(
 
         join_team_events.write(PlayerJoinTeamEvent {
             player_uid: uid,
-            avatar_guid_list: player_info.avatar_module.temp_avatar_guid_list.clone(),
+            avatar_guid_list: player_info.avatar_module.cur_avatar_guid_list.clone(),
             appear_avatar_guid,
         });
     }
@@ -57,15 +56,9 @@ pub fn scene_init_finish_send_rsp(
     mut scene_init_finish_events: MessageReader<SceneInitFinishEvent>,
     player_scene_states: Res<PlayerSceneStates>,
     message_output: Res<MessageOutput>,
-    mut commands: Commands,
-    avatar_entities: Query<Entity, (With<TransportFlag>,)>,
     mut lua_shell_events: MessageWriter<nod_krai_gi_luashell::LuaShellEvent>,
 ) {
     for event in scene_init_finish_events.read() {
-        avatar_entities.iter().for_each(|avatar_entity| {
-            commands.entity(avatar_entity).remove::<TransportFlag>();
-        });
-
         let uid = event.0;
 
         let binding = USER_VERSION.get().unwrap().get(&uid).unwrap();

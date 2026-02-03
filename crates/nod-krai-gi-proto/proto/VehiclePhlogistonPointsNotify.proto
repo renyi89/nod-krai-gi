@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message VehiclePhlogistonPointsNotify {
-	float cur_phlogiston = 5;
-	uint32 entity_id = 10;
-}

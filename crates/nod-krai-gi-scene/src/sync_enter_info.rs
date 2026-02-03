@@ -65,6 +65,7 @@ pub fn sync_enter_info(
             team_ability_info: Some(phlogiston_sync_info),
             ability_control_block: Some(team_ability.build_control_block()),
             team_entity_id: team_entity_id.0,
+            ..Default::default()
         };
 
         let mp_level_entity_info = MpLevelEntityInfo {

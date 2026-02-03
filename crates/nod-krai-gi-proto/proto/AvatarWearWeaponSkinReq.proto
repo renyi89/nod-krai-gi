@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-message AvatarWearWeaponSkinReq {
-  uint32 weapon_skin_id = 7;
-  repeated uint64 avatar_guid_list = 1;
-}

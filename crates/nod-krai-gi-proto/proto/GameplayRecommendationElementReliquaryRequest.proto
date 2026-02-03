@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message GameplayRecommendationElementReliquaryRequest {
-	uint32 equip_type = 6;
-	uint32 element_type = 9;
-}

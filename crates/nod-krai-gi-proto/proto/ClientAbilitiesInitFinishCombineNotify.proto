@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "EntityAbilityInvokeEntry.proto";
-
-
-message ClientAbilitiesInitFinishCombineNotify {
-	repeated EntityAbilityInvokeEntry entity_invoke_list = 14;
-}

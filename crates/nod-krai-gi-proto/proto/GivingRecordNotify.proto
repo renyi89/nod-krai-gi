@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "GivingRecord.proto";
-
-
-message GivingRecordNotify {
-	repeated GivingRecord giving_record_list = 11;
-}

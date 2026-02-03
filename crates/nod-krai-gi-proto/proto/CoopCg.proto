@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message CoopCg {
-	bool is_unlock = 9;
-	uint32 id = 12;
-}

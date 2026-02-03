@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message DungeonShowReminderNotify {
-	uint32 reminder_id = 1;
-}

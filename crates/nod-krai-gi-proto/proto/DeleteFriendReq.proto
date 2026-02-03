@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message DeleteFriendReq {
-	int32 retcode = 7;
-	uint32 target_uid = 8;
-}

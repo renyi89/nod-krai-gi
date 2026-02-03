@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message CombineDataNotify {
-	repeated uint32 combine_id_list = 2;
-}

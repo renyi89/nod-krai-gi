@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "CompoundQueueData.proto";
-
-
-message PlayerCompoundMaterialRsp {
-	int32 retcode = 3;
-	CompoundQueueData compound_queue_data = 8;
-}

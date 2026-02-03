@@ -178,7 +178,10 @@ pub fn notify_avatar_appearance_change(
             match event.change {
                 AvatarAppearanceChange::Costume(_) => message_output.send_to_all(
                     "AvatarChangeCostumeNotify",
-                    AvatarChangeCostumeNotify { entity_info },
+                    AvatarChangeCostumeNotify {
+                        entity_info,
+                        ..Default::default()
+                    },
                 ),
                 AvatarAppearanceChange::TraceEffect(_) => message_output.send_to_all(
                     "AvatarChangeTraceEffectNotify",
@@ -203,7 +206,10 @@ pub fn notify_avatar_appearance_change(
                 AvatarAppearanceChange::Costume(_) => message_output.send(
                     event.player_uid,
                     "AvatarChangeCostumeNotify",
-                    AvatarChangeCostumeNotify { entity_info },
+                    AvatarChangeCostumeNotify {
+                        entity_info,
+                        ..Default::default()
+                    },
                 ),
                 AvatarAppearanceChange::TraceEffect(_) => message_output.send(
                     event.player_uid,
@@ -454,6 +460,8 @@ pub fn build_avatar_entity_info(
             cur_vehicle_info: None,
             excel_info: Some(AvatarExcelInfo::default()),
             anim_hash: 0,
+            ..Default::default()
         })),
+        ..Default::default()
     }
 }

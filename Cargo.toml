@@ -32,6 +32,8 @@ members = [
     "crates/nod-krai-gi-environment",
     "crates/nod-krai-gi-inventory",
     "crates/nod-krai-gi-avatar",
+    "crates/nod-krai-gi-quest",
+    "crates/nod-krai-gi-social",
 ]
 resolver = "2"
 
@@ -114,6 +116,8 @@ nod-krai-gi-environment = { path = "crates/nod-krai-gi-environment" }
 nod-krai-gi-pathfinding = { path = "crates/nod-krai-gi-pathfinding" }
 nod-krai-gi-combat = { path = "crates/nod-krai-gi-combat" }
 nod-krai-gi-ability = { path = "crates/nod-krai-gi-ability" }
+nod-krai-gi-social = { path = "crates/nod-krai-gi-social" }
+nod-krai-gi-quest = { path = "crates/nod-krai-gi-quest" }
 nod-krai-gi-time = { path = "crates/nod-krai-gi-time" }
 nod-krai-gi-map = { path = "crates/nod-krai-gi-map" }
 nod-krai-gi-inventory = { path = "crates/nod-krai-gi-inventory" }

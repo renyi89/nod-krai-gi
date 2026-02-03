@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message SetCoopChapterViewedRsp {
-	int32 retcode = 15;
-	uint32 chapter_id = 8;
-}

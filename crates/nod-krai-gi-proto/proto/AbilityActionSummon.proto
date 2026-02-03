@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "Vector.proto";
-
-
-message AbilityActionSummon {
-	Vector rot = 13;
-	Vector pos = 4;
-}

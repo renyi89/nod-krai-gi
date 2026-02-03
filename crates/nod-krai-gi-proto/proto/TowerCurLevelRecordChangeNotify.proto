@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "TowerCurLevelRecord.proto";
-
-
-message TowerCurLevelRecordChangeNotify {
-	TowerCurLevelRecord cur_level_record = 12;
-}

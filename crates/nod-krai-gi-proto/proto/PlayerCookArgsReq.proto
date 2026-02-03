@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message PlayerCookArgsReq {
-	uint32 assist_avatar = 10;
-	uint32 recipe_id = 11;
-}

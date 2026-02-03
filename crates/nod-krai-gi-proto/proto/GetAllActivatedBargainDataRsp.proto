@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "BargainSnapshot.proto";
-
-
-message GetAllActivatedBargainDataRsp {
-	int32 retcode = 10;
-	repeated BargainSnapshot snapshot_list = 12;
-}

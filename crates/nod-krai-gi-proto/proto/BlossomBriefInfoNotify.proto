@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "BlossomBriefInfo.proto";
-
-
-message BlossomBriefInfoNotify {
-	repeated BlossomBriefInfo brief_info_list = 5;
-}

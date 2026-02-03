@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-message AvatarWearWeaponSkinRsp {
-  int32 retcode = 12;
-  uint32 weapon_skin_id = 15;
-  repeated uint64 avatar_guid_list = 3;
-}

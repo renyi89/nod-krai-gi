@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message AvatarFlycloakChangeNotify {
-	repeated uint64 avatar_guid_list = 2;
-	uint32 flycloak_id = 7;
-}

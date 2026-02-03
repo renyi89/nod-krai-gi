@@ -13,6 +13,14 @@ use tracing::{error, instrument};
 mod hit;
 mod movement;
 
+use std::sync::atomic::{AtomicU32, Ordering};
+
+static COUNTER: AtomicU32 = AtomicU32::new(0);
+
+pub fn next_seq() -> u32 {
+    COUNTER.fetch_add(1, Ordering::Relaxed) + 1
+}
+
 pub struct CombatPlugin;
 
 impl Plugin for CombatPlugin {
@@ -133,6 +141,7 @@ fn combat_invocation_processor(
                             "CombatInvocationsNotify",
                             CombatInvocationsNotify {
                                 invoke_list: invoke_list_to_all,
+                                combat_unk_seq: next_seq(),
                             },
                         );
                     }
@@ -143,6 +152,7 @@ fn combat_invocation_processor(
                             "CombatInvocationsNotify",
                             CombatInvocationsNotify {
                                 invoke_list: invoke_list_to_ohers,
+                                combat_unk_seq: next_seq(),
                             },
                         );
                     }
@@ -153,6 +163,7 @@ fn combat_invocation_processor(
                             "CombatInvocationsNotify",
                             CombatInvocationsNotify {
                                 invoke_list: invoke_list_to_host,
+                                combat_unk_seq: next_seq(),
                             },
                         );
                     }

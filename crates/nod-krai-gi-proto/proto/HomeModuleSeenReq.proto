@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message HomeModuleSeenReq {
-	repeated uint32 seen_module_id_list = 4;
-}

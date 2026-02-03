@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message AvatarChangeElementTypeReq {
-	uint32 area_id = 2;
-	uint32 scene_id = 1;
-}

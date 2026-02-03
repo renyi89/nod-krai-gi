@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message HomeChangeEditModeRsp {
-	int32 retcode = 15;
-	bool is_enter_edit_mode = 9;
-}

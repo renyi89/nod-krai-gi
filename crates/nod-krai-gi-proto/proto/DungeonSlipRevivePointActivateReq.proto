@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message DungeonSlipRevivePointActivateReq {
-	uint32 slip_revive_point_id = 12;
-}

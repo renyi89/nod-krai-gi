@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message PullRecentChatReq {
-	uint32 begin_sequence = 3;
-	uint32 pull_num = 6;
-}

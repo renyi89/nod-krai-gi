@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "HomeResource.proto";
-
-
-message HomeResourceTakeHomeCoinRsp {
-	int32 retcode = 4;
-	HomeResource home_coin = 14;
-}

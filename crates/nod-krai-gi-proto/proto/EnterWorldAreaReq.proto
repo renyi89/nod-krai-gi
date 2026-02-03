@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message EnterWorldAreaReq {
-	uint32 area_type = 3;
-	uint32 area_id = 2;
-}

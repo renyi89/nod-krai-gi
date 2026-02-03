@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message ServerTimeNotify {
-	uint64 server_time = 10;
-}

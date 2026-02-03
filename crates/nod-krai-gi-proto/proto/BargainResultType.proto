@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-enum BargainResultType {
-	BargainResultType_BARGAIN_COMPLETE_SUCC = 0;
-	BargainResultType_BARGAIN_SINGLE_FAIL = 1;
-	BargainResultType_BARGAIN_COMPLETE_FAIL = 2;
-}

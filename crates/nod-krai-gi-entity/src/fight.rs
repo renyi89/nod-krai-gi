@@ -76,7 +76,7 @@ pub fn notify_fight_properties_change_reason_to_clients(
                         prop_delta: event.value,
                         paid_hp_debts: event.value,
                         reason: event.reason as i32,
-                        change_hp_debts: change_hp_debts_reason as i32,
+                        change_hp_debts_reason: change_hp_debts_reason as i32,
                         ..Default::default()
                     },
                 );

@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "DealAddFriendResultType.proto";
-
-
-message DealAddFriendReq {
-	uint32 target_uid = 11;
-	DealAddFriendResultType deal_add_friend_result = 3;
-}

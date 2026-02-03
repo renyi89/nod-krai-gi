@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-enum FriendEnterHomeOption {
-	FriendEnterHomeOption_NEED_CONFIRM = 0;
-	FriendEnterHomeOption_REFUSE = 1;
-	FriendEnterHomeOption_DIRECT = 2;
-}

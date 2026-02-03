@@ -89,6 +89,7 @@ pub fn notify_appear_monster_entities(
                         monster_id: monster_data.monster_id.0,
                         ..Default::default()
                     })),
+                    ..Default::default()
                 })
                 .collect(),
         },

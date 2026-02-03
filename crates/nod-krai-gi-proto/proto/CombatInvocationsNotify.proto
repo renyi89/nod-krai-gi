@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "CombatInvokeEntry.proto";
-
-
-message CombatInvocationsNotify {
-	repeated CombatInvokeEntry invoke_list = 6;
-}

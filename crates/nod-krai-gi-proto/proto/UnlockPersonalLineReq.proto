@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message UnlockPersonalLineReq {
-	uint32 personal_line_id = 3;
-}

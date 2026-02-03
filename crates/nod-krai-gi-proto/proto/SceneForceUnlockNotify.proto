@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message SceneForceUnlockNotify {
-	bool is_add = 4;
-	repeated uint32 force_id_list = 6;
-}

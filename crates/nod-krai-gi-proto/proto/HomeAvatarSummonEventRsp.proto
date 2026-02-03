@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message HomeAvatarSummonEventRsp {
-	int32 retcode = 12;
-	uint32 event_id = 5;
-}

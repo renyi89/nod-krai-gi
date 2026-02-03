@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-enum ModifierAction {
-	ModifierAction_ADDED = 0;
-	ModifierAction_REMOVED = 1;
-}

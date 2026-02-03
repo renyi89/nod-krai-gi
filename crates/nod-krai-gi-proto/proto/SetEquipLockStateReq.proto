@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message SetEquipLockStateReq {
-	uint64 target_equip_guid = 10;
-	bool is_locked = 1;
-}

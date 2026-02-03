@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message DungeonWayPointActivateReq {
-	uint32 way_point_id = 10;
-}

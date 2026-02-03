@@ -17,7 +17,9 @@ use nod_krai_gi_message::{
 };
 use nod_krai_gi_pathfinding::PathfindingPlugin;
 use nod_krai_gi_persistence::{player_information::PlayerInformation, Players};
+use nod_krai_gi_quest::QuestPlugin;
 use nod_krai_gi_scene::{common::WorldOwnerUID, ScenePlugin};
+use nod_krai_gi_social::SocialPlugin;
 use nod_krai_gi_time::TimePlugin;
 
 pub struct PlayerWorld(App);
@@ -49,6 +51,8 @@ impl PlayerWorld {
 
         if true {
             app.add_plugins(AbilityPlugin);
+            app.add_plugins(SocialPlugin);
+            app.add_plugins(QuestPlugin);
         }
 
         app.world_mut()

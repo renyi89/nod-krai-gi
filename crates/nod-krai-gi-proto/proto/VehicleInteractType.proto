@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-enum VehicleInteractType {
-	VehicleInteractType_VEHICLE_INTERACT_NONE = 0;
-	VehicleInteractType_VEHICLE_INTERACT_IN = 1;
-	VehicleInteractType_VEHICLE_INTERACT_OUT = 2;
-}

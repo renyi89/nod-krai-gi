@@ -110,7 +110,7 @@ pub fn change_avatar(
                             a.owner_player_uid.0 == message.sender_uid()
                                 && player
                                     .avatar_module
-                                    .temp_avatar_guid_list
+                                    .cur_avatar_guid_list
                                     .contains(&a.guid.0)
                         })
                     {
@@ -146,7 +146,7 @@ pub fn change_avatar(
                                 a.owner_player_uid.0 == message.sender_uid()
                                     && player
                                         .avatar_module
-                                        .temp_avatar_guid_list
+                                        .cur_avatar_guid_list
                                         .contains(&a.guid.0)
                             })
                         {
@@ -256,7 +256,7 @@ pub fn set_up_avatar_team(
 
                         if team_id == player.avatar_module.cur_avatar_team_id {
                             player.avatar_module.cur_avatar_guid = cur_avatar_guid;
-                            player.avatar_module.temp_avatar_guid_list =
+                            player.avatar_module.cur_avatar_guid_list =
                                 request.avatar_team_guid_list.clone();
 
                             change_events.write(PlayerAvatarTeamChanged {

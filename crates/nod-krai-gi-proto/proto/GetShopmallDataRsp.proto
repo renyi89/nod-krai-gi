@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message GetShopmallDataRsp {
-	int32 retcode = 13;
-	repeated uint32 shop_type_list = 5;
-}

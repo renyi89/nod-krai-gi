@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "AvatarSkillInfo.proto";
-
-
-message AvatarSkillInfoNotify {
-	uint64 guid = 8;
-	map<uint32, AvatarSkillInfo> skill_map = 10;
-}

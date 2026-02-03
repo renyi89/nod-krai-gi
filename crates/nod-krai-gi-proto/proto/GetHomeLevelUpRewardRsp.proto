@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message GetHomeLevelUpRewardRsp {
-	int32 retcode = 4;
-	uint32 level = 7;
-}

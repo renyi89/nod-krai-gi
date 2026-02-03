@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message PlayerApplyEnterHomeResultReq {
-	bool is_agreed = 12;
-	uint32 apply_uid = 5;
-}

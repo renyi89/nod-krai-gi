@@ -347,7 +347,7 @@ fn get_cur_team_avatars(
             data.owner_player_uid.0 == player_uid
                 && player
                     .avatar_module
-                    .temp_avatar_guid_list
+                    .cur_avatar_guid_list
                     .contains(&data.guid.0)
         })
         .map(|(e, _, _)| e)
@@ -370,7 +370,7 @@ fn get_cur_local_avatar(
             data.owner_player_uid.0 == player_uid
                 && player
                     .avatar_module
-                    .temp_avatar_guid_list
+                    .cur_avatar_guid_list
                     .contains(&data.guid.0)
                 && is_cur.is_some()
         })
@@ -390,7 +390,7 @@ fn get_all_player_avatars(
 
     for player_uid in players.keys() {
         let player = players.get(*player_uid);
-        all_team_guids.extend(player.avatar_module.temp_avatar_guid_list.iter());
+        all_team_guids.extend(player.avatar_module.cur_avatar_guid_list.iter());
     }
 
     avatars

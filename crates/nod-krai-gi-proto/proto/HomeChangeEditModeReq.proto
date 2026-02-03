@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message HomeChangeEditModeReq {
-	bool is_enter_edit_mode = 13;
-}

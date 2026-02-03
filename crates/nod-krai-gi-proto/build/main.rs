@@ -17,6 +17,9 @@ pub fn main() {
     let mut files: Vec<String> = Vec::new();
 
     let path = Path::new("./proto");
+    if path.read_dir().unwrap().count() == 0 {
+        return;
+    }
     for file in path.read_dir().unwrap() {
         if let Ok(file) = file {
             if file.file_type().unwrap().is_file() {
@@ -34,7 +37,8 @@ pub fn main() {
     let mut is_enum = false;
     let mut is_oneof = false;
     let mut output1 = String::new();
-    for line in content.lines() {
+    let lines: Vec<&str> = content.lines().collect();
+    for (i, line) in lines.iter().enumerate() {
         if line.trim_start().starts_with("#[prost(bytes = \"vec\"") {
             output1.push_str("    #[serde(with=\"crate::base64\")]\n");
         }
@@ -65,7 +69,7 @@ pub fn main() {
                 }
             }
         }
-        if line.trim_start().starts_with("#[prost(oneof =") {
+        if line.trim_start().starts_with("#[prost(oneof =") || (line.trim_start().starts_with("#[prost(") && i + 1 < lines.len() && lines[i + 1].trim_start().starts_with("oneof =")) {
             output1.push_str("    #[serde(flatten)]\n");
         }
         if line.trim_start().starts_with("pub enum ") {

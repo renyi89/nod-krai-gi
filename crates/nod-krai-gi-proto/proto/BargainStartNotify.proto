@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "BargainSnapshot.proto";
-
-
-message BargainStartNotify {
-	uint32 bargain_id = 5;
-	BargainSnapshot snapshot = 13;
-}

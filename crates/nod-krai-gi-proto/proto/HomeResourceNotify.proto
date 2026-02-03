@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "HomeResource.proto";
-
-
-message HomeResourceNotify {
-	HomeResource home_coin = 15;
-	HomeResource fetter_exp = 9;
-}

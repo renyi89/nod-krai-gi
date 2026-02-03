@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "AvatarExpeditionStartInfo.proto";
-
-
-message AvatarExpeditionStartReq {
-	repeated AvatarExpeditionStartInfo req_start_info_list = 9;
-}

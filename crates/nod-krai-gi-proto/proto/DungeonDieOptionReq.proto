@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "PlayerDieOption.proto";
-
-
-message DungeonDieOptionReq {
-	bool is_quit_immediately = 1;
-	PlayerDieOption die_option = 12;
-}

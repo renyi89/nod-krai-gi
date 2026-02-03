@@ -103,6 +103,7 @@ pub fn notify_appear_gadget_entities(
                         is_enable_interact: gadget_config.is_interactive,
                         ..Default::default()
                     })),
+                    ..Default::default()
                 });
             }
         }

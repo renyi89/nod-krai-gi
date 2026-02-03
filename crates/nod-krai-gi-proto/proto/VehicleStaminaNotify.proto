@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message VehicleStaminaNotify {
-	float cur_stamina = 1;
-	uint32 entity_id = 2;
-}

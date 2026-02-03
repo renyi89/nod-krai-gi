@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message CancelCoopTaskReq {
-	uint32 chapter_id = 8;
-}

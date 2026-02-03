@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message PostEnterSceneRsp {
-	int32 retcode = 2;
-	uint32 enter_scene_token = 8;
-}

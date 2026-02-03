@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "FireworksLaunchSchemeData.proto";
-
-
-message LaunchFireworksReq {
-	FireworksLaunchSchemeData scheme_data = 14;
-}

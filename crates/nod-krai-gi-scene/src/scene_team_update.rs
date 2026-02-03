@@ -166,7 +166,9 @@ pub fn notify_scene_team_update(
                                     cur_vehicle_info: None,
                                     excel_info: Some(AvatarExcelInfo::default()),
                                     anim_hash: 0,
+                                    ..Default::default()
                                 })),
+                                ..Default::default()
                             }),
                         }
                     })

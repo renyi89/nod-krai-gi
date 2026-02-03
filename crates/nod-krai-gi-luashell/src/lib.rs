@@ -1,7 +1,7 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_message::output::MessageOutput;
-use nod_krai_gi_proto::WindSeedType1Notify;
+use nod_krai_gi_proto::PlayerNormalLuaShellNotify;
 
 pub struct LuaShellPlugin;
 
@@ -29,8 +29,8 @@ fn send_shell_payload(
     for _ in lua_shell_events.read() {
         settings.startup_payloads.iter().for_each(|data| {
             message_output.send_to_all(
-                "WindSeedType1Notify",
-                Some(WindSeedType1Notify {
+                "PlayerNormalLuaShellNotify",
+                Some(PlayerNormalLuaShellNotify {
                     payload: data.to_vec(),
                     ..Default::default()
                 }),

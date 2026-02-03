@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "SceneEntityInfo.proto";
-
-
-message AvatarChangeTraceEffectNotify {
-	SceneEntityInfo entity_info = 7;
-}

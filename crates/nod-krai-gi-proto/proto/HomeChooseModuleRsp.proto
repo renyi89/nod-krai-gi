@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message HomeChooseModuleRsp {
-	int32 retcode = 8;
-	uint32 module_id = 12;
-}

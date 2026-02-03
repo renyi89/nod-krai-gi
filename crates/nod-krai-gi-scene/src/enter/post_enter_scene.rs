@@ -1,5 +1,6 @@
 use crate::common::PlayerSceneStates;
 use bevy_ecs::prelude::*;
+use nod_krai_gi_entity::avatar::TransportFlag;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_message::USER_VERSION;
 use nod_krai_gi_proto::dy_parser::replace_out_u32;
@@ -11,8 +12,14 @@ pub fn on_post_enter_scene(
     mut reader: MessageReader<PostEnterSceneEvent>,
     player_scene_states: Res<PlayerSceneStates>,
     out: Res<MessageOutput>,
+    mut commands: Commands,
+    avatar_entities: Query<Entity, (With<TransportFlag>,)>,
 ) {
     for PostEnterSceneEvent(uid) in reader.read() {
+        avatar_entities.iter().for_each(|avatar_entity| {
+            commands.entity(avatar_entity).remove::<TransportFlag>();
+        });
+
         let binding = USER_VERSION.get().unwrap().get(uid).unwrap();
         let protocol_version = binding.as_str();
 

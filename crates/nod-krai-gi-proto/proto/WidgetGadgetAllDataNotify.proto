@@ -1,8 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "WidgetGadgetData.proto";
-
-
-message WidgetGadgetAllDataNotify {
-	repeated WidgetGadgetData widget_gadget_data = 2;
-}

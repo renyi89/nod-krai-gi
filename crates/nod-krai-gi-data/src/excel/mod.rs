@@ -24,6 +24,7 @@ mod scene_tag_config;
 mod proud_skill_excel_config;
 mod weapon_curve_excel_config;
 mod weapon_excel_config;
+mod anecdote_excel_config;
 
 pub use avatar_costume_excel_config::*;
 pub use avatar_curve_excel_config::*;
@@ -48,6 +49,7 @@ pub use scene_tag_config::*;
 pub use proud_skill_excel_config::*;
 pub use weapon_curve_excel_config::*;
 pub use weapon_excel_config::*;
+pub use anecdote_excel_config::*;
 
 use paste::paste;
 
@@ -109,4 +111,5 @@ excel_loader! {
     SceneTagConfig;
     WeaponCurveExcelConfig;
     WeaponExcelConfig;
+    AnecdoteExcelConfig;
 }

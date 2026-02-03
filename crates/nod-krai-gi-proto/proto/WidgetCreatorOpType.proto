@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-enum WidgetCreatorOpType {
-	WidgetCreatorOpType_WIDGET_CREATOR_TYPE_NONE = 0;
-	WidgetCreatorOpType_WIDGET_CREATOR_TYPE_RETRACT = 1;
-	WidgetCreatorOpType_WIDGET_CREATOR_TYPE_RETRACT_AND_CREATE = 2;
-}

@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "FireworksLaunchParamType.proto";
-
-
-message FireworksLaunchParam {
-	int32 value = 12;
-	FireworksLaunchParamType type = 13;
-}

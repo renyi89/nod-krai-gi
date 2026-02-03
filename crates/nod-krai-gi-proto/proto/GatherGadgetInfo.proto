@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message GatherGadgetInfo {
-	bool is_forbid_guest = 2;
-	uint32 item_id = 1;
-}

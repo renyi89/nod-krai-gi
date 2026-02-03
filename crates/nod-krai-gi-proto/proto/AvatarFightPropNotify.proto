@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message AvatarFightPropNotify {
-	uint64 avatar_guid = 6;
-	map<uint32, float> fight_prop_map = 11;
-}

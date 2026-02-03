@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-
-
-
-message GetAllUnlockNameCardRsp {
-	int32 retcode = 2;
-	repeated uint32 name_card_list = 8;
-}

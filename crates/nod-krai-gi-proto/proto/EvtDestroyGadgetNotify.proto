@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "ForwardType.proto";
-
-
-message EvtDestroyGadgetNotify {
-	uint32 entity_id = 5;
-	ForwardType forward_type = 14;
-}

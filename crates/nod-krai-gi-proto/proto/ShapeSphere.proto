@@ -1,9 +1,0 @@
-syntax = "proto3";
-option java_package = "emu.grasscutter.net.proto";
-import "Vector.proto";
-
-
-message ShapeSphere {
-	float radius = 2;
-	Vector center = 1;
-}
