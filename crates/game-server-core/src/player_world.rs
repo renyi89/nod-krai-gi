@@ -13,6 +13,7 @@ use nod_krai_gi_luashell::{LuaShellPlugin, LuaShellSettings};
 use nod_krai_gi_map::MapPlugin;
 use nod_krai_gi_message::{
     event::ClientMessageEvent,
+    get_player_version,
     output::{ClientOutput, MessageOutput},
 };
 use nod_krai_gi_pathfinding::PathfindingPlugin;
@@ -20,7 +21,7 @@ use nod_krai_gi_persistence::{player_information::PlayerInformation, Players};
 use nod_krai_gi_quest::QuestPlugin;
 use nod_krai_gi_scene::{common::WorldOwnerUID, ScenePlugin};
 use nod_krai_gi_social::SocialPlugin;
-use nod_krai_gi_time::TimePlugin;
+use nod_krai_gi_time::{TimePlugin, UpdateClientTimeEvent};
 
 pub struct PlayerWorld(App);
 
@@ -49,9 +50,15 @@ impl PlayerWorld {
             .add_plugins(MapPlugin)
             .add_plugins(LuaShellPlugin);
 
-        if true {
+        if false {
             app.add_plugins(AbilityPlugin);
+        }
+
+        if true {
             app.add_plugins(SocialPlugin);
+        }
+
+        if true {
             app.add_plugins(QuestPlugin);
         }
 
@@ -70,11 +77,7 @@ impl PlayerWorld {
         app.cleanup();
         app.update();
 
-        let binding = nod_krai_gi_message::USER_VERSION
-            .get()
-            .unwrap()
-            .get(&uid)
-            .unwrap();
+        let binding = get_player_version!(&uid);
         let version = binding.as_str();
 
         output.push_none(
@@ -98,6 +101,12 @@ impl PlayerWorld {
         self.0
             .world_mut()
             .write_message(ClientMessageEvent::new(head, cmd_id, data, message_name));
+    }
+
+    pub fn update_client_time(&mut self, uid: u32, client_time: u32) {
+        self.0
+            .world_mut()
+            .write_message(UpdateClientTimeEvent(uid, client_time));
     }
 
     pub fn update(&mut self) {

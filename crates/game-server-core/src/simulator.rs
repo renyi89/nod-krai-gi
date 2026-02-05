@@ -2,6 +2,7 @@ use std::{collections::HashMap, thread};
 
 use crate::{command::LogicCommand, player_world::PlayerWorld};
 use common::time_util;
+use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_message::output::ClientOutput;
 use nod_krai_gi_persistence::player_information::PlayerInformation;
 use nod_krai_gi_proto::packet_head::PacketHead;
@@ -41,6 +42,12 @@ impl LogicSimulator {
                 data,
                 immediate_mode,
             })
+            .unwrap();
+    }
+
+    pub fn update_client_time(&self, uid: u32, client_time: u32) {
+        self.0
+            .send(LogicCommand::UpdateClientTime(uid, client_time))
             .unwrap();
     }
 
@@ -86,11 +93,7 @@ fn simulation_loop(
                         }
                     }
                 } else {
-                    let binding = nod_krai_gi_message::USER_VERSION
-                        .get()
-                        .unwrap()
-                        .get(&uid)
-                        .unwrap();
+                    let binding = get_player_version!(&uid);
                     let version = binding.as_str();
                     match nod_krai_gi_proto::dy_parser::get_name_by_cmd_id_version(version, cmd_id)
                     {
@@ -111,8 +114,10 @@ fn simulation_loop(
                                 );
                             } else {
                                 match message_name.as_str() {
-                                    "ClientAbilityInitFinishNotify"
-                                    | "AbilityInvocationsNotify"
+                                    "AbilityInvocationsNotify"
+                                    | "ClientAbilityInitFinishNotify"
+                                    | "ClientAbilitiesInitFinishCombineNotify"
+                                    | "ClientAbilityChangeNotify"
                                     | "CombatInvocationsNotify" => {
                                         tracing::trace!(
                                             "version:{} cmd_id: {} message_name:{} \nrecv:[{}]",
@@ -160,6 +165,13 @@ fn simulation_loop(
                 if let Some(world_owner_uid) = player_uid_map.get(&uid) {
                     if let Some(world) = player_world_map.get_mut(world_owner_uid) {
                         world.update();
+                    }
+                }
+            }
+            UpdateClientTime(uid, client_time) => {
+                if let Some(world_owner_uid) = player_uid_map.get(&uid) {
+                    if let Some(world) = player_world_map.get_mut(world_owner_uid) {
+                        world.update_client_time(uid, client_time);
                     }
                 }
             }

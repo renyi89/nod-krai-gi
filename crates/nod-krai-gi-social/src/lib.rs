@@ -13,13 +13,18 @@ pub struct SocialPlugin;
 
 impl Plugin for SocialPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, handle_chat);
+        app.add_message::<ConsoleChatEvent>()
+            .add_systems(Update, handle_chat);
     }
 }
+
+#[derive(Message)]
+pub struct ConsoleChatEvent(pub u32, pub String);
 
 pub fn handle_chat(
     mut events: MessageReader<ClientMessageEvent>,
     message_output: Res<MessageOutput>,
+    mut console_chat_event: MessageWriter<ConsoleChatEvent>,
 ) {
     for message in events.read() {
         match message.message_name() {
@@ -35,9 +40,9 @@ pub fn handle_chat(
                             level: 60,
                             world_level: 9,
                             signature: "这是签名 this's signature".to_string(),
-                            name_card_id: 210241,
+                            name_card_id: 210248,
                             profile_picture: Some(ProfilePicture {
-                                profile_picture_id: 10800,
+                                profile_picture_id: 10100,
                                 profile_frame_id: 100014,
                                 ..Default::default()
                             }),
@@ -62,6 +67,8 @@ pub fn handle_chat(
                                 continue;
                             }
                         }
+                        console_chat_event
+                            .write(ConsoleChatEvent(message.sender_uid(), recv_text.clone()));
                         message_output.send(
                             message.sender_uid(),
                             "PrivateChatNotify",

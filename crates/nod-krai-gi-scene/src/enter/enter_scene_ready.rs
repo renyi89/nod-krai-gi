@@ -1,7 +1,7 @@
 use crate::common::{PlayerSceneStates, ScenePeerManager};
 use bevy_ecs::prelude::*;
 use nod_krai_gi_message::output::MessageOutput;
-use nod_krai_gi_message::USER_VERSION;
+use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::dy_parser::replace_out_u32;
 
@@ -24,8 +24,8 @@ pub fn on_enter_scene_ready(
             peer_manager.make_host(peer_id);
         }
 
-        let binding = USER_VERSION.get().unwrap().get(&uid).unwrap();
-        let protocol_version = binding.as_str();
+        let version = get_player_version!(&uid);
+        let protocol_version = version.as_str();
 
         out.send(
             uid,

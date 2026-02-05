@@ -8,7 +8,7 @@ use nod_krai_gi_entity::{
     avatar::{AvatarQueryReadOnly, CurrentPlayerAvatarMarker},
     EntityDisappearEvent, EntityPropertySeparateUpdateEvent,
 };
-use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput, USER_VERSION};
+use nod_krai_gi_message::{event::ClientMessageEvent, get_player_version, output::MessageOutput};
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::dy_parser::{
     replace_in_u32, replace_in_u64, replace_out_i32, replace_out_u32, replace_out_u64,
@@ -231,8 +231,8 @@ pub fn set_up_avatar_team(
 
                     let player = players.get_mut(message.sender_uid());
 
-                    let binding = USER_VERSION.get().unwrap().get(&player.uid).unwrap();
-                    let protocol_version = binding.as_str();
+                    let version = get_player_version!(&player.uid);
+                    let protocol_version = version.as_str();
 
                     let team_id = replace_in_u32(
                         protocol_version,

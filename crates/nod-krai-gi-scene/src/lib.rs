@@ -27,9 +27,9 @@ pub use crate::player_jump::ScenePlayerJumpByPointEvent;
 pub use enter::{
     EnterSceneDoneEvent, EnterSceneReadyEvent, PostEnterSceneEvent, SceneInitFinishEvent,
 };
-use nod_krai_gi_entity::avatar::{CurrentPlayerAvatarMarker, CurrentTeam, TransportFlag};
+use nod_krai_gi_entity::avatar::{CurrentPlayerAvatarMarker, CurrentTeam};
 use nod_krai_gi_entity::common::Visible;
-use nod_krai_gi_message::USER_VERSION;
+use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_proto::dy_parser::replace_out_u32;
 pub use player_jump::ScenePlayerJumpEvent;
 
@@ -145,17 +145,19 @@ fn begin_enter_scene(
     mut events: MessageReader<BeginEnterSceneEvent>,
     mut commands: Commands,
     mut player_scene_states: ResMut<PlayerSceneStates>,
+    mut players: ResMut<Players>,
     player_avatar_entities: Query<(Entity, AvatarQueryReadOnly)>,
     mut disappear_events: MessageWriter<EntityDisappearEvent>,
 ) {
     for event in events.read() {
+        let player_info = players.get_mut(event.uid);
+        player_info.cache.is_tp = true;
         for (avatar_entity, avatar_data) in player_avatar_entities
             .iter()
             .filter(|(_, data)| data.owner_player_uid.0 == event.uid)
         {
             commands
                 .entity(avatar_entity)
-                .insert(TransportFlag)
                 .remove::<CurrentTeam>()
                 .remove::<CurrentPlayerAvatarMarker>()
                 .remove::<Visible>();
@@ -205,8 +207,8 @@ fn notify_player_enter_scene(
     player_scene_states: Res<PlayerSceneStates>,
 ) {
     for event in events.read() {
-        let binding = USER_VERSION.get().unwrap().get(&event.uid).unwrap();
-        let protocol_version = binding.as_str();
+        let version = get_player_version!(&event.uid);
+        let protocol_version = version.as_str();
         let enter_scene_token = player_scene_states
             .get(&event.uid)
             .unwrap()

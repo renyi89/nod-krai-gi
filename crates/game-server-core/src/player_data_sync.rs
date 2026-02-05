@@ -22,6 +22,7 @@ impl Plugin for PlayerDataSyncPlugin {
                 sync_player_store,
                 sync_open_state_map,
                 sync_avatar_data,
+                sync_quest_list,
             )
                 .chain(),
         );
@@ -51,8 +52,11 @@ pub fn sync_player_data(players: Res<Players>, out: Res<MessageOutput>) {
                     PROP_PLAYER_RESIN:200;
                     PROP_IS_DIVEABLE :1;
                     PROP_CUR_PHLOGISTON :10000;
+                    PROP_PLAYER_HCOIN :991;
+                    PROP_PLAYER_SCOIN :992;
+                    PROP_PLAYER_MCOIN :993;
                 },
-                server_time: time_util::unix_timestamp(),
+                server_time: time_util::unix_timestamp_ms(),
                 is_first_login_today: false,
                 region_id: 0,
             },
@@ -259,6 +263,39 @@ pub fn sync_open_state_map(players: Res<Players>, out: Res<MessageOutput>) {
                 open_state_map: open_state_config_collection_clone
                     .values()
                     .map(|c| (c.id, 1))
+                    .collect(),
+            },
+        );
+    }
+}
+
+pub fn sync_quest_list(players: Res<Players>, out: Res<MessageOutput>) {
+    // let sub_quest_config_collection_clone = Arc::clone(
+    //     excel::quest_config::SUB_QUEST_CONFIG_COLLECTION
+    //         .get()
+    //         .unwrap(),
+    // );
+    for uid in players.keys() {
+        let player_info = players.get(*uid);
+        out.send(
+            *uid,
+            "QuestListNotify",
+            QuestListNotify {
+                quest_list: player_info
+                    .quest_information
+                    .sub_quest_map
+                    .iter()
+                    .map(|(sub_quest_id, quest_item)| Quest {
+                        quest_id: *sub_quest_id,
+                        parent_quest_id: quest_item.parent_quest_id,
+                        state: quest_item.state,
+                        start_time: quest_item.start_time,
+                        accept_time: quest_item.accept_time,
+                        start_game_time: 438,
+                        finish_progress_list: quest_item.finish_progress_list.clone(),
+                        fail_progress_list: quest_item.fail_progress_list.clone(),
+                        ..Default::default()
+                    })
                     .collect(),
             },
         );

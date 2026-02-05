@@ -2,7 +2,7 @@ use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
 use nod_krai_gi_proto::{
-    query_path_rsp::PathStatusType, retcode::Retcode, PathfindingEnterSceneReq, QueryPathReq,
+    query_path_rsp::PathStatusType, retcode::Retcode, QueryPathReq,
     QueryPathRsp,
 };
 
@@ -20,15 +20,23 @@ fn pathfinding_packet_processor(
 ) {
     for message in events.read() {
         match message.message_name() {
-            "PathfindingEnterScene" => {
-                if let Some(request) = message.decode::<PathfindingEnterSceneReq>() {
-                    tracing::debug!("PathfindingEnterScene: {request:?}");
-                    message_output.send_none(message.sender_uid(), "PathfindingEnterSceneRsp")
-                }
+            "PathfindingEnterSceneReq" => {
+                message_output.send_none(message.sender_uid(), "PathfindingEnterSceneRsp")
+                // if let Some(request) = message.decode::<PathfindingEnterSceneReq>() {
+                //     tracing::debug!("PathfindingEnterScene: {request:?}");
+                //     message_output.send_none(message.sender_uid(), "PathfindingEnterSceneRsp")
+                // }
+            }
+            "ToTheMoonEnterSceneReq" => {
+                message_output.send_none(message.sender_uid(), "ToTheMoonEnterSceneRsp")
+                // if let Some(request) = message.decode::<ToTheMoonEnterSceneReq>() {
+                //     tracing::debug!("PathfindingEnterScene: {request:?}");
+                //     message_output.send_none(message.sender_uid(), "ToTheMoonEnterSceneRsp")
+                // }
             }
             "QueryPathReq" => {
                 if let Some(request) = message.decode::<QueryPathReq>() {
-                    tracing::debug!("QueryPath: {request:?}");
+                    // tracing::debug!("QueryPath: {request:?}");
 
                     let mut corners = Vec::with_capacity(2);
 

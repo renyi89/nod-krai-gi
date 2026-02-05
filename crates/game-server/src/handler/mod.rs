@@ -158,7 +158,8 @@ async fn handle_packet(
                         None => {
                             tracing::error!(
                                 "version:{} message_name:{} error",
-                                version, "GetPlayerTokenReq"
+                                version,
+                                "GetPlayerTokenReq"
                             );
                         }
                         Some(request) => {
@@ -180,7 +181,11 @@ async fn handle_packet(
                                         state, &session, request, uid,
                                     );
 
-                                    tracing::debug!("USER_VERSION uid:{} version: {}", uid, version);
+                                    tracing::debug!(
+                                        "USER_VERSION uid:{} version: {}",
+                                        uid,
+                                        version
+                                    );
 
                                     nod_krai_gi_message::USER_VERSION
                                         .get()
@@ -227,7 +232,10 @@ async fn handle_packet(
                                     }
                                 }
                                 Err(_) => {
-                                    tracing::error!("account_uid:{}  error", request.account_uid.clone());
+                                    tracing::error!(
+                                        "account_uid:{}  error",
+                                        request.account_uid.clone()
+                                    );
                                 }
                             }
                         }
@@ -236,18 +244,18 @@ async fn handle_packet(
                 "PlayerLoginReq" => {
                     tracing::debug!("PlayerLoginReq received packet: {}", hex::encode(&body));
 
-                    match nod_krai_gi_proto::dy_parser::decode_from_vec_by_name_version::<PlayerLoginReq>(
-                        version,
-                        "PlayerLoginReq",
-                        body,
-                    ) {
+                    match nod_krai_gi_proto::dy_parser::decode_from_vec_by_name_version::<
+                        PlayerLoginReq,
+                    >(version, "PlayerLoginReq", body)
+                    {
                         None => {}
                         Some(_request) => {
                             let user_id = *session.player_uid.get().unwrap();
                             let user_session_id = session.connection.conv;
                             tracing::debug!(
                                 "received player login request, session id: {}, player uid: {}",
-                                user_session_id, user_id
+                                user_session_id,
+                                user_id
                             );
                             player_login(state, user_id, user_session_id, conv).await;
                         }
@@ -263,6 +271,15 @@ async fn handle_packet(
                             tracing::error!("version:{} message_name:{} error", version, "PingReq");
                         }
                         Some(ping_req) => {
+                            match session.player_uid.get() {
+                                None => {}
+                                Some(uid) => {
+                                    state
+                                        .logic_simulator
+                                        .update_client_time(*uid, ping_req.client_time);
+                                }
+                            }
+
                             let ping_rsp = &PingRsp {
                                 retcode: Retcode::RetSucc.into(),
                                 client_time: ping_req.client_time,
@@ -310,15 +327,15 @@ async fn handle_packet(
                 "UnionCmdNotify" => {
                     tracing::trace!("UnionCmdNotify received packet: ...");
 
-                    match nod_krai_gi_proto::dy_parser::decode_from_vec_by_name_version::<UnionCmdNotify>(
-                        version,
-                        "UnionCmdNotify",
-                        body,
-                    ) {
+                    match nod_krai_gi_proto::dy_parser::decode_from_vec_by_name_version::<
+                        UnionCmdNotify,
+                    >(version, "UnionCmdNotify", body)
+                    {
                         None => {
                             tracing::error!(
                                 "version:{} message_name:{} error",
-                                version, "UnionCmdNotify"
+                                version,
+                                "UnionCmdNotify"
                             );
                         }
                         Some(union_cmd) => {

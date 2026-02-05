@@ -1,5 +1,4 @@
 use bevy_ecs::prelude::*;
-use nod_krai_gi_entity::avatar::TransportFlag;
 use nod_krai_gi_entity::common::{EntityById, Visible};
 use nod_krai_gi_entity::{
     avatar::CurrentPlayerAvatarMarker,
@@ -54,7 +53,6 @@ pub fn track_player_position(
         (
             With<Visible>,
             With<CurrentPlayerAvatarMarker>,
-            Without<TransportFlag>,
             Changed<Transform>,
         ),
     >,
@@ -62,6 +60,9 @@ pub fn track_player_position(
 ) {
     for (transform, owner_uid) in moved_player_avatars.iter() {
         let player = players.get_mut(owner_uid.0);
+        if player.cache.is_tp {
+            continue;
+        }
         player.world_position.position = transform.position.into();
         player.world_position.rotation = transform.rotation.into();
 

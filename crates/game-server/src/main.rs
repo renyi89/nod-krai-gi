@@ -19,6 +19,7 @@ use std::fs;
 use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, LazyLock, OnceLock};
 use tokio::net::UdpSocket;
+use nod_krai_gi_data::excel::quest_config::load_quest_configs_from_bin;
 
 mod config;
 mod db_worker;
@@ -60,6 +61,11 @@ async fn main() -> Result<()> {
     tokio::spawn(async move {
         load_scene_point_configs_from_bin("assets/BinOutput");
         tracing::info!("load_scene_point_configs_from_bin end");
+    });
+
+    tokio::spawn(async move {
+        load_quest_configs_from_bin("assets/BinOutput");
+        tracing::info!("load_quest_configs_from_bin end");
     });
 
     tokio::spawn(async move {

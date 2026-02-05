@@ -65,6 +65,14 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerI
             position: (2336.789, 249.98996, -751.3081),
             rotation: (0.0, 0.0, 0.0),
         },
+        quest_information:QuestInformation{
+            enable: true,
+            parent_quest_map: Default::default(),
+            sub_quest_map: Default::default(),
+        },
+        cache: CacheInformation {
+            ..Default::default()
+        },
     };
 
     avatar_excel_config_collection_clone
@@ -91,7 +99,13 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerI
         },
     );
 
-    player.avatar_module.cur_avatar_guid_list = player.avatar_module.team_map.get(&1).unwrap().avatar_guid_list.clone();
+    player.avatar_module.cur_avatar_guid_list = player
+        .avatar_module
+        .team_map
+        .get(&1)
+        .unwrap()
+        .avatar_guid_list
+        .clone();
 
     // Add bunch of weapons to inventory
     weapon_excel_config_collection_clone

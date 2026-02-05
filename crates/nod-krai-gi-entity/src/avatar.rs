@@ -66,9 +66,6 @@ pub struct BornTime(pub u32);
 pub struct IndexInSceneTeam(pub u8);
 
 #[derive(Component)]
-pub struct TransportFlag;
-
-#[derive(Component)]
 pub struct CurrentTeam;
 
 #[derive(Component)]

@@ -4,6 +4,8 @@ use bevy_ecs::prelude::Resource;
 use nod_krai_gi_proto::packet_head::PacketHead;
 use serde::Serialize;
 use tokio::sync::mpsc;
+use crate::get_player_version;
+
 #[derive(Clone)]
 pub struct ClientOutput(mpsc::Sender<(u16, PacketHead, Box<[u8]>)>);
 
@@ -20,17 +22,17 @@ impl MessageOutput {
         T: Sized + Serialize,
     {
         if let Some(out) = self.0.get(&player_uid) {
-            let binding = crate::USER_VERSION.get().unwrap().get(&player_uid).unwrap();
-            let version = binding.as_str();
-            out.push(PacketHead::default(), version, message_name, message);
+            let version = get_player_version!(&player_uid);
+            let protocol_version = version.as_str();
+            out.push(PacketHead::default(), protocol_version, message_name, message);
         }
     }
 
     pub fn send_none(&self, player_uid: u32, message_name: &str) {
         if let Some(out) = self.0.get(&player_uid) {
-            let binding = crate::USER_VERSION.get().unwrap().get(&player_uid).unwrap();
-            let version = binding.as_str();
-            out.push_none(PacketHead::default(), version, message_name);
+            let version = get_player_version!(&player_uid);
+            let protocol_version = version.as_str();
+            out.push_none(PacketHead::default(), protocol_version, message_name);
         }
     }
 
@@ -39,11 +41,11 @@ impl MessageOutput {
         T: Sized + Serialize + Clone,
     {
         for (player_uid, out) in &self.0 {
-            let binding = crate::USER_VERSION.get().unwrap().get(&player_uid).unwrap();
-            let version = binding.as_str();
+            let version = get_player_version!(player_uid);
+            let protocol_version = version.as_str();
             out.push(
                 PacketHead::default(),
-                version,
+                protocol_version,
                 message_name,
                 message.clone(),
             );
@@ -52,9 +54,9 @@ impl MessageOutput {
 
     pub fn send_to_all_none(&self, message_name: &str) {
         for (player_uid, out) in &self.0 {
-            let binding = crate::USER_VERSION.get().unwrap().get(&player_uid).unwrap();
-            let version = binding.as_str();
-            out.push_none(PacketHead::default(), version, message_name);
+            let version = get_player_version!(player_uid);
+            let protocol_version = version.as_str();
+            out.push_none(PacketHead::default(), protocol_version, message_name);
         }
     }
 
@@ -66,11 +68,11 @@ impl MessageOutput {
             if *player_uid == host_player_uid {
                 continue;
             }
-            let binding = crate::USER_VERSION.get().unwrap().get(&player_uid).unwrap();
-            let version = binding.as_str();
+            let version = get_player_version!(player_uid);
+            let protocol_version = version.as_str();
             out.push(
                 PacketHead::default(),
-                version,
+                protocol_version,
                 message_name,
                 message.clone(),
             );
@@ -82,9 +84,9 @@ impl MessageOutput {
             if *player_uid == host_player_uid {
                 continue;
             }
-            let binding = crate::USER_VERSION.get().unwrap().get(&player_uid).unwrap();
-            let version = binding.as_str();
-            out.push_none(PacketHead::default(), version, message_name);
+            let version = get_player_version!(player_uid);
+            let protocol_version = version.as_str();
+            out.push_none(PacketHead::default(), protocol_version, message_name);
         }
     }
 }

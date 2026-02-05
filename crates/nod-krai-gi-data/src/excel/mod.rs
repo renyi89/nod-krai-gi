@@ -19,13 +19,16 @@ mod map_layer_group_config;
 mod monster_curve_excel_config;
 mod monster_excel_config;
 mod open_state_config;
+
+mod anecdote_excel_config;
+mod proud_skill_excel_config;
+pub mod quest_config;
 pub mod scene_point_config;
 mod scene_tag_config;
-mod proud_skill_excel_config;
 mod weapon_curve_excel_config;
 mod weapon_excel_config;
-mod anecdote_excel_config;
 
+pub use anecdote_excel_config::*;
 pub use avatar_costume_excel_config::*;
 pub use avatar_curve_excel_config::*;
 pub use avatar_excel_config::*;
@@ -45,11 +48,10 @@ pub use map_layer_group_config::*;
 pub use monster_curve_excel_config::*;
 pub use monster_excel_config::*;
 pub use open_state_config::*;
-pub use scene_tag_config::*;
 pub use proud_skill_excel_config::*;
+pub use scene_tag_config::*;
 pub use weapon_curve_excel_config::*;
 pub use weapon_excel_config::*;
-pub use anecdote_excel_config::*;
 
 use paste::paste;
 

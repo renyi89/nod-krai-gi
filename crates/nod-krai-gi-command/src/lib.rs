@@ -1,5 +1,10 @@
+mod parser;
+
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
+use common::gm_util::parse_command;
+use common::gm_util::Command;
+use common::time_util::unix_timestamp;
 use nod_krai_gi_data::excel::{gadget_excel_config_collection, monster_excel_config_collection};
 use nod_krai_gi_entity::ability::Ability;
 use nod_krai_gi_entity::common::OwnerProtocolEntityID;
@@ -17,8 +22,12 @@ use nod_krai_gi_entity::{
     util::to_protocol_entity_id,
     ProtEntityType,
 };
+use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
+use nod_krai_gi_proto::{ChatInfo, PrivateChatNotify};
+use nod_krai_gi_quest::CommandQuestEvent;
 use nod_krai_gi_scene::ScenePlayerJumpEvent;
+use nod_krai_gi_social::ConsoleChatEvent;
 use rand::RngCore;
 use tracing::{debug, instrument};
 
@@ -27,7 +36,6 @@ pub struct CommandPlugin;
 impl Plugin for CommandPlugin {
     fn build(&self, app: &mut App) {
         app.add_message::<DebugCommandEvent>()
-            .add_message::<GmCommandEvent>()
             .add_systems(Update, debug_command_handler)
             .add_systems(Update, gm_command_handler);
     }
@@ -35,12 +43,6 @@ impl Plugin for CommandPlugin {
 
 #[derive(Message)]
 pub struct DebugCommandEvent {
-    pub executor_uid: u32,
-    pub kind: CommandKind,
-}
-
-#[derive(Message)]
-pub struct GmCommandEvent {
     pub executor_uid: u32,
     pub kind: CommandKind,
 }
@@ -170,11 +172,7 @@ pub fn debug_command_handler(
                         level: Level(level),
                         transform: Transform {
                             // Take Y (height) from player's pos, spawn a bit above
-                            position: (
-                                position.0,
-                                player.world_position.position.1,
-                                position.1,
-                            )
+                            position: (position.0, player.world_position.position.1, position.1)
                                 .into(),
                             rotation: Vector3::default(),
                         },
@@ -205,6 +203,47 @@ pub fn debug_command_handler(
     }
 }
 
-#[allow(unused)]
 #[instrument(skip_all)]
-pub fn gm_command_handler() {}
+pub fn gm_command_handler(
+    mut events: MessageReader<ConsoleChatEvent>,
+    message_output: Res<MessageOutput>,
+    mut quest_events: MessageWriter<CommandQuestEvent>,
+) {
+    for ConsoleChatEvent(player_uid, console_content) in events.read() {
+        let result = parse_command(console_content);
+        match result {
+            Ok(gm) => {
+                debug!("gm_command_handler result: {:?}", gm);
+                match gm {
+                    Command::Avatar(_) => {}
+                    Command::Tp(_) => {}
+                    Command::Quest(action) => {
+                        quest_events.write(CommandQuestEvent(*player_uid, action));
+                    }
+                    Command::Item(_) => {}
+                    Command::Prop(_, _) => {}
+                    Command::Dun(_) => {}
+                    Command::Pos => {}
+                }
+            }
+            Err(error) => {
+                message_output.send(
+                    *player_uid,
+                    "PrivateChatNotify",
+                    PrivateChatNotify {
+                        chat_info: Some(ChatInfo {
+                            time: unix_timestamp() as u32,
+                            to_uid: *player_uid,
+                            uid: 123,
+                            content: Some(nod_krai_gi_proto::chat_info::Content::Text(format!(
+                                "error:{}",
+                                error
+                            ))),
+                            ..Default::default()
+                        }),
+                    },
+                );
+            }
+        }
+    }
+}

@@ -253,6 +253,29 @@ pub struct AbilityIdentifier {
     pub instanced_ability_id: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct AbilityInvokeEntryHead {
+    #[prost(int32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub local_id: i32,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub server_buff_uid: u32,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub target_id: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub instanced_ability_id: u32,
+    #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub instanced_modifier_id: u32,
+    #[prost(int32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub modifier_config_local_id: i32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum ForwardType {
@@ -303,29 +326,6 @@ impl ForwardType {
             _ => None,
         }
     }
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct AbilityInvokeEntryHead {
-    #[prost(int32, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub local_id: i32,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub server_buff_uid: u32,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub target_id: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub instanced_ability_id: u32,
-    #[prost(uint32, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub instanced_modifier_id: u32,
-    #[prost(int32, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub modifier_config_local_id: i32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -1312,177 +1312,56 @@ pub struct AbilityMixinChangePhlogiston {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct BreakoutPhysicalObjectModifier {
-    #[prost(uint32, tag = "15")]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct DrawPlayInfo {
+    #[prost(uint32, repeated, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub level: u32,
-    #[prost(uint32, tag = "2")]
+    pub idngiphonjl: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, repeated, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub id: u32,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub skill_type: u32,
-    #[prost(int32, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub duration: i32,
-    #[prost(int32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub param6: i32,
-    #[prost(int32, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub end_time: i32,
-    #[prost(bool, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub bool1: bool,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub r#type: u32,
-    #[prost(int32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub param3: i32,
-    #[prost(uint32, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub peer_id: u32,
-    #[prost(int32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub param1: i32,
-    #[prost(int32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub param4: i32,
-    #[prost(uint32, tag = "16")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub choose_player_count: u32,
-    #[prost(int32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub param5: i32,
-    #[prost(uint32, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub combo: u32,
-    #[prost(int32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub param2: i32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct BreakoutBrickInfo {
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub hp: u32,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub hgjdaehiddo: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub element_type: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct BreakoutVector2 {
-    #[prost(int32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub y: i32,
-    #[prost(int32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub x: i32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct Vector2Int {
-    #[prost(int32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub y: i32,
-    #[prost(int32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub x: i32,
+    pub niiikejnnjl: ::prost::alloc::vec::Vec<u32>,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct BreakoutPhysicalObject {
-    #[prost(message, optional, tag = "4")]
+pub struct MassivePropParam {
+    #[prost(uint32, repeated, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub pos: ::core::option::Option<BreakoutVector2>,
-    #[prost(message, repeated, tag = "17")]
+    pub reaction_info_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(float, repeated, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub cndjbnkgiip: ::prost::alloc::vec::Vec<Vector2Int>,
-    #[prost(message, optional, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub move_dir: ::core::option::Option<BreakoutVector2>,
-    #[prost(message, repeated, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub modifier_list: ::prost::alloc::vec::Vec<BreakoutPhysicalObjectModifier>,
-    #[prost(int32, repeated, tag = "18")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub int_param_list: ::prost::alloc::vec::Vec<i32>,
-    #[prost(message, repeated, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub info_list: ::prost::alloc::vec::Vec<BreakoutBrickInfo>,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub last_hit_peer_id: u32,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub init_peer_id: u32,
-    #[prost(bool, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_active: bool,
-    #[prost(int32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub speed: i32,
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub state: u32,
-    #[prost(int32, tag = "16")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub offset: i32,
-    #[prost(uint32, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub element_type: u32,
-    #[prost(uint32, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub element_reaction_buff: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub id: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub index: u32,
-    #[prost(uint32, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub speed_increase_count: u32,
-    #[prost(int32, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub total_rotation: i32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct BreakoutSpawnPoint {
-    #[prost(int32, repeated, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub int_param_list: ::prost::alloc::vec::Vec<i32>,
-    #[prost(message, repeated, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cndjbnkgiip: ::prost::alloc::vec::Vec<Vector2Int>,
-    #[prost(message, repeated, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub spawned_brick_list: ::prost::alloc::vec::Vec<BreakoutPhysicalObject>,
+    pub param_list: ::prost::alloc::vec::Vec<f32>,
     #[prost(uint32, tag = "4")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub klcajfjhmbb: u32,
+    pub sync_flag: u32,
+    #[prost(int32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub r#type: i32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct MassivePropSyncInfo {
+    #[prost(message, repeated, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub prop_list: ::prost::alloc::vec::Vec<MassivePropParam>,
+    #[prost(int64, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub id: i64,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct BreakoutSyncConnectUidInfo {
+    #[prost(uint32, repeated, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub skill_level_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, repeated, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub skill_id_list: ::prost::alloc::vec::Vec<u32>,
     #[prost(uint32, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub id: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub brick_suite_id: u32,
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub koodnkliffd: u32,
+    pub uid: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -1494,6 +1373,17 @@ pub struct BreakoutElementReactionCounter {
     #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub count: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct BreakoutVector2 {
+    #[prost(int32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub y: i32,
+    #[prost(int32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub x: i32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -1620,17 +1510,166 @@ pub mod breakout_action {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct BreakoutSyncConnectUidInfo {
-    #[prost(uint32, repeated, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub skill_level_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, repeated, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub skill_id_list: ::prost::alloc::vec::Vec<u32>,
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct BreakoutBrickInfo {
     #[prost(uint32, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub uid: u32,
+    pub hp: u32,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub hgjdaehiddo: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub element_type: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct BreakoutPhysicalObjectModifier {
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub id: u32,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub skill_type: u32,
+    #[prost(int32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub duration: i32,
+    #[prost(int32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub param6: i32,
+    #[prost(int32, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub end_time: i32,
+    #[prost(bool, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub bool1: bool,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub r#type: u32,
+    #[prost(int32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub param3: i32,
+    #[prost(uint32, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub peer_id: u32,
+    #[prost(int32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub param1: i32,
+    #[prost(int32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub param4: i32,
+    #[prost(uint32, tag = "16")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub choose_player_count: u32,
+    #[prost(int32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub param5: i32,
+    #[prost(uint32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub combo: u32,
+    #[prost(int32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub param2: i32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct Vector2Int {
+    #[prost(int32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub y: i32,
+    #[prost(int32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub x: i32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct BreakoutPhysicalObject {
+    #[prost(message, optional, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pos: ::core::option::Option<BreakoutVector2>,
+    #[prost(message, repeated, tag = "17")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cndjbnkgiip: ::prost::alloc::vec::Vec<Vector2Int>,
+    #[prost(message, optional, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub move_dir: ::core::option::Option<BreakoutVector2>,
+    #[prost(message, repeated, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub modifier_list: ::prost::alloc::vec::Vec<BreakoutPhysicalObjectModifier>,
+    #[prost(int32, repeated, tag = "18")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub int_param_list: ::prost::alloc::vec::Vec<i32>,
+    #[prost(message, repeated, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub info_list: ::prost::alloc::vec::Vec<BreakoutBrickInfo>,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub last_hit_peer_id: u32,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub init_peer_id: u32,
+    #[prost(bool, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_active: bool,
+    #[prost(int32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub speed: i32,
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub state: u32,
+    #[prost(int32, tag = "16")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub offset: i32,
+    #[prost(uint32, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub element_type: u32,
+    #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub element_reaction_buff: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub id: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub index: u32,
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub speed_increase_count: u32,
+    #[prost(int32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub total_rotation: i32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct BreakoutSpawnPoint {
+    #[prost(int32, repeated, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub int_param_list: ::prost::alloc::vec::Vec<i32>,
+    #[prost(message, repeated, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cndjbnkgiip: ::prost::alloc::vec::Vec<Vector2Int>,
+    #[prost(message, repeated, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub spawned_brick_list: ::prost::alloc::vec::Vec<BreakoutPhysicalObject>,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub klcajfjhmbb: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub id: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub brick_suite_id: u32,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub koodnkliffd: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -1708,42 +1747,11 @@ pub struct BreakoutSnapShot {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct MassivePropParam {
-    #[prost(uint32, repeated, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub reaction_info_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(float, repeated, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub param_list: ::prost::alloc::vec::Vec<f32>,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub sync_flag: u32,
-    #[prost(int32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub r#type: i32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct MassivePropSyncInfo {
-    #[prost(message, repeated, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub prop_list: ::prost::alloc::vec::Vec<MassivePropParam>,
-    #[prost(int64, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub id: i64,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct DrawPlayInfo {
-    #[prost(uint32, repeated, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub idngiphonjl: ::prost::alloc::vec::Vec<u32>,
+pub struct FilmfestBallGameSyncCreateConnect {
     #[prost(uint32, repeated, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub niiikejnnjl: ::prost::alloc::vec::Vec<u32>,
+    pub uid_list: ::prost::alloc::vec::Vec<u32>,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -1847,14 +1855,6 @@ pub mod filmfest_ball_game_action {
             }
         }
     }
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct FilmfestBallGameSyncCreateConnect {
-    #[prost(uint32, repeated, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub uid_list: ::prost::alloc::vec::Vec<u32>,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -2169,6 +2169,20 @@ pub struct TrialAvatarActivityDetailInfo {
 pub struct TowerChallengeDetailInfo {}
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct LeyLineDifficultyInfo {
+    #[prost(uint32, repeated, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub bdfpglfdicn: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, repeated, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub kimbeleeiai: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub difficulty: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct LeyLineActivityData {
     #[prost(uint32, tag = "11")]
@@ -2201,20 +2215,6 @@ pub struct LeyLineDetailata {
     #[prost(uint32, tag = "15")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub ley_line_reward_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct LeyLineDifficultyInfo {
-    #[prost(uint32, repeated, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub bdfpglfdicn: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, repeated, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub kimbeleeiai: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub difficulty: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -2516,17 +2516,6 @@ pub struct AddQuestContentProgressRsp {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct Uint32Pair {
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub key: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub value: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SocialShowAvatarInfo {
     #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
@@ -2543,6 +2532,50 @@ pub struct SocialShowAvatarInfo {
     #[prost(uint32, tag = "4")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub talent_level: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum FriendOnlineState {
+    FreiendDisconnect = 0,
+    FriendOnline = 1,
+}
+impl FriendOnlineState {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::FreiendDisconnect => "FriendOnlineState_FREIEND_DISCONNECT",
+            Self::FriendOnline => "FriendOnlineState_FRIEND_ONLINE",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "FriendOnlineState_FREIEND_DISCONNECT" => Some(Self::FreiendDisconnect),
+            "FriendOnlineState_FRIEND_ONLINE" => Some(Self::FriendOnline),
+            _ => None,
+        }
+    }
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ProfilePicture {
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub profile_picture_id: u32,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub profile_frame_id: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub avatar_id: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub costume_id: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -2573,23 +2606,6 @@ impl FriendEnterHomeOption {
             _ => None,
         }
     }
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct ProfilePicture {
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub profile_picture_id: u32,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub profile_frame_id: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub avatar_id: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub costume_id: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -2677,33 +2693,6 @@ impl PlatformType {
             "PlatformType_CLOUD_WEB_KEYBOARD" => Some(Self::CloudWebKeyboard),
             "PlatformType_XBOX_SCARLETT" => Some(Self::XboxScarlett),
             "PlatformType_OPEN_HARMONY" => Some(Self::OpenHarmony),
-            _ => None,
-        }
-    }
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
-#[repr(i32)]
-pub enum FriendOnlineState {
-    FreiendDisconnect = 0,
-    FriendOnline = 1,
-}
-impl FriendOnlineState {
-    /// String value of the enum field names used in the ProtoBuf definition.
-    ///
-    /// The values are not transformed in any way and thus are considered stable
-    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
-        match self {
-            Self::FreiendDisconnect => "FriendOnlineState_FREIEND_DISCONNECT",
-            Self::FriendOnline => "FriendOnlineState_FRIEND_ONLINE",
-        }
-    }
-    /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
-        match value {
-            "FriendOnlineState_FREIEND_DISCONNECT" => Some(Self::FreiendDisconnect),
-            "FriendOnlineState_FRIEND_ONLINE" => Some(Self::FriendOnline),
             _ => None,
         }
     }
@@ -2799,6 +2788,17 @@ pub struct FriendBrief {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct Uint32Pair {
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub key: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub value: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct AdShootingSettleInfo {
     #[prost(message, repeated, tag = "9")]
@@ -2855,72 +2855,6 @@ pub struct AiThreatInfo {
     #[prost(map = "uint32, uint32", tag = "5")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub ai_threat_map: ::std::collections::HashMap<u32, u32>,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct AnchorPointData {
-    #[prost(message, optional, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub rot: ::core::option::Option<Vector>,
-    #[prost(message, optional, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub pos: ::core::option::Option<Vector>,
-    #[prost(uint32, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub anchor_point_id: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub end_time: u32,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub material_id: u32,
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub scene_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct LunchBoxData {
-    #[prost(map = "uint32, uint32", tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub slot_material_map: ::std::collections::HashMap<u32, u32>,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct OneoffGatherPointDetectorData {
-    #[prost(message, optional, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub hint_center_pos: ::core::option::Option<Vector>,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub dkiomlhgnmm: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub material_id: u32,
-    #[prost(bool, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_hint_valid: bool,
-    #[prost(bool, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_all_collected: bool,
-    #[prost(uint32, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub map_layer_id: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub scene_id: u32,
-    #[prost(uint32, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub config_id: u32,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub hint_radius: u32,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub group_id: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -3018,6 +2952,45 @@ pub struct WidgetCoolDownData {
     pub cool_down_time: u64,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct LunchBoxData {
+    #[prost(map = "uint32, uint32", tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub slot_material_map: ::std::collections::HashMap<u32, u32>,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SorushWidgetData {
+    #[prost(bool, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_need_destroy: bool,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct AnchorPointData {
+    #[prost(message, optional, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub rot: ::core::option::Option<Vector>,
+    #[prost(message, optional, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pos: ::core::option::Option<Vector>,
+    #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub anchor_point_id: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub end_time: u32,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub material_id: u32,
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub scene_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
 pub enum WidgetSlotTag {
@@ -3065,20 +3038,6 @@ pub struct WidgetSlotData {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct ClientCollectorData {
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub max_points: u32,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub curr_points: u32,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub material_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct SkyCrystalDetectorData {
     #[prost(message, optional, tag = "15")]
@@ -3096,11 +3055,52 @@ pub struct SkyCrystalDetectorData {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SorushWidgetData {
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct OneoffGatherPointDetectorData {
+    #[prost(message, optional, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub hint_center_pos: ::core::option::Option<Vector>,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub dkiomlhgnmm: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub material_id: u32,
+    #[prost(bool, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_hint_valid: bool,
     #[prost(bool, tag = "9")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_need_destroy: bool,
+    pub is_all_collected: bool,
+    #[prost(uint32, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub map_layer_id: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub scene_id: u32,
+    #[prost(uint32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub config_id: u32,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub hint_radius: u32,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub group_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ClientCollectorData {
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub max_points: u32,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub curr_points: u32,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub material_id: u32,
 }
 /// CmdID: 4149
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -3123,7 +3123,7 @@ pub struct AllWidgetDataNotify {
     >,
     #[prost(uint32, repeated, tag = "195")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub quickswap_widget_id_list: ::prost::alloc::vec::Vec<u32>,
+    pub material_id_list: ::prost::alloc::vec::Vec<u32>,
     #[prost(message, optional, tag = "6")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub sorush_widget_data: ::core::option::Option<SorushWidgetData>,
@@ -3153,7 +3153,7 @@ pub struct AllWidgetDataNotify {
     pub ifpjmbfcioc: ::prost::alloc::vec::Vec<Uint32Pair>,
     #[prost(uint32, tag = "221")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub quick_widget_index: u32,
+    pub current_slot_num: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -3162,6 +3162,105 @@ pub struct AnecdoteAreaInfo {
     #[prost(uint32, repeated, tag = "13")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub unlock_area_list: ::prost::alloc::vec::Vec<u32>,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct AnecdoteBriefInfo {
+    #[prost(bool, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_anecdote: bool,
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub anecdote_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct AnecdoteConflictQuest {
+    #[prost(uint32, repeated, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub conflict_place_id_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, repeated, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub conflict_npc_id_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub quest_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct AnecdoteConflictOther {
+    #[prost(uint32, repeated, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub conflict_place_id_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, repeated, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub conflict_npc_id_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub anecdote_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AnecdoteConflictInfo {
+    #[prost(message, repeated, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub anecdote_conflict_other_list: ::prost::alloc::vec::Vec<AnecdoteConflictOther>,
+    #[prost(message, repeated, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub anecdote_conflict_quest_list: ::prost::alloc::vec::Vec<AnecdoteConflictQuest>,
+}
+/// CmdID: 7993
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct AnecdoteConflictInfoReq {
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub npc_id: u32,
+}
+/// CmdID: 6222
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AnecdoteConflictInfoRsp {
+    #[prost(message, optional, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub anecdote_conflict_info: ::core::option::Option<AnecdoteConflictInfo>,
+    #[prost(int32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub retcode: i32,
+    #[prost(uint32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub npc_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct AnecdoteInfo {
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub finish_count: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub id: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub state: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct AnecdoteWishInfo {
+    #[prost(uint32, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cur_wished_npc_id: u32,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub last_wish_time: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -3189,31 +3288,6 @@ pub struct AnecdoteRewardInfo {
     #[serde(skip_serializing_if = "crate::is_default")]
     pub reward_index: u32,
 }
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct AnecdoteWishInfo {
-    #[prost(uint32, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cur_wished_npc_id: u32,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub last_wish_time: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct AnecdoteInfo {
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub finish_count: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub id: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub state: u32,
-}
 /// CmdID: 4944
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -3234,6 +3308,45 @@ pub struct AnecdoteDataNotify {
     #[prost(int32, tag = "13")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub retcode: i32,
+}
+/// CmdID: 5873
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AnecdoteFinishNotify {
+    #[prost(message, repeated, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub anecdode_brief_info_list: ::prost::alloc::vec::Vec<AnecdoteBriefInfo>,
+}
+/// CmdID: 24758
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct AnecdoteFinishReq {
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub anecdote_id: u32,
+}
+/// CmdID: 9402
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct AnecdoteFinishRsp {
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub anecdote_id: u32,
+    #[prost(int32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub retcode: i32,
+}
+/// CmdID: 26155
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct AnecdoteInfoUpdateNotify {
+    #[prost(message, repeated, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub anecdote_info_list: ::prost::alloc::vec::Vec<AnecdoteInfo>,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -3572,27 +3685,13 @@ pub struct AutoTimeStopDungeonSettleInfo {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct AvatarExcelInfo {
-    #[serde(with="crate::u64_string")]
-    #[prost(uint64, tag = "2")]
+pub struct AvatarEquipAffixInfo {
+    #[prost(uint32, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub prefab_path_remote_hash: u64,
-    #[serde(with="crate::u64_string")]
-    #[prost(uint64, tag = "3")]
+    pub equip_affix_id: u32,
+    #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub controller_path_hash: u64,
-    #[serde(with="crate::u64_string")]
-    #[prost(uint64, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub prefab_path_hash: u64,
-    #[serde(with="crate::u64_string")]
-    #[prost(uint64, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub controller_path_remote_hash: u64,
-    #[serde(with="crate::u64_string")]
-    #[prost(uint64, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub combat_config_hash: u64,
+    pub left_cd_time: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -3604,14 +3703,6 @@ pub struct TrialAvatarGrantRecord {
     #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub from_parent_quest_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct BeyondMaterial {
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub count: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -3679,14 +3770,6 @@ pub struct Material {
     #[prost(message, optional, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub delete_info: ::core::option::Option<MaterialDeleteInfo>,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub count: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct Furniture {
     #[prost(uint32, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub count: u32,
@@ -3763,6 +3846,22 @@ pub mod equip {
         #[prost(message, tag = "1")]
         Reliquary(super::Reliquary),
     }
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct BeyondMaterial {
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub count: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct Furniture {
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub count: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -3869,17 +3968,6 @@ pub struct BeyondCosmeticPlan {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct AvatarEquipAffixInfo {
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub equip_affix_id: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub left_cd_time: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct PropValue {
     #[prost(int64, tag = "4")]
@@ -3904,6 +3992,43 @@ pub mod prop_value {
         #[prost(float, tag = "3")]
         Fval(f32),
     }
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct MirrorAvatarInfo {
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub copy_from_avatar_type: u32,
+    #[serde(with="crate::u64_string")]
+    #[prost(uint64, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub ley_line_end_time: u64,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct AvatarExcelInfo {
+    #[serde(with="crate::u64_string")]
+    #[prost(uint64, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub prefab_path_remote_hash: u64,
+    #[serde(with="crate::u64_string")]
+    #[prost(uint64, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub controller_path_hash: u64,
+    #[serde(with="crate::u64_string")]
+    #[prost(uint64, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub prefab_path_hash: u64,
+    #[serde(with="crate::u64_string")]
+    #[prost(uint64, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub controller_path_remote_hash: u64,
+    #[serde(with="crate::u64_string")]
+    #[prost(uint64, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub combat_config_hash: u64,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -3995,18 +4120,6 @@ pub struct AvatarFetterInfo {
     #[prost(uint32, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub exp_number: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct MirrorAvatarInfo {
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub copy_from_avatar_type: u32,
-    #[serde(with="crate::u64_string")]
-    #[prost(uint64, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub ley_line_end_time: u64,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -4148,141 +4261,6 @@ pub struct AvatarAddNotify {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct EntityEnvironmentInfo {
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub climate_area_id: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub json_climate_type: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneReliquaryInfo {
-    #[serde(with="crate::u64_string")]
-    #[prost(uint64, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub guid: u64,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub promote_level: u32,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub item_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct BeyondExpressionInfo {
-    #[prost(enumeration = "beyond_expression_info::ExpressionType", tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub expression_type: i32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub index: u32,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub id: u32,
-}
-/// Nested message and enum types in `BeyondExpressionInfo`.
-pub mod beyond_expression_info {
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[derive(
-        Clone,
-        Copy,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash,
-        PartialOrd,
-        Ord,
-        ::prost::Enumeration
-    )]
-    #[repr(i32)]
-    pub enum ExpressionType {
-        None = 0,
-        Emoji = 1,
-        Pose = 2,
-        SuitPose = 3,
-        GoldenPose = 4,
-    }
-    impl ExpressionType {
-        /// String value of the enum field names used in the ProtoBuf definition.
-        ///
-        /// The values are not transformed in any way and thus are considered stable
-        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-        pub fn as_str_name(&self) -> &'static str {
-            match self {
-                Self::None => "ExpressionType_NONE",
-                Self::Emoji => "ExpressionType_EMOJI",
-                Self::Pose => "ExpressionType_POSE",
-                Self::SuitPose => "ExpressionType_SUIT_POSE",
-                Self::GoldenPose => "ExpressionType_GOLDEN_POSE",
-            }
-        }
-        /// Creates an enum from field names used in the ProtoBuf definition.
-        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
-            match value {
-                "ExpressionType_NONE" => Some(Self::None),
-                "ExpressionType_EMOJI" => Some(Self::Emoji),
-                "ExpressionType_POSE" => Some(Self::Pose),
-                "ExpressionType_SUIT_POSE" => Some(Self::SuitPose),
-                "ExpressionType_GOLDEN_POSE" => Some(Self::GoldenPose),
-                _ => None,
-            }
-        }
-    }
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct CurVehicleInfo {
-    #[prost(message, optional, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub vehicle_pos: ::core::option::Option<Vector>,
-    #[prost(message, optional, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub vehicle_rot: ::core::option::Option<Vector>,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub gadget_id: u32,
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub vehicle_type: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub pos: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub entity_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct ServerBuff {
-    #[prost(bool, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_modifier_added: bool,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub server_buff_uid: u32,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub instanced_modifier_id: u32,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub server_buff_type: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub server_buff_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct EntityRendererChangedInfo {
     #[prost(map = "string, uint32", tag = "1")]
@@ -4339,216 +4317,37 @@ pub struct SceneWeaponInfo {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct SceneAvatarInfo {
-    #[prost(uint32, repeated, tag = "29")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub oifbhckkmga: ::prost::alloc::vec::Vec<u32>,
-    #[prost(message, repeated, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub server_buff_list: ::prost::alloc::vec::Vec<ServerBuff>,
-    #[prost(message, optional, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub weapon: ::core::option::Option<SceneWeaponInfo>,
-    #[prost(message, repeated, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub reliquary_list: ::prost::alloc::vec::Vec<SceneReliquaryInfo>,
-    #[prost(uint32, repeated, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub talent_id_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(message, repeated, tag = "28")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cur_expression_list: ::prost::alloc::vec::Vec<BeyondExpressionInfo>,
-    #[prost(message, optional, tag = "21")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub excel_info: ::core::option::Option<AvatarExcelInfo>,
-    #[prost(message, repeated, tag = "27")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub alt_cosmetic_plan: ::prost::alloc::vec::Vec<BeyondCosmeticPlan>,
-    #[prost(uint32, repeated, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub inherent_proud_skill_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(map = "uint32, uint32", tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub proud_skill_extra_level_map: ::std::collections::HashMap<u32, u32>,
-    #[prost(uint32, repeated, tag = "30")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub bhdejblbepd: ::prost::alloc::vec::Vec<u32>,
-    #[prost(message, optional, tag = "25")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cur_cosmetic_plan: ::core::option::Option<BeyondCosmeticPlan>,
-    #[prost(message, optional, tag = "20")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cur_vehicle_info: ::core::option::Option<CurVehicleInfo>,
-    #[prost(uint32, repeated, tag = "16")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub team_resonance_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(map = "uint32, uint32", tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub skill_level_map: ::std::collections::HashMap<u32, u32>,
-    #[prost(uint32, repeated, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub equip_id_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub avatar_id: u32,
-    #[prost(uint32, tag = "17")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub wearing_flycloak_id: u32,
-    #[prost(uint32, tag = "23")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub trace_effect_id: u32,
-    #[prost(uint32, tag = "24")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub weapon_skin_id: u32,
-    #[prost(uint32, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub core_proud_skill_level: u32,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub skill_depot_id: u32,
-    #[prost(uint32, tag = "18")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub born_time: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub uid: u32,
-    #[prost(uint32, tag = "22")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub anim_hash: u32,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub peer_id: u32,
-    #[serde(with="crate::u64_string")]
-    #[prost(uint64, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub guid: u64,
-    #[prost(uint32, tag = "26")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cur_voice_id: u32,
-    #[prost(uint32, tag = "19")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub costume_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct EntityClientData {
+pub struct FishtankFishInfo {
+    #[prost(float, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub fish_distance_from_water: f32,
     #[prost(float, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub windmill_sync_angle: f32,
-    #[prost(uint32, tag = "1")]
+    pub fish_scale: f32,
+    #[prost(float, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub wind_change_scene_time: u32,
-    #[prost(int32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub wind_change_target_level: i32,
+    pub initial_rotation_y: f32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct FightPropPair {
-    #[prost(float, tag = "2")]
+pub struct SceneFishInfo {
+    #[prost(message, optional, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub prop_value: f32,
-    #[prost(uint32, tag = "1")]
+    pub fish_pool_pos: ::core::option::Option<Vector>,
+    #[prost(uint32, tag = "5")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub prop_type: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneNpcInfo {
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub parent_quest_id: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub room_id: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub npc_id: u32,
+    pub last_shock_time: u32,
     #[prost(uint32, tag = "4")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub block_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct PropPair {
-    #[prost(message, optional, tag = "2")]
+    pub fish_pool_gadget_id: u32,
+    #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub prop_value: ::core::option::Option<PropValue>,
+    pub fish_pool_entity_id: u32,
     #[prost(uint32, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub r#type: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
-#[repr(i32)]
-pub enum ProtEntityType {
-    ProtEntityNone = 0,
-    ProtEntityAvatar = 1,
-    ProtEntityMonster = 2,
-    ProtEntityNpc = 3,
-    ProtEntityGadget = 4,
-    ProtEntityRegion = 5,
-    ProtEntityWeapon = 6,
-    ProtEntityWeather = 7,
-    ProtEntityScene = 8,
-    ProtEntityTeam = 9,
-    ProtEntityMpLevel = 11,
-    ProtEntityPlayTeamEntity = 12,
-    ProtEntityEyePoint = 13,
-    ProtEntityMax = 14,
-}
-impl ProtEntityType {
-    /// String value of the enum field names used in the ProtoBuf definition.
-    ///
-    /// The values are not transformed in any way and thus are considered stable
-    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
-        match self {
-            Self::ProtEntityNone => "ProtEntityType_PROT_ENTITY_NONE",
-            Self::ProtEntityAvatar => "ProtEntityType_PROT_ENTITY_AVATAR",
-            Self::ProtEntityMonster => "ProtEntityType_PROT_ENTITY_MONSTER",
-            Self::ProtEntityNpc => "ProtEntityType_PROT_ENTITY_NPC",
-            Self::ProtEntityGadget => "ProtEntityType_PROT_ENTITY_GADGET",
-            Self::ProtEntityRegion => "ProtEntityType_PROT_ENTITY_REGION",
-            Self::ProtEntityWeapon => "ProtEntityType_PROT_ENTITY_WEAPON",
-            Self::ProtEntityWeather => "ProtEntityType_PROT_ENTITY_WEATHER",
-            Self::ProtEntityScene => "ProtEntityType_PROT_ENTITY_SCENE",
-            Self::ProtEntityTeam => "ProtEntityType_PROT_ENTITY_TEAM",
-            Self::ProtEntityMpLevel => "ProtEntityType_PROT_ENTITY_MP_LEVEL",
-            Self::ProtEntityPlayTeamEntity => {
-                "ProtEntityType_PROT_ENTITY_PLAY_TEAM_ENTITY"
-            }
-            Self::ProtEntityEyePoint => "ProtEntityType_PROT_ENTITY_EYE_POINT",
-            Self::ProtEntityMax => "ProtEntityType_PROT_ENTITY_MAX",
-        }
-    }
-    /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
-        match value {
-            "ProtEntityType_PROT_ENTITY_NONE" => Some(Self::ProtEntityNone),
-            "ProtEntityType_PROT_ENTITY_AVATAR" => Some(Self::ProtEntityAvatar),
-            "ProtEntityType_PROT_ENTITY_MONSTER" => Some(Self::ProtEntityMonster),
-            "ProtEntityType_PROT_ENTITY_NPC" => Some(Self::ProtEntityNpc),
-            "ProtEntityType_PROT_ENTITY_GADGET" => Some(Self::ProtEntityGadget),
-            "ProtEntityType_PROT_ENTITY_REGION" => Some(Self::ProtEntityRegion),
-            "ProtEntityType_PROT_ENTITY_WEAPON" => Some(Self::ProtEntityWeapon),
-            "ProtEntityType_PROT_ENTITY_WEATHER" => Some(Self::ProtEntityWeather),
-            "ProtEntityType_PROT_ENTITY_SCENE" => Some(Self::ProtEntityScene),
-            "ProtEntityType_PROT_ENTITY_TEAM" => Some(Self::ProtEntityTeam),
-            "ProtEntityType_PROT_ENTITY_MP_LEVEL" => Some(Self::ProtEntityMpLevel),
-            "ProtEntityType_PROT_ENTITY_PLAY_TEAM_ENTITY" => {
-                Some(Self::ProtEntityPlayTeamEntity)
-            }
-            "ProtEntityType_PROT_ENTITY_EYE_POINT" => Some(Self::ProtEntityEyePoint),
-            "ProtEntityType_PROT_ENTITY_MAX" => Some(Self::ProtEntityMax),
-            _ => None,
-        }
-    }
+    pub fish_id: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -4579,40 +4378,6 @@ impl MonsterBornType {
             _ => None,
         }
     }
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct SceneFishInfo {
-    #[prost(message, optional, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub fish_pool_pos: ::core::option::Option<Vector>,
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub last_shock_time: u32,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub fish_pool_gadget_id: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub fish_pool_entity_id: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub fish_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct FishtankFishInfo {
-    #[prost(float, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub fish_distance_from_water: f32,
-    #[prost(float, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub fish_scale: f32,
-    #[prost(float, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub initial_rotation_y: f32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -4701,6 +4466,14 @@ pub mod scene_monster_info {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CoinCollectOperatorInfo {
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct OfferingInfo {
     #[prost(uint32, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
@@ -4709,16 +4482,25 @@ pub struct OfferingInfo {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct MpPlayRewardInfo {
+pub struct BlossomChestInfo {
     #[prost(uint32, repeated, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub qualify_uid_list: ::prost::alloc::vec::Vec<u32>,
+    pub remain_uid_list: ::prost::alloc::vec::Vec<u32>,
     #[prost(uint32, repeated, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub remain_uid_list: ::prost::alloc::vec::Vec<u32>,
+    pub qualify_uid_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub dead_time: u32,
     #[prost(uint32, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub resin: u32,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub blossom_refresh_type: u32,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub refresh_id: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -4731,120 +4513,6 @@ pub struct DeshretObeliskGadgetInfo {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct UgcTowerLevelUpGadgetInfo {
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub njficcpmbei: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct TrifleGadget {
-    #[prost(message, optional, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub item: ::core::option::Option<Item>,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub gglnepkeccd: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct FishPoolInfo {
-    #[prost(uint32, repeated, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub fish_area_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub today_fish_num: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub pool_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct ClientGadgetInfo {
-    #[prost(uint32, repeated, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub target_lock_point_index_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, repeated, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub target_entity_id_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub camp_type: u32,
-    #[prost(uint32, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub boljcejjdpp: u32,
-    #[prost(bool, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub async_load: bool,
-    #[prost(bool, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_peer_id_from_player: bool,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub owner_entity_id: u32,
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub target_entity_id: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub camp_id: u32,
-    #[serde(with="crate::u64_string")]
-    #[prost(uint64, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub guid: u64,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct WeeklyBossResinDiscountInfo {
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub discount_num: u32,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub resin_cost: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub discount_num_limit: u32,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub original_resin_cost: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct BossChestInfo {
-    #[prost(uint32, repeated, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub remain_uid_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, repeated, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub qualify_uid_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(map = "uint32, message", tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub uid_discount_map: ::std::collections::HashMap<u32, WeeklyBossResinDiscountInfo>,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub monster_config_id: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub resin: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct WeatherInfo {
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub weather_area_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct JourneyGearGadgetInfo {
     #[prost(uint32, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
@@ -4852,47 +4520,41 @@ pub struct JourneyGearGadgetInfo {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct NightCrowGadgetInfo {
-    #[prost(uint32, repeated, tag = "1")]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct VehicleMember {
+    #[serde(with="crate::u64_string")]
+    #[prost(uint64, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub argument_list: ::prost::alloc::vec::Vec<u32>,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct CustomCommonNodeInfo {
-    #[prost(int32, repeated, tag = "4")]
+    pub avatar_guid: u64,
+    #[prost(uint32, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub param_list: ::prost::alloc::vec::Vec<i32>,
-    #[prost(string, tag = "3")]
+    pub pos: u32,
+    #[prost(uint32, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub slot_identifier: ::prost::alloc::string::String,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub config_id: u32,
-    #[prost(int32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub parent_index: i32,
+    pub uid: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct CustomGadgetTreeInfo {
+pub struct VehicleInfo {
     #[prost(message, repeated, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub node_list: ::prost::alloc::vec::Vec<CustomCommonNodeInfo>,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct GatherGadgetInfo {
-    #[prost(bool, tag = "2")]
+    pub member_list: ::prost::alloc::vec::Vec<VehicleMember>,
+    #[prost(uint32, tag = "4")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_forbid_guest: bool,
-    #[prost(uint32, tag = "1")]
+    pub transform_entity_id: u32,
+    #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub item_id: u32,
+    pub owner_uid: u32,
+    #[prost(float, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cur_phlogiston: f32,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub anim_hash: u32,
+    #[prost(float, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cur_stamina: f32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -4947,69 +4609,163 @@ pub struct FoundationInfo {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct UgcSpecialGadgetInfo {
+pub struct WeatherInfo {
     #[prost(uint32, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub group_id: u32,
+    pub weather_area_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct EchoShellInfo {
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub shell_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum GadgetBornType {
+    GadgetBornNone = 0,
+    GadgetBornInAir = 1,
+    GadgetBornPlayer = 2,
+    GadgetBornMonsterHit = 3,
+    GadgetBornMonsterDie = 4,
+    GadgetBornGadget = 5,
+    GadgetBornGround = 6,
+}
+impl GadgetBornType {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::GadgetBornNone => "GadgetBornType_GADGET_BORN_NONE",
+            Self::GadgetBornInAir => "GadgetBornType_GADGET_BORN_IN_AIR",
+            Self::GadgetBornPlayer => "GadgetBornType_GADGET_BORN_PLAYER",
+            Self::GadgetBornMonsterHit => "GadgetBornType_GADGET_BORN_MONSTER_HIT",
+            Self::GadgetBornMonsterDie => "GadgetBornType_GADGET_BORN_MONSTER_DIE",
+            Self::GadgetBornGadget => "GadgetBornType_GADGET_BORN_GADGET",
+            Self::GadgetBornGround => "GadgetBornType_GADGET_BORN_GROUND",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "GadgetBornType_GADGET_BORN_NONE" => Some(Self::GadgetBornNone),
+            "GadgetBornType_GADGET_BORN_IN_AIR" => Some(Self::GadgetBornInAir),
+            "GadgetBornType_GADGET_BORN_PLAYER" => Some(Self::GadgetBornPlayer),
+            "GadgetBornType_GADGET_BORN_MONSTER_HIT" => Some(Self::GadgetBornMonsterHit),
+            "GadgetBornType_GADGET_BORN_MONSTER_DIE" => Some(Self::GadgetBornMonsterDie),
+            "GadgetBornType_GADGET_BORN_GADGET" => Some(Self::GadgetBornGadget),
+            "GadgetBornType_GADGET_BORN_GROUND" => Some(Self::GadgetBornGround),
+            _ => None,
+        }
+    }
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GatherGadgetInfo {
+    #[prost(bool, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_forbid_guest: bool,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub item_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct CustomCommonNodeInfo {
+    #[prost(int32, repeated, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub param_list: ::prost::alloc::vec::Vec<i32>,
+    #[prost(string, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub slot_identifier: ::prost::alloc::string::String,
     #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub guid: u32,
+    pub config_id: u32,
+    #[prost(int32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub parent_index: i32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CustomGadgetTreeInfo {
+    #[prost(message, repeated, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub node_list: ::prost::alloc::vec::Vec<CustomCommonNodeInfo>,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct TrifleGadget {
+    #[prost(message, optional, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub item: ::core::option::Option<Item>,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub gglnepkeccd: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ScreenInfo {
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub live_id: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub projector_entity_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct WeeklyBossResinDiscountInfo {
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub discount_num: u32,
     #[prost(uint32, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub ekoliaopfif: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct StatueGadgetInfo {
-    #[prost(uint32, repeated, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub opened_statue_uid_list: ::prost::alloc::vec::Vec<u32>,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct CoinCollectOperatorInfo {
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct GadgetCrucibleInfo {
+    pub resin_cost: u32,
     #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub prepare_end_time: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub mp_play_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct GadgetPlayInfo {
-    #[prost(uint32, repeated, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub progress_stage_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub progress: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub duration: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub play_type: u32,
+    pub discount_num_limit: u32,
     #[prost(uint32, tag = "4")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub start_cd: u32,
-    #[prost(uint32, tag = "5")]
+    pub original_resin_cost: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct BossChestInfo {
+    #[prost(uint32, repeated, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub start_time: u32,
-    #[prost(message, optional, tag = "21")]
+    pub remain_uid_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, repeated, tag = "4")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub crucible_info: ::core::option::Option<GadgetCrucibleInfo>,
+    pub qualify_uid_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(map = "uint32, message", tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub uid_discount_map: ::std::collections::HashMap<u32, WeeklyBossResinDiscountInfo>,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub monster_config_id: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub resin: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct UgcTowerLevelUpGadgetInfo {
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub njficcpmbei: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -5186,88 +4942,55 @@ pub struct PlatformInfo {
     pub stop_scene_time: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
-#[repr(i32)]
-pub enum GadgetBornType {
-    GadgetBornNone = 0,
-    GadgetBornInAir = 1,
-    GadgetBornPlayer = 2,
-    GadgetBornMonsterHit = 3,
-    GadgetBornMonsterDie = 4,
-    GadgetBornGadget = 5,
-    GadgetBornGround = 6,
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct FishPoolInfo {
+    #[prost(uint32, repeated, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub fish_area_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub today_fish_num: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pool_id: u32,
 }
-impl GadgetBornType {
-    /// String value of the enum field names used in the ProtoBuf definition.
-    ///
-    /// The values are not transformed in any way and thus are considered stable
-    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
-        match self {
-            Self::GadgetBornNone => "GadgetBornType_GADGET_BORN_NONE",
-            Self::GadgetBornInAir => "GadgetBornType_GADGET_BORN_IN_AIR",
-            Self::GadgetBornPlayer => "GadgetBornType_GADGET_BORN_PLAYER",
-            Self::GadgetBornMonsterHit => "GadgetBornType_GADGET_BORN_MONSTER_HIT",
-            Self::GadgetBornMonsterDie => "GadgetBornType_GADGET_BORN_MONSTER_DIE",
-            Self::GadgetBornGadget => "GadgetBornType_GADGET_BORN_GADGET",
-            Self::GadgetBornGround => "GadgetBornType_GADGET_BORN_GROUND",
-        }
-    }
-    /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
-        match value {
-            "GadgetBornType_GADGET_BORN_NONE" => Some(Self::GadgetBornNone),
-            "GadgetBornType_GADGET_BORN_IN_AIR" => Some(Self::GadgetBornInAir),
-            "GadgetBornType_GADGET_BORN_PLAYER" => Some(Self::GadgetBornPlayer),
-            "GadgetBornType_GADGET_BORN_MONSTER_HIT" => Some(Self::GadgetBornMonsterHit),
-            "GadgetBornType_GADGET_BORN_MONSTER_DIE" => Some(Self::GadgetBornMonsterDie),
-            "GadgetBornType_GADGET_BORN_GADGET" => Some(Self::GadgetBornGadget),
-            "GadgetBornType_GADGET_BORN_GROUND" => Some(Self::GadgetBornGround),
-            _ => None,
-        }
-    }
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GadgetCrucibleInfo {
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub prepare_end_time: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub mp_play_id: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct BlossomChestInfo {
+pub struct GadgetPlayInfo {
     #[prost(uint32, repeated, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub remain_uid_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, repeated, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub qualify_uid_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub dead_time: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub resin: u32,
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub blossom_refresh_type: u32,
+    pub progress_stage_list: ::prost::alloc::vec::Vec<u32>,
     #[prost(uint32, tag = "6")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub refresh_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct EchoShellInfo {
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub shell_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct ScreenInfo {
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub live_id: u32,
+    pub progress: u32,
     #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub projector_entity_id: u32,
+    pub duration: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub play_type: u32,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub start_cd: u32,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub start_time: u32,
+    #[prost(message, optional, tag = "21")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub crucible_info: ::core::option::Option<GadgetCrucibleInfo>,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -5289,6 +5012,97 @@ pub struct RoguelikeGadgetInfo {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ClientGadgetInfo {
+    #[prost(uint32, repeated, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub target_lock_point_index_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, repeated, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub target_entity_id_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub camp_type: u32,
+    #[prost(uint32, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub boljcejjdpp: u32,
+    #[prost(bool, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub async_load: bool,
+    #[prost(bool, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_peer_id_from_player: bool,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub owner_entity_id: u32,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub target_entity_id: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub camp_id: u32,
+    #[serde(with="crate::u64_string")]
+    #[prost(uint64, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub guid: u64,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct StatueGadgetInfo {
+    #[prost(uint32, repeated, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub opened_statue_uid_list: ::prost::alloc::vec::Vec<u32>,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct UgcSpecialGadgetInfo {
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub group_id: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub guid: u32,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub ekoliaopfif: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct MpPlayRewardInfo {
+    #[prost(uint32, repeated, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub qualify_uid_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, repeated, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub remain_uid_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub resin: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct NightCrowGadgetInfo {
+    #[prost(uint32, repeated, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub argument_list: ::prost::alloc::vec::Vec<u32>,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct WorktopInfo {
+    #[prost(uint32, repeated, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub option_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(bool, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_guest_can_operate: bool,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct GadgetGeneralRewardInfo {
     #[prost(uint32, repeated, tag = "4")]
     #[serde(skip_serializing_if = "crate::is_default")]
@@ -5305,55 +5119,6 @@ pub struct GadgetGeneralRewardInfo {
     #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub dead_time: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct VehicleMember {
-    #[serde(with="crate::u64_string")]
-    #[prost(uint64, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub avatar_guid: u64,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub pos: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub uid: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct VehicleInfo {
-    #[prost(message, repeated, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub member_list: ::prost::alloc::vec::Vec<VehicleMember>,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub transform_entity_id: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub owner_uid: u32,
-    #[prost(float, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cur_phlogiston: f32,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub anim_hash: u32,
-    #[prost(float, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cur_stamina: f32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct WorktopInfo {
-    #[prost(uint32, repeated, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub option_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(bool, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_guest_can_operate: bool,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -5492,6 +5257,457 @@ pub mod scene_gadget_info {
         #[prost(message, tag = "20")]
         BossChest(super::BossChestInfo),
     }
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct FightPropPair {
+    #[prost(float, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub prop_value: f32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub prop_type: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct EntityClientData {
+    #[prost(float, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub windmill_sync_angle: f32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub wind_change_scene_time: u32,
+    #[prost(int32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub wind_change_target_level: i32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ServerBuff {
+    #[prost(bool, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_modifier_added: bool,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub server_buff_uid: u32,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub instanced_modifier_id: u32,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub server_buff_type: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub server_buff_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum ProtEntityType {
+    ProtEntityNone = 0,
+    ProtEntityAvatar = 1,
+    ProtEntityMonster = 2,
+    ProtEntityNpc = 3,
+    ProtEntityGadget = 4,
+    ProtEntityRegion = 5,
+    ProtEntityWeapon = 6,
+    ProtEntityWeather = 7,
+    ProtEntityScene = 8,
+    ProtEntityTeam = 9,
+    ProtEntityMpLevel = 11,
+    ProtEntityPlayTeamEntity = 12,
+    ProtEntityEyePoint = 13,
+    ProtEntityMax = 14,
+}
+impl ProtEntityType {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::ProtEntityNone => "ProtEntityType_PROT_ENTITY_NONE",
+            Self::ProtEntityAvatar => "ProtEntityType_PROT_ENTITY_AVATAR",
+            Self::ProtEntityMonster => "ProtEntityType_PROT_ENTITY_MONSTER",
+            Self::ProtEntityNpc => "ProtEntityType_PROT_ENTITY_NPC",
+            Self::ProtEntityGadget => "ProtEntityType_PROT_ENTITY_GADGET",
+            Self::ProtEntityRegion => "ProtEntityType_PROT_ENTITY_REGION",
+            Self::ProtEntityWeapon => "ProtEntityType_PROT_ENTITY_WEAPON",
+            Self::ProtEntityWeather => "ProtEntityType_PROT_ENTITY_WEATHER",
+            Self::ProtEntityScene => "ProtEntityType_PROT_ENTITY_SCENE",
+            Self::ProtEntityTeam => "ProtEntityType_PROT_ENTITY_TEAM",
+            Self::ProtEntityMpLevel => "ProtEntityType_PROT_ENTITY_MP_LEVEL",
+            Self::ProtEntityPlayTeamEntity => {
+                "ProtEntityType_PROT_ENTITY_PLAY_TEAM_ENTITY"
+            }
+            Self::ProtEntityEyePoint => "ProtEntityType_PROT_ENTITY_EYE_POINT",
+            Self::ProtEntityMax => "ProtEntityType_PROT_ENTITY_MAX",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "ProtEntityType_PROT_ENTITY_NONE" => Some(Self::ProtEntityNone),
+            "ProtEntityType_PROT_ENTITY_AVATAR" => Some(Self::ProtEntityAvatar),
+            "ProtEntityType_PROT_ENTITY_MONSTER" => Some(Self::ProtEntityMonster),
+            "ProtEntityType_PROT_ENTITY_NPC" => Some(Self::ProtEntityNpc),
+            "ProtEntityType_PROT_ENTITY_GADGET" => Some(Self::ProtEntityGadget),
+            "ProtEntityType_PROT_ENTITY_REGION" => Some(Self::ProtEntityRegion),
+            "ProtEntityType_PROT_ENTITY_WEAPON" => Some(Self::ProtEntityWeapon),
+            "ProtEntityType_PROT_ENTITY_WEATHER" => Some(Self::ProtEntityWeather),
+            "ProtEntityType_PROT_ENTITY_SCENE" => Some(Self::ProtEntityScene),
+            "ProtEntityType_PROT_ENTITY_TEAM" => Some(Self::ProtEntityTeam),
+            "ProtEntityType_PROT_ENTITY_MP_LEVEL" => Some(Self::ProtEntityMpLevel),
+            "ProtEntityType_PROT_ENTITY_PLAY_TEAM_ENTITY" => {
+                Some(Self::ProtEntityPlayTeamEntity)
+            }
+            "ProtEntityType_PROT_ENTITY_EYE_POINT" => Some(Self::ProtEntityEyePoint),
+            "ProtEntityType_PROT_ENTITY_MAX" => Some(Self::ProtEntityMax),
+            _ => None,
+        }
+    }
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct EntityEnvironmentInfo {
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub climate_area_id: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub json_climate_type: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct PropPair {
+    #[prost(message, optional, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub prop_value: ::core::option::Option<PropValue>,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub r#type: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct MonsterRoute {
+    #[prost(message, repeated, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub alpnkkebcbk: ::prost::alloc::vec::Vec<RoutePoint>,
+    #[prost(int32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub route_id: i32,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub route_type: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub speed_level: u32,
+    #[prost(float, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub arrive_range: f32,
+    #[prost(bool, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub nbcchipglik: bool,
+    #[prost(bool, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub mibkmadoaca: bool,
+    #[prost(bool, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub ioogogpknpk: bool,
+    #[prost(bool, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub epgpbldniak: bool,
+    #[prost(bool, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cajmejfjppe: bool,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ServantInfo {
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub master_entity_id: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub born_slot_index: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SceneEntityAiInfo {
+    #[prost(map = "uint32, uint32", tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub skill_cd_map: ::std::collections::HashMap<u32, u32>,
+    #[prost(map = "uint32, uint32", tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub ai_threat_map: ::std::collections::HashMap<u32, u32>,
+    #[prost(message, optional, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub monster_route: ::core::option::Option<MonsterRoute>,
+    #[prost(map = "uint32, uint32", tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub skill_group_cd_map: ::std::collections::HashMap<u32, u32>,
+    #[prost(message, optional, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub servant_info: ::core::option::Option<ServantInfo>,
+    #[prost(bool, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_ai_open: bool,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cur_tactic: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct EntityClientExtraInfo {
+    #[prost(message, optional, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub skill_anchor_position: ::core::option::Option<Vector>,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct EntityAuthorityInfo {
+    #[prost(message, optional, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub renderer_changed_info: ::core::option::Option<EntityRendererChangedInfo>,
+    #[prost(message, optional, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub ai_info: ::core::option::Option<SceneEntityAiInfo>,
+    #[prost(message, optional, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub ability_info: ::core::option::Option<AbilitySyncStateInfo>,
+    #[prost(message, optional, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub born_pos: ::core::option::Option<Vector>,
+    #[prost(message, repeated, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pose_para_list: ::prost::alloc::vec::Vec<AnimatorParameterValueInfoPair>,
+    #[prost(message, optional, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub client_extra_info: ::core::option::Option<EntityClientExtraInfo>,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SceneNpcInfo {
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub parent_quest_id: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub room_id: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub npc_id: u32,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub block_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct BeyondExpressionInfo {
+    #[prost(enumeration = "beyond_expression_info::ExpressionType", tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub expression_type: i32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub index: u32,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub id: u32,
+}
+/// Nested message and enum types in `BeyondExpressionInfo`.
+pub mod beyond_expression_info {
+    #[derive(serde::Serialize, serde::Deserialize)]
+    #[derive(
+        Clone,
+        Copy,
+        Debug,
+        PartialEq,
+        Eq,
+        Hash,
+        PartialOrd,
+        Ord,
+        ::prost::Enumeration
+    )]
+    #[repr(i32)]
+    pub enum ExpressionType {
+        None = 0,
+        Emoji = 1,
+        Pose = 2,
+        SuitPose = 3,
+        GoldenPose = 4,
+    }
+    impl ExpressionType {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Self::None => "ExpressionType_NONE",
+                Self::Emoji => "ExpressionType_EMOJI",
+                Self::Pose => "ExpressionType_POSE",
+                Self::SuitPose => "ExpressionType_SUIT_POSE",
+                Self::GoldenPose => "ExpressionType_GOLDEN_POSE",
+            }
+        }
+        /// Creates an enum from field names used in the ProtoBuf definition.
+        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+            match value {
+                "ExpressionType_NONE" => Some(Self::None),
+                "ExpressionType_EMOJI" => Some(Self::Emoji),
+                "ExpressionType_POSE" => Some(Self::Pose),
+                "ExpressionType_SUIT_POSE" => Some(Self::SuitPose),
+                "ExpressionType_GOLDEN_POSE" => Some(Self::GoldenPose),
+                _ => None,
+            }
+        }
+    }
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct CurVehicleInfo {
+    #[prost(message, optional, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub vehicle_pos: ::core::option::Option<Vector>,
+    #[prost(message, optional, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub vehicle_rot: ::core::option::Option<Vector>,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub gadget_id: u32,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub vehicle_type: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pos: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub entity_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SceneReliquaryInfo {
+    #[serde(with="crate::u64_string")]
+    #[prost(uint64, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub guid: u64,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub promote_level: u32,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub item_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SceneAvatarInfo {
+    #[prost(uint32, repeated, tag = "29")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub oifbhckkmga: ::prost::alloc::vec::Vec<u32>,
+    #[prost(message, repeated, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub server_buff_list: ::prost::alloc::vec::Vec<ServerBuff>,
+    #[prost(message, optional, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub weapon: ::core::option::Option<SceneWeaponInfo>,
+    #[prost(message, repeated, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub reliquary_list: ::prost::alloc::vec::Vec<SceneReliquaryInfo>,
+    #[prost(uint32, repeated, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub talent_id_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(message, repeated, tag = "28")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cur_expression_list: ::prost::alloc::vec::Vec<BeyondExpressionInfo>,
+    #[prost(message, optional, tag = "21")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub excel_info: ::core::option::Option<AvatarExcelInfo>,
+    #[prost(message, repeated, tag = "27")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub alt_cosmetic_plan: ::prost::alloc::vec::Vec<BeyondCosmeticPlan>,
+    #[prost(uint32, repeated, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub inherent_proud_skill_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(map = "uint32, uint32", tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub proud_skill_extra_level_map: ::std::collections::HashMap<u32, u32>,
+    #[prost(uint32, repeated, tag = "30")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub bhdejblbepd: ::prost::alloc::vec::Vec<u32>,
+    #[prost(message, optional, tag = "25")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cur_cosmetic_plan: ::core::option::Option<BeyondCosmeticPlan>,
+    #[prost(message, optional, tag = "20")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cur_vehicle_info: ::core::option::Option<CurVehicleInfo>,
+    #[prost(uint32, repeated, tag = "16")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub team_resonance_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(map = "uint32, uint32", tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub skill_level_map: ::std::collections::HashMap<u32, u32>,
+    #[prost(uint32, repeated, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub equip_id_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub avatar_id: u32,
+    #[prost(uint32, tag = "17")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub wearing_flycloak_id: u32,
+    #[prost(uint32, tag = "23")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub trace_effect_id: u32,
+    #[prost(uint32, tag = "24")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub weapon_skin_id: u32,
+    #[prost(uint32, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub core_proud_skill_level: u32,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub skill_depot_id: u32,
+    #[prost(uint32, tag = "18")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub born_time: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub uid: u32,
+    #[prost(uint32, tag = "22")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub anim_hash: u32,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub peer_id: u32,
+    #[serde(with="crate::u64_string")]
+    #[prost(uint64, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub guid: u64,
+    #[prost(uint32, tag = "26")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cur_voice_id: u32,
+    #[prost(uint32, tag = "19")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub costume_id: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -5953,109 +6169,6 @@ pub struct MotionInfo {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct EntityClientExtraInfo {
-    #[prost(message, optional, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub skill_anchor_position: ::core::option::Option<Vector>,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct ServantInfo {
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub master_entity_id: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub born_slot_index: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct MonsterRoute {
-    #[prost(message, repeated, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub alpnkkebcbk: ::prost::alloc::vec::Vec<RoutePoint>,
-    #[prost(int32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub route_id: i32,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub route_type: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub speed_level: u32,
-    #[prost(float, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub arrive_range: f32,
-    #[prost(bool, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub nbcchipglik: bool,
-    #[prost(bool, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub mibkmadoaca: bool,
-    #[prost(bool, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub ioogogpknpk: bool,
-    #[prost(bool, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub epgpbldniak: bool,
-    #[prost(bool, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cajmejfjppe: bool,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct SceneEntityAiInfo {
-    #[prost(map = "uint32, uint32", tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub skill_cd_map: ::std::collections::HashMap<u32, u32>,
-    #[prost(map = "uint32, uint32", tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub ai_threat_map: ::std::collections::HashMap<u32, u32>,
-    #[prost(message, optional, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub monster_route: ::core::option::Option<MonsterRoute>,
-    #[prost(map = "uint32, uint32", tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub skill_group_cd_map: ::std::collections::HashMap<u32, u32>,
-    #[prost(message, optional, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub servant_info: ::core::option::Option<ServantInfo>,
-    #[prost(bool, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_ai_open: bool,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cur_tactic: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct EntityAuthorityInfo {
-    #[prost(message, optional, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub renderer_changed_info: ::core::option::Option<EntityRendererChangedInfo>,
-    #[prost(message, optional, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub ai_info: ::core::option::Option<SceneEntityAiInfo>,
-    #[prost(message, optional, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub ability_info: ::core::option::Option<AbilitySyncStateInfo>,
-    #[prost(message, optional, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub born_pos: ::core::option::Option<Vector>,
-    #[prost(message, repeated, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub pose_para_list: ::prost::alloc::vec::Vec<AnimatorParameterValueInfoPair>,
-    #[prost(message, optional, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub client_extra_info: ::core::option::Option<EntityClientExtraInfo>,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct SceneEntityInfo {
     #[prost(message, repeated, tag = "6")]
@@ -6331,17 +6444,6 @@ pub struct AvatarCosmeticDataNotify {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct AvatarRenameInfo {
-    #[prost(string, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub avatar_name: ::prost::alloc::string::String,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub avatar_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct AvatarTeam {
     #[prost(string, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
@@ -6350,6 +6452,17 @@ pub struct AvatarTeam {
     #[prost(uint64, repeated, tag = "5")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub avatar_guid_list: ::prost::alloc::vec::Vec<u64>,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct AvatarRenameInfo {
+    #[prost(string, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub avatar_name: ::prost::alloc::string::String,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub avatar_id: u32,
 }
 /// CmdID: 26236
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -7412,163 +7525,6 @@ pub struct BargainTerminateNotify {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct BattlePassCycle {
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub begin_time: u32,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub end_time: u32,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cycle_idx: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct BattlePassRewardPlanOption {
-    #[prost(bool, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_original: bool,
-    #[prost(uint32, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub reward_type: u32,
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub tier_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
-#[repr(i32)]
-pub enum BattlePassUnlockStatus {
-    BattlePassUnlockInvalid = 0,
-    BattlePassUnlockFree = 1,
-    BattlePassUnlockPaid = 2,
-}
-impl BattlePassUnlockStatus {
-    /// String value of the enum field names used in the ProtoBuf definition.
-    ///
-    /// The values are not transformed in any way and thus are considered stable
-    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-    pub fn as_str_name(&self) -> &'static str {
-        match self {
-            Self::BattlePassUnlockInvalid => {
-                "BattlePassUnlockStatus_BATTLE_PASS_UNLOCK_INVALID"
-            }
-            Self::BattlePassUnlockFree => {
-                "BattlePassUnlockStatus_BATTLE_PASS_UNLOCK_FREE"
-            }
-            Self::BattlePassUnlockPaid => {
-                "BattlePassUnlockStatus_BATTLE_PASS_UNLOCK_PAID"
-            }
-        }
-    }
-    /// Creates an enum from field names used in the ProtoBuf definition.
-    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
-        match value {
-            "BattlePassUnlockStatus_BATTLE_PASS_UNLOCK_INVALID" => {
-                Some(Self::BattlePassUnlockInvalid)
-            }
-            "BattlePassUnlockStatus_BATTLE_PASS_UNLOCK_FREE" => {
-                Some(Self::BattlePassUnlockFree)
-            }
-            "BattlePassUnlockStatus_BATTLE_PASS_UNLOCK_PAID" => {
-                Some(Self::BattlePassUnlockPaid)
-            }
-            _ => None,
-        }
-    }
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct BattlePassRewardTag {
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level: u32,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub ebfgkjmomed: u32,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub reward_id: u32,
-    #[prost(enumeration = "BattlePassUnlockStatus", tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub unlock_status: i32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct BattlePassProduct {
-    #[prost(string, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub bcmhblchkfc: ::prost::alloc::string::String,
-    #[prost(string, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub extra_product_id: ::prost::alloc::string::String,
-    #[prost(string, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub normal_product_id: ::prost::alloc::string::String,
-    #[prost(string, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub upgrade_product_id: ::prost::alloc::string::String,
-    #[prost(string, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub odfloipckeg: ::prost::alloc::string::String,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct BattlePassSchedule {
-    #[prost(message, repeated, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub reward_taken_list: ::prost::alloc::vec::Vec<BattlePassRewardTag>,
-    #[prost(message, optional, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub product_info: ::core::option::Option<BattlePassProduct>,
-    #[prost(message, repeated, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub reward_plan_option_list: ::prost::alloc::vec::Vec<BattlePassRewardPlanOption>,
-    #[prost(message, optional, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cur_cycle: ::core::option::Option<BattlePassCycle>,
-    #[prost(uint32, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub paid_platform_flags: u32,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level: u32,
-    #[prost(uint32, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub point: u32,
-    #[prost(uint32, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cur_cycle_points: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub end_time: u32,
-    #[prost(enumeration = "BattlePassUnlockStatus", tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub unlock_status: i32,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub begin_time: u32,
-    #[prost(uint32, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub schedule_id: u32,
-    #[prost(bool, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_extra_paid_reward_taken: bool,
-    #[prost(bool, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_show_plan_prompt: bool,
-    #[prost(bool, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_viewed: bool,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct BattlePassMission {
     #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
@@ -7634,6 +7590,163 @@ pub mod battle_pass_mission {
             }
         }
     }
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct BattlePassRewardPlanOption {
+    #[prost(bool, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_original: bool,
+    #[prost(uint32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub reward_type: u32,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub tier_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct BattlePassProduct {
+    #[prost(string, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub bcmhblchkfc: ::prost::alloc::string::String,
+    #[prost(string, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub extra_product_id: ::prost::alloc::string::String,
+    #[prost(string, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub normal_product_id: ::prost::alloc::string::String,
+    #[prost(string, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub upgrade_product_id: ::prost::alloc::string::String,
+    #[prost(string, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub odfloipckeg: ::prost::alloc::string::String,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum BattlePassUnlockStatus {
+    BattlePassUnlockInvalid = 0,
+    BattlePassUnlockFree = 1,
+    BattlePassUnlockPaid = 2,
+}
+impl BattlePassUnlockStatus {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            Self::BattlePassUnlockInvalid => {
+                "BattlePassUnlockStatus_BATTLE_PASS_UNLOCK_INVALID"
+            }
+            Self::BattlePassUnlockFree => {
+                "BattlePassUnlockStatus_BATTLE_PASS_UNLOCK_FREE"
+            }
+            Self::BattlePassUnlockPaid => {
+                "BattlePassUnlockStatus_BATTLE_PASS_UNLOCK_PAID"
+            }
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "BattlePassUnlockStatus_BATTLE_PASS_UNLOCK_INVALID" => {
+                Some(Self::BattlePassUnlockInvalid)
+            }
+            "BattlePassUnlockStatus_BATTLE_PASS_UNLOCK_FREE" => {
+                Some(Self::BattlePassUnlockFree)
+            }
+            "BattlePassUnlockStatus_BATTLE_PASS_UNLOCK_PAID" => {
+                Some(Self::BattlePassUnlockPaid)
+            }
+            _ => None,
+        }
+    }
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct BattlePassRewardTag {
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level: u32,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub ebfgkjmomed: u32,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub reward_id: u32,
+    #[prost(enumeration = "BattlePassUnlockStatus", tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub unlock_status: i32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct BattlePassCycle {
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub begin_time: u32,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub end_time: u32,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cycle_idx: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct BattlePassSchedule {
+    #[prost(message, repeated, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub reward_taken_list: ::prost::alloc::vec::Vec<BattlePassRewardTag>,
+    #[prost(message, optional, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub product_info: ::core::option::Option<BattlePassProduct>,
+    #[prost(message, repeated, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub reward_plan_option_list: ::prost::alloc::vec::Vec<BattlePassRewardPlanOption>,
+    #[prost(message, optional, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cur_cycle: ::core::option::Option<BattlePassCycle>,
+    #[prost(uint32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub paid_platform_flags: u32,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level: u32,
+    #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub point: u32,
+    #[prost(uint32, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cur_cycle_points: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub end_time: u32,
+    #[prost(enumeration = "BattlePassUnlockStatus", tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub unlock_status: i32,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub begin_time: u32,
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub schedule_id: u32,
+    #[prost(bool, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_extra_paid_reward_taken: bool,
+    #[prost(bool, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_show_plan_prompt: bool,
+    #[prost(bool, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_viewed: bool,
 }
 /// CmdID: 5955
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -9582,6 +9695,39 @@ pub struct ClientScriptEventNotify {
     #[serde(skip_serializing_if = "crate::is_default")]
     pub event_type: u32,
 }
+/// CmdID: 29181
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ClientSetGameTimeReq {
+    #[prost(uint32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub game_time: u32,
+    #[prost(uint32, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub client_game_time: u32,
+    #[prost(bool, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_force_set: bool,
+}
+/// CmdID: 29320
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ClientSetGameTimeRsp {
+    #[prost(uint32, repeated, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cadiancihie: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub game_time: u32,
+    #[prost(int32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub retcode: i32,
+    #[prost(uint32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub client_game_time: u32,
+}
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
@@ -11047,22 +11193,13 @@ pub struct DungeonChallengeBeginNotify {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct EffigyChallengeDungeonResultInfo {
-    #[prost(bool, tag = "15")]
+pub struct StrengthenPointData {
+    #[prost(uint32, tag = "9")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_in_time_limit: bool,
-    #[prost(bool, tag = "12")]
+    pub mbneacalhde: u32,
+    #[prost(uint32, tag = "15")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_success: bool,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub challenge_max_score: u32,
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub challenge_score: u32,
-    #[prost(uint32, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub challenge_id: u32,
+    pub llnjgkpdppb: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -11090,13 +11227,22 @@ pub struct PotionDungeonResultInfo {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct StrengthenPointData {
-    #[prost(uint32, tag = "9")]
+pub struct EffigyChallengeDungeonResultInfo {
+    #[prost(bool, tag = "15")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub mbneacalhde: u32,
-    #[prost(uint32, tag = "15")]
+    pub is_in_time_limit: bool,
+    #[prost(bool, tag = "12")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub llnjgkpdppb: u32,
+    pub is_success: bool,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub challenge_max_score: u32,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub challenge_score: u32,
+    #[prost(uint32, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub challenge_id: u32,
 }
 /// CmdID: 20662
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -11631,84 +11777,405 @@ pub struct DungeonSettleExhibitionInfo {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct Mvm2SimulateSettleInfo {
-    #[prost(uint32, tag = "13")]
+pub struct RoguelikeSettleCoinInfo {
+    #[prost(uint32, tag = "7")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub progress: u32,
-    #[prost(uint32, tag = "3")]
+    pub fhgdaobpfpm: u32,
+    #[prost(uint32, tag = "8")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub use_time: u32,
+    pub caekkgfjmgo: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub coin_c: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct MusicPartySettleInfo {
-    #[prost(message, repeated, tag = "5")]
+pub struct RoguelikeDungeonSettleInfo {
+    #[prost(map = "uint32, message", tag = "6")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub settle_info_list: ::prost::alloc::vec::Vec<DungeonSettleExhibitionInfo>,
-    #[prost(uint32, repeated, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub winner_uid_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(message, repeated, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub score_list: ::prost::alloc::vec::Vec<ExhibitionDisplayInfo>,
+    pub finished_challenge_cell_num_map: ::std::collections::HashMap<
+        u32,
+        RoguelikeSettleCoinInfo,
+    >,
     #[prost(uint32, tag = "7")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub jfleojbpidc: u32,
+    pub ipgdajiohkj: u32,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub stage_id: u32,
     #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cur_level: u32,
+    #[prost(bool, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub olbehjgoban: bool,
+    #[prost(bool, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub ihhcjgipmdm: bool,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub njcmehahdee: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GainBuffDungeonSettleInfo {
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub difficulty: u32,
+    #[prost(bool, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
+    #[prost(uint32, tag = "13")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub score: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct GalleryContextEntry {
-    #[prost(map = "string, string", tag = "9")]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct NatlanArenaSettleInfo {
+    #[prost(uint32, tag = "7")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub lgohdeiahkp: ::std::collections::HashMap<
-        ::prost::alloc::string::String,
-        ::prost::alloc::string::String,
-    >,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct QuickTimeCombatDungeonSettleInfo {
-    #[prost(uint32, repeated, tag = "12")]
+    pub difficulty: u32,
+    #[prost(uint32, tag = "11")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub mnmckaikhnb: ::prost::alloc::vec::Vec<u32>,
-    #[prost(bool, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub total_score: u32,
+    pub cost_time: u32,
     #[prost(uint32, tag = "6")]
     #[serde(skip_serializing_if = "crate::is_default")]
+    pub omogmkphgfd: u32,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cnniefpkpfa: u32,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub aflpndogepd: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cndhofjflib: u32,
+    #[prost(bool, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
+    #[prost(bool, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub jcpobangnig: bool,
+    #[prost(bool, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub fanokjphckm: bool,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GoalChallengeDungeonSettleInfo {
+    #[prost(uint32, repeated, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub mnmckaikhnb: ::prost::alloc::vec::Vec<u32>,
+    #[prost(bool, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
     pub stage_id: u32,
-    #[prost(uint32, tag = "9")]
+    #[prost(uint32, tag = "11")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub difficulty: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct MultiCharacterDungeonSettleInfo {
-    #[prost(uint32, repeated, tag = "14")]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SlimeCannonDungeonSettleInfo {
+    #[prost(uint32, tag = "15")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub enpmlgpgjak: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, tag = "1")]
+    pub knmecmfhahh: u32,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub mgmplmhjima: u32,
+    #[prost(uint32, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub edmkieimbkm: u32,
+    #[prost(uint32, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub nkebjcpgjfp: u32,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub nfbpnmiampg: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct HumanDragonPuzzleSettleInfo {
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pacgdkhcklg: u32,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct InstableSprayDungeonSettleInfo {
+    #[prost(uint32, repeated, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub score_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub round: u32,
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub stage_id: u32,
+    #[prost(uint32, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+    #[prost(bool, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
+    #[prost(uint32, tag = "14")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub difficulty: u32,
-    #[prost(bool, tag = "3")]
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ThemeParkParkourSettleInfo {
+    #[prost(bool, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub knopnlookoe: bool,
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct Saurus1V3SettleInfo {
+    #[prost(message, repeated, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub settle_info_list: ::prost::alloc::vec::Vec<DungeonSettleExhibitionInfo>,
+    #[prost(message, repeated, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub score_list: ::prost::alloc::vec::Vec<ExhibitionDisplayInfo>,
+    #[prost(uint32, repeated, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub winner_uid_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub score: u32,
+    #[prost(uint32, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub jfleojbpidc: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct NodkraiTourHackSettleInfo {
+    #[prost(bool, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pacgdkhcklg: u32,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub hit_point: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub use_time: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct FeverBattleDungeonSettleInfo {
+    #[prost(uint32, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub difficulty: u32,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub score: u32,
+    #[prost(bool, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
+    #[prost(uint32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ThemeParkTriathlonSettleInfo {
+    #[prost(bool, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub knopnlookoe: bool,
+    #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+}
+/// CmdID: 26635
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct TowerLevelEndNotify {
+    #[prost(message, repeated, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub reward_item_list: ::prost::alloc::vec::Vec<ItemParam>,
+    #[prost(uint32, repeated, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub finished_star_cond_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub continue_state: u32,
+    #[prost(bool, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_success: bool,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub next_floor_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct TowerChallengeSettleInfo {
+    #[prost(uint32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pjdolmhdhel: u32,
+    #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub olnncjhehfm: u32,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub finish_time: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct FilmfestBattleDungeonSettleInfo {
+    #[prost(bool, tag = "8")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub is_new_record: bool,
     #[prost(uint32, tag = "7")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub stage_id: u32,
+    pub difficulty: u32,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+    #[prost(uint32, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub moifjgkmeib: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub score: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub lcaeehfpnai: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SummerTimeV2DungeonSettleInfo {
+    #[prost(bool, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_success: bool,
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cur_dungeon_reward_limit: u32,
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub taken_reward_count: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct FilmfestSniperDungeonSettleInfo {
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub dkfndfcdjnh: u32,
+    #[prost(float, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub gghighjpplb: f32,
+    #[prost(uint32, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct FungusFighterV2SettleInfo {
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub oghlajefmoa: u32,
+    #[prost(bool, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cost_time: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pdiffobfolc: u32,
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub bljlhmfhdgh: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct StaminaFightDungeonSettleInfo {
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cost_time: u32,
+    #[prost(uint32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub difficulty: u32,
+    #[prost(bool, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct RechargeDiskDungeonSettleInfo {
+    #[prost(uint32, repeated, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub score_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(bool, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
     #[prost(uint32, tag = "4")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub level_id: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub difficulty: u32,
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub hkemjgbhpok: u32,
+}
+/// CmdID: 29133
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct TrialAvatarFirstPassDungeonNotify {
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub trial_avatar_index_id: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -11832,443 +12299,19 @@ impl GalleryStopReason {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct NodkraiTourParkourSettleInfo {
-    #[prost(uint32, tag = "5")]
+pub struct LostSamachurlSneakDungeonSettleInfo {
+    #[prost(bool, tag = "12")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub jjefhccljcm: u32,
-    #[prost(uint32, tag = "8")]
+    pub is_new_record: bool,
+    #[prost(uint32, tag = "15")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub kfaofgadkfp: u32,
-    #[prost(enumeration = "GalleryStopReason", tag = "11")]
+    pub level_id: u32,
+    #[prost(uint32, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cost_time: u32,
+    #[prost(enumeration = "GalleryStopReason", tag = "13")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub reason: i32,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub pacgdkhcklg: u32,
-    #[prost(uint32, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub use_time: u32,
-    #[prost(uint32, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub score: u32,
-    #[prost(bool, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub ikocbpceadh: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SummerTimeV2DungeonSettleInfo {
-    #[prost(bool, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_success: bool,
-    #[prost(uint32, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cur_dungeon_reward_limit: u32,
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub taken_reward_count: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct FeverBattleDungeonSettleInfo {
-    #[prost(uint32, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub difficulty: u32,
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub score: u32,
-    #[prost(bool, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(uint32, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-}
-/// CmdID: 29133
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct TrialAvatarFirstPassDungeonNotify {
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub trial_avatar_index_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SumeruAdventureTrainingSettleInfo {
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub pacgdkhcklg: u32,
-    #[prost(uint32, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-    #[prost(uint32, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub play_type: u32,
-    #[prost(bool, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub difficulty: u32,
-    #[prost(uint32, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub score: u32,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub use_time: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct RoguelikeSettleCoinInfo {
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub fhgdaobpfpm: u32,
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub caekkgfjmgo: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub coin_c: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct RoguelikeDungeonSettleInfo {
-    #[prost(map = "uint32, message", tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub finished_challenge_cell_num_map: ::std::collections::HashMap<
-        u32,
-        RoguelikeSettleCoinInfo,
-    >,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub ipgdajiohkj: u32,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub stage_id: u32,
-    #[prost(uint32, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cur_level: u32,
-    #[prost(bool, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub olbehjgoban: bool,
-    #[prost(bool, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub ihhcjgipmdm: bool,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub njcmehahdee: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct EffigyChallengeV5DungeonSettleInfo {
-    #[prost(uint32, repeated, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub phogpolanja: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, repeated, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub dffbpbcgldb: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, repeated, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub player_uid_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cost_time: u32,
-    #[prost(bool, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(bool, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub bcbloidfmic: bool,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub ageajmhghdm: u32,
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub difficulty_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct NatlanArenaSettleInfo {
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub difficulty: u32,
-    #[prost(uint32, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cost_time: u32,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub omogmkphgfd: u32,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cnniefpkpfa: u32,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub aflpndogepd: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cndhofjflib: u32,
-    #[prost(bool, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(bool, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub jcpobangnig: bool,
-    #[prost(bool, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub fanokjphckm: bool,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct RoleCombatDungeonSettleInfo {
-    #[prost(uint32, repeated, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub foolopagljk: ::prost::alloc::vec::Vec<u32>,
-    #[serde(with="crate::u64_repeated_string")]
-    #[prost(uint64, repeated, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub avatar_guid_list: ::prost::alloc::vec::Vec<u64>,
-    #[serde(with="crate::u64_repeated_string")]
-    #[prost(uint64, repeated, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub gmhnhnehhhj: ::prost::alloc::vec::Vec<u64>,
-    #[prost(uint32, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub use_time: u32,
-    #[prost(uint32, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub difficulty_id: u32,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub coin_num: u32,
-    #[prost(bool, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub kphahgpnhpb: bool,
-    #[prost(bool, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub nclhbhbomck: bool,
-    #[prost(uint32, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub lamlegbejdj: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct EffigyChallengeV2SettleInfo {
-    #[prost(bool, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub laaefbkeked: bool,
-    #[prost(bool, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub bifbcficegh: bool,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub oipmefdkdmh: u32,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cpejajejald: u32,
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub challenge_mode_difficulty: u32,
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub mdpbklflbnl: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct InstableSprayDungeonSettleInfo {
-    #[prost(uint32, repeated, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub score_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub round: u32,
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub stage_id: u32,
-    #[prost(uint32, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-    #[prost(bool, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub difficulty: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct ParamList {
-    #[prost(uint32, repeated, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub param_list: ::prost::alloc::vec::Vec<u32>,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct FilmfestBattleDungeonSettleInfo {
-    #[prost(bool, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub difficulty: u32,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-    #[prost(uint32, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub moifjgkmeib: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub score: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub lcaeehfpnai: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct ThemeParkParkourSettleInfo {
-    #[prost(bool, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub knopnlookoe: bool,
-    #[prost(uint32, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct MistTrialDungeonSettleInfo {
-    #[prost(map = "uint32, uint32", tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cfbfbgjjeae: ::std::collections::HashMap<u32, u32>,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct FungusFighterV3SettleInfo {
-    #[prost(uint32, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub mggbfdjdiij: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cost_time: u32,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub hodejafhngh: u32,
-    #[prost(uint32, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub fpeonfeohjg: u32,
-    #[prost(uint32, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub phniipcembn: u32,
-    #[prost(uint32, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub hamhpmopfek: u32,
-    #[prost(bool, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub fjpldnnplnk: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct FungusFighterV2SettleInfo {
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub oghlajefmoa: u32,
-    #[prost(bool, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cost_time: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub pdiffobfolc: u32,
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub bljlhmfhdgh: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct NatlanDrillBattleSettleInfo {
-    #[prost(uint32, repeated, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub nddjbkndege: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub gdpjifdfnbh: u32,
-    #[prost(uint32, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub difficulty: u32,
-    #[prost(bool, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cost_time: u32,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct NodkraiTourHackSettleInfo {
-    #[prost(bool, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub pacgdkhcklg: u32,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub hit_point: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub use_time: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct FilmfestSniperDungeonSettleInfo {
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub dkfndfcdjnh: u32,
-    #[prost(float, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub gghighjpplb: f32,
-    #[prost(uint32, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -12286,6 +12329,17 @@ pub struct FairyTalesCombatDungeonSettleInfo {
     #[prost(uint32, tag = "11")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub difficulty: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct Mvm2SimulateSettleInfo {
+    #[prost(uint32, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub progress: u32,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub use_time: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -12309,68 +12363,19 @@ pub struct TeamChainSettleInfo {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct TowerChallengeSettleInfo {
-    #[prost(uint32, tag = "12")]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ParamList {
+    #[prost(uint32, repeated, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub pjdolmhdhel: u32,
-    #[prost(uint32, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub olnncjhehfm: u32,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub finish_time: u32,
+    pub param_list: ::prost::alloc::vec::Vec<u32>,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct StaminaFightDungeonSettleInfo {
-    #[prost(uint32, tag = "15")]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct MistTrialDungeonSettleInfo {
+    #[prost(map = "uint32, uint32", tag = "6")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub cost_time: u32,
-    #[prost(uint32, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub difficulty: u32,
-    #[prost(bool, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct HumanDragonPuzzleSettleInfo {
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub pacgdkhcklg: u32,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct InspirationSpurtDungeonSettleInfo {
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub use_time: u32,
-    #[prost(uint32, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub score: u32,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub kill_monster_num: u32,
-    #[prost(bool, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
+    pub cfbfbgjjeae: ::std::collections::HashMap<u32, u32>,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -12465,73 +12470,51 @@ pub struct PacmanDungeonSettleInfo {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct GoalChallengeDungeonSettleInfo {
-    #[prost(uint32, repeated, tag = "4")]
+pub struct EffigyChallengeV5DungeonSettleInfo {
+    #[prost(uint32, repeated, tag = "5")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub mnmckaikhnb: ::prost::alloc::vec::Vec<u32>,
-    #[prost(bool, tag = "3")]
+    pub phogpolanja: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, repeated, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub stage_id: u32,
-    #[prost(uint32, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub difficulty: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct RechargeDiskDungeonSettleInfo {
+    pub dffbpbcgldb: ::prost::alloc::vec::Vec<u32>,
     #[prost(uint32, repeated, tag = "11")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub score_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(bool, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub difficulty: u32,
-    #[prost(uint32, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub hkemjgbhpok: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct LostSamachurlSneakDungeonSettleInfo {
-    #[prost(bool, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(uint32, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-    #[prost(uint32, tag = "11")]
+    pub player_uid_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub cost_time: u32,
-    #[prost(enumeration = "GalleryStopReason", tag = "13")]
+    #[prost(bool, tag = "10")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub reason: i32,
+    pub is_new_record: bool,
+    #[prost(bool, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub bcbloidfmic: bool,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub ageajmhghdm: u32,
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub difficulty_id: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct GainBuffDungeonSettleInfo {
-    #[prost(uint32, tag = "6")]
+pub struct InspirationSpurtDungeonSettleInfo {
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub use_time: u32,
+    #[prost(uint32, tag = "12")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub level_id: u32,
-    #[prost(uint32, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub difficulty: u32,
-    #[prost(bool, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_new_record: bool,
-    #[prost(uint32, tag = "13")]
+    #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub score: u32,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub kill_monster_num: u32,
+    #[prost(bool, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -12606,29 +12589,6 @@ pub struct WindFieldDungeonSettleInfo {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SlimeCannonDungeonSettleInfo {
-    #[prost(uint32, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub knmecmfhahh: u32,
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub mgmplmhjima: u32,
-    #[prost(uint32, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub edmkieimbkm: u32,
-    #[prost(uint32, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub nkebjcpgjfp: u32,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub nfbpnmiampg: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Mvm2PveSettleInfo {
     #[prost(uint32, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
@@ -12643,57 +12603,243 @@ pub struct Mvm2PveSettleInfo {
     #[serde(skip_serializing_if = "crate::is_default")]
     pub level_id: u32,
 }
-/// CmdID: 26635
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct TowerLevelEndNotify {
-    #[prost(message, repeated, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub reward_item_list: ::prost::alloc::vec::Vec<ItemParam>,
-    #[prost(uint32, repeated, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub finished_star_cond_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub continue_state: u32,
-    #[prost(bool, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_success: bool,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub next_floor_id: u32,
-}
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct ThemeParkTriathlonSettleInfo {
-    #[prost(bool, tag = "8")]
+pub struct EffigyChallengeV2SettleInfo {
+    #[prost(bool, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub knopnlookoe: bool,
-    #[prost(uint32, tag = "10")]
+    pub laaefbkeked: bool,
+    #[prost(bool, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub bifbcficegh: bool,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub oipmefdkdmh: u32,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cpejajejald: u32,
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub challenge_mode_difficulty: u32,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub mdpbklflbnl: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct MultiCharacterDungeonSettleInfo {
+    #[prost(uint32, repeated, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub enpmlgpgjak: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub difficulty: u32,
+    #[prost(bool, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub stage_id: u32,
+    #[prost(uint32, tag = "4")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub level_id: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct Saurus1V3SettleInfo {
-    #[prost(message, repeated, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub settle_info_list: ::prost::alloc::vec::Vec<DungeonSettleExhibitionInfo>,
-    #[prost(message, repeated, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub score_list: ::prost::alloc::vec::Vec<ExhibitionDisplayInfo>,
-    #[prost(uint32, repeated, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub winner_uid_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub score: u32,
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct FungusFighterV3SettleInfo {
     #[prost(uint32, tag = "13")]
     #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub mggbfdjdiij: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cost_time: u32,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub hodejafhngh: u32,
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub fpeonfeohjg: u32,
+    #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub phniipcembn: u32,
+    #[prost(uint32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub hamhpmopfek: u32,
+    #[prost(bool, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub fjpldnnplnk: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct QuickTimeCombatDungeonSettleInfo {
+    #[prost(uint32, repeated, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub mnmckaikhnb: ::prost::alloc::vec::Vec<u32>,
+    #[prost(bool, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub total_score: u32,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub stage_id: u32,
+    #[prost(uint32, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub difficulty: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct RoleCombatDungeonSettleInfo {
+    #[prost(uint32, repeated, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub foolopagljk: ::prost::alloc::vec::Vec<u32>,
+    #[serde(with="crate::u64_repeated_string")]
+    #[prost(uint64, repeated, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub avatar_guid_list: ::prost::alloc::vec::Vec<u64>,
+    #[serde(with="crate::u64_repeated_string")]
+    #[prost(uint64, repeated, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub gmhnhnehhhj: ::prost::alloc::vec::Vec<u64>,
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub use_time: u32,
+    #[prost(uint32, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub difficulty_id: u32,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub coin_num: u32,
+    #[prost(bool, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub kphahgpnhpb: bool,
+    #[prost(bool, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub nclhbhbomck: bool,
+    #[prost(uint32, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub lamlegbejdj: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct NatlanDrillBattleSettleInfo {
+    #[prost(uint32, repeated, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub nddjbkndege: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub gdpjifdfnbh: u32,
+    #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub difficulty: u32,
+    #[prost(bool, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cost_time: u32,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct NodkraiTourParkourSettleInfo {
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub jjefhccljcm: u32,
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub kfaofgadkfp: u32,
+    #[prost(enumeration = "GalleryStopReason", tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub reason: i32,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pacgdkhcklg: u32,
+    #[prost(uint32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub use_time: u32,
+    #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub score: u32,
+    #[prost(bool, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub ikocbpceadh: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct MusicPartySettleInfo {
+    #[prost(message, repeated, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub settle_info_list: ::prost::alloc::vec::Vec<DungeonSettleExhibitionInfo>,
+    #[prost(uint32, repeated, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub winner_uid_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(message, repeated, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub score_list: ::prost::alloc::vec::Vec<ExhibitionDisplayInfo>,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
     pub jfleojbpidc: u32,
+    #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub score: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct GalleryContextEntry {
+    #[prost(map = "string, string", tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub lgohdeiahkp: ::std::collections::HashMap<
+        ::prost::alloc::string::String,
+        ::prost::alloc::string::String,
+    >,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SumeruAdventureTrainingSettleInfo {
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pacgdkhcklg: u32,
+    #[prost(uint32, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+    #[prost(uint32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub play_type: u32,
+    #[prost(bool, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_new_record: bool,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub difficulty: u32,
+    #[prost(uint32, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub score: u32,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub use_time: u32,
 }
 /// CmdID: 8128
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -13315,6 +13461,45 @@ pub struct EntityFightPropUpdateNotify {
     #[prost(uint32, tag = "10")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub entity_id: u32,
+}
+/// CmdID: 28650
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct EntityForceSyncReq {
+    #[prost(message, optional, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub motion_info: ::core::option::Option<MotionInfo>,
+    #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub scene_time: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub entity_id: u32,
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub parent_quest_id: u32,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub room_id: u32,
+}
+/// CmdID: 29511
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct EntityForceSyncRsp {
+    #[prost(message, optional, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub fail_motion: ::core::option::Option<MotionInfo>,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub entity_id: u32,
+    #[prost(int32, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub retcode: i32,
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub scene_time: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -16354,21 +16539,6 @@ pub struct GetProfilePictureDataRsp {
     #[serde(skip_serializing_if = "crate::is_default")]
     pub retcode: i32,
 }
-/// CmdID: 20432
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct GetQuickswapWidgetsRsp {
-    #[prost(uint32, repeated, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub quickswap_widget_id_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(int32, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub retcode: i32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub quick_widget_index: u32,
-}
 /// CmdID: 26337
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -16511,32 +16681,6 @@ pub struct ShopConcertProduct {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct ShopMcoinProduct {
-    #[prost(string, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub price_tier: ::prost::alloc::string::String,
-    #[prost(string, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub product_id: ::prost::alloc::string::String,
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub mcoin_first: u32,
-    #[prost(bool, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_audit: bool,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub bought_num: u32,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub mcoin_base: u32,
-    #[prost(uint32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub mcoin_non_first: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ShopCardProduct {
     #[prost(string, tag = "1")]
@@ -16577,6 +16721,32 @@ pub mod shop_card_product {
         #[serde(skip_serializing_if = "crate::is_default")]
         pub base_item_list: ::prost::alloc::vec::Vec<super::ItemParam>,
     }
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ShopMcoinProduct {
+    #[prost(string, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub price_tier: ::prost::alloc::string::String,
+    #[prost(string, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub product_id: ::prost::alloc::string::String,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub mcoin_first: u32,
+    #[prost(bool, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub is_audit: bool,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub bought_num: u32,
+    #[prost(uint32, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub mcoin_base: u32,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub mcoin_non_first: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -16853,10 +17023,6 @@ pub struct GetUgcReq {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct UgcLanV5CardRecord {}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct LanV5CardSocial {
     #[prost(uint32, tag = "8")]
     #[serde(skip_serializing_if = "crate::is_default")]
@@ -16937,6 +17103,10 @@ pub struct UgcMusicRecord {
     #[serde(skip_serializing_if = "crate::is_default")]
     pub music_id: u32,
 }
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct UgcLanV5CardRecord {}
 /// CmdID: 1317
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -16984,6 +17154,21 @@ pub mod get_ugc_rsp {
         #[prost(message, tag = "973")]
         LanV5CardBriefInfo(super::UgcLanV5CardBriefInfo),
     }
+}
+/// CmdID: 472
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct GetWidgetQuickSlotListRsp {
+    #[prost(uint32, repeated, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub material_id_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub current_slot_num: u32,
+    #[prost(int32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub retcode: i32,
 }
 /// CmdID: 20205
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -17414,17 +17599,6 @@ pub struct HomeBasicInfoNotify {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct WeekendDjinnInfo {
-    #[prost(message, optional, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub rot: ::core::option::Option<Vector>,
-    #[prost(message, optional, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub pos: ::core::option::Option<Vector>,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct HomeFurnitureData {
     #[prost(message, optional, tag = "11")]
     #[serde(skip_serializing_if = "crate::is_default")]
@@ -17444,6 +17618,73 @@ pub struct HomeFurnitureData {
     #[prost(uint32, tag = "15")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub version: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct HomeFurnitureCustomSuiteData {
+    #[prost(message, optional, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub spawn_pos: ::core::option::Option<Vector>,
+    #[prost(int32, repeated, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub included_furniture_index_list: ::prost::alloc::vec::Vec<i32>,
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub guid: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct HomeFurnitureGroupData {
+    #[prost(message, repeated, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub virtual_furniure_list: ::prost::alloc::vec::Vec<HomeFurnitureData>,
+    #[prost(uint32, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub group_furniture_index: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct HomeBlockSubFieldData {
+    #[prost(message, optional, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub rot: ::core::option::Option<Vector>,
+    #[prost(message, optional, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pos: ::core::option::Option<Vector>,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct HomeBlockFieldData {
+    #[prost(message, repeated, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub sub_field_list: ::prost::alloc::vec::Vec<HomeBlockSubFieldData>,
+    #[prost(message, optional, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub rot: ::core::option::Option<Vector>,
+    #[prost(message, optional, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pos: ::core::option::Option<Vector>,
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub furniture_id: u32,
+    #[prost(uint32, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub guid: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct WeekendDjinnInfo {
+    #[prost(message, optional, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub rot: ::core::option::Option<Vector>,
+    #[prost(message, optional, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pos: ::core::option::Option<Vector>,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -17481,62 +17722,6 @@ pub struct HomeNpcData {
     #[prost(uint32, tag = "10")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub costume_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct HomeFurnitureGroupData {
-    #[prost(message, repeated, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub virtual_furniure_list: ::prost::alloc::vec::Vec<HomeFurnitureData>,
-    #[prost(uint32, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub group_furniture_index: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct HomeFurnitureCustomSuiteData {
-    #[prost(message, optional, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub spawn_pos: ::core::option::Option<Vector>,
-    #[prost(int32, repeated, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub included_furniture_index_list: ::prost::alloc::vec::Vec<i32>,
-    #[prost(uint32, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub guid: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct HomeBlockSubFieldData {
-    #[prost(message, optional, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub rot: ::core::option::Option<Vector>,
-    #[prost(message, optional, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub pos: ::core::option::Option<Vector>,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct HomeBlockFieldData {
-    #[prost(message, repeated, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub sub_field_list: ::prost::alloc::vec::Vec<HomeBlockSubFieldData>,
-    #[prost(message, optional, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub rot: ::core::option::Option<Vector>,
-    #[prost(message, optional, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub pos: ::core::option::Option<Vector>,
-    #[prost(uint32, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub furniture_id: u32,
-    #[prost(uint32, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub guid: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -18820,17 +19005,6 @@ pub struct MarkNewNotify {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct ShapeSphere {
-    #[prost(message, optional, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub center: ::core::option::Option<Vector>,
-    #[prost(float, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub radius: f32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct ShapeBox {
     #[prost(message, optional, tag = "5")]
     #[serde(skip_serializing_if = "crate::is_default")]
@@ -18847,6 +19021,17 @@ pub struct ShapeBox {
     #[prost(message, optional, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub axis1: ::core::option::Option<Vector>,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct ShapeSphere {
+    #[prost(message, optional, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub center: ::core::option::Option<Vector>,
+    #[prost(float, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub radius: f32,
 }
 /// CmdID: 29388
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -19331,12 +19516,12 @@ pub struct PathfindingEnterSceneReq {
     #[serde(skip_serializing_if = "crate::is_default")]
     pub polygon_id: u32,
 }
-/// CmdID: 26563
+/// CmdID: 2308
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct PathfindingEnterSceneRsp {
-    #[prost(int32, tag = "8")]
+    #[prost(int32, tag = "10")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub retcode: i32,
 }
@@ -20018,27 +20203,6 @@ pub struct PlayerEnterDungeonRsp {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryFungusFighterCaptureInfo {
-    #[prost(bool, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub ialjmjkjnid: bool,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGallerySorushTrialHitmanInfo {
-    #[serde(with="crate::u64_string")]
-    #[prost(uint64, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub mmgligklggi: u64,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryBoatMultiInfo {}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SceneGalleryAkaFesArchaeologyInfo {
     #[prost(uint32, tag = "8")]
     #[serde(skip_serializing_if = "crate::is_default")]
@@ -20049,53 +20213,67 @@ pub struct SceneGalleryAkaFesArchaeologyInfo {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryBoxMatchInfo {}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryIslandPartyDownHillInfo {
-    #[prost(enumeration = "GalleryStartSource", tag = "12")]
+#[derive(Clone, Copy, PartialEq, ::prost::Message)]
+pub struct SceneGalleryFilmfestSniperInfo {
+    #[prost(uint32, tag = "8")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub pehmaponmld: i32,
+    pub dkfndfcdjnh: u32,
+    #[prost(float, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub gghighjpplb: f32,
+    #[prost(bool, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub nfpokipgnlj: bool,
+    #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub ndegmbbnmll: u32,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub kill_monster_num: u32,
     #[prost(uint32, tag = "15")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub nekgldbpaji: u32,
-    #[prost(uint32, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub calniojmclb: u32,
-    #[prost(uint32, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub fnmbmkfdpdm: u32,
+    pub jpijbchcmmm: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryHandballInfo {
-    #[prost(bool, tag = "3")]
+pub struct SceneGalleryFungusFighterCaptureInfo {
+    #[prost(bool, tag = "10")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub hgadigbmjkd: bool,
+    pub ialjmjkjnid: bool,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGallerySlimeCannonInfo {
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub score: u32,
-    #[prost(uint32, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub nknkkjpcdjb: u32,
-    #[serde(with="crate::u64_string")]
-    #[prost(uint64, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub lplkeppelcn: u64,
+pub struct SceneGalleryIrodoriMasterInfo {
     #[prost(uint32, tag = "6")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub aghgboaheih: u32,
-    #[prost(uint32, tag = "14")]
+    pub level_id: u32,
+    #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub edmkieimbkm: u32,
+    pub difficulty: u32,
+    #[prost(bool, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub jngaejnkjlh: bool,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SceneGallerySalvagePreventInfo {
+    #[prost(uint32, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub jjocdijbidp: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SceneGalleryFlightGearInfo {
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub ldhokadiiph: u32,
+    #[prost(uint32, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub anpfoilccpn: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -20116,14 +20294,14 @@ pub struct SceneGalleryProgressInfo {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryFlightGearInfo {
-    #[prost(uint32, tag = "6")]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SceneGalleryAkaFesRhythmInfo {
+    #[prost(string, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub ldhokadiiph: u32,
-    #[prost(uint32, tag = "9")]
+    pub transaction: ::prost::alloc::string::String,
+    #[prost(bool, tag = "13")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub anpfoilccpn: u32,
+    pub ebdjjbgccmn: bool,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -20154,76 +20332,13 @@ pub struct SceneGalleryFungusFighterTrainingInfo {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, PartialEq, ::prost::Message)]
-pub struct SceneGalleryHomeSeekFurnitureInfo {
+pub struct SceneGalleryBrokenFloorInfo {
     #[prost(map = "uint32, uint32", tag = "10")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub nhiomfcanhn: ::std::collections::HashMap<u32, u32>,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub jdefdkjekoi: u32,
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub jgecjeecgpa: u32,
-    #[prost(uint32, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub dckfjdjlgmm: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGallerySalvagePreventInfo {
-    #[prost(uint32, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub jjocdijbidp: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryIslandPartySailInfo {
-    #[prost(enumeration = "GalleryStartSource", tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub pehmaponmld: i32,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub bahmeobdnbh: u32,
+    pub idkionkdhee: ::std::collections::HashMap<u32, u32>,
     #[prost(uint32, tag = "4")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub mamkfbcaklb: u32,
-    #[prost(uint32, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub bcobfbofpbp: u32,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub mngpfbpilml: u32,
-    #[prost(enumeration = "IslandPartySailStage", tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub state: i32,
-    #[prost(uint32, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub fnmbmkfdpdm: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, ::prost::Message)]
-pub struct SceneGalleryFilmfestSniperInfo {
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub dkfndfcdjnh: u32,
-    #[prost(float, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub gghighjpplb: f32,
-    #[prost(bool, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub nfpokipgnlj: bool,
-    #[prost(uint32, tag = "10")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub ndegmbbnmll: u32,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub kill_monster_num: u32,
-    #[prost(uint32, tag = "15")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub jpijbchcmmm: u32,
+    pub end_time: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -20244,58 +20359,85 @@ pub struct SceneGallerySummerTimeV2BoatInfo {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct SceneGalleryBrokenFloorInfo {
-    #[prost(map = "uint32, uint32", tag = "10")]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct VintageHuntingSecondStageInfo {
+    #[prost(uint32, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub idkionkdhee: ::std::collections::HashMap<u32, u32>,
-    #[prost(uint32, tag = "4")]
+    pub onmlliokmpl: u32,
+    #[prost(uint32, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub end_time: u32,
+    pub papoaciibnk: u32,
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub chgehhamcee: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryHomeBalloonInfo {
-    #[prost(uint32, tag = "5")]
+pub struct VintageHuntingThirdStageInfo {}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct VintageHuntingFirstStageInfo {
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub ahfknkofidp: u32,
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub blbonojcnno: u32,
+    #[prost(uint32, tag = "1")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub plmbdgeajba: u32,
+    #[prost(uint32, tag = "7")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub score: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryFlowerInfo {
-    #[prost(uint32, tag = "6")]
+pub struct SceneGalleryVintageHuntingInfo {
+    #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub cur_score: u32,
-    #[prost(uint32, tag = "10")]
+    pub stage_id: u32,
+    #[serde(flatten)]
+    #[prost(oneof = "scene_gallery_vintage_hunting_info::Info", tags = "7, 8, 9")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub kamhhjhhfio: u32,
-    #[prost(uint32, tag = "14")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub end_time: u32,
+    pub info: ::core::option::Option<scene_gallery_vintage_hunting_info::Info>,
+}
+/// Nested message and enum types in `SceneGalleryVintageHuntingInfo`.
+pub mod scene_gallery_vintage_hunting_info {
+    #[derive(serde::Serialize, serde::Deserialize)]
+    #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
+    #[serde(rename_all = "snake_case")]
+    pub enum Info {
+        #[prost(message, tag = "7")]
+        FirstStageInfo(super::VintageHuntingFirstStageInfo),
+        #[prost(message, tag = "8")]
+        ThirdStageInfo(super::VintageHuntingThirdStageInfo),
+        #[prost(message, tag = "9")]
+        SecondStageInfo(super::VintageHuntingSecondStageInfo),
+    }
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryInspirationSpurtInfo {
-    #[prost(uint32, tag = "4")]
+pub struct SceneGallerySlimeCannonInfo {
+    #[prost(uint32, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub kill_elite_monster_num: u32,
+    pub score: u32,
+    #[prost(uint32, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub nknkkjpcdjb: u32,
     #[serde(with="crate::u64_string")]
-    #[prost(uint64, tag = "3")]
+    #[prost(uint64, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub lkpggdginoa: u64,
-    #[prost(uint32, tag = "10")]
+    pub lplkeppelcn: u64,
+    #[prost(uint32, tag = "6")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub gepacpbnahi: u32,
-    #[prost(uint32, tag = "7")]
+    pub aghgboaheih: u32,
+    #[prost(uint32, tag = "14")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub kjmkkiioeoo: u32,
-    #[serde(with="crate::u64_string")]
-    #[prost(uint64, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub nkbkbcoilfl: u64,
+    pub edmkieimbkm: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -20316,25 +20458,72 @@ pub struct SceneGallerySalvageEscortInfo {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryAkaFesRhythmInfo {
-    #[prost(string, tag = "1")]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SceneGalleryIslandPartyRaftInfo {
+    #[prost(uint32, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub transaction: ::prost::alloc::string::String,
-    #[prost(bool, tag = "13")]
+    pub fnmbmkfdpdm: u32,
+    #[prost(uint32, tag = "14")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub ebdjjbgccmn: bool,
+    pub agjphlmkfkm: u32,
+    #[prost(enumeration = "GalleryStartSource", tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pehmaponmld: i32,
+    #[prost(uint32, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub lfbccfepibb: u32,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub point_id: u32,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub epmmjdkfbfm: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGallerySorushTrialPhotoMatchInfo {
-    #[prost(bool, tag = "2")]
+pub struct SceneGalleryFilmfestBattleInfo {
+    #[prost(uint32, tag = "15")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub cmekegcbjfc: bool,
-    #[prost(bool, tag = "4")]
+    pub level_id: u32,
+    #[prost(uint32, tag = "8")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub gbchnnpameo: bool,
+    pub cur_score: u32,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub difficulty: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SceneGalleryBoxMatchInfo {}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SceneGalleryHomeSeekFurnitureInfo {
+    #[prost(map = "uint32, uint32", tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub nhiomfcanhn: ::std::collections::HashMap<u32, u32>,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub jdefdkjekoi: u32,
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub jgecjeecgpa: u32,
+    #[prost(uint32, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub dckfjdjlgmm: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct SceneGalleryBulletInfo {
+    #[prost(map = "uint32, uint32", tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub obbbjclpaah: ::std::collections::HashMap<u32, u32>,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub end_time: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
@@ -20398,26 +20587,32 @@ pub struct SceneGallerySandwormInfo {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryIslandPartyRaftInfo {
-    #[prost(uint32, tag = "2")]
+pub struct SceneGalleryHandballInfo {
+    #[prost(bool, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub fnmbmkfdpdm: u32,
-    #[prost(uint32, tag = "14")]
+    pub hgadigbmjkd: bool,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SceneGallerySorushTrialHitmanInfo {
+    #[serde(with="crate::u64_string")]
+    #[prost(uint64, tag = "14")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub agjphlmkfkm: u32,
-    #[prost(enumeration = "GalleryStartSource", tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub pehmaponmld: i32,
-    #[prost(uint32, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub lfbccfepibb: u32,
+    pub mmgligklggi: u64,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SceneGalleryHomeBalloonInfo {
     #[prost(uint32, tag = "5")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub point_id: u32,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub epmmjdkfbfm: u32,
+    pub score: u32,
 }
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SceneGalleryBoatMultiInfo {}
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
@@ -20429,108 +20624,28 @@ pub struct SceneGalleryRemusArenaInfo {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryFilmfestBattleInfo {
-    #[prost(uint32, tag = "15")]
+pub struct SceneGalleryIslandPartySailInfo {
+    #[prost(enumeration = "GalleryStartSource", tag = "8")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cur_score: u32,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub difficulty: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryIrodoriMasterInfo {
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub difficulty: u32,
-    #[prost(bool, tag = "1")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub jngaejnkjlh: bool,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct VintageHuntingSecondStageInfo {
+    pub pehmaponmld: i32,
     #[prost(uint32, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub onmlliokmpl: u32,
+    pub bahmeobdnbh: u32,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub mamkfbcaklb: u32,
     #[prost(uint32, tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub papoaciibnk: u32,
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub chgehhamcee: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct VintageHuntingFirstStageInfo {
+    pub bcobfbofpbp: u32,
     #[prost(uint32, tag = "14")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub ahfknkofidp: u32,
-    #[prost(uint32, tag = "8")]
+    pub mngpfbpilml: u32,
+    #[prost(enumeration = "IslandPartySailStage", tag = "6")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub blbonojcnno: u32,
-    #[prost(uint32, tag = "1")]
+    pub state: i32,
+    #[prost(uint32, tag = "10")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub plmbdgeajba: u32,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub score: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct VintageHuntingThirdStageInfo {}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryVintageHuntingInfo {
-    #[prost(uint32, tag = "2")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub stage_id: u32,
-    #[serde(flatten)]
-    #[prost(oneof = "scene_gallery_vintage_hunting_info::Info", tags = "7, 8, 9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub info: ::core::option::Option<scene_gallery_vintage_hunting_info::Info>,
-}
-/// Nested message and enum types in `SceneGalleryVintageHuntingInfo`.
-pub mod scene_gallery_vintage_hunting_info {
-    #[derive(serde::Serialize, serde::Deserialize)]
-    #[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Oneof)]
-    #[serde(rename_all = "snake_case")]
-    pub enum Info {
-        #[prost(message, tag = "7")]
-        FirstStageInfo(super::VintageHuntingFirstStageInfo),
-        #[prost(message, tag = "8")]
-        ThirdStageInfo(super::VintageHuntingThirdStageInfo),
-        #[prost(message, tag = "9")]
-        SecondStageInfo(super::VintageHuntingSecondStageInfo),
-    }
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SceneGalleryPacmanInfo {
-    #[prost(uint32, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cur_score: u32,
-    #[prost(uint32, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub jhkgaabbkac: u32,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub coin_num: u32,
-    #[prost(uint32, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub start_time: u32,
+    pub fnmbmkfdpdm: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -20562,6 +20677,31 @@ pub struct SceneGalleryAutoTimeStopInfo {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SceneGalleryFlowerInfo {
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cur_score: u32,
+    #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub kamhhjhhfio: u32,
+    #[prost(uint32, tag = "14")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub end_time: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SceneGallerySorushTrialPhotoMatchInfo {
+    #[prost(bool, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub cmekegcbjfc: bool,
+    #[prost(bool, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub gbchnnpameo: bool,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct SceneGalleryJourneyDiceInfo {
     #[prost(uint32, repeated, tag = "7")]
@@ -20579,14 +20719,59 @@ pub struct SceneGalleryJourneyDiceInfo {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct SceneGalleryBulletInfo {
-    #[prost(map = "uint32, uint32", tag = "7")]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SceneGalleryPacmanInfo {
+    #[prost(uint32, tag = "12")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub obbbjclpaah: ::std::collections::HashMap<u32, u32>,
-    #[prost(uint32, tag = "5")]
+    pub cur_score: u32,
+    #[prost(uint32, tag = "7")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub end_time: u32,
+    pub jhkgaabbkac: u32,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub coin_num: u32,
+    #[prost(uint32, tag = "13")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub start_time: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SceneGalleryIslandPartyDownHillInfo {
+    #[prost(enumeration = "GalleryStartSource", tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub pehmaponmld: i32,
+    #[prost(uint32, tag = "15")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub nekgldbpaji: u32,
+    #[prost(uint32, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub calniojmclb: u32,
+    #[prost(uint32, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub fnmbmkfdpdm: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct SceneGalleryInspirationSpurtInfo {
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub kill_elite_monster_num: u32,
+    #[serde(with="crate::u64_string")]
+    #[prost(uint64, tag = "3")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub lkpggdginoa: u64,
+    #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub gepacpbnahi: u32,
+    #[prost(uint32, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub kjmkkiioeoo: u32,
+    #[serde(with="crate::u64_string")]
+    #[prost(uint64, tag = "9")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub nkbkbcoilfl: u64,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -22015,9 +22200,9 @@ pub struct QueryPathReq {
     #[prost(int32, tag = "15")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub query_id: i32,
-    #[prost(enumeration = "query_path_req::Egclhcponbh", tag = "10")]
+    #[prost(enumeration = "query_path_req::OptionType", tag = "10")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub madgmidghla: i32,
+    pub query_type: i32,
     #[prost(uint32, tag = "11")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub scene_id: u32,
@@ -22037,29 +22222,29 @@ pub mod query_path_req {
         ::prost::Enumeration
     )]
     #[repr(i32)]
-    pub enum Egclhcponbh {
+    pub enum OptionType {
         OptionNone = 0,
         OptionNormal = 1,
         OptionFirstCanGo = 2,
     }
-    impl Egclhcponbh {
+    impl OptionType {
         /// String value of the enum field names used in the ProtoBuf definition.
         ///
         /// The values are not transformed in any way and thus are considered stable
         /// (if the ProtoBuf definition does not change) and safe for programmatic use.
         pub fn as_str_name(&self) -> &'static str {
             match self {
-                Self::OptionNone => "EGCLHCPONBH_OPTION_NONE",
-                Self::OptionNormal => "EGCLHCPONBH_OPTION_NORMAL",
-                Self::OptionFirstCanGo => "EGCLHCPONBH_OPTION_FIRST_CAN_GO",
+                Self::OptionNone => "OptionType_OPTION_NONE",
+                Self::OptionNormal => "OptionType_OPTION_NORMAL",
+                Self::OptionFirstCanGo => "OptionType_OPTION_FIRST_CAN_GO",
             }
         }
         /// Creates an enum from field names used in the ProtoBuf definition.
         pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
             match value {
-                "EGCLHCPONBH_OPTION_NONE" => Some(Self::OptionNone),
-                "EGCLHCPONBH_OPTION_NORMAL" => Some(Self::OptionNormal),
-                "EGCLHCPONBH_OPTION_FIRST_CAN_GO" => Some(Self::OptionFirstCanGo),
+                "OptionType_OPTION_NONE" => Some(Self::OptionNone),
+                "OptionType_OPTION_NORMAL" => Some(Self::OptionNormal),
+                "OptionType_OPTION_FIRST_CAN_GO" => Some(Self::OptionFirstCanGo),
                 _ => None,
             }
         }
@@ -22470,30 +22655,6 @@ pub struct QuestUpdateQuestVarRsp {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct WidgetCameraInfo {
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub target_entity_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct WidgetThunderBirdFeatherInfo {
-    #[prost(uint32, repeated, tag = "11")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub entity_id_list: ::prost::alloc::vec::Vec<u32>,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct WidgetClientDetectorInfo {
-    #[prost(uint32, repeated, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub config_id_list: ::prost::alloc::vec::Vec<u32>,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct WidgetCreateLocationInfo {
     #[prost(message, optional, tag = "15")]
@@ -22559,6 +22720,41 @@ pub struct WidgetCreatorInfo {
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct WidgetThunderBirdFeatherInfo {
+    #[prost(uint32, repeated, tag = "11")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub entity_id_list: ::prost::alloc::vec::Vec<u32>,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct WidgetClientDetectorInfo {
+    #[prost(uint32, repeated, tag = "7")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub config_id_list: ::prost::alloc::vec::Vec<u32>,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct WidgetCameraInfo {
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub target_entity_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct WidgetNewDetectorInfo {
+    #[prost(uint32, repeated, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub area_id_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub ajfbendakgk: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
 #[derive(Clone, Copy, PartialEq, ::prost::Message)]
 pub struct WidgetSorushInfo {
     #[prost(message, optional, tag = "13")]
@@ -22579,17 +22775,6 @@ pub struct WidgetSorushInfo {
     #[prost(bool, tag = "15")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub cgimkoenhhl: bool,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct WidgetNewDetectorInfo {
-    #[prost(uint32, repeated, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub area_id_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub ajfbendakgk: u32,
 }
 /// CmdID: 8233
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -23967,39 +24152,6 @@ pub struct ShowCommonTipsNotify {
     #[serde(skip_serializing_if = "crate::is_default")]
     pub close_time: u32,
 }
-/// CmdID: 29181
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SkipPlayerGameTimeReq {
-    #[prost(uint32, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub game_time: u32,
-    #[prost(uint32, tag = "9")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub client_game_time: u32,
-    #[prost(bool, tag = "13")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub is_force_set: bool,
-}
-/// CmdID: 29320
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct SkipPlayerGameTimeRsp {
-    #[prost(uint32, repeated, tag = "7")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub cadiancihie: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, tag = "3")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub game_time: u32,
-    #[prost(int32, tag = "4")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub retcode: i32,
-    #[prost(uint32, tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub client_game_time: u32,
-}
 /// CmdID: 7387
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -24375,6 +24527,24 @@ pub struct TakePlayerLevelRewardRsp {
     #[serde(skip_serializing_if = "crate::is_default")]
     pub reward_id: u32,
 }
+/// CmdID: 6109
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct ToTheMoonEnterSceneReq {
+    #[prost(uint32, tag = "2")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub polygon_id: u32,
+    #[prost(uint32, tag = "4")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub scene_tag_hash: u32,
+    #[prost(uint32, tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub scene_id: u32,
+    #[prost(uint32, tag = "10")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub version: u32,
+}
 /// CmdID: 3332
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -24383,34 +24553,6 @@ pub struct TowerAllDataReq {
     #[prost(bool, tag = "10")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub is_interact: bool,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct TowerLevelRecord {
-    #[prost(uint32, repeated, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub satisfied_cond_list: ::prost::alloc::vec::Vec<u32>,
-    #[prost(uint32, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub level_id: u32,
-}
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(default)]
-#[derive(Clone, PartialEq, ::prost::Message)]
-pub struct TowerFloorRecord {
-    #[prost(message, repeated, tag = "6")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub passed_level_record_list: ::prost::alloc::vec::Vec<TowerLevelRecord>,
-    #[prost(map = "uint32, uint32", tag = "12")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub passed_level_map: ::std::collections::HashMap<u32, u32>,
-    #[prost(uint32, tag = "8")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub floor_id: u32,
-    #[prost(uint32, tag = "5")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub floor_star_reward_progress: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -24463,6 +24605,34 @@ pub struct TowerCurLevelRecord {
     #[prost(uint32, tag = "8")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub cur_floor_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
+pub struct TowerLevelRecord {
+    #[prost(uint32, repeated, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub satisfied_cond_list: ::prost::alloc::vec::Vec<u32>,
+    #[prost(uint32, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub level_id: u32,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct TowerFloorRecord {
+    #[prost(message, repeated, tag = "6")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub passed_level_record_list: ::prost::alloc::vec::Vec<TowerLevelRecord>,
+    #[prost(map = "uint32, uint32", tag = "12")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub passed_level_map: ::std::collections::HashMap<u32, u32>,
+    #[prost(uint32, tag = "8")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub floor_id: u32,
+    #[prost(uint32, tag = "5")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub floor_star_reward_progress: u32,
 }
 /// CmdID: 24966
 #[derive(serde::Serialize, serde::Deserialize)]

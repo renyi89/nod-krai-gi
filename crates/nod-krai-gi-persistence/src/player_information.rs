@@ -13,6 +13,9 @@ pub struct PlayerInformation {
     pub avatar_module: AvatarModuleInformation,
     pub item_map: HashMap<u64, ItemInformation>,
     pub world_position: PlayerPositionInformation,
+    pub quest_information: QuestInformation,
+    #[serde(skip)]
+    pub cache: CacheInformation,
 }
 
 impl PlayerInformation {
@@ -84,4 +87,36 @@ pub struct PlayerPositionInformation {
     pub scene_id: u32,
     pub position: (f32, f32, f32),
     pub rotation: (f32, f32, f32),
+}
+
+#[derive(Default)]
+pub struct CacheInformation {
+    pub is_tp: bool,
+    pub is_mp: bool,
+    pub is_pause: bool,
+    pub client_time: u32,
+}
+
+#[derive(Serialize, Deserialize, Default)]
+pub struct QuestInformation {
+    pub enable: bool,
+    pub parent_quest_map: HashMap<u32, MainQuestItem>,
+    pub sub_quest_map: HashMap<u32, SubQuestItem>,
+}
+
+#[derive(Serialize, Deserialize, Default)]
+pub struct MainQuestItem {
+    pub accept_time: u32,
+    pub quest_vars: Vec<u32>,
+}
+
+#[derive(Serialize, Deserialize, Default)]
+pub struct SubQuestItem {
+    pub parent_quest_id: u32,
+    pub state: u32,
+    pub start_time: u32,
+    pub accept_time: u32,
+    pub finish_time: u32,
+    pub finish_progress_list: Vec<u32>,
+    pub fail_progress_list: Vec<u32>,
 }

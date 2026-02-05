@@ -5,7 +5,7 @@ use nod_krai_gi_entity::{
     common::Visible,
 };
 use nod_krai_gi_message::output::MessageOutput;
-use nod_krai_gi_message::USER_VERSION;
+use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_proto::dy_parser::replace_out_u32;
 use nod_krai_gi_proto::{retcode::Retcode, EnterSceneDoneRsp};
 
@@ -37,8 +37,8 @@ pub fn enter_scene_done_send_rsp(
     for event in enter_scene_done_events.read() {
         let uid = event.0;
 
-        let binding = USER_VERSION.get().unwrap().get(&uid).unwrap();
-        let protocol_version = binding.as_str();
+        let version = get_player_version!(&uid);
+        let protocol_version = version.as_str();
 
         message_output.send(
             uid,

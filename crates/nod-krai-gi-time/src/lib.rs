@@ -5,10 +5,10 @@ use common::time_util;
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::{
-    retcode::Retcode, PlayerGameTimeNotify, ServerTimeNotify, SkipPlayerGameTimeReq,
-    SkipPlayerGameTimeRsp,
+    retcode::Retcode, ClientSetGameTimeReq, ClientSetGameTimeRsp, PlayerGameTimeNotify,
+    PlayerSetPauseReq, PlayerSetPauseRsp, PlayerTimeNotify, ServerTimeNotify,
 };
-use nod_krai_gi_scene::SceneInitFinishEvent;
+use nod_krai_gi_scene::{EnterSceneDoneEvent, SceneInitFinishEvent};
 use tracing::{debug, instrument};
 
 pub struct TimePlugin;
@@ -16,9 +16,13 @@ pub struct TimePlugin;
 impl Plugin for TimePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(SceneTime::default())
+            .add_message::<UpdateClientTimeEvent>()
             .add_systems(Startup, init_scene_time)
+            .add_systems(PreUpdate, set_pause)
+            .add_systems(PreUpdate, update_client_time)
             .add_systems(PreUpdate, client_set_game_time)
-            .add_systems(First, sync_scene_time_on_scene_init);
+            .add_systems(First, sync_scene_time_on_scene_init_finish)
+            .add_systems(First, sync_scene_time_on_enter_scene_done);
     }
 }
 
@@ -28,8 +32,42 @@ pub struct SceneTime {
     pub game_time: u32,
 }
 
+#[derive(Message)]
+pub struct UpdateClientTimeEvent(pub u32, pub u32);
+
+pub fn update_client_time(
+    mut events: MessageReader<UpdateClientTimeEvent>,
+    mut players: ResMut<Players>,
+) {
+    for message in events.read() {
+        let uid = message.0;
+        let player = players.get_mut(uid);
+        player.cache.client_time = message.1;
+    }
+}
+
 pub fn init_scene_time(mut time: ResMut<SceneTime>) {
     time.game_time = (7.31 * 60.0) as u32;
+}
+
+pub fn set_pause(
+    mut events: MessageReader<ClientMessageEvent>,
+    message_output: Res<MessageOutput>,
+    mut players: ResMut<Players>,
+) {
+    for message in events.read() {
+        match message.message_name() {
+            "PlayerSetPauseReq" => {
+                if let Some(request) = message.decode::<PlayerSetPauseReq>() {
+                    let uid = message.sender_uid();
+                    let player = players.get_mut(uid);
+                    player.cache.is_pause = request.is_paused;
+                    message_output.send(uid, "PlayerSetPauseRsp", PlayerSetPauseRsp { retcode: 0 });
+                }
+            }
+            &_ => {}
+        }
+    }
 }
 
 #[instrument(skip_all)]
@@ -41,12 +79,12 @@ pub fn client_set_game_time(
 ) {
     for message in events.read() {
         match message.message_name() {
-            "SkipPlayerGameTimeReq" => {
-                if let Some(request) = message.decode::<SkipPlayerGameTimeReq>() {
+            "ClientSetGameTimeReq" => {
+                if let Some(request) = message.decode::<ClientSetGameTimeReq>() {
                     let uid = message.sender_uid();
                     let player = players.get(uid);
 
-                    let mut rsp = SkipPlayerGameTimeRsp::default();
+                    let mut rsp = ClientSetGameTimeRsp::default();
 
                     if player.basic_module.is_game_time_locked {
                         debug!("game time is locked, uid: {uid}");
@@ -68,7 +106,7 @@ pub fn client_set_game_time(
                         );
                     }
 
-                    message_output.send(uid, "SkipPlayerGameTimeRsp", rsp);
+                    message_output.send(uid, "ClientSetGameTimeRsp", rsp);
                 }
             }
             &_ => {}
@@ -76,7 +114,7 @@ pub fn client_set_game_time(
     }
 }
 
-pub fn sync_scene_time_on_scene_init(
+pub fn sync_scene_time_on_scene_init_finish(
     mut events: MessageReader<SceneInitFinishEvent>,
     message_output: Res<MessageOutput>,
     players: Res<Players>,
@@ -89,7 +127,7 @@ pub fn sync_scene_time_on_scene_init(
             *uid,
             "ServerTimeNotify",
             ServerTimeNotify {
-                server_time: time_util::unix_timestamp(),
+                server_time: time_util::unix_timestamp_ms(),
             },
         );
 
@@ -97,7 +135,7 @@ pub fn sync_scene_time_on_scene_init(
             *uid,
             "SceneTimeNotify",
             SceneTimeNotify {
-                is_paused: false,
+                is_paused: players.get(*uid).cache.is_pause,
                 scene_id: players.get(*uid).world_position.scene_id,
                 scene_time: time.scene_time,
             },
@@ -112,5 +150,23 @@ pub fn sync_scene_time_on_scene_init(
                 game_time: time.game_time,
             },
         )
+    }
+}
+
+pub fn sync_scene_time_on_enter_scene_done(
+    mut events: MessageReader<EnterSceneDoneEvent>,
+    message_output: Res<MessageOutput>,
+    players: Res<Players>,
+) {
+    for EnterSceneDoneEvent(uid) in events.read() {
+        message_output.send(
+            *uid,
+            "PlayerTimeNotify",
+            PlayerTimeNotify {
+                is_paused: players.get(*uid).cache.is_pause,
+                server_time: time_util::unix_timestamp_ms(),
+                player_time: players.get(*uid).cache.client_time as u64,
+            },
+        );
     }
 }

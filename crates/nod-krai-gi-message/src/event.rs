@@ -1,3 +1,4 @@
+use crate::get_player_version;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_proto::packet_head::PacketHead;
 use serde::{de, Serialize};
@@ -31,24 +32,16 @@ impl ClientMessageEvent {
     }
 
     pub fn version(&self) -> String {
-        crate::USER_VERSION
-            .get()
-            .unwrap()
-            .get(&self.0.user_id)
-            .unwrap()
-            .clone()
+        get_player_version!(&self.0.user_id)
     }
 
     pub fn decode<T: Sized + Serialize + Default>(&self) -> Option<T>
     where
         T: for<'a> de::Deserialize<'a>,
     {
-        let binding = crate::USER_VERSION
-            .get()
-            .unwrap()
-            .get(&self.0.user_id)
-            .unwrap();
+        let binding = get_player_version!(&self.0.user_id);
         let version = binding.as_str();
+
         let binding =
             nod_krai_gi_proto::dy_parser::get_name_by_cmd_id_version(version, self.1).unwrap();
         let message_name = binding.as_str();
