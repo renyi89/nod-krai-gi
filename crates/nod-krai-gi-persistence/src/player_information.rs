@@ -34,6 +34,7 @@ pub struct BasicModuleInformation {
 
 #[derive(Serialize, Deserialize, Default)]
 pub struct AvatarModuleInformation {
+    pub choose_avatar_guid: u64,
     pub cur_avatar_team_id: u32,
     pub cur_avatar_guid: u64,
     pub cur_avatar_guid_list: Vec<u64>,

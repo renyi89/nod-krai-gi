@@ -50,7 +50,7 @@ impl PlayerWorld {
             .add_plugins(MapPlugin)
             .add_plugins(LuaShellPlugin);
 
-        if false {
+        if true {
             app.add_plugins(AbilityPlugin);
         }
 

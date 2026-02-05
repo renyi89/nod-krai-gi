@@ -123,6 +123,7 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
             *uid,
             "AvatarDataNotify",
             AvatarDataNotify {
+                choose_avatar_guid: player_info.avatar_module.choose_avatar_guid,
                 avatar_list: player_info
                     .avatar_module
                     .avatar_map

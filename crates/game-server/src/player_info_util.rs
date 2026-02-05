@@ -41,6 +41,7 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerI
             is_game_time_locked: false,
         },
         avatar_module: AvatarModuleInformation {
+            choose_avatar_guid: 0,
             cur_avatar_team_id: 1,
             cur_avatar_guid: 0,
             cur_avatar_guid_list: vec![],
@@ -129,6 +130,7 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerI
 }
 
 fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelConfig) {
+    const CHOOSE_AVATAR_ID: u32 = 10000007;
     const DEFAULT_AVATAR_LEVEL: u32 = 100;
     const DEFAULT_AVATAR_BREAK_LEVEL: u32 = 6;
     const DEFAULT_CORE_PROUD_SKILL_LEVEL: u32 = 6;
@@ -235,6 +237,10 @@ fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelCon
                 }
             }
         }
+    }
+
+    if avatar.id == CHOOSE_AVATAR_ID {
+        player.avatar_module.choose_avatar_guid = avatar_guid;
     }
 
     player.avatar_module.avatar_map.insert(
