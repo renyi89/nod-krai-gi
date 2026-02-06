@@ -869,7 +869,7 @@ pub struct QuestConfig {
     pub suggest_track_main_quest_list: Vec<u32>,
     #[serde(default)]
     pub reward_id_list: Vec<u32>,
-    pub sub_quests: Vec<SubQuestData>,
+    pub sub_quests: Option<Vec<SubQuestData>>,
     #[serde(default)]
     pub talks: Vec<TalkData>,
     #[serde(default)]
@@ -895,14 +895,24 @@ pub fn load_quest_configs_from_bin(bin_output_path: &str) {
                         let result: serde_json::Result<QuestConfig> =
                             serde_json::from_reader(content);
                         match result {
-                            Ok(config) => {
-                                let mut quest_map = HashMap::new();
-                                quest_map.insert(config.id, config.clone());
-
+                            Ok(mut config) => {
+                                if config.sub_quests.is_none() {
+                                    println!(
+                                        "error : no sub_quests parent_quest_id:{}",
+                                        file_quest_id
+                                    );
+                                    return None;
+                                };
                                 let mut sub_map = HashMap::new();
-                                for sub_quest in config.sub_quests {
-                                    sub_map.insert(sub_quest.sub_id, sub_quest);
+
+                                if let Some(sub_quests) = config.sub_quests.take() {
+                                    for sub_quest in sub_quests {
+                                        sub_map.insert(sub_quest.sub_id, sub_quest);
+                                    }
                                 }
+
+                                let mut quest_map = HashMap::new();
+                                quest_map.insert(config.id, config);
 
                                 Some((quest_map, sub_map))
                             }

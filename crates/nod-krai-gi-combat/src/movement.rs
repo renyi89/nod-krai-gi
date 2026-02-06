@@ -5,13 +5,10 @@ use nod_krai_gi_entity::{
     common::{OwnerPlayerUID, ProtocolEntityID},
     transform::Transform,
 };
+use nod_krai_gi_event::combat::*;
 use nod_krai_gi_persistence::Players;
-use nod_krai_gi_proto::EntityMoveInfo;
 use tracing::log::trace;
 use tracing::{debug, instrument};
-
-#[derive(Message)]
-pub struct EntityMoveEvent(pub u32, pub EntityMoveInfo);
 
 #[instrument(skip_all)]
 pub fn entity_movement(

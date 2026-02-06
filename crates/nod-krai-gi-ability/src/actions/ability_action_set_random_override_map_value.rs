@@ -1,21 +1,18 @@
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::ability::AbilityModifierAction;
+use nod_krai_gi_event::ability::*;
 use rand::Rng;
 
-#[derive(Message)]
-pub struct AbilityActionSetRandomOverrideMapValueEvent(
-    pub u32,
-    pub Entity,
-    pub AbilityModifierAction,
-    pub Vec<u8>,
-    pub Entity,
-);
 pub fn ability_action_set_random_override_map_value_event(
     mut events: MessageReader<AbilityActionSetRandomOverrideMapValueEvent>,
     mut abilities_query: Query<&mut nod_krai_gi_entity::common::InstancedAbilities>,
 ) {
-    for AbilityActionSetRandomOverrideMapValueEvent(ability_index, ability_entity, action, _ability_data, _target_entity) in
-        events.read()
+    for AbilityActionSetRandomOverrideMapValueEvent(
+        ability_index,
+        ability_entity,
+        action,
+        _ability_data,
+        _target_entity,
+    ) in events.read()
     {
         let override_map_key = action.override_map_key.as_deref().unwrap_or("");
 
@@ -41,7 +38,9 @@ pub fn ability_action_set_random_override_map_value_event(
 
         // Set random value to override map
         if let Some(ability) = abilities.list.get_mut(*ability_index as usize) {
-            ability.ability_specials.insert(override_map_key.to_string(), random_value);
+            ability
+                .ability_specials
+                .insert(override_map_key.to_string(), random_value);
             tracing::debug!(
                 "[AbilityActionSetRandomOverrideMapValueEvent] Setting random override map value {} to {}",
                 override_map_key,

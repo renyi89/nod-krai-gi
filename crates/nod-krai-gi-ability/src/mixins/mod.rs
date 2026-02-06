@@ -1,4 +1,4 @@
-use crate::server_invoke::ExecuteMixinEvent;
+use nod_krai_gi_event::ability::*;
 use bevy_ecs::prelude::*;
 
 pub fn execute_mixin_system(

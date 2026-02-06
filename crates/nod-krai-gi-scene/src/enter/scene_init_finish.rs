@@ -1,13 +1,11 @@
-use crate::{common::PlayerSceneStates, player_join_team::PlayerJoinTeamEvent};
+use crate::common::PlayerSceneStates;
 use bevy_ecs::prelude::*;
-use nod_krai_gi_message::output::MessageOutput;
+use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::get_player_version;
+use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::dy_parser::replace_out_u32;
 use nod_krai_gi_proto::{retcode::Retcode, SceneInitFinishRsp};
-
-#[derive(Message)]
-pub struct SceneInitFinishEvent(pub u32);
 
 pub fn on_scene_init_finish(
     mut reader: MessageReader<SceneInitFinishEvent>,
@@ -56,7 +54,7 @@ pub fn scene_init_finish_send_rsp(
     mut scene_init_finish_events: MessageReader<SceneInitFinishEvent>,
     player_scene_states: Res<PlayerSceneStates>,
     message_output: Res<MessageOutput>,
-    mut lua_shell_events: MessageWriter<nod_krai_gi_luashell::LuaShellEvent>,
+    mut lua_shell_events: MessageWriter<nod_krai_gi_event::luashell::LuaShellEvent>,
 ) {
     for event in scene_init_finish_events.read() {
         let uid = event.0;
@@ -76,6 +74,6 @@ pub fn scene_init_finish_send_rsp(
             },
         );
 
-        lua_shell_events.write(nod_krai_gi_luashell::LuaShellEvent());
+        lua_shell_events.write(nod_krai_gi_event::luashell::LuaShellEvent());
     }
 }

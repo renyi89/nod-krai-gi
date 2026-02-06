@@ -1,17 +1,9 @@
 use crate::util::calc_amount;
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::ability::AbilityModifierAction;
 use nod_krai_gi_data::prop_type::FightPropType;
 use nod_krai_gi_entity::common::{EntityById, FightProperties, OwnerProtocolEntityID};
+use nod_krai_gi_event::ability::*;
 
-#[derive(Message)]
-pub struct AbilityActionLoseHPEvent(
-    pub u32,
-    pub Entity,
-    pub AbilityModifierAction,
-    pub Vec<u8>,
-    pub Entity,
-);
 pub fn ability_action_lose_hp_event(
     index: Res<EntityById>,
     mut events: MessageReader<AbilityActionLoseHPEvent>,

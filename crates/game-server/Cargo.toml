@@ -23,7 +23,7 @@ hex.workspace = true
 byteorder.workspace = true
 dashmap.workspace = true
 rand.workspace = true
-rbase64.workspace = true
+base64-simd.workspace = true
 
 
 # Internal

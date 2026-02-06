@@ -9,17 +9,18 @@ use game_server_core::LogicSimulator;
 use net::UdpServer;
 use nod_krai_gi_data::ability::load_ability_configs_from_bin;
 use nod_krai_gi_data::config::load_avatar_talent_configs_from_bin;
-use nod_krai_gi_data::excel::scene_point_config::load_scene_point_configs_from_bin;
+use nod_krai_gi_data::quest::quest_config::load_quest_configs_from_bin;
+use nod_krai_gi_data::scene::scene_point_config::load_scene_point_configs_from_bin;
 use nod_krai_gi_data::{
     config::load_avatar_configs_from_bin, config::load_gadget_configs_from_bin, excel,
 };
 use nod_krai_gi_encryption::{rsa::RsaKeyPair, xor::MhyXorpad};
+use nod_krai_gi_proto::dy_parser::MULTI_VERSION_PROTOCOL;
 use std::collections::HashMap;
 use std::fs;
 use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, LazyLock, OnceLock};
 use tokio::net::UdpSocket;
-use nod_krai_gi_data::excel::quest_config::load_quest_configs_from_bin;
 
 mod config;
 mod db_worker;
@@ -56,37 +57,45 @@ async fn main() -> Result<()> {
     static CONFIG: LazyLock<GameServerConfig> =
         LazyLock::new(|| GameServerConfig::load_or_create("game-server.toml"));
 
-    excel::load_all("assets/ExcelBinOutput")?;
-
-    tokio::spawn(async move {
-        load_scene_point_configs_from_bin("assets/BinOutput");
-        tracing::info!("load_scene_point_configs_from_bin end");
-    });
-
-    tokio::spawn(async move {
-        load_quest_configs_from_bin("assets/BinOutput");
-        tracing::info!("load_quest_configs_from_bin end");
-    });
-
-    tokio::spawn(async move {
-        load_avatar_configs_from_bin("assets/BinOutput").unwrap();
-        tracing::info!("load_avatar_configs_from_bin end");
-    });
-
-    tokio::spawn(async move {
-        load_avatar_talent_configs_from_bin("assets/BinOutput").unwrap();
-        tracing::info!("load_avatar_talent_configs_from_bin end");
-    });
-
-    tokio::spawn(async move {
+    tokio::spawn(async {
         load_ability_configs_from_bin("assets/BinOutput").unwrap();
         tracing::info!("load_ability_configs_from_bin end");
     });
 
-    tokio::spawn(async move {
+    tokio::spawn(async {
+        load_quest_configs_from_bin("assets/BinOutput");
+        tracing::info!("load_quest_configs_from_bin end");
+    });
+
+    tokio::spawn(async {
+        load_scene_point_configs_from_bin("assets/BinOutput");
+        tracing::info!("load_scene_point_configs_from_bin end");
+    });
+
+    tokio::spawn(async {
+        load_avatar_configs_from_bin("assets/BinOutput").unwrap();
+        tracing::info!("load_avatar_configs_from_bin end");
+    });
+
+    tokio::spawn(async {
         load_gadget_configs_from_bin("assets/BinOutput").unwrap();
         tracing::info!("load_gadget_configs_from_bin end");
     });
+
+    tokio::spawn(async {
+        load_avatar_talent_configs_from_bin("assets/BinOutput").unwrap();
+        tracing::info!("load_avatar_talent_configs_from_bin end");
+    });
+
+    excel::load_all("assets/ExcelBinOutput")?;
+
+    loop {
+        if MULTI_VERSION_PROTOCOL.get().unwrap().is_empty() {
+            let _ = tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+        } else {
+            break;
+        }
+    }
 
     let db_connection = nod_krai_gi_database::connect_to(&CONFIG.database).await?;
     nod_krai_gi_database::run_migrations(&db_connection).await?;

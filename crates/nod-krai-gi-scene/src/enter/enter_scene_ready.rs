@@ -1,12 +1,10 @@
 use crate::common::{PlayerSceneStates, ScenePeerManager};
 use bevy_ecs::prelude::*;
+use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::dy_parser::replace_out_u32;
-
-#[derive(Message)]
-pub struct EnterSceneReadyEvent(pub u32);
 
 pub fn on_enter_scene_ready(
     mut reader: MessageReader<EnterSceneReadyEvent>,

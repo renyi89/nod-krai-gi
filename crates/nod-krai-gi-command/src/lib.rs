@@ -1,5 +1,3 @@
-mod parser;
-
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use common::gm_util::parse_command;
@@ -22,12 +20,11 @@ use nod_krai_gi_entity::{
     util::to_protocol_entity_id,
     ProtEntityType,
 };
+use nod_krai_gi_event::command::*;
+use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::{ChatInfo, PrivateChatNotify};
-use nod_krai_gi_quest::CommandQuestEvent;
-use nod_krai_gi_scene::ScenePlayerJumpEvent;
-use nod_krai_gi_social::ConsoleChatEvent;
 use rand::RngCore;
 use tracing::{debug, instrument};
 
@@ -35,32 +32,9 @@ pub struct CommandPlugin;
 
 impl Plugin for CommandPlugin {
     fn build(&self, app: &mut App) {
-        app.add_message::<DebugCommandEvent>()
-            .add_systems(Update, debug_command_handler)
+        app.add_systems(Update, debug_command_handler)
             .add_systems(Update, gm_command_handler);
     }
-}
-
-#[derive(Message)]
-pub struct DebugCommandEvent {
-    pub executor_uid: u32,
-    pub kind: CommandKind,
-}
-
-#[derive(Debug)]
-pub enum CommandKind {
-    QuickSpawnMonster {
-        monster_id: Option<u32>,
-        position: (f32, f32),
-    },
-    QuickSpawnGadget {
-        gadget_id: Option<u32>,
-        position: (f32, f32),
-    },
-    QuickTravel {
-        scene_id: Option<u32>,
-        position: (f32, Option<f32>, f32),
-    },
 }
 
 #[instrument(skip_all)]

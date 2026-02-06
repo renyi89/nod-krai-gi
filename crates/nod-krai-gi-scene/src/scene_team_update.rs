@@ -9,6 +9,7 @@ use nod_krai_gi_entity::{
     int_prop_pair,
     weapon::WeaponQueryReadOnly,
 };
+use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::{
@@ -18,9 +19,6 @@ use nod_krai_gi_proto::{
     FightPropPair, MotionInfo, ProtEntityType, SceneAvatarInfo, SceneEntityInfo, SceneTeamAvatar,
     SceneTeamUpdateNotify, SceneWeaponInfo, Vector,
 };
-
-#[derive(Message)]
-pub struct SceneTeamUpdateEvent;
 
 pub fn notify_scene_team_update(
     mut scene_team_update_events: MessageReader<SceneTeamUpdateEvent>,
@@ -77,12 +75,18 @@ pub fn notify_scene_team_update(
                                 entity_id: avatar_data.entity_id.0,
                                 name: String::with_capacity(0),
                                 motion_info: Some(MotionInfo {
-                                    pos: Some(nod_krai_gi_entity::transform::Vector3::from(
-                                        player.world_position.position,
-                                    ).into()),
-                                    rot: Some(nod_krai_gi_entity::transform::Vector3::from(
-                                        player.world_position.rotation,
-                                    ).into()),
+                                    pos: Some(
+                                        nod_krai_gi_entity::transform::Vector3::from(
+                                            player.world_position.position,
+                                        )
+                                        .into(),
+                                    ),
+                                    rot: Some(
+                                        nod_krai_gi_entity::transform::Vector3::from(
+                                            player.world_position.rotation,
+                                        )
+                                        .into(),
+                                    ),
                                     speed: Some(Vector::default()),
                                     ..Default::default()
                                 }),

@@ -2,6 +2,8 @@ pub mod ability;
 pub mod config;
 pub mod dynamic_float;
 pub mod excel;
+pub mod quest;
+pub mod scene;
 pub mod prop_type;
 
 pub use dynamic_float::DynamicFloat;

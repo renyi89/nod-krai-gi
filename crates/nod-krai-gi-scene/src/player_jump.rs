@@ -1,15 +1,8 @@
 use bevy_ecs::prelude::*;
 use nod_krai_gi_entity::transform::Vector3;
+use nod_krai_gi_event::scene::*;
 use nod_krai_gi_persistence::Players;
 use std::sync::Arc;
-
-use crate::BeginEnterSceneEvent;
-
-#[derive(Message)]
-pub struct ScenePlayerJumpEvent(pub u32, pub u32, pub Vector3);
-
-#[derive(Message)]
-pub struct ScenePlayerJumpByPointEvent(pub u32, pub u32, pub u32);
 
 pub fn player_jump(
     mut events: MessageReader<ScenePlayerJumpEvent>,
@@ -36,7 +29,7 @@ pub fn player_jump_by_point(
     mut enter_events: MessageWriter<BeginEnterSceneEvent>,
 ) {
     let scene_point_config_collection_clone = Arc::clone(
-        nod_krai_gi_data::excel::scene_point_config::SCENE_POINT_CONFIG_COLLECTION
+        nod_krai_gi_data::scene::scene_point_config::SCENE_POINT_CONFIG_COLLECTION
             .get()
             .unwrap(),
     );

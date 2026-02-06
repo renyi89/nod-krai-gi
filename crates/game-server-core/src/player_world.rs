@@ -8,6 +8,8 @@ use nod_krai_gi_combat::CombatPlugin;
 use nod_krai_gi_command::CommandPlugin;
 use nod_krai_gi_entity::EntityPlugin;
 use nod_krai_gi_environment::EnvironmentPlugin;
+use nod_krai_gi_event::time::*;
+use nod_krai_gi_event::EventRegistryPlugin;
 use nod_krai_gi_inventory::InventoryPlugin;
 use nod_krai_gi_luashell::{LuaShellPlugin, LuaShellSettings};
 use nod_krai_gi_map::MapPlugin;
@@ -21,7 +23,7 @@ use nod_krai_gi_persistence::{player_information::PlayerInformation, Players};
 use nod_krai_gi_quest::QuestPlugin;
 use nod_krai_gi_scene::{common::WorldOwnerUID, ScenePlugin};
 use nod_krai_gi_social::SocialPlugin;
-use nod_krai_gi_time::{TimePlugin, UpdateClientTimeEvent};
+use nod_krai_gi_time::TimePlugin;
 
 pub struct PlayerWorld(App);
 
@@ -37,7 +39,8 @@ impl PlayerWorld {
             .insert_resource(players)
             .add_message::<ClientMessageEvent>();
 
-        app.add_plugins(PlayerDataSyncPlugin)
+        app.add_plugins(EventRegistryPlugin)
+            .add_plugins(PlayerDataSyncPlugin)
             .add_plugins(EntityPlugin)
             .add_plugins(ScenePlugin)
             .add_plugins(AvatarPlugin)

@@ -1,19 +1,11 @@
 use crate::util::eval_option;
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::ability::AbilityModifierAction;
 use nod_krai_gi_data::prop_type::FightPropType;
 use nod_krai_gi_entity::common::ProtocolEntityID;
 use nod_krai_gi_entity::fight::{ChangeReason, EntityFightPropChangeReasonNotifyEvent};
+use nod_krai_gi_event::ability::*;
 use nod_krai_gi_proto::{ChangeHpDebtsReason, PropChangeReason};
 
-#[derive(Message)]
-pub struct AbilityActionAddHPDebtsEvent(
-    pub u32,
-    pub Entity,
-    pub AbilityModifierAction,
-    pub Vec<u8>,
-    pub Entity,
-);
 pub fn ability_action_add_hp_debts_event(
     mut events: MessageReader<AbilityActionAddHPDebtsEvent>,
     mut fight_props_query: Query<(

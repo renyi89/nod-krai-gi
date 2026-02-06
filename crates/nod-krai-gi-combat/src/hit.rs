@@ -1,10 +1,8 @@
 use bevy_ecs::prelude::*;
 use nod_krai_gi_entity::common::{EntityById, FightProperties, OwnerPlayerUID, ProtocolEntityID};
-use nod_krai_gi_proto::{AttackResult, ProtEntityType};
+use nod_krai_gi_event::combat::*;
+use nod_krai_gi_proto::ProtEntityType;
 use tracing::{debug, instrument};
-
-#[derive(Message)]
-pub struct EntityBeingHitEvent(pub u32, pub AttackResult);
 
 #[instrument(skip_all)]
 pub fn deal_damage_on_hit(

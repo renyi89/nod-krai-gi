@@ -1,6 +1,7 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use common::time_util::unix_timestamp;
+use nod_krai_gi_event::command::*;
 use nod_krai_gi_message::event::ClientMessageEvent;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_proto::retcode::Retcode;
@@ -13,13 +14,9 @@ pub struct SocialPlugin;
 
 impl Plugin for SocialPlugin {
     fn build(&self, app: &mut App) {
-        app.add_message::<ConsoleChatEvent>()
-            .add_systems(Update, handle_chat);
+            app.add_systems(Update, handle_chat);
     }
 }
-
-#[derive(Message)]
-pub struct ConsoleChatEvent(pub u32, pub String);
 
 pub fn handle_chat(
     mut events: MessageReader<ClientMessageEvent>,

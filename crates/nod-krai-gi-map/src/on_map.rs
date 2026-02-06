@@ -1,11 +1,11 @@
 use bevy_ecs::prelude::*;
 
-use nod_krai_gi_command::{CommandKind, DebugCommandEvent};
+use nod_krai_gi_event::command::*;
+use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::event::ClientMessageEvent;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_proto::mark_map_req::Operation;
 use nod_krai_gi_proto::{MapMarkPointType, MarkMapReq, SceneTransToPointReq, SceneTransToPointRsp};
-use nod_krai_gi_scene::ScenePlayerJumpByPointEvent;
 use tracing::{debug, instrument};
 
 #[instrument(skip_all)]
@@ -59,7 +59,7 @@ pub fn message_on_map(
                                         ),
                                     },
                                 });
-                            },
+                            }
                             MapMarkPointType::Special => {
                                 debug_events.write(DebugCommandEvent {
                                     executor_uid: message.sender_uid(),

@@ -1,42 +1,24 @@
-use crate::server_invoke::{
-    server_invoke, ExecuteActionEvent, ExecuteMixinEvent, ServerInvokeEvent,
-};
+use crate::server_invoke::server_invoke;
 
 use crate::handler::{
     handle_add_new_ability, handle_clear_global_float_value, handle_global_float_value,
     handle_modifier_change, handle_override_param, handle_reinit_override_map,
 };
 
-use crate::actions::ability_action_add_hp_debts::{
-    ability_action_add_hp_debts_event, AbilityActionAddHPDebtsEvent,
-};
-use crate::actions::ability_action_get_hp_paid_debts::{
-    ability_action_get_hp_paid_debts_event, AbilityActionGetHPPaidDebtsEvent,
-};
-use crate::actions::ability_action_heal_hp::{
-    ability_action_heal_hp_event, AbilityActionHealHPEvent,
-};
-use crate::actions::ability_action_lose_hp::{
-    ability_action_lose_hp_event, AbilityActionLoseHPEvent,
-};
-use crate::actions::ability_action_reduce_hp_debts::{
-    ability_action_reduce_hp_debts_event, AbilityActionReduceHPDebtsEvent,
-};
-use crate::actions::ability_action_set_global_value_to_override_map::{
-    ability_action_set_global_value_to_override_map_event,
-    AbilityActionSetGlobalValueToOverrideMapEvent,
-};
-use crate::actions::ability_action_set_override_map_value::{
-    ability_action_set_override_map_value_event, AbilityActionSetOverrideMapValueEvent,
-};
-use crate::actions::ability_action_set_random_override_map_value::{
-    ability_action_set_random_override_map_value_event, AbilityActionSetRandomOverrideMapValueEvent,
-};
+use crate::actions::ability_action_add_hp_debts::ability_action_add_hp_debts_event;
+use crate::actions::ability_action_get_hp_paid_debts::ability_action_get_hp_paid_debts_event;
+use crate::actions::ability_action_heal_hp::ability_action_heal_hp_event;
+use crate::actions::ability_action_lose_hp::ability_action_lose_hp_event;
+use crate::actions::ability_action_reduce_hp_debts::ability_action_reduce_hp_debts_event;
+use crate::actions::ability_action_set_global_value_to_override_map::ability_action_set_global_value_to_override_map_event;
+use crate::actions::ability_action_set_override_map_value::ability_action_set_override_map_value_event;
+use crate::actions::ability_action_set_random_override_map_value::ability_action_set_random_override_map_value_event;
 use crate::actions::execute_action_system;
 use crate::mixins::execute_mixin_system;
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_entity::client_gadget::EntitySystemSet;
+use nod_krai_gi_event::ability::*;
 use nod_krai_gi_message::event::ClientMessageEvent;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_proto::{
@@ -52,75 +34,39 @@ mod mixins;
 mod server_invoke;
 mod util;
 
-#[derive(Message)]
-pub struct AddNewAbilityEvent(pub AbilityInvokeEntry, pub String);
-
-#[derive(Message)]
-pub struct ModifierChangeEvent(pub AbilityInvokeEntry, pub String);
-
-#[derive(Message)]
-pub struct OverrideParamEvent(pub AbilityInvokeEntry, pub String);
-
-#[derive(Message)]
-pub struct ReinitOverrideMapEvent(pub AbilityInvokeEntry, pub String);
-
-#[derive(Message)]
-pub struct GlobalFloatValueEvent(pub AbilityInvokeEntry, pub String);
-
-#[derive(Message)]
-pub struct ClearGlobalFloatValueEvent(pub AbilityInvokeEntry, pub String);
-
 pub struct AbilityPlugin;
 
 impl Plugin for AbilityPlugin {
     fn build(&self, app: &mut App) {
-        app.add_message::<AddNewAbilityEvent>()
-            .add_message::<ModifierChangeEvent>()
-            .add_message::<OverrideParamEvent>()
-            .add_message::<ReinitOverrideMapEvent>()
-            .add_message::<GlobalFloatValueEvent>()
-            .add_message::<ClearGlobalFloatValueEvent>()
-            .add_message::<ServerInvokeEvent>()
-            .add_message::<ExecuteActionEvent>()
-            .add_message::<ExecuteMixinEvent>()
-            .add_message::<AbilityActionHealHPEvent>()
-            .add_message::<AbilityActionLoseHPEvent>()
-            .add_message::<AbilityActionSetGlobalValueToOverrideMapEvent>()
-            .add_message::<AbilityActionGetHPPaidDebtsEvent>()
-            .add_message::<AbilityActionSetOverrideMapValueEvent>()
-            .add_message::<AbilityActionSetRandomOverrideMapValueEvent>()
-            .add_message::<AbilityActionAddHPDebtsEvent>()
-            .add_message::<AbilityActionReduceHPDebtsEvent>()
-            .add_systems(PreUpdate, on_ability_notify)
-            .add_systems(
-                Update,
+        app.add_systems(PreUpdate, on_ability_notify).add_systems(
+            Update,
+            (
                 (
-                    (
-                        handle_add_new_ability.after(EntitySystemSet::HandleEvtGadgetUpdate),
-                        handle_modifier_change,
-                        handle_override_param,
-                        handle_reinit_override_map,
-                        handle_global_float_value,
-                        handle_clear_global_float_value,
-                        server_invoke,
-                    )
-                        .chain(),
-                    (
-                        execute_action_system,
-                        execute_mixin_system,
-                        ability_action_set_override_map_value_event,
-                        ability_action_set_random_override_map_value_event,
-                        ability_action_set_global_value_to_override_map_event,
-                        ability_action_heal_hp_event,
-                        ability_action_lose_hp_event,
-                        ability_action_get_hp_paid_debts_event,
-                        ability_action_add_hp_debts_event,
-                        ability_action_reduce_hp_debts_event,
-                    )
-                        .chain(),
+                    handle_add_new_ability.after(EntitySystemSet::HandleEvtGadgetUpdate),
+                    handle_modifier_change,
+                    handle_override_param,
+                    handle_reinit_override_map,
+                    handle_global_float_value,
+                    handle_clear_global_float_value,
+                    server_invoke,
                 )
                     .chain(),
-            );
+                (
+                    execute_action_system,
+                    execute_mixin_system,
+                    ability_action_set_override_map_value_event,
+                    ability_action_set_random_override_map_value_event,
+                    ability_action_set_global_value_to_override_map_event,
+                    ability_action_heal_hp_event,
+                    ability_action_lose_hp_event,
+                    ability_action_get_hp_paid_debts_event,
+                    ability_action_add_hp_debts_event,
+                    ability_action_reduce_hp_debts_event,
+                )
+                    .chain(),
+            )
+                .chain(),
+        );
     }
 }
 

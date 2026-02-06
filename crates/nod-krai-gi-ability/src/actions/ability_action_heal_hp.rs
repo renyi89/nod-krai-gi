@@ -1,17 +1,8 @@
 use crate::util::{calc_amount, eval_option};
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::ability::AbilityModifierAction;
 use nod_krai_gi_data::prop_type::FightPropType;
 use nod_krai_gi_entity::common::{EntityById, FightProperties, OwnerProtocolEntityID};
-
-#[derive(Message)]
-pub struct AbilityActionHealHPEvent(
-    pub u32,
-    pub Entity,
-    pub AbilityModifierAction,
-    pub Vec<u8>,
-    pub Entity,
-);
+use nod_krai_gi_event::ability::*;
 
 pub fn ability_action_heal_hp_event(
     index: Res<EntityById>,

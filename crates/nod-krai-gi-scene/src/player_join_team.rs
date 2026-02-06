@@ -1,3 +1,4 @@
+use crate::common::ScenePeerManager;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::excel::{avatar_excel_config_collection, weapon_excel_config_collection};
 use nod_krai_gi_entity::avatar::{AvatarQueryReadOnly, CurrentTeam};
@@ -13,17 +14,9 @@ use nod_krai_gi_entity::{
     util::to_protocol_entity_id,
     weapon::{AffixMap, PromoteLevel, WeaponBundle, WeaponID},
 };
+use nod_krai_gi_event::scene::*;
 use nod_krai_gi_persistence::{player_information::ItemInformation, Players};
 use nod_krai_gi_proto::ProtEntityType;
-
-use crate::{common::ScenePeerManager, scene_team_update::SceneTeamUpdateEvent};
-
-#[derive(Message)]
-pub struct PlayerJoinTeamEvent {
-    pub player_uid: u32,
-    pub avatar_guid_list: Vec<u64>,
-    pub appear_avatar_guid: u64,
-}
 
 pub fn player_join_team(
     mut events: MessageReader<PlayerJoinTeamEvent>,

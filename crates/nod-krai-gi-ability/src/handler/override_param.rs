@@ -3,7 +3,7 @@ use nod_krai_gi_entity::common::{EntityById, InstancedAbilities, ProtocolEntityI
 use nod_krai_gi_proto::AbilityScalarValueEntry;
 
 use crate::util::get_ability_name;
-use crate::OverrideParamEvent;
+use nod_krai_gi_event::ability::*;
 
 pub fn handle_override_param(
     index: Res<EntityById>,

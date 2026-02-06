@@ -1,16 +1,8 @@
 use crate::util::eval_option;
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::ability::AbilityModifierAction;
 use nod_krai_gi_entity::common::FightProperties;
+use nod_krai_gi_event::ability::*;
 
-#[derive(Message)]
-pub struct AbilityActionSetOverrideMapValueEvent(
-    pub u32,
-    pub Entity,
-    pub AbilityModifierAction,
-    pub Vec<u8>,
-    pub Entity,
-);
 pub fn ability_action_set_override_map_value_event(
     mut events: MessageReader<AbilityActionSetOverrideMapValueEvent>,
     fight_props_query: Query<&FightProperties>,

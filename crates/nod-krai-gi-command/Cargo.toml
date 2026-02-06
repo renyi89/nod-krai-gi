@@ -12,10 +12,8 @@ rand.workspace = true
 common.workspace = true
 
 nod-krai-gi-data.workspace = true
-nod-krai-gi-scene.workspace = true
 nod-krai-gi-entity.workspace = true
+nod-krai-gi-event.workspace = true
 nod-krai-gi-persistence.workspace = true
 nod-krai-gi-message.workspace = true
 nod-krai-gi-proto.workspace = true
-nod-krai-gi-social.workspace = true
-nod-krai-gi-quest.workspace = true

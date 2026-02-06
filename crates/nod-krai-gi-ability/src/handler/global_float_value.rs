@@ -2,7 +2,7 @@ use bevy_ecs::prelude::*;
 use nod_krai_gi_entity::common::{EntityById, GlobalAbilityValues};
 use nod_krai_gi_proto::AbilityScalarValueEntry;
 
-use crate::GlobalFloatValueEvent;
+use nod_krai_gi_event::ability::*;
 use crate::util::get_ability_name;
 
 pub fn handle_global_float_value(

@@ -1,6 +1,7 @@
-use crate::{util::get_ability_name, AddNewAbilityEvent};
+use crate::util::get_ability_name;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_entity::common::{EntityById, InstancedAbilities, ProtocolEntityID};
+use nod_krai_gi_event::ability::*;
 
 pub fn handle_add_new_ability(
     index: Res<EntityById>,

@@ -2,13 +2,14 @@ use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 
 use common::time_util;
+use nod_krai_gi_event::scene::*;
+use nod_krai_gi_event::time::*;
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::{
     retcode::Retcode, ClientSetGameTimeReq, ClientSetGameTimeRsp, PlayerGameTimeNotify,
     PlayerSetPauseReq, PlayerSetPauseRsp, PlayerTimeNotify, ServerTimeNotify,
 };
-use nod_krai_gi_scene::{EnterSceneDoneEvent, SceneInitFinishEvent};
 use tracing::{debug, instrument};
 
 pub struct TimePlugin;
@@ -16,7 +17,6 @@ pub struct TimePlugin;
 impl Plugin for TimePlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(SceneTime::default())
-            .add_message::<UpdateClientTimeEvent>()
             .add_systems(Startup, init_scene_time)
             .add_systems(PreUpdate, set_pause)
             .add_systems(PreUpdate, update_client_time)
@@ -31,9 +31,6 @@ pub struct SceneTime {
     pub scene_time: u64,
     pub game_time: u32,
 }
-
-#[derive(Message)]
-pub struct UpdateClientTimeEvent(pub u32, pub u32);
 
 pub fn update_client_time(
     mut events: MessageReader<UpdateClientTimeEvent>,

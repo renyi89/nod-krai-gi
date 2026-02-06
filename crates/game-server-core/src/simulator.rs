@@ -118,7 +118,13 @@ fn simulation_loop(
                                     | "ClientAbilityInitFinishNotify"
                                     | "ClientAbilitiesInitFinishCombineNotify"
                                     | "ClientAbilityChangeNotify"
-                                    | "CombatInvocationsNotify" => {
+                                    | "CombatInvocationsNotify"
+                                    | "PathfindingEnterSceneReq"
+                                    | "PathfindingEnterSceneRsp"
+                                    | "ToTheMoonEnterSceneReq"
+                                    | "ToTheMoonEnterSceneRsp"
+                                    | "QueryPathReq"
+                                    | "QueryPathRsp" => {
                                         tracing::trace!(
                                             "version:{} cmd_id: {} message_name:{} \nrecv:[{}]",
                                             version,

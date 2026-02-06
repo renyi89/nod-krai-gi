@@ -1,11 +1,10 @@
-use avatar::{
-    change_avatar, notify_avatar_team_update, replace_avatar_team, set_up_avatar_team,
-    PlayerAvatarTeamChanged,
-};
+use avatar::{change_avatar, notify_avatar_team_update, replace_avatar_team, set_up_avatar_team};
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use common::{PlayerSceneState, PlayerSceneStates, ScenePeerManager, WorldOwnerUID};
 use enter::EnterSceneStateSystems;
+use nod_krai_gi_entity::avatar::{CurrentPlayerAvatarMarker, CurrentTeam};
+use nod_krai_gi_entity::common::Visible;
 use nod_krai_gi_entity::{
     ability::Ability,
     avatar::AvatarQueryReadOnly,
@@ -13,25 +12,15 @@ use nod_krai_gi_entity::{
     mp_level::{AuthorityPeerId, MpLevelBundle, MpLevelEntityMarker},
     play_team::{PlayTeamEntityBundle, PlayTeamEntityMarker},
     team::{TeamEntityBundle, TeamEntityMarker},
-    transform::Vector3,
     util::to_protocol_entity_id,
     EntityDisappearEvent,
 };
+use nod_krai_gi_event::scene::*;
+use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
-use nod_krai_gi_proto::{EnterType, ProtEntityType, VisionType};
-use player_join_team::PlayerJoinTeamEvent;
-use scene_team_update::SceneTeamUpdateEvent;
-
-pub use crate::player_jump::ScenePlayerJumpByPointEvent;
-pub use enter::{
-    EnterSceneDoneEvent, EnterSceneReadyEvent, PostEnterSceneEvent, SceneInitFinishEvent,
-};
-use nod_krai_gi_entity::avatar::{CurrentPlayerAvatarMarker, CurrentTeam};
-use nod_krai_gi_entity::common::Visible;
-use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_proto::dy_parser::replace_out_u32;
-pub use player_jump::ScenePlayerJumpEvent;
+use nod_krai_gi_proto::{EnterType, ProtEntityType, VisionType};
 
 mod avatar;
 mod enter;
@@ -44,27 +33,9 @@ pub mod common;
 
 pub struct ScenePlugin;
 
-#[derive(Message)]
-pub struct BeginEnterSceneEvent {
-    pub uid: u32,
-    pub scene_id: u32,
-    pub enter_type: EnterType,
-    pub position: Vector3,
-}
-
 impl Plugin for ScenePlugin {
     fn build(&self, app: &mut App) {
-        app.add_message::<BeginEnterSceneEvent>()
-            .add_message::<EnterSceneReadyEvent>()
-            .add_message::<SceneInitFinishEvent>()
-            .add_message::<EnterSceneDoneEvent>()
-            .add_message::<PostEnterSceneEvent>()
-            .add_message::<PlayerJoinTeamEvent>()
-            .add_message::<SceneTeamUpdateEvent>()
-            .add_message::<PlayerAvatarTeamChanged>()
-            .add_message::<ScenePlayerJumpEvent>()
-            .add_message::<ScenePlayerJumpByPointEvent>()
-            .init_resource::<EnterSceneStateSystems>()
+        app.init_resource::<EnterSceneStateSystems>()
             .insert_resource(WorldOwnerUID(0))
             .insert_resource(PlayerSceneStates::default())
             .insert_resource(ScenePeerManager::default())

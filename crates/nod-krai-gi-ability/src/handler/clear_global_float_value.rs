@@ -2,8 +2,8 @@ use bevy_ecs::prelude::*;
 use nod_krai_gi_entity::common::{EntityById, GlobalAbilityValues};
 use nod_krai_gi_proto::AbilityScalarValueEntry;
 
-use crate::ClearGlobalFloatValueEvent;
 use crate::util::get_ability_name;
+use nod_krai_gi_event::ability::*;
 
 pub fn handle_clear_global_float_value(
     index: Res<EntityById>,

@@ -22,8 +22,6 @@ mod open_state_config;
 
 mod anecdote_excel_config;
 mod proud_skill_excel_config;
-pub mod quest_config;
-pub mod scene_point_config;
 mod scene_tag_config;
 mod weapon_curve_excel_config;
 mod weapon_excel_config;
@@ -64,10 +62,8 @@ macro_rules! excel_loader {
                 static DATA: ::std::sync::OnceLock<std::sync::Arc<std::collections::HashMap<u32,super::$name>>> = ::std::sync::OnceLock::new();
                 pub fn load_from_json(excel_bin_output_path: &'static str) -> std::io::Result<()> {
                         use crate::excel::[<$name:snake>]::*;
-                        tokio::spawn(async move {
-                            let data = [<$name>]::load(excel_bin_output_path);
-                            let _ = DATA.set(std::sync::Arc::new(data));
-                        });
+                        let data = [<$name>]::load(excel_bin_output_path);
+                        let _ = DATA.set(std::sync::Arc::new(data));
                         Ok(())
                 }
 

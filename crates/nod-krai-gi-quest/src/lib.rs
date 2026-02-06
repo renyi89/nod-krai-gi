@@ -2,7 +2,9 @@ use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use common::gm_util::QuestAction;
 use common::time_util::unix_timestamp;
-use nod_krai_gi_data::excel;
+use nod_krai_gi_data::{excel, quest};
+use nod_krai_gi_event::command::*;
+use nod_krai_gi_event::quest::*;
 use nod_krai_gi_message::event::ClientMessageEvent;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::player_information::SubQuestItem;
@@ -30,11 +32,7 @@ pub struct QuestPlugin;
 
 impl Plugin for QuestPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_systems(Update, handle_npc)
-            .add_message::<CommandQuestEvent>()
-            .add_message::<QuestBeginEvent>()
-            .add_message::<QuestListUpdateEvent>()
+        app.add_systems(Update, handle_npc)
             .add_systems(Update, gm_command_handler)
             .add_systems(Update, quest_begin)
             .add_systems(Update, quest_list_update);
@@ -126,21 +124,13 @@ pub fn handle_npc(
     }
 }
 
-#[derive(Message)]
-pub struct CommandQuestEvent(pub u32, pub QuestAction);
-
-#[derive(Message)]
-pub struct QuestBeginEvent(pub u32, pub u32);
-
-#[derive(Message)]
-pub struct QuestListUpdateEvent(pub u32, pub u32);
 pub fn gm_command_handler(
     mut events: MessageReader<CommandQuestEvent>,
     message_output: Res<MessageOutput>,
     mut quest_begin_event: MessageWriter<QuestBeginEvent>,
 ) {
     let sub_quest_config_collection_clone = Arc::clone(
-        excel::quest_config::SUB_QUEST_CONFIG_COLLECTION
+        quest::quest_config::SUB_QUEST_CONFIG_COLLECTION
             .get()
             .unwrap(),
     );
@@ -182,7 +172,7 @@ pub fn quest_begin(
     mut players: ResMut<Players>,
 ) {
     let sub_quest_config_collection_clone = Arc::clone(
-        excel::quest_config::SUB_QUEST_CONFIG_COLLECTION
+        quest::quest_config::SUB_QUEST_CONFIG_COLLECTION
             .get()
             .unwrap(),
     );

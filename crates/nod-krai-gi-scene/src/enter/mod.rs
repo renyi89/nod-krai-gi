@@ -3,17 +3,13 @@ mod enter_scene_ready;
 mod post_enter_scene;
 mod scene_init_finish;
 
-pub use enter_scene_done::EnterSceneDoneEvent;
-pub use enter_scene_ready::EnterSceneReadyEvent;
-pub use post_enter_scene::PostEnterSceneEvent;
-pub use scene_init_finish::SceneInitFinishEvent;
-
 pub use enter_scene_done::enter_scene_done_send_rsp;
 pub use scene_init_finish::scene_init_finish_send_rsp;
 
 use crate::common::PlayerSceneStates;
 
 use bevy_ecs::{prelude::*, system::SystemId};
+use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::event::ClientMessageEvent;
 use std::collections::HashMap;
 
@@ -84,7 +80,8 @@ pub fn handle_enter_scene_state_change(
         if player_scene_state.change_enter_state(next_enter_state) {
             tracing::debug!(
                 "EnterScene: changing state {:?} -> {:?}",
-                prev_enter_state, next_enter_state
+                prev_enter_state,
+                next_enter_state
             );
 
             let uid = msg.sender_uid();
@@ -107,7 +104,8 @@ pub fn handle_enter_scene_state_change(
         } else {
             tracing::debug!(
                 "EnterScene: state transition not allowed: {:?} -> {:?}",
-                prev_enter_state, next_enter_state
+                prev_enter_state,
+                next_enter_state
             );
         }
     }

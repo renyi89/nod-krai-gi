@@ -8,6 +8,7 @@ use nod_krai_gi_entity::{
     team::TeamEntityMarker,
     weapon::WeaponQueryReadOnly,
 };
+use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::{
@@ -16,10 +17,7 @@ use nod_krai_gi_proto::{
     SyncScenePlayTeamEntityNotify, TeamEnterSceneInfo,
 };
 
-use crate::{
-    common::{PlayerSceneStates, ScenePeerManager},
-    enter::SceneInitFinishEvent,
-};
+use crate::common::{PlayerSceneStates, ScenePeerManager};
 
 pub fn sync_enter_info(
     mut scene_init_events: MessageReader<SceneInitFinishEvent>,

@@ -1,15 +1,7 @@
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::ability::AbilityModifierAction;
 use nod_krai_gi_data::prop_type::FightPropType;
+use nod_krai_gi_event::ability::*;
 
-#[derive(Message)]
-pub struct AbilityActionGetHPPaidDebtsEvent(
-    pub u32,
-    pub Entity,
-    pub AbilityModifierAction,
-    pub Vec<u8>,
-    pub Entity,
-);
 pub fn ability_action_get_hp_paid_debts_event(
     mut events: MessageReader<AbilityActionGetHPPaidDebtsEvent>,
     mut fight_props_query: Query<&mut nod_krai_gi_entity::common::FightProperties>,

@@ -5,7 +5,7 @@ use nod_krai_gi_entity::common::{
 use nod_krai_gi_proto::{AbilityMetaModifierChange, ModifierAction};
 
 use crate::util::get_ability_name;
-use crate::ModifierChangeEvent;
+use nod_krai_gi_event::ability::*;
 
 pub fn handle_modifier_change(
     index: Res<EntityById>,

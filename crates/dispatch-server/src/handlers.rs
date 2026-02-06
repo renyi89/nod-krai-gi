@@ -216,7 +216,7 @@ where
     fn into_response(self) -> axum::response::Response {
         match self {
             Self::Plain(proto) => {
-                (StatusCode::OK, rbase64::encode(&proto.encode_to_vec())).into_response()
+                (StatusCode::OK, base64_simd::STANDARD.encode_to_string(&proto.encode_to_vec())).into_response()
             }
             Self::Encrypted(proto, keys) => {
                 let plain = proto.encode_to_vec();
@@ -226,8 +226,8 @@ where
                 (
                     StatusCode::OK,
                     json! ({
-                        "content": rbase64::encode(&content),
-                        "sign": rbase64::encode(&sign),
+                        "content": base64_simd::STANDARD.encode_to_string(&content),
+                        "sign": base64_simd::STANDARD.encode_to_string(&sign),
                     })
                     .to_string(),
                 )

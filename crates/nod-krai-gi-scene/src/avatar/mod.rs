@@ -1,4 +1,3 @@
-use crate::player_join_team::PlayerJoinTeamEvent;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::prop_type::FightPropType;
 use nod_krai_gi_entity::avatar::{CurrentTeam, ReplaceCurrentPlayerAvatarMarker};
@@ -8,6 +7,7 @@ use nod_krai_gi_entity::{
     avatar::{AvatarQueryReadOnly, CurrentPlayerAvatarMarker},
     EntityDisappearEvent, EntityPropertySeparateUpdateEvent,
 };
+use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::{event::ClientMessageEvent, get_player_version, output::MessageOutput};
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::dy_parser::{
@@ -20,13 +20,6 @@ use nod_krai_gi_proto::{
 };
 use std::collections::HashSet;
 use tracing::{debug, instrument};
-
-#[derive(Message, Debug)]
-pub struct PlayerAvatarTeamChanged {
-    pub uid: u32,
-    pub avatar_team_guid_list: Vec<u64>,
-    pub cur_avatar_guid: u64,
-}
 
 pub fn change_avatar(
     mut client_messages: MessageReader<ClientMessageEvent>,

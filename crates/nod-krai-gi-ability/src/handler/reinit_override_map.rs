@@ -3,7 +3,7 @@ use nod_krai_gi_entity::common::{EntityById, InstancedAbilities, ProtocolEntityI
 use nod_krai_gi_proto::AbilityMetaReInitOverrideMap;
 
 use crate::util::get_ability_name;
-use crate::ReinitOverrideMapEvent;
+use nod_krai_gi_event::ability::*;
 
 pub fn handle_reinit_override_map(
     index: Res<EntityById>,

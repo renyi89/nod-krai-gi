@@ -41,3 +41,4 @@ nod-krai-gi-persistence.workspace = true
 nod-krai-gi-luashell.workspace = true
 nod-krai-gi-data.workspace = true
 nod-krai-gi-proto.workspace = true
+nod-krai-gi-event.workspace = true

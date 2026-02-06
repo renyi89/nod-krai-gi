@@ -1,20 +1,17 @@
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::ability::AbilityModifierAction;
+use nod_krai_gi_event::ability::*;
 
-#[derive(Message)]
-pub struct AbilityActionSetGlobalValueToOverrideMapEvent(
-    pub u32,
-    pub Entity,
-    pub AbilityModifierAction,
-    pub Vec<u8>,
-    pub Entity,
-);
 pub fn ability_action_set_global_value_to_override_map_event(
     mut events: MessageReader<AbilityActionSetGlobalValueToOverrideMapEvent>,
     mut abilities_query: Query<&mut nod_krai_gi_entity::common::InstancedAbilities>,
 ) {
-    for AbilityActionSetGlobalValueToOverrideMapEvent(ability_index, ability_entity, action, _ability_data, _target_entity) in
-        events.read()
+    for AbilityActionSetGlobalValueToOverrideMapEvent(
+        ability_index,
+        ability_entity,
+        action,
+        _ability_data,
+        _target_entity,
+    ) in events.read()
     {
         let global_value_key = action.global_value_key.as_deref().unwrap_or("");
         let override_map_key = action.override_map_key.as_deref().unwrap_or("");
@@ -48,7 +45,9 @@ pub fn ability_action_set_global_value_to_override_map_event(
 
         // Set value to override map
         if let Some(ability) = abilities.list.get_mut(*ability_index as usize) {
-            ability.ability_specials.insert(override_map_key.to_string(), global_value);
+            ability
+                .ability_specials
+                .insert(override_map_key.to_string(), global_value);
             tracing::debug!(
                 "[AbilityActionSetGlobalValueToOverrideMapEvent] Setting global value {} to override map key {} with value {}",
                 global_value_key,

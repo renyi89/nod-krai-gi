@@ -63,7 +63,7 @@ fn gen_session_key(
         return None;
     };
 
-    let Ok(client_rand_key) = rbase64::decode(&req.client_rand_key) else {
+    let Ok(client_rand_key) = base64_simd::STANDARD.decode_to_vec(&req.client_rand_key) else {
         tracing::debug!(
             "failed to decode client_rand_key as base64, content: {}",
             req.client_rand_key
@@ -88,8 +88,8 @@ fn gen_session_key(
 
     let server_rand_key = rand::thread_rng().next_u64();
 
-    rsp.server_rand_key = rbase64::encode(&keys.client_encrypt(&server_rand_key.to_be_bytes()));
-    rsp.sign = rbase64::encode(&keys.sign(&server_rand_key.to_be_bytes()));
+    rsp.server_rand_key = base64_simd::STANDARD.encode_to_string(&keys.client_encrypt(&server_rand_key.to_be_bytes()));
+    rsp.sign = base64_simd::STANDARD.encode_to_string(&keys.sign(&server_rand_key.to_be_bytes()));
 
     Some(MhyXorpad::new::<byteorder::BE>(
         client_rand_key ^ server_rand_key,

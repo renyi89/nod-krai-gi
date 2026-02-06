@@ -1,34 +1,13 @@
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::ability::{AbilityMixinData, AbilityModifierAction};
 use nod_krai_gi_entity::common::{
     EntityById, InstancedAbilities, InstancedAbility, InstancedModifiers, ProtocolEntityID,
 };
-use nod_krai_gi_proto::AbilityInvokeEntry;
 
 use crate::enums::{
     AbilityConfigIdxEnum, AbilityModifierConfigIdxEnum, ConfigAbilitySubContainerType,
 };
 
-#[derive(Message)]
-pub struct ServerInvokeEvent(pub AbilityInvokeEntry);
-
-#[derive(Message)]
-pub struct ExecuteActionEvent(
-    pub u32,
-    pub Entity,
-    pub AbilityModifierAction,
-    pub Vec<u8>,
-    pub Option<Entity>,
-);
-
-#[derive(Message)]
-pub struct ExecuteMixinEvent(
-    pub u32,
-    pub Entity,
-    pub AbilityMixinData,
-    pub Vec<u8>,
-    pub Option<Entity>,
-);
+use nod_krai_gi_event::ability::*;
 
 pub fn server_invoke(
     index: Res<EntityById>,

@@ -4,9 +4,9 @@ use nod_krai_gi_data::excel::{
     SceneTagConfig, SceneTagConfigKeyed, BIG_WORLD_MAP_LAYER_CONFIG,
     BIG_WORLD_MAP_LAYER_FLOOR_CONFIG, BIG_WORLD_MAP_LAYER_GROUP_CONFIG,
 };
+use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
 use nod_krai_gi_persistence::Players;
-use nod_krai_gi_scene::{PostEnterSceneEvent, SceneInitFinishEvent};
 use std::sync::Arc;
 
 mod on_map;
@@ -29,7 +29,7 @@ fn data_request_processor(
     use nod_krai_gi_proto::*;
 
     let scene_point_config_collection_clone = Arc::clone(
-        nod_krai_gi_data::excel::scene_point_config::SCENE_POINT_CONFIG_COLLECTION
+        nod_krai_gi_data::scene::scene_point_config::SCENE_POINT_CONFIG_COLLECTION
             .get()
             .unwrap(),
     );
@@ -242,7 +242,7 @@ pub fn sync_group_unlimit_point_list_on_post_enter_scene(
     out: Res<MessageOutput>,
 ) {
     let scene_point_config_collection_clone = Arc::clone(
-        nod_krai_gi_data::excel::scene_point_config::SCENE_POINT_CONFIG_COLLECTION
+        nod_krai_gi_data::scene::scene_point_config::SCENE_POINT_CONFIG_COLLECTION
             .get()
             .unwrap(),
     );

@@ -1,5 +1,6 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
+use nod_krai_gi_event::luashell::*;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_proto::PlayerNormalLuaShellNotify;
 
@@ -13,13 +14,9 @@ pub struct LuaShellSettings {
 impl Plugin for LuaShellPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(LuaShellSettings::default())
-            .add_message::<LuaShellEvent>()
             .add_systems(Update, send_shell_payload);
     }
 }
-
-#[derive(Message)]
-pub struct LuaShellEvent();
 
 fn send_shell_payload(
     mut lua_shell_events: MessageReader<LuaShellEvent>,
