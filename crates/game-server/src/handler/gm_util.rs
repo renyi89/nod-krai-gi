@@ -83,7 +83,7 @@ pub async fn execute_gm_cmd(
             tracing::info!("add gm event: {}", req.msg);
             state
                 .logic_simulator
-                .add_client_packet(head, 1, data.into(), true);
+                .add_client_packet(req.player_uid, head, 1, data.into(), true);
         }
     }
 

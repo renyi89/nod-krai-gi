@@ -4,6 +4,7 @@ edition = "2021"
 version.workspace = true
 
 [dependencies]
+crossbeam-queue.workspace = true
 tokio.workspace = true
 
 # Logic

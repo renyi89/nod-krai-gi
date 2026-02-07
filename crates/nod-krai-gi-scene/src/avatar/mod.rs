@@ -74,9 +74,11 @@ pub fn change_avatar(
                                     cur_avatar_data.entity_id.0,
                                 ));
 
-                            let player = players.get_mut(message.sender_uid());
+                            let Some(player_info) = players.get_mut(message.sender_uid()) else {
+                                continue;
+                            };
 
-                            player.avatar_module.cur_avatar_guid = request.guid;
+                            player_info.avatar_module.cur_avatar_guid = request.guid;
 
                             message_output.send(
                                 message.sender_uid(),
@@ -93,7 +95,9 @@ pub fn change_avatar(
             }
             "AvatarDieAnimationEndReq" => {
                 if let Some(request) = message.decode::<AvatarDieAnimationEndReq>() {
-                    let player = players.get_mut(message.sender_uid());
+                    let Some(player_info) = players.get_mut(message.sender_uid()) else {
+                        continue;
+                    };
 
                     let mut all_dead = true;
 
@@ -101,7 +105,7 @@ pub fn change_avatar(
                     for (avatar_entity, _, life_state, avatar_data, _) in
                         avatars.iter().filter(|(_, _, _, a, _)| {
                             a.owner_player_uid.0 == message.sender_uid()
-                                && player
+                                && player_info
                                     .avatar_module
                                     .cur_avatar_guid_list
                                     .contains(&a.guid.0)
@@ -120,7 +124,7 @@ pub fn change_avatar(
 
                             debug!("transform:{}", transform);
 
-                            player.avatar_module.cur_avatar_guid = avatar_data.guid.0;
+                            player_info.avatar_module.cur_avatar_guid = avatar_data.guid.0;
 
                             commands
                                 .entity(avatar_entity)
@@ -137,7 +141,7 @@ pub fn change_avatar(
                         for (avatar_entity, fight_props, _, avatar_data, _) in
                             avatars.iter().filter(|(_, _, _, a, _)| {
                                 a.owner_player_uid.0 == message.sender_uid()
-                                    && player
+                                    && player_info
                                         .avatar_module
                                         .cur_avatar_guid_list
                                         .contains(&a.guid.0)
@@ -222,9 +226,11 @@ pub fn set_up_avatar_team(
                         }
                     }
 
-                    let player = players.get_mut(message.sender_uid());
+                    let Some(player_info) = players.get_mut(message.sender_uid()) else {
+                        continue;
+                    };
 
-                    let version = get_player_version!(&player.uid);
+                    let version = get_player_version!(&player_info.uid);
                     let protocol_version = version.as_str();
 
                     let team_id = replace_in_u32(
@@ -233,7 +239,7 @@ pub fn set_up_avatar_team(
                         request.team_id,
                     );
 
-                    if let Some(team) = player.avatar_module.team_map.get_mut(&team_id) {
+                    if let Some(team) = player_info.avatar_module.team_map.get_mut(&team_id) {
                         let mut cur_avatar_guid = replace_in_u64(
                             protocol_version,
                             "SetUpAvatarTeamReq.cur_avatar_guid",
@@ -247,9 +253,9 @@ pub fn set_up_avatar_team(
 
                         team.avatar_guid_list = request.avatar_team_guid_list.clone();
 
-                        if team_id == player.avatar_module.cur_avatar_team_id {
-                            player.avatar_module.cur_avatar_guid = cur_avatar_guid;
-                            player.avatar_module.cur_avatar_guid_list =
+                        if team_id == player_info.avatar_module.cur_avatar_team_id {
+                            player_info.avatar_module.cur_avatar_guid = cur_avatar_guid;
+                            player_info.avatar_module.cur_avatar_guid_list =
                                 request.avatar_team_guid_list.clone();
 
                             change_events.write(PlayerAvatarTeamChanged {
@@ -352,14 +358,16 @@ pub fn notify_avatar_team_update(
     for event in events.read() {
         debug!("{event:?}");
 
-        let player = players.get(event.uid);
+        let Some(player_info) = players.get(event.uid) else {
+            continue;
+        };
 
         out.send(
             event.uid,
             "AvatarTeamUpdateNotify",
             AvatarTeamUpdateNotify {
                 temp_avatar_guid_list: Vec::with_capacity(0),
-                avatar_team_map: player
+                avatar_team_map: player_info
                     .avatar_module
                     .team_map
                     .iter()

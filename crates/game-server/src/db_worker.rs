@@ -1,4 +1,4 @@
-use nod_krai_gi_database::{sql_op, DbConnection, DbError};
+use nod_krai_gi_database::{rocksdb_op, DbConnection, DbError};
 use nod_krai_gi_persistence::player_information::PlayerInformation;
 use tokio::{
     select,
@@ -54,9 +54,9 @@ async fn db_work_loop(
             op = op_rx.recv() => {
                 match op {
                     Some(DbOperation::Fetch(uid, tx)) => {
-                        let result = match sql_op::select_player_data_by_uid(&connection, uid as i32).await
+                        let result = match rocksdb_op::select_player_data_by_uid(&connection, uid as i32)
                         {
-                            Ok(Some(row)) => Some(serde_json::from_value(row.data.0).unwrap_or_else(|err| {
+                            Ok(Some(row)) => Some(serde_json::from_value(row.data).unwrap_or_else(|err| {
                                 // as of early development state, player info schema will change from time to time
                                 // it's better to replace it with default one everytime it changes, for now
                                 tracing::warn!("failed to deserialize player data (uid: {uid}), replacing with default, error: {err}");
@@ -71,10 +71,10 @@ async fn db_work_loop(
                         let _ = tx.send(result);
                     }
                     Some(DbOperation::FetchUserUid(account_uid, tx)) => {
-                          let result =   match sql_op::select_user_uid_by_account_uid(&connection, &*account_uid).await.inspect_err(|err| tracing::error!("failed to select user uid: {err}")).unwrap()
+                          let result =   match rocksdb_op::select_user_uid_by_account_uid(&connection, &*account_uid).inspect_err(|err| tracing::error!("failed to select user uid: {err}")).unwrap()
                         {
                             Some(uid) => Ok(uid.uid as u32),
-                            None => Ok(sql_op::insert_user_uid(&connection, &*account_uid).await.inspect_err(|err| tracing::error!("failed to insert user uid: {err}")).unwrap().uid as u32)
+                            None => Ok(rocksdb_op::insert_user_uid(&connection, &*account_uid).inspect_err(|err| tracing::error!("failed to insert user uid: {err}")).unwrap().uid as u32)
                         };
                         let _ = tx.send(result);
                     }
@@ -84,7 +84,7 @@ async fn db_work_loop(
             save_data = save_data_rx.recv() => {
                 if let Some((uid, data)) = save_data {
                     if let Err(err) =
-                        sql_op::insert_or_update_player_data(&connection, uid as i32, data).await
+                        rocksdb_op::insert_or_update_player_data(&connection, uid as i32, data)
                     {
                         tracing::error!("failed to save player data: {err}");
                     }

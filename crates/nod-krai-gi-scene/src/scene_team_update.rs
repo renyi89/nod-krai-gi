@@ -44,7 +44,7 @@ pub fn notify_scene_team_update(
                 scene_team_avatar_list: avatar_query
                     .iter()
                     .sort::<&IndexInSceneTeam>()
-                    .map(|(avatar_data, _, is_cur)| {
+                    .filter_map(|(avatar_data, _, is_cur)| {
                         let weapon_data = weapon_query.get(avatar_data.equipment.weapon).unwrap();
 
                         let skill_depot_data = avatar_skill_depot_excel_config_collection_clone
@@ -52,9 +52,10 @@ pub fn notify_scene_team_update(
                             .cloned()
                             .unwrap();
 
-                        let player = players.get(avatar_data.owner_player_uid.0);
-
-                        SceneTeamAvatar {
+                        let Some(player_info) = players.get(avatar_data.owner_player_uid.0) else {
+                           return None;
+                        };
+                        Some(SceneTeamAvatar {
                             is_on_scene: true,
                             is_player_cur_avatar: is_cur.is_some(),
                             is_reconnect: false,
@@ -64,7 +65,7 @@ pub fn notify_scene_team_update(
                             weapon_entity_id: weapon_data.entity_id.0,
                             avatar_info: None,
                             scene_avatar_info: None,
-                            scene_id: player.world_position.scene_id,
+                            scene_id: player_info.world_position.scene_id,
                             player_uid: avatar_data.owner_player_uid.0,
                             server_buff_list: Vec::with_capacity(0),
                             ability_control_block: Some(avatar_data.ability.build_control_block()),
@@ -77,15 +78,15 @@ pub fn notify_scene_team_update(
                                 motion_info: Some(MotionInfo {
                                     pos: Some(
                                         nod_krai_gi_entity::transform::Vector3::from(
-                                            player.world_position.position,
+                                            player_info.world_position.position,
                                         )
-                                        .into(),
+                                            .into(),
                                     ),
                                     rot: Some(
                                         nod_krai_gi_entity::transform::Vector3::from(
-                                            player.world_position.rotation,
+                                            player_info.world_position.rotation,
                                         )
-                                        .into(),
+                                            .into(),
                                     ),
                                     speed: Some(Vector::default()),
                                     ..Default::default()
@@ -174,7 +175,7 @@ pub fn notify_scene_team_update(
                                 })),
                                 ..Default::default()
                             }),
-                        }
+                        })
                     })
                     .collect(),
                 is_in_mp: false,

@@ -37,7 +37,9 @@ pub fn player_join_team(
             std::sync::Arc::clone(avatar_excel_config_collection::get());
 
         let uid = event.player_uid;
-        let player_info = players.get(uid);
+        let Some(player_info) = players.get(uid) else {
+            continue;
+        };
 
         for (idx, to_spawn_guid) in event.avatar_guid_list.iter().enumerate() {
             match avatars

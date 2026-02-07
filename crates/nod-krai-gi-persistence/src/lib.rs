@@ -13,12 +13,12 @@ impl Players {
         self.0.keys()
     }
 
-    pub fn get(&self, uid: u32) -> &PlayerInformation {
-        self.0.get(&uid).unwrap()
+    pub fn get(&self, uid: u32) -> Option<&PlayerInformation>  {
+        self.0.get(&uid)
     }
 
-    pub fn get_mut(&mut self, uid: u32) -> &mut PlayerInformation {
-        self.0.get_mut(&uid).unwrap()
+    pub fn get_mut(&mut self, uid: u32) -> Option<&mut PlayerInformation> {
+        self.0.get_mut(&uid)
     }
 }
 

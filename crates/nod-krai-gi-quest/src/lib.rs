@@ -180,8 +180,9 @@ pub fn quest_begin(
                 continue;
             }
             Some(sub_quest_data) => {
-                let player_info = players.get_mut(*player_uid);
-
+                let Some(player_info) = players.get_mut(*player_uid) else {
+                    continue;
+                };
                 player_info.quest_information.sub_quest_map.insert(
                     *sub_quest_id,
                     SubQuestItem {
@@ -223,8 +224,9 @@ pub fn quest_finish(
                 continue;
             }
             Some(sub_quest_data) => {
-                let player_info = players.get_mut(*player_uid);
-
+                let Some(player_info) = players.get_mut(*player_uid) else {
+                    continue;
+                };
                 player_info.quest_information.sub_quest_map.insert(
                     *sub_quest_id,
                     SubQuestItem {
@@ -255,8 +257,9 @@ pub fn quest_list_update(
     players: Res<Players>,
 ) {
     for QuestListUpdateEvent(player_uid, sub_quest_id) in events.read() {
-        let player_info = players.get(*player_uid);
-
+        let Some(player_info) = players.get(*player_uid) else {
+            continue;
+        };
         match player_info
             .quest_information
             .sub_quest_map

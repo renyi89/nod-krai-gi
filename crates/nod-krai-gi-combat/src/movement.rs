@@ -56,17 +56,19 @@ pub fn track_player_position(
     mut players: ResMut<Players>,
 ) {
     for (transform, owner_uid) in moved_player_avatars.iter() {
-        let player = players.get_mut(owner_uid.0);
-        if player.cache.is_tp {
+        let Some(player_info) = players.get_mut(owner_uid.0) else {
+            continue;
+        };
+        if player_info.cache.is_tp {
             continue;
         }
-        player.world_position.position = transform.position.into();
-        player.world_position.rotation = transform.rotation.into();
+        player_info.world_position.position = transform.position.into();
+        player_info.world_position.rotation = transform.rotation.into();
 
         trace!(
             "player with uid {} player.scene_id {} moved to {}",
             owner_uid.0,
-            player.world_position.scene_id,
+            player_info.world_position.scene_id,
             transform
         );
     }

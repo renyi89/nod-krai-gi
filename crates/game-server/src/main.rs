@@ -97,8 +97,7 @@ async fn main() -> Result<()> {
         }
     }
 
-    let db_connection = nod_krai_gi_database::connect_to(&CONFIG.database).await?;
-    nod_krai_gi_database::run_migrations(&db_connection).await?;
+    let db_connection = nod_krai_gi_database::connect_to(&CONFIG.database)?;
     let (db_handle, save_data_tx) = db_worker::start(db_connection);
 
     let region_list: Vec<RegionConfig> =

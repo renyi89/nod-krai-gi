@@ -1,14 +1,13 @@
 use std::sync::LazyLock;
 
 use regex::Regex;
-use sqlx::{Database, Decode, Encode, Sqlite};
 
-#[derive(Encode, Decode)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Username(String);
 
 impl Username {
     pub fn parse(username: String) -> Option<Self> {
-        static ALLOWED_PATTERN: LazyLock<Regex> =
+        static ALLOWED_PATTERN: LazyLock<Regex> = 
             LazyLock::new(|| Regex::new("^[a-zA-Z0-9._@-]{6,25}$").unwrap());
 
         ALLOWED_PATTERN
@@ -18,15 +17,5 @@ impl Username {
 
     pub fn as_str(&self) -> &str {
         self.0.as_str()
-    }
-}
-
-impl sqlx::Type<Sqlite> for Username {
-    fn type_info() -> <Sqlite as Database>::TypeInfo {
-        <String as sqlx::Type<Sqlite>>::type_info()
-    }
-
-    fn compatible(ty: &<Sqlite as Database>::TypeInfo) -> bool {
-        <String as sqlx::Type<Sqlite>>::compatible(ty)
     }
 }

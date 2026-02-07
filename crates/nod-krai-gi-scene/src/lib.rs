@@ -99,7 +99,9 @@ fn init_scene(
     }
 
     for uid in uids {
-        let player_info = players.get_mut(uid);
+        let Some(player_info) = players.get_mut(uid) else {
+            continue;
+        };
 
         if player_info.world_position.scene_id == 0 {
             player_info.world_position.scene_id = 3;
@@ -123,7 +125,9 @@ fn begin_enter_scene(
     mut disappear_events: MessageWriter<EntityDisappearEvent>,
 ) {
     for event in events.read() {
-        let player_info = players.get_mut(event.uid);
+        let Some(player_info) = players.get_mut(event.uid) else {
+            continue;
+        };
         player_info.cache.is_tp = true;
         for (avatar_entity, avatar_data) in player_avatar_entities
             .iter()

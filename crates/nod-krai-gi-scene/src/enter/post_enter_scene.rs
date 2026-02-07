@@ -13,7 +13,9 @@ pub fn on_post_enter_scene(
     out: Res<MessageOutput>,
 ) {
     for PostEnterSceneEvent(uid) in reader.read() {
-        let player_info = players.get_mut(*uid);
+        let Some(player_info) = players.get_mut(*uid) else {
+            continue;
+        };
         player_info.cache.is_tp = false;
 
         let version = get_player_version!(uid);

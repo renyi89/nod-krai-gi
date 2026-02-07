@@ -10,9 +10,11 @@ pub fn player_jump(
     mut enter_events: MessageWriter<BeginEnterSceneEvent>,
 ) {
     for ScenePlayerJumpEvent(uid, scene_id, destination) in events.read() {
-        let player = players.get_mut(*uid);
-        player.world_position.scene_id = *scene_id;
-        player.world_position.position = (*destination).into();
+        let Some(player_info) = players.get_mut(*uid) else {
+            continue;
+        };
+        player_info.world_position.scene_id = *scene_id;
+        player_info.world_position.position = (*destination).into();
 
         enter_events.write(BeginEnterSceneEvent {
             uid: *uid,
@@ -39,11 +41,13 @@ pub fn player_jump_by_point(
             Some(scene_config) => match scene_config.points.get(&point_id) {
                 None => {}
                 Some(point_config) => {
-                    let player = players.get_mut(*uid);
+                    let Some(player_info) = players.get_mut(*uid) else {
+                        continue;
+                    };
                     let mut enter_type = nod_krai_gi_proto::EnterType::EnterJump;
                     if !point_config.dungeon_ids.is_empty() {
                         enter_type = nod_krai_gi_proto::EnterType::EnterDungeon;
-                    } else if *scene_id == player.world_position.scene_id {
+                    } else if *scene_id == player_info.world_position.scene_id {
                         enter_type = nod_krai_gi_proto::EnterType::EnterGoto;
                     }
 
@@ -52,8 +56,8 @@ pub fn player_jump_by_point(
                         point_config.tran_pos.y + 3.5,
                         point_config.tran_pos.z,
                     ));
-                    player.world_position.scene_id = *scene_id;
-                    player.world_position.position = destination.into();
+                    player_info.world_position.scene_id = *scene_id;
+                    player_info.world_position.position = destination.into();
                     enter_events.write(BeginEnterSceneEvent {
                         uid: *uid,
                         scene_id: *scene_id,

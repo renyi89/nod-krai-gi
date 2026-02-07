@@ -111,11 +111,14 @@ pub fn sync_play_team_entity(
     peer_mgr: Res<ScenePeerManager>,
 ) {
     for SceneInitFinishEvent(uid) in scene_init_events.read() {
+        let Some(player_info) = players.get(*uid) else {
+            continue;
+        };
         message_output.send(
             *uid,
             "SyncScenePlayTeamEntityNotify",
             SyncScenePlayTeamEntityNotify {
-                scene_id: players.get(*uid).world_position.scene_id,
+                scene_id: player_info.world_position.scene_id,
                 entity_info_list: play_team_entities
                     .iter()
                     .map(|(owner_uid, id)| PlayTeamEntityInfo {

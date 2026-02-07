@@ -16,7 +16,9 @@ pub fn change_avatar_equip(
         match message.message_name() {
             "WearEquipReq" => {
                 if let Some(request) = message.decode::<WearEquipReq>() {
-                    let player_info = players.get_mut(message.sender_uid());
+                    let Some(player_info) = players.get_mut(message.sender_uid()) else {
+                        continue;
+                    };
                     if !player_info
                         .item_map
                         .get(&request.equip_guid)

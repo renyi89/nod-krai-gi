@@ -31,7 +31,9 @@ impl Plugin for PlayerDataSyncPlugin {
 
 pub fn sync_player_data(players: Res<Players>, out: Res<MessageOutput>) {
     for uid in players.keys() {
-        let player_info = players.get(*uid);
+        let Some(player_info) = players.get(*uid) else {
+            continue;
+        };
         out.send(
             *uid,
             "PlayerDataNotify",
@@ -66,7 +68,9 @@ pub fn sync_player_data(players: Res<Players>, out: Res<MessageOutput>) {
 
 pub fn sync_player_store(players: Res<Players>, out: Res<MessageOutput>) {
     for uid in players.keys() {
-        let player_info = players.get(*uid);
+        let Some(player_info) = players.get(*uid) else {
+            continue;
+        };
 
         out.send(
             *uid,
@@ -117,7 +121,9 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
         std::sync::Arc::clone(FetterDataConfig::get_fetter_data_entries());
 
     for uid in players.keys() {
-        let player_info = players.get(*uid);
+        let Some(player_info) = players.get(*uid) else {
+            continue;
+        };
 
         out.send(
             *uid,
@@ -277,7 +283,9 @@ pub fn sync_quest_list(players: Res<Players>, out: Res<MessageOutput>) {
     //         .unwrap(),
     // );
     for uid in players.keys() {
-        let player_info = players.get(*uid);
+        let Some(player_info) = players.get(*uid) else {
+            continue;
+        };
         out.send(
             *uid,
             "QuestListNotify",

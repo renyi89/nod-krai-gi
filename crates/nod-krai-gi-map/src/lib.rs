@@ -248,7 +248,10 @@ pub fn sync_group_unlimit_point_list_on_post_enter_scene(
     );
 
     for PostEnterSceneEvent(uid) in reader.read() {
-        let scene_id = players.get(*uid).world_position.scene_id;
+        let Some(player_info) = players.get(*uid) else {
+            continue;
+        };
+        let scene_id = player_info.world_position.scene_id;
         match scene_point_config_collection_clone.get(&scene_id) {
             None => {}
             Some(scene_config) => {

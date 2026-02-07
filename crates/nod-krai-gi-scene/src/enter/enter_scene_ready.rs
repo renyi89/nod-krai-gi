@@ -1,8 +1,8 @@
 use crate::common::{PlayerSceneStates, ScenePeerManager};
 use bevy_ecs::prelude::*;
 use nod_krai_gi_event::scene::*;
-use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_message::get_player_version;
+use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::dy_parser::replace_out_u32;
 
@@ -15,6 +15,10 @@ pub fn on_enter_scene_ready(
 ) {
     for event in reader.read() {
         let uid = event.0;
+        let Some(player_info) = players.get(uid) else {
+            continue;
+        };
+
         let enter_scene_token = player_scene_states.get(&uid).unwrap().enter_scene_token();
 
         let peer_id = peer_manager.get_or_add_peer(uid);
@@ -36,7 +40,7 @@ pub fn on_enter_scene_ready(
                 ),
                 peer_id,
                 host_peer_id: peer_manager.host_peer_id(),
-                dest_scene_id: players.get(uid).world_position.scene_id,
+                dest_scene_id: player_info.world_position.scene_id,
             },
         );
 

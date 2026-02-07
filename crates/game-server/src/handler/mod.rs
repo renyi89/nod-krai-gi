@@ -72,6 +72,12 @@ async fn packet_handler_loop(mut rx: mpsc::UnboundedReceiver<InputItem>, state: 
                 );
             }
             InputItem::DropConnection(id) => {
+                if let Some(session) = state.sessions.get(&id) {
+                    match session.player_uid.get() {
+                        Some(uid) => state.logic_simulator.offline(*uid),
+                        None => {}
+                    }
+                }
                 state.sessions.remove(&id);
             }
             InputItem::Packet(id, buf) => {
@@ -354,6 +360,7 @@ async fn handle_packet(
                                 );
 
                                 state.logic_simulator.add_client_packet(
+                                    user_id,
                                     head.clone(),
                                     sub_cmd.message_id as u16,
                                     sub_cmd.body.into(),
@@ -375,6 +382,7 @@ async fn handle_packet(
                         ..Default::default()
                     };
                     state.logic_simulator.add_client_packet(
+                        user_id,
                         head,
                         cmd_id,
                         packet.body().into(),
@@ -400,7 +408,7 @@ async fn player_login(state: &'static AppState, user_id: u32, user_session_id: u
 
     state
         .logic_simulator
-        .create_world(player_data, ClientOutput::new(tx));
+        .create_world(user_id, player_data, ClientOutput::new(tx));
 }
 
 async fn packet_sink(

@@ -52,7 +52,9 @@ pub fn debug_command_handler(
             command.executor_uid, command.kind
         );
 
-        let player = players.get(command.executor_uid);
+        let Some(player_info) = players.get(command.executor_uid) else {
+            continue;
+        };
 
         match command.kind {
             CommandKind::QuickSpawnMonster {
@@ -97,7 +99,7 @@ pub fn debug_command_handler(
                             // Take Y (height) from player's pos, spawn a bit above
                             position: (
                                 position.0,
-                                player.world_position.position.1 + 4.0,
+                                player_info.world_position.position.1 + 4.0,
                                 position.1,
                             )
                                 .into(),
@@ -147,7 +149,7 @@ pub fn debug_command_handler(
                         level: Level(level),
                         transform: Transform {
                             // Take Y (height) from player's pos, spawn a bit above
-                            position: (position.0, player.world_position.position.1, position.1)
+                            position: (position.0, player_info.world_position.position.1, position.1)
                                 .into(),
                             rotation: Vector3::default(),
                         },
@@ -187,7 +189,9 @@ pub fn gm_command_handler(
     mut quest_events: MessageWriter<CommandQuestEvent>,
 ) {
     for ConsoleChatReqEvent(player_uid, console_content) in events.read() {
-        let player_info = players.get(*player_uid);
+        let Some(player_info) = players.get(*player_uid) else {
+            continue;
+        };
         if player_info.cache.is_tp {
             continue;
         }

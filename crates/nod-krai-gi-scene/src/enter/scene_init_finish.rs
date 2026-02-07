@@ -14,7 +14,9 @@ pub fn on_scene_init_finish(
 ) {
     for event in reader.read() {
         let uid = event.0;
-        let player_info = players.get_mut(uid);
+        let Some(player_info) = players.get_mut(uid) else {
+            continue;
+        };
 
         if player_info.avatar_module.cur_avatar_guid_list.is_empty() {
             player_info.avatar_module.cur_avatar_guid_list = player_info

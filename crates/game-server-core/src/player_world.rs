@@ -123,6 +123,9 @@ impl PlayerWorld {
 
     pub fn should_save(&mut self, uid: u32) -> bool {
         let players = self.0.world_mut().get_resource::<Players>().unwrap();
-        players.get(uid).world_position.scene_id == 3
+        let Some(player_info) = players.get(uid) else {
+            return false;
+        };
+        player_info.world_position.scene_id == 3
     }
 }

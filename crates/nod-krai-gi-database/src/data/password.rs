@@ -1,5 +1,3 @@
-use sqlx::{Database, Sqlite};
-
 use crate::util;
 
 #[derive(thiserror::Error, Debug)]
@@ -12,7 +10,7 @@ pub enum Error {
     HashFailed(pbkdf2::password_hash::Error),
 }
 
-#[derive(sqlx::Encode, sqlx::Decode)]
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Password(String);
 
 impl Password {
@@ -37,15 +35,5 @@ impl Password {
 
     pub fn hash_str(&self) -> &str {
         self.0.as_str()
-    }
-}
-
-impl sqlx::Type<Sqlite> for Password {
-    fn type_info() -> <Sqlite as Database>::TypeInfo {
-        <String as sqlx::Type<Sqlite>>::type_info()
-    }
-
-    fn compatible(ty: &<Sqlite as Database>::TypeInfo) -> bool {
-        <String as sqlx::Type<Sqlite>>::compatible(ty)
     }
 }

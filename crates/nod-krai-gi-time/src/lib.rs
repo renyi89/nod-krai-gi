@@ -38,8 +38,10 @@ pub fn update_client_time(
 ) {
     for message in events.read() {
         let uid = message.0;
-        let player = players.get_mut(uid);
-        player.cache.client_time = message.1;
+        let Some(player_info) = players.get_mut(uid) else {
+            continue;
+        };
+        player_info.cache.client_time = message.1;
     }
 }
 
@@ -57,8 +59,10 @@ pub fn set_pause(
             "PlayerSetPauseReq" => {
                 if let Some(request) = message.decode::<PlayerSetPauseReq>() {
                     let uid = message.sender_uid();
-                    let player = players.get_mut(uid);
-                    player.cache.is_pause = request.is_paused;
+                    let Some(player_info) = players.get_mut(uid) else {
+                        continue;
+                    };
+                    player_info.cache.is_pause = request.is_paused;
                     message_output.send(uid, "PlayerSetPauseRsp", PlayerSetPauseRsp { retcode: 0 });
                 }
             }
@@ -79,11 +83,12 @@ pub fn client_set_game_time(
             "ClientSetGameTimeReq" => {
                 if let Some(request) = message.decode::<ClientSetGameTimeReq>() {
                     let uid = message.sender_uid();
-                    let player = players.get(uid);
-
+                    let Some(player_info) = players.get(uid) else {
+                        continue;
+                    };
                     let mut rsp = ClientSetGameTimeRsp::default();
 
-                    if player.basic_module.is_game_time_locked {
+                    if player_info.basic_module.is_game_time_locked {
                         debug!("game time is locked, uid: {uid}");
                         rsp.retcode = Retcode::RetPlayerTimeLocked.into();
                     } else {
@@ -120,6 +125,10 @@ pub fn sync_scene_time_on_scene_init_finish(
     use nod_krai_gi_proto::{PlayerGameTimeNotify, SceneTimeNotify};
 
     for SceneInitFinishEvent(uid) in events.read() {
+        let Some(player_info) = players.get(*uid) else {
+            continue;
+        };
+        
         message_output.send(
             *uid,
             "ServerTimeNotify",
@@ -132,8 +141,8 @@ pub fn sync_scene_time_on_scene_init_finish(
             *uid,
             "SceneTimeNotify",
             SceneTimeNotify {
-                is_paused: players.get(*uid).cache.is_pause,
-                scene_id: players.get(*uid).world_position.scene_id,
+                is_paused: player_info.cache.is_pause,
+                scene_id: player_info.world_position.scene_id,
                 scene_time: time.scene_time,
             },
         );
@@ -156,13 +165,16 @@ pub fn sync_scene_time_on_enter_scene_done(
     players: Res<Players>,
 ) {
     for EnterSceneDoneEvent(uid) in events.read() {
+        let Some(player_info) = players.get(*uid) else {
+            continue;
+        };
         message_output.send(
             *uid,
             "PlayerTimeNotify",
             PlayerTimeNotify {
-                is_paused: players.get(*uid).cache.is_pause,
+                is_paused: player_info.cache.is_pause,
                 server_time: time_util::unix_timestamp_ms(),
-                player_time: players.get(*uid).cache.client_time as u64,
+                player_time: player_info.cache.client_time as u64,
             },
         );
     }

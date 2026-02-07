@@ -30,10 +30,12 @@ pub fn handle_appearance_change_request(
                     if avatar_flycloak_excel_config_collection_clone
                         .contains_key(&request.flycloak_id)
                     {
-                        let player = players.get_mut(message.sender_uid());
+                        let Some(player_info) = players.get_mut(message.sender_uid()) else {
+                            continue;
+                        };
                         let mut rsp = AvatarWearFlycloakRsp::default();
 
-                        if let Some(notify) = wear_flycloak(player, request, &mut rsp) {
+                        if let Some(notify) = wear_flycloak(player_info, request, &mut rsp) {
                             message_output.send_to_all("AvatarFlycloakChangeNotify", notify);
                         }
 
@@ -51,10 +53,12 @@ pub fn handle_appearance_change_request(
                     if avatar_costume_excel_config_collection_clone
                         .contains_key(&request.costume_id)
                     {
-                        let player = players.get_mut(message.sender_uid());
+                        let Some(player_info) = players.get_mut(message.sender_uid()) else {
+                            continue;
+                        };
                         let mut rsp = AvatarChangeCostumeRsp::default();
 
-                        if let Some(change_event) = change_costume(player, request, &mut rsp) {
+                        if let Some(change_event) = change_costume(player_info, request, &mut rsp) {
                             change_events.write(change_event);
                         }
 
@@ -71,10 +75,12 @@ pub fn handle_appearance_change_request(
                     if avatar_trace_effect_excel_config_collection_clone
                         .contains_key(&request.trace_effect_id)
                     {
-                        let player = players.get_mut(message.sender_uid());
+                        let Some(player_info) = players.get_mut(message.sender_uid()) else {
+                            continue;
+                        };
                         let mut rsp = AvatarChangeTraceEffectRsp::default();
 
-                        if let Some(change_event) = change_trace_effect(player, request, &mut rsp) {
+                        if let Some(change_event) = change_trace_effect(player_info, request, &mut rsp) {
                             change_events.write(change_event);
                         }
 

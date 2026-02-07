@@ -83,7 +83,9 @@ pub fn apply_equip_change_to_avatar_entity(
 
         commands.entity(equipment.weapon).insert(ToBeRemovedMarker);
 
-        let player_info = players.get(avatar_equip_change.player_uid);
+        let Some(player_info) = players.get(avatar_equip_change.player_uid) else {
+            continue;
+        };
         let avatar = player_info
             .avatar_module
             .avatar_map

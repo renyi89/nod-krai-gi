@@ -189,14 +189,15 @@ pub fn notify_avatar_appearance_change(
         // that's disgusting, notify required even if avatar is not on scene
         // even though it contains SceneEntityInfo
         else {
-            let player = players.get(event.player_uid);
-
-            let avatar = player
+            let Some(player_info) = players.get(event.player_uid) else {
+                continue;
+            };
+            let avatar = player_info
                 .avatar_module
                 .avatar_map
                 .get(&event.avatar_guid)
                 .unwrap();
-            let weapon = player.item_map.get(&avatar.weapon_guid).unwrap();
+            let weapon = player_info.item_map.get(&avatar.weapon_guid).unwrap();
 
             let entity_info = Some(build_fake_avatar_entity_info(avatar, weapon));
             match event.change {
