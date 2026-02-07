@@ -127,6 +127,7 @@ pub enum TpAction {
 #[derive(Debug)]
 pub enum QuestAction {
     Begin { id: u32 },
+    Finish { id: u32 },
 }
 
 #[allow(unused)]
@@ -221,6 +222,12 @@ pub fn parse_command(input: &str) -> Result<Command, String> {
 
         ("quest", "begin") => parse_struct(parts, "quest begin <id>", |mut map| {
             Ok(Command::Quest(QuestAction::Begin {
+                id: map.take("id")?,
+            }))
+        }),
+
+        ("quest", "finish") => parse_struct(parts, "quest finish <id>", |mut map| {
+            Ok(Command::Quest(QuestAction::Finish {
                 id: map.take("id")?,
             }))
         }),

@@ -1,5 +1,6 @@
 use super::common::PropGrowCurve;
 use std::collections::HashMap;
+use common::string_util::InternString;
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -49,19 +50,19 @@ pub enum VisionLevelType {
 pub struct MonsterExcelConfig {
     pub id: u32,
     pub r#type: MonsterType,
-    pub server_script: String,
+    pub server_script: InternString,
     pub combat_config_hash: u64,
     pub affix: Vec<u32>,
-    pub ai: String,
+    pub ai: InternString,
     pub equips: Vec<u32>,
     pub hp_drops: Vec<HpDropConfig>,
     pub kill_drop_id: u32,
     pub vision_level: VisionLevelType,
     pub is_invisible_reset: bool,
-    pub exclude_weathers: String,
+    pub exclude_weathers: InternString,
     #[serde(default)]
     pub feature_tag_group_id: u32,
-    pub skin: String,
+    pub skin: InternString,
     pub hp_base: f32,
     pub attack_base: f32,
     pub defense_base: f32,

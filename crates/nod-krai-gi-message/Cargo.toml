@@ -4,11 +4,21 @@ edition = "2021"
 version.workspace = true
 
 [dependencies]
-tracing.workspace = true
-hex.workspace = true
 tokio.workspace = true
+
+# Logic
 bevy_ecs.workspace = true
 
-nod-krai-gi-proto.workspace = true
+# Serialization
 serde.workspace = true
+
+# Logging
+tracing.workspace = true
+
+# Util
+hex.workspace = true
 dashmap.workspace = true
+
+# Internal
+common.workspace = true
+nod-krai-gi-proto.workspace = true

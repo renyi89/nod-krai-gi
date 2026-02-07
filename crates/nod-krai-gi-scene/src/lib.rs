@@ -3,6 +3,7 @@ use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use common::{PlayerSceneState, PlayerSceneStates, ScenePeerManager, WorldOwnerUID};
 use enter::EnterSceneStateSystems;
+use nod_krai_gi_data::excel::{SceneTagConfig, SceneTagConfigKeyed};
 use nod_krai_gi_entity::avatar::{CurrentPlayerAvatarMarker, CurrentTeam};
 use nod_krai_gi_entity::common::Visible;
 use nod_krai_gi_entity::{
@@ -21,6 +22,7 @@ use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::dy_parser::replace_out_u32;
 use nod_krai_gi_proto::{EnterType, ProtEntityType, VisionType};
+use std::sync::Arc;
 
 mod avatar;
 mod enter;
@@ -185,6 +187,18 @@ fn notify_player_enter_scene(
             .unwrap()
             .enter_scene_token();
         tracing::debug!("Player enter scene: {:?}", enter_scene_token);
+        let mut scene_tag_id_list = vec![];
+        if event.scene_id > 2 && event.scene_id < 102 {
+            let scene_tag_entries_clone = Arc::clone(SceneTagConfig::get_scene_tag_entries());
+            match scene_tag_entries_clone.get(&event.scene_id) {
+                None => {}
+                Some(scene_tag_list) => {
+                    scene_tag_list.iter().for_each(|item| {
+                        scene_tag_id_list.push(item.id);
+                    });
+                }
+            }
+        }
         message_output.send(
             event.uid,
             "PlayerEnterSceneNotify",
@@ -217,6 +231,7 @@ fn notify_player_enter_scene(
                     179398
                 ),
                 r#type: event.enter_type.into(),
+                scene_tag_id_list,
                 ..Default::default()
             },
         );

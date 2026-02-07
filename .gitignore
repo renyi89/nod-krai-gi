@@ -24,3 +24,4 @@ assets/ExcelBinOutput/*
 crates/muip-server/*
 Cargo.lock
 
+*.sqlite

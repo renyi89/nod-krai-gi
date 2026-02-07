@@ -1,5 +1,6 @@
 use bevy_ecs::component::Component;
 use common::string_util;
+use common::string_util::InternString;
 use indexmap::IndexMap;
 use nod_krai_gi_data::{config, excel::avatar_excel_config_collection};
 use nod_krai_gi_proto::{AbilityControlBlock, AbilityEmbryo};
@@ -8,7 +9,7 @@ use std::sync::{Arc, OnceLock};
 
 #[derive(Component, Default)]
 pub struct Ability {
-    pub target_ability_map: IndexMap<String, AbilityData>,
+    pub target_ability_map: IndexMap<InternString, AbilityData>,
 }
 
 pub struct AbilityData {
@@ -92,23 +93,23 @@ const DEFAULT_TEAM_ABILITIES: [&str; 16] = [
 ];
 
 impl Ability {
-    fn add_common_avatar_abilities(ability_map: &mut IndexMap<String, AbilityData>) {
+    fn add_common_avatar_abilities(ability_map: &mut IndexMap<InternString, AbilityData>) {
         for name in COMMON_AVATAR_ABILITIES.iter() {
             let data = AbilityData::new(name, "Default");
-            ability_map.insert(name.to_string(), data);
+            ability_map.insert((*name).into(), data);
         }
     }
 
     fn process_open_configs(
         open_configs: Vec<String>,
-        ability_map: &mut IndexMap<String, AbilityData>,
+        ability_map: &mut IndexMap<InternString, AbilityData>,
     ) {
         for open_config in open_configs {
-            if let Some(talent_action) = config::get_avatar_talent_config(open_config.as_str()) {
+            if let Some(talent_action) = config::get_avatar_talent_config(&open_config.into()) {
                 for action in talent_action {
                     if let config::TalentAction::AddAbility { ability_name } = action {
-                        let data = AbilityData::new(&ability_name, "Default");
-                        ability_map.insert(ability_name.clone(), data);
+                        let data = AbilityData::new(ability_name.as_str(), "Default");
+                        ability_map.insert(*ability_name, data);
                     }
                 }
             }
@@ -119,13 +120,16 @@ impl Ability {
         let avatar_excel_config_collection_clone =
             std::sync::Arc::clone(avatar_excel_config_collection::get());
         let avatar = avatar_excel_config_collection_clone.get(&id).unwrap();
-        let avatar_name = avatar.icon_name.replace("UI_AvatarIcon_", "");
+        let avatar_name = avatar.icon_name.as_str().replace("UI_AvatarIcon_", "");
 
-        if let Some(config) = config::get_avatar_config(&avatar_name) {
-            let mut ability_map: IndexMap<String, AbilityData> = IndexMap::new();
+        if let Some(config) = config::get_avatar_config(&avatar_name.into()) {
+            let mut ability_map: IndexMap<InternString, AbilityData> = IndexMap::new();
             for ability in config.abilities.iter() {
-                let data = AbilityData::new(&ability.ability_name, &ability.ability_override);
-                ability_map.insert(ability.ability_name.clone(), data);
+                let data = AbilityData::new(
+                    ability.ability_name.as_str(),
+                    ability.ability_override.as_str(),
+                );
+                ability_map.insert(ability.ability_name, data);
             }
 
             Self::add_common_avatar_abilities(&mut ability_map);
@@ -135,15 +139,15 @@ impl Ability {
                 target_ability_map: ability_map,
             }
         } else {
-            tracing::warn!("missing ConfigAvatar for {avatar_name}");
-            let mut ability_map: IndexMap<String, AbilityData> = IndexMap::new();
+            tracing::warn!("missing ConfigAvatar for {}", avatar.icon_name);
+            let mut ability_map: IndexMap<InternString, AbilityData> = IndexMap::new();
             match Arc::clone(&get_temp_abilities()).get(&id) {
                 None => {}
                 Some(temp_abilities) => {
                     temp_abilities.iter().for_each(|ability| {
                         // 这里暂时使用空字符串作为键，因为我们没有实际的能力名称
                         ability_map.insert(
-                            ability.to_string(),
+                            ability.to_string().into(),
                             AbilityData {
                                 ability_name_hash: *ability,
                                 ability_override_name_hash: string_util::get_string_hash("Default"),
@@ -162,22 +166,25 @@ impl Ability {
     }
 
     pub fn new_for_team() -> Self {
-        let mut ability_map: IndexMap<String, AbilityData> = IndexMap::new();
+        let mut ability_map: IndexMap<InternString, AbilityData> = IndexMap::new();
         for name in DEFAULT_TEAM_ABILITIES.iter() {
             let data = AbilityData::new(name, "Default");
-            ability_map.insert(name.to_string(), data);
+            ability_map.insert((*name).into(), data);
         }
         Self {
             target_ability_map: ability_map,
         }
     }
 
-    pub fn new_for_gadget(json_name: &str) -> Self {
+    pub fn new_for_gadget(json_name: &InternString) -> Self {
         if let Some(config) = config::get_gadget_config(json_name) {
-            let mut ability_map: IndexMap<String, AbilityData> = IndexMap::new();
+            let mut ability_map: IndexMap<InternString, AbilityData> = IndexMap::new();
             for ability in config.abilities.iter() {
-                let data = AbilityData::new(&ability.ability_name, &ability.ability_override);
-                ability_map.insert(ability.ability_name.clone(), data);
+                let data = AbilityData::new(
+                    ability.ability_name.as_str(),
+                    ability.ability_override.as_str(),
+                );
+                ability_map.insert(ability.ability_name, data);
             }
 
             Self {
@@ -185,7 +192,7 @@ impl Ability {
             }
         } else {
             tracing::warn!("missing GadgetConfig for {json_name}");
-            let ability_map: IndexMap<String, AbilityData> = IndexMap::new();
+            let ability_map: IndexMap<InternString, AbilityData> = IndexMap::new();
             Self {
                 target_ability_map: ability_map,
             }

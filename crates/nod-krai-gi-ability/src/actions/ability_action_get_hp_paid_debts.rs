@@ -15,7 +15,7 @@ pub fn ability_action_get_hp_paid_debts_event(
         target_entity,
     ) in events.read()
     {
-        let override_map_key = action.override_map_key.as_deref().unwrap_or("");
+        let override_map_key = action.override_map_key.unwrap_or("".into());
 
         if override_map_key.is_empty() {
             tracing::debug!("[AbilityActionGetHPPaidDebtsEvent] Missing override_map_key");
@@ -50,9 +50,7 @@ pub fn ability_action_get_hp_paid_debts_event(
 
         // Store the value in the ability's specials
         if let Some(ability) = abilities.list.get_mut(*ability_index as usize) {
-            ability
-                .ability_specials
-                .insert(override_map_key.to_string(), paid_debt);
+            ability.ability_specials.insert(override_map_key, paid_debt);
             tracing::debug!(
                 "[AbilityActionGetHPPaidDebtsEvent] Setting override map value {} to {}",
                 override_map_key,

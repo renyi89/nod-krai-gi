@@ -4,12 +4,10 @@ edition = "2021"
 version.workspace = true
 
 [dependencies]
-# Runtime
-tokio.workspace = true
-
 paste.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-common.workspace = true
 indexmap.workspace = true
 rayon.workspace = true
+
+common.workspace = true

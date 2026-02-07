@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use common::string_util::InternString;
 use super::common::AddProp;
 
 #[derive(Debug, Clone, serde::Deserialize)]
@@ -6,11 +7,11 @@ use super::common::AddProp;
 pub struct AvatarTalentExcelConfig {
     pub add_props: Vec<AddProp>,
     pub desc_text_map_hash: u64,
-    pub icon: String,
+    pub icon: InternString,
     pub main_cost_item_count: u32,
     pub main_cost_item_id: u32,
     pub name_text_map_hash: u64,
-    pub open_config: String,
+    pub open_config: InternString,
     pub param_list: Vec<f32>,
     pub prev_talent: u32,
     pub talent_id: u32,

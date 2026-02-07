@@ -9,6 +9,8 @@ bevy_ecs.workspace = true
 tracing.workspace = true
 rand.workspace = true
 
+common.workspace = true
+
 nod-krai-gi-entity.workspace = true
 nod-krai-gi-proto.workspace = true
 nod-krai-gi-event.workspace = true

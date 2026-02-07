@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::str::FromStr;
 use std::sync::Arc;
+use common::string_util::InternString;
 
 pub static SCENE_POINT_CONFIG_COLLECTION: std::sync::OnceLock<Arc<HashMap<u32, ScenePointConfig>>> =
     std::sync::OnceLock::new();
@@ -23,7 +24,7 @@ pub struct Position {
 #[serde(default)]
 pub struct ScenePointData {
     #[serde(alias = "$type")]
-    pub r#point_type: String,
+    pub r#point_type: InternString,
     pub gadget_id: u32,
     pub area_id: u32,
     pub dungeon_ids: Vec<u32>,

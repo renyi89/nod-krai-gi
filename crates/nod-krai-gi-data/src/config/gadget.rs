@@ -3,6 +3,7 @@ use std::{
     fs::{self, ReadDir},
     sync::OnceLock,
 };
+use common::string_util::InternString;
 
 #[derive(Debug, serde::Deserialize)]
 pub struct GadgetConfig {
@@ -21,11 +22,9 @@ pub struct GadgetCombat {
 #[derive(Debug, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GadgetAbility {
+    pub ability_name: InternString,
     #[serde(default)]
-    pub ability_id: String,
-    pub ability_name: String,
-    #[serde(default)]
-    pub ability_override: String,
+    pub ability_override: InternString,
 }
 
 impl GadgetAbility {
@@ -39,7 +38,7 @@ pub fn load_gadget_configs_from_bin(bin_output_path: &str) -> std::io::Result<()
     Ok(())
 }
 
-static GADGET_CONFIG_MAP: OnceLock<HashMap<String, GadgetConfig>> = OnceLock::new();
+static GADGET_CONFIG_MAP: OnceLock<HashMap<InternString, GadgetConfig>> = OnceLock::new();
 
 fn load_gadget_configs(gadget_config_dir: ReadDir) -> std::io::Result<()> {
     let mut map = HashMap::new();
@@ -50,7 +49,7 @@ fn load_gadget_configs(gadget_config_dir: ReadDir) -> std::io::Result<()> {
 
         match serde_json::from_reader(reader) {
             Ok(config) => {
-                let configs: HashMap<String, GadgetConfig> = config;
+                let configs: HashMap<InternString, GadgetConfig> = config;
                 // 将所有解析出的配置添加到全局 map 中
                 for (key, config) in configs {
                     map.insert(key, config);
@@ -66,10 +65,10 @@ fn load_gadget_configs(gadget_config_dir: ReadDir) -> std::io::Result<()> {
     Ok(())
 }
 
-pub fn get_gadget_config(name: &str) -> Option<&GadgetConfig> {
+pub fn get_gadget_config(name: &InternString) -> Option<&GadgetConfig> {
     GADGET_CONFIG_MAP.get().unwrap().get(name)
 }
 
-pub fn iter_gadget_config_map() -> std::collections::hash_map::Iter<'static, String, GadgetConfig> {
+pub fn iter_gadget_config_map() -> std::collections::hash_map::Iter<'static, InternString, GadgetConfig> {
     GADGET_CONFIG_MAP.get().unwrap().iter()
 }

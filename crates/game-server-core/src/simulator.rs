@@ -1,6 +1,7 @@
 use std::{collections::HashMap, thread};
 
 use crate::{command::LogicCommand, player_world::PlayerWorld};
+use common::logging::TRACE_LOG_PACKET;
 use common::time_util;
 use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_message::output::ClientOutput;
@@ -113,35 +114,22 @@ fn simulation_loop(
                                     message_name
                                 );
                             } else {
-                                match message_name.as_str() {
-                                    "AbilityInvocationsNotify"
-                                    | "ClientAbilityInitFinishNotify"
-                                    | "ClientAbilitiesInitFinishCombineNotify"
-                                    | "ClientAbilityChangeNotify"
-                                    | "CombatInvocationsNotify"
-                                    | "PathfindingEnterSceneReq"
-                                    | "PathfindingEnterSceneRsp"
-                                    | "ToTheMoonEnterSceneReq"
-                                    | "ToTheMoonEnterSceneRsp"
-                                    | "QueryPathReq"
-                                    | "QueryPathRsp" => {
-                                        tracing::trace!(
-                                            "version:{} cmd_id: {} message_name:{} \nrecv:[{}]",
-                                            version,
-                                            cmd_id,
-                                            message_name,
-                                            hex::encode(&data)
-                                        );
-                                    }
-                                    &_ => {
-                                        tracing::debug!(
-                                            "version:{} cmd_id: {} message_name:{} \nrecv:[{}]",
-                                            version,
-                                            cmd_id,
-                                            message_name,
-                                            hex::encode(&data)
-                                        );
-                                    }
+                                if TRACE_LOG_PACKET.contains(&&*message_name) {
+                                    tracing::trace!(
+                                        "version:{} cmd_id: {} message_name:{} \nrecv:[{}]",
+                                        version,
+                                        cmd_id,
+                                        message_name,
+                                        hex::encode(&data)
+                                    );
+                                } else {
+                                    tracing::debug!(
+                                        "version:{} cmd_id: {} message_name:{} \nrecv:[{}]",
+                                        version,
+                                        cmd_id,
+                                        message_name,
+                                        hex::encode(&data)
+                                    );
                                 }
 
                                 if let Some(world_owner_uid) = player_uid_map.get(&uid) {

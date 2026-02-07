@@ -1,11 +1,12 @@
 use std::collections::HashMap;
+use common::string_util::InternString;
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AvatarSkillExcelConfig {
-    pub ability_name: String,
+    pub ability_name: InternString,
     pub cd_time: f32,
-    pub cost_elem_type: String,
+    pub cost_elem_type: InternString,
     pub cost_elem_val: u32,
     pub cost_stamina: u32,
     pub desc_text_map_hash: u64,

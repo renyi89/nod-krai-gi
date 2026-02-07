@@ -66,7 +66,7 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerI
             position: (2336.789, 249.98996, -751.3081),
             rotation: (0.0, 0.0, 0.0),
         },
-        quest_information:QuestInformation{
+        quest_information: QuestInformation {
             enable: true,
             parent_quest_map: Default::default(),
             sub_quest_map: Default::default(),
@@ -217,7 +217,7 @@ fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelCon
     let mut skill_extra_charge_map: HashMap<u32, u32> = HashMap::new();
 
     for open_config in &open_configs {
-        match nod_krai_gi_data::config::get_avatar_talent_config(open_config) {
+        match nod_krai_gi_data::config::get_avatar_talent_config(&open_config.clone().into()) {
             None => continue,
             Some(talent_action) => {
                 for action in talent_action {
@@ -285,7 +285,7 @@ fn process_talent_ids(
     let mut open_configs = Vec::new();
     for talent_id in talent_id_list {
         if let Some(talent_config) = avatar_talent_collection.get(talent_id) {
-            open_configs.push(talent_config.open_config.clone());
+            open_configs.push(talent_config.open_config.as_str().to_string());
         }
     }
     open_configs
@@ -298,7 +298,7 @@ fn process_inherent_proud_skills(
     let mut open_configs = Vec::new();
     for proud_skill_id in inherent_proud_skill_list {
         if let Some(proud_skill_config) = proud_skill_collection.get(proud_skill_id) {
-            open_configs.push(proud_skill_config.open_config.clone());
+            open_configs.push(proud_skill_config.open_config.as_str().to_string());
         }
     }
     open_configs

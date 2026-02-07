@@ -1,5 +1,6 @@
 use super::common::{PropGrowCurve, WeaponType};
 use std::collections::HashMap;
+use common::string_util::InternString;
 
 #[derive(Debug, PartialEq, Default, Clone, serde::Deserialize)]
 pub enum AvatarUseType {
@@ -64,14 +65,14 @@ pub struct AvatarExcelConfig {
     pub id: u32,
     pub use_type: AvatarUseType,
     pub body_type: AvatarBodyType,
-    pub icon_name: String,
+    pub icon_name: InternString,
     pub quality_type: QualityType,
     pub charge_efficiency: f32,
     pub combat_config_hash: u64,
     pub is_range_attack: bool,
     pub initial_weapon: u32,
     pub weapon_type: WeaponType,
-    pub image_name: String,
+    pub image_name: InternString,
     pub gacha_card_name_hash: u64,
     pub gacha_image_name_hash: u64,
     pub coop_pic_name_hash: u64,

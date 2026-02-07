@@ -1,7 +1,8 @@
 use bevy_ecs::prelude::*;
+use common::string_util::{InternCheck, InternString};
 use nod_krai_gi_data::ability::AbilityTargettingEnum;
 use nod_krai_gi_data::ability::{get_ability_name_by_hash, AbilityModifierAction};
-use nod_krai_gi_data::dynamic_float::NumberOrString;
+use nod_krai_gi_data::dynamic_float::NumberOrInternString;
 use nod_krai_gi_data::prop_type::FightPropType;
 use nod_krai_gi_data::DynamicFloat;
 use nod_krai_gi_entity::avatar::{AvatarQueryReadOnly, CurrentPlayerAvatarMarker};
@@ -37,13 +38,13 @@ struct OpInfo {
     name: String,
 }
 
-fn get_math_op(input: &[NumberOrString]) -> Option<OpInfo> {
+fn get_math_op(input: &[NumberOrInternString]) -> Option<OpInfo> {
     let op_list: Vec<OpInfo> = input
         .iter()
         .enumerate()
         .filter_map(|(i, val)| {
-            if let NumberOrString::String(s) = val {
-                let name = s.to_uppercase();
+            if let NumberOrInternString::InternString(s) = val {
+                let name = s.as_str().to_uppercase();
                 if MathOp::from_str(&name).is_some() {
                     return Some(OpInfo { i, name });
                 }
@@ -61,7 +62,7 @@ fn get_math_op(input: &[NumberOrString]) -> Option<OpInfo> {
     None
 }
 
-fn do_math(state: &mut MathState, input: &mut Vec<NumberOrString>) {
+fn do_math(state: &mut MathState, input: &mut Vec<NumberOrInternString>) {
     let op = match get_math_op(input) {
         Some(op) => op,
         None => {
@@ -76,8 +77,8 @@ fn do_math(state: &mut MathState, input: &mut Vec<NumberOrString>) {
         .drain(index..index + 3)
         .take(2)
         .map(|val| match val {
-            NumberOrString::Number(n) => n as f32,
-            NumberOrString::String(_) => 0.0, // This should never happen with preprocessed input
+            NumberOrInternString::Number(n) => n as f32,
+            NumberOrInternString::InternString(_) => 0.0, // This should never happen with preprocessed input
         })
         .collect();
 
@@ -100,7 +101,7 @@ fn do_math(state: &mut MathState, input: &mut Vec<NumberOrString>) {
     };
 
     state.val = result;
-    input.insert(index, NumberOrString::Number(result as f64));
+    input.insert(index, NumberOrInternString::Number(result as f64));
 }
 
 #[derive(Clone)]
@@ -109,7 +110,7 @@ struct MathState {
     val: f32,
 }
 
-fn calc(input: &mut Vec<NumberOrString>) -> f32 {
+fn calc(input: &mut Vec<NumberOrInternString>) -> f32 {
     let mut state = MathState {
         busy: true,
         val: 0.0,
@@ -125,18 +126,18 @@ fn calc(input: &mut Vec<NumberOrString>) -> f32 {
 fn eval_number_or_string(
     ability: &InstancedAbility,
     props: Option<&FightProperties>,
-    val: &NumberOrString,
+    val: &NumberOrInternString,
     def_val: f32,
 ) -> f32 {
     match val {
-        NumberOrString::Number(n) => *n as f32,
-        NumberOrString::String(s) => {
-            if let Ok(num) = s.parse::<f32>() {
+        NumberOrInternString::Number(n) => *n as f32,
+        NumberOrInternString::InternString(s) => {
+            if let Ok(num) = s.as_str().parse::<f32>() {
                 return num;
             }
 
-            if s.starts_with("FIGHT_PROP_") {
-                if let Some(prop_type) = FightPropType::from_str(s) {
+            if s.as_str().starts_with("FIGHT_PROP_") {
+                if let Some(prop_type) = FightPropType::from_str(s.as_str()) {
                     if let Some(props) = props {
                         let result = props.get_property(prop_type);
                         return result;
@@ -163,13 +164,13 @@ pub fn eval(
             let result = *n as f32;
             result
         }
-        DynamicFloat::String(s) => {
-            if let Ok(num) = s.parse::<f32>() {
+        DynamicFloat::InternString(s) => {
+            if let Ok(num) = s.as_str().parse::<f32>() {
                 return num;
             }
 
-            if s.starts_with("FIGHT_PROP_") {
-                if let Some(prop_type) = FightPropType::from_str(s) {
+            if s.as_str().starts_with("FIGHT_PROP_") {
+                if let Some(prop_type) = FightPropType::from_str(s.as_str()) {
                     if let Some(props) = props {
                         let result = props.get_property(prop_type);
                         return result;
@@ -189,19 +190,19 @@ pub fn eval(
             let mut preprocessed = Vec::new();
             for item in input {
                 match &item {
-                    NumberOrString::String(s) => {
+                    NumberOrInternString::InternString(s) => {
                         // Check if it's an operator
-                        let upper = s.to_uppercase();
+                        let upper = s.as_str().to_uppercase();
                         if MathOp::from_str(&upper).is_some() {
                             // Keep operators as strings
-                            preprocessed.push(NumberOrString::String(upper));
+                            preprocessed.push(NumberOrInternString::InternString(upper.into()));
                         } else {
                             // Evaluate strings to numbers
                             let num = eval_number_or_string(ability, props, &item, def_val);
-                            preprocessed.push(NumberOrString::Number(num as f64));
+                            preprocessed.push(NumberOrInternString::Number(num as f64));
                         }
                     }
-                    NumberOrString::Number(_) => {
+                    NumberOrInternString::Number(_) => {
                         // Keep numbers as they are
                         preprocessed.push(item);
                     }
@@ -400,10 +401,17 @@ fn get_all_player_avatars(
         .collect()
 }
 
-pub fn get_ability_name(ability_name: Option<AbilityString>) -> Option<String> {
+pub fn get_ability_name(ability_name: Option<AbilityString>) -> Option<InternString> {
     match ability_name {
         Some(ability_name) => match ability_name.r#type.as_ref() {
-            Some(Type::Str(s)) => Some(s.clone()),
+            Some(Type::Str(s)) => {
+                if s.is_interned() {
+                    Some(s.clone().into())
+                } else {
+                    tracing::debug!("ability:{} is not interned", s);
+                    None
+                }
+            }
             Some(Type::Hash(hash)) => match get_ability_name_by_hash(*hash) {
                 Some(name) => Some(name),
                 None => {

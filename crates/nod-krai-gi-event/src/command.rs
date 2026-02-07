@@ -24,7 +24,10 @@ pub enum CommandKind {
 }
 
 #[derive(Message)]
-pub struct ConsoleChatEvent(pub u32, pub String);
+pub struct ConsoleChatReqEvent(pub u32, pub String);
+
+#[derive(Message)]
+pub struct ConsoleChatNotifyEvent(pub u32, pub String);
 
 #[derive(Message)]
 pub struct CommandQuestEvent(pub u32, pub QuestAction);

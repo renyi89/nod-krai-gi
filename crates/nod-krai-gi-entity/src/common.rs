@@ -2,7 +2,7 @@ use indexmap::IndexMap;
 use std::collections::{HashMap, HashSet};
 
 use bevy_ecs::prelude::*;
-
+use common::string_util::InternString;
 use nod_krai_gi_data::ability::{get_ability_data, AbilityData, AbilityModifier};
 use nod_krai_gi_data::{
     excel::{
@@ -41,13 +41,13 @@ pub struct OwnerProtocolEntityID(pub Option<u32>);
 pub struct FightProperties(pub HashMap<FightPropType, f32>, pub HashSet<FightPropType>);
 
 #[derive(Component, Default)]
-pub struct GlobalAbilityValues(pub HashMap<String, f32>);
+pub struct GlobalAbilityValues(pub HashMap<InternString, f32>);
 
 #[derive(Component, Default)]
 pub struct InstancedAbilities {
     pub list: Vec<InstancedAbility>,
     by_id: HashMap<u32, usize>,
-    by_name: HashMap<String, usize>,
+    by_name: HashMap<InternString, usize>,
 }
 
 #[derive(Component, Default)]
@@ -57,8 +57,8 @@ pub struct InstancedModifiers(pub HashMap<u32, AbilityModifierController>);
 pub struct InstancedAbility {
     pub instanced_ability_id: Option<u32>,
     pub ability_data: Option<&'static AbilityData>,
-    pub modifiers: IndexMap<String, &'static AbilityModifier>,
-    pub ability_specials: HashMap<String, f32>,
+    pub modifiers: IndexMap<InternString, &'static AbilityModifier>,
+    pub ability_specials: HashMap<InternString, f32>,
 }
 
 impl InstancedAbilities {
@@ -82,7 +82,7 @@ impl InstancedAbilities {
     pub fn add_or_replace_by_instanced_ability_id(
         &mut self,
         instanced_ability_id: u32,
-        ability_name: String,
+        ability_name: InternString,
     ) -> Option<(u32, &InstancedAbility)> {
         if !self.check_len() {
             return None;
@@ -115,7 +115,7 @@ impl InstancedAbilities {
 
     pub fn find_or_add_by_ability_name(
         &mut self,
-        ability_name: String,
+        ability_name: InternString,
         instanced_ability_id: u32,
     ) -> Option<(u32, &InstancedAbility)> {
         if !self.check_len() {

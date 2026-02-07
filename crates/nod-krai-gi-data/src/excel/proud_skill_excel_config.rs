@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use common::string_util::InternString;
 use super::common::AddProp;
 
 #[derive(Debug, Clone, serde::Deserialize)]
@@ -16,14 +17,14 @@ pub struct ProudSkillExcelConfig {
     pub coin_cost: u32,
     pub cost_items: Vec<CostItem>,
     pub desc_text_map_hash: u64,
-    pub filter_conds: Vec<String>,
-    pub icon: String,
+    pub filter_conds: Vec<InternString>,
+    pub icon: InternString,
     pub is_hide_life_proud_skill: bool,
     pub level: u32,
-    pub life_effect_params: Vec<String>,
-    pub life_effect_type: String,
+    pub life_effect_params: Vec<InternString>,
+    pub life_effect_type: InternString,
     pub name_text_map_hash: u64,
-    pub open_config: String,
+    pub open_config: InternString,
     pub param_desc_list: Vec<u32>,
     pub param_list: Vec<f32>,
     pub proud_skill_group_id: u32,

@@ -1,13 +1,14 @@
 use super::common::{ItemType, MaterialType, WeaponType};
 use crate::prop_type::FightPropType;
 use std::collections::HashMap;
+use common::string_util::InternString;
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WeaponProperty {
     pub prop_type: FightPropType,
     pub init_value: f32,
-    pub r#type: String,
+    pub r#type: InternString,
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
@@ -20,9 +21,9 @@ pub struct WeaponExcelConfig {
     pub skill_affix: Vec<u32>,
     pub awaken_material: u32,
     pub weapon_prop: Vec<WeaponProperty>,
-    pub awaken_texture: String,
-    pub awaken_light_map_texture: String,
-    pub awaken_icon: String,
+    pub awaken_texture: InternString,
+    pub awaken_light_map_texture: InternString,
+    pub awaken_icon: InternString,
     pub un_rotate: bool,
     pub weapon_promote_id: u32,
     pub story_id: u32,
@@ -32,7 +33,7 @@ pub struct WeaponExcelConfig {
     pub destroy_return_material_count: Vec<u32>,
     pub initial_lock_state: u32,
     pub id: u32,
-    pub icon: String,
+    pub icon: InternString,
     pub item_type: ItemType,
     pub weight: u32,
     pub rank: u32,

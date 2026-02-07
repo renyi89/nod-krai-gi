@@ -18,14 +18,14 @@ pub struct AbilityConfigWrapper {
 #[serde(rename_all = "camelCase")]
 pub struct AbilityData {
     #[serde(rename = "$type")]
-    pub type_name: Option<String>,
-    pub ability_name: String,
+    pub type_name: Option<InternString>,
+    pub ability_name: InternString,
     #[serde(default, deserialize_with = "deserialize_modifiers")]
-    pub modifiers: IndexMap<String, AbilityModifier>,
+    pub modifiers: IndexMap<InternString, AbilityModifier>,
     #[serde(default)]
     pub ability_mixins: Vec<AbilityMixinData>,
     #[serde(default, deserialize_with = "any_to_float_hashmap")]
-    pub ability_specials: HashMap<String, f32>,
+    pub ability_specials: HashMap<InternString, f32>,
     #[serde(default)]
     pub is_dynamic_ability: bool,
     #[serde(default, deserialize_with = "skip_strings_in_vec")]
@@ -60,7 +60,7 @@ pub struct AbilityData {
 #[serde(rename_all = "camelCase")]
 pub struct AbilityModifier {
     #[serde(skip)]
-    pub modifier_name: String,
+    pub modifier_name: InternString,
     #[serde(default)]
     pub bonus_critical: Option<f32>,
     #[serde(default, deserialize_with = "skip_strings_in_vec")]
@@ -104,7 +104,7 @@ pub struct AbilityModifier {
     #[serde(default)]
     pub properties: Option<AbilityModifierProperty>,
     #[serde(default)]
-    pub stacking: Option<String>,
+    pub stacking: Option<InternString>,
     #[serde(default)]
     pub duration: Option<DynamicFloat>,
     #[serde(default)]
@@ -117,7 +117,7 @@ pub struct AbilityModifier {
 #[serde(rename_all = "camelCase")]
 pub struct AbilityModifierAction {
     #[serde(rename = "$type")]
-    pub type_name: Option<String>,
+    pub type_name: Option<InternString>,
     #[serde(default)]
     pub target: Option<AbilityTargettingEnum>,
     pub amount: Option<DynamicFloat>,
@@ -140,7 +140,7 @@ pub struct AbilityModifierAction {
     #[serde(default)]
     pub ignore_ability_property: Option<bool>,
     #[serde(default)]
-    pub modifier_name: String,
+    pub modifier_name: InternString,
     #[serde(default)]
     #[serde(rename = "enableLockHP")]
     pub enable_lock_hp: Option<bool>,
@@ -181,9 +181,9 @@ pub struct AbilityModifierAction {
     #[serde(default, deserialize_with = "any_to_float")]
     pub value_range_max: f32,
     #[serde(default)]
-    pub determine_type: Option<String>,
+    pub determine_type: Option<InternString>,
     #[serde(default)]
-    pub override_map_key: Option<String>,
+    pub override_map_key: Option<InternString>,
     #[serde(default)]
     pub param_num: Option<u32>,
     #[serde(default)]
@@ -193,37 +193,37 @@ pub struct AbilityModifierAction {
     #[serde(default)]
     pub param3: Option<DynamicFloat>,
     #[serde(default)]
-    pub key: Option<String>,
+    pub key: Option<InternString>,
     #[serde(default)]
-    pub ability_name: Option<String>,
+    pub ability_name: Option<InternString>,
     #[serde(default)]
-    pub global_value_key: Option<String>,
+    pub global_value_key: Option<InternString>,
     #[serde(default)]
-    pub ability_formula: Option<String>,
+    pub ability_formula: Option<InternString>,
     #[serde(default)]
-    pub src_target: Option<String>,
+    pub src_target: Option<InternString>,
     #[serde(default)]
-    pub dst_target: Option<String>,
+    pub dst_target: Option<InternString>,
     #[serde(default)]
-    pub src_key: Option<String>,
+    pub src_key: Option<InternString>,
     #[serde(default)]
-    pub dst_key: Option<String>,
+    pub dst_key: Option<InternString>,
     #[serde(default)]
-    pub heal_tag: Option<String>,
+    pub heal_tag: Option<InternString>,
     #[serde(default)]
-    pub camp_target_type: Option<String>,
+    pub camp_target_type: Option<InternString>,
     #[serde(default)]
-    pub func_name: Option<String>,
+    pub func_name: Option<InternString>,
     #[serde(default)]
-    pub lua_call_type: Option<String>,
+    pub lua_call_type: Option<InternString>,
     #[serde(default)]
-    pub content: Option<String>,
+    pub content: Option<InternString>,
     #[serde(default)]
-    pub parameter: Option<String>,
+    pub parameter: Option<InternString>,
     #[serde(default)]
     pub value: Option<DynamicFloat>,
     #[serde(default)]
-    pub type_field: Option<String>,
+    pub type_field: Option<InternString>,
     #[serde(default)]
     #[serde(rename = "healLimitedByCasterMaxHPRatio")]
     pub heal_limited_by_caster_max_hp_ratio: Option<DynamicFloat>,
@@ -245,13 +245,13 @@ pub struct AbilityModifierAction {
 #[serde(rename_all = "camelCase")]
 pub struct AbilityMixinData {
     #[serde(rename = "$type")]
-    pub type_name: Option<String>,
+    pub type_name: Option<InternString>,
     #[serde(default)]
     pub modifier_name: Option<serde_json::Value>,
     #[serde(default)]
-    pub state_ids: Vec<String>,
+    pub state_ids: Vec<InternString>,
     #[serde(default)]
-    pub global_value_key: Option<String>,
+    pub global_value_key: Option<InternString>,
     #[serde(default)]
     pub speed: Option<DynamicFloat>,
     #[serde(default)]
@@ -261,7 +261,7 @@ pub struct AbilityMixinData {
     #[serde(default)]
     pub default_global_value_on_create: Option<DynamicFloat>,
     #[serde(default)]
-    pub modifier_name_steps: Vec<String>,
+    pub modifier_name_steps: Vec<InternString>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -326,16 +326,17 @@ pub enum AbilityTargettingEnum {
     MPLevel = 19,
 }
 
+use common::string_util::InternString;
 use serde::Deserializer;
 use serde_json::Value;
 
 fn deserialize_modifiers<'de, D>(
     deserializer: D,
-) -> Result<IndexMap<String, AbilityModifier>, D::Error>
+) -> Result<IndexMap<InternString, AbilityModifier>, D::Error>
 where
     D: Deserializer<'de>,
 {
-    let mut map = IndexMap::<String, AbilityModifier>::deserialize(deserializer)?;
+    let mut map = IndexMap::<InternString, AbilityModifier>::deserialize(deserializer)?;
 
     for (k, v) in map.iter_mut() {
         v.modifier_name = k.clone();
@@ -368,14 +369,15 @@ where
         _ => Ok(vec![]),
     }
 }
-static ABILITY_DATA_MAP: std::sync::OnceLock<HashMap<String, AbilityData>> =
+static ABILITY_DATA_MAP: std::sync::OnceLock<HashMap<InternString, AbilityData>> =
     std::sync::OnceLock::new();
 
-static ABILITY_HASH_MAP: std::sync::OnceLock<HashMap<u32, String>> = std::sync::OnceLock::new();
+static ABILITY_HASH_MAP: std::sync::OnceLock<HashMap<u32, InternString>> =
+    std::sync::OnceLock::new();
 
 fn load_ability_configs_recursive(
     dir: std::fs::ReadDir,
-    map: &Mutex<HashMap<String, AbilityData>>,
+    map: &Mutex<HashMap<InternString, AbilityData>>,
 ) -> std::io::Result<()> {
     let entries: Vec<_> = dir.filter_map(Result::ok).collect();
 
@@ -427,7 +429,7 @@ pub fn load_ability_configs_from_bin(bin_output_path: &str) -> std::io::Result<(
         // println!("Ability Name -> Hash Mapping:");
         // println!("================================");
         for (name, _) in map_guard.iter() {
-            let hash = common::string_util::get_string_hash(name);
+            let hash = common::string_util::get_string_hash(name.as_str());
             // println!("{} -> {}", name, hash);
             hash_map.insert(hash, name.clone());
         }
@@ -442,16 +444,17 @@ pub fn load_ability_configs_from_bin(bin_output_path: &str) -> std::io::Result<(
     Ok(())
 }
 
-pub fn get_ability_data(name: &str) -> Option<&'static AbilityData> {
+pub fn get_ability_data(name: &InternString) -> Option<&'static AbilityData> {
     ABILITY_DATA_MAP.get().and_then(|map| map.get(name))
 }
 
-pub fn get_ability_name_by_hash(hash: u32) -> Option<String> {
+pub fn get_ability_name_by_hash(hash: u32) -> Option<InternString> {
     ABILITY_HASH_MAP
         .get()
         .and_then(|map| map.get(&hash).cloned())
 }
 
-pub fn iter_ability_data_map() -> std::collections::hash_map::Iter<'static, String, AbilityData> {
+pub fn iter_ability_data_map(
+) -> std::collections::hash_map::Iter<'static, InternString, AbilityData> {
     ABILITY_DATA_MAP.get().unwrap().iter()
 }

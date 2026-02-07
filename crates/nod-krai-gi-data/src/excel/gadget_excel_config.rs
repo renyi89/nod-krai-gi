@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use common::string_util::InternString;
 
 #[repr(u32)]
 #[derive(Debug, Default, Clone, serde::Deserialize)]
@@ -87,14 +88,14 @@ pub enum EntityType {
 pub struct GadgetExcelConfig {
     pub id: u32,
     pub r#type: EntityType,
-    pub json_name: String,
+    pub json_name: InternString,
     pub is_interactive: bool,
-    pub tags: Vec<String>,
-    pub item_json_name: String,
+    pub tags: Vec<InternString>,
+    pub item_json_name: InternString,
     #[serde(alias = "campID")]
     #[serde(default)]
     pub camp_id: u32,
-    pub vision_level: String,
+    pub vision_level: InternString,
     pub name_text_map_hash: u64,
 }
 

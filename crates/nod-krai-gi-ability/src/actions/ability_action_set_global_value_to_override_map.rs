@@ -13,9 +13,9 @@ pub fn ability_action_set_global_value_to_override_map_event(
         _target_entity,
     ) in events.read()
     {
-        let global_value_key = action.global_value_key.as_deref().unwrap_or("");
-        let override_map_key = action.override_map_key.as_deref().unwrap_or("");
-        let ability_formula = action.ability_formula.as_deref().unwrap_or("");
+        let global_value_key = action.global_value_key.unwrap_or("".into());
+        let override_map_key = action.override_map_key.unwrap_or("".into());
+        let ability_formula = action.ability_formula.unwrap_or("".into());
 
         if global_value_key.is_empty() || override_map_key.is_empty() {
             tracing::debug!(
@@ -47,7 +47,7 @@ pub fn ability_action_set_global_value_to_override_map_event(
         if let Some(ability) = abilities.list.get_mut(*ability_index as usize) {
             ability
                 .ability_specials
-                .insert(override_map_key.to_string(), global_value);
+                .insert(override_map_key, global_value);
             tracing::debug!(
                 "[AbilityActionSetGlobalValueToOverrideMapEvent] Setting global value {} to override map key {} with value {}",
                 global_value_key,

@@ -2,8 +2,8 @@ use bevy_ecs::prelude::*;
 use nod_krai_gi_entity::common::{EntityById, GlobalAbilityValues};
 use nod_krai_gi_proto::AbilityScalarValueEntry;
 
-use nod_krai_gi_event::ability::*;
 use crate::util::get_ability_name;
+use nod_krai_gi_event::ability::*;
 
 pub fn handle_global_float_value(
     index: Res<EntityById>,
@@ -41,7 +41,7 @@ pub fn handle_global_float_value(
                     continue;
                 }
                 Some(key) => {
-                    if key.starts_with("SGV_") {
+                    if key.as_str().starts_with("SGV_") {
                         continue;
                     }
 

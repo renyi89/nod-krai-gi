@@ -7,7 +7,7 @@ pub fn execute_mixin_system(
 ) {
     for ExecuteMixinEvent(ability_index, ability_entity, mixin, _ability_data, _target_entity) in events.read()
     {
-        let type_name = mixin.type_name.as_deref().unwrap_or("");
+        let type_name = mixin.type_name.unwrap_or("".into());
 
         // Get ability from ability_index and ability_entity
         let ability = match abilities_query.get(*ability_entity) {

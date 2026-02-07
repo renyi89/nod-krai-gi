@@ -1,6 +1,7 @@
 use crate::excel;
 use std::collections::HashMap;
 use std::sync::Arc;
+use common::string_util::InternString;
 
 static FETTER_DATA_ENTRIES: std::sync::OnceLock<
     Arc<HashMap<u32, Vec<FetterDataConfig>>>,
@@ -9,7 +10,7 @@ static FETTER_DATA_ENTRIES: std::sync::OnceLock<
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct OpenCondData {
-    pub cond_type: String,
+    pub cond_type: InternString,
     pub param_list: Vec<u32>,
 }
 

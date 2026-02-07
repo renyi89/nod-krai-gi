@@ -23,10 +23,12 @@ impl Plugin for EventRegistryPlugin {
         app
             //command
             .add_message::<DebugCommandEvent>()
-            .add_message::<ConsoleChatEvent>()
+            .add_message::<ConsoleChatReqEvent>()
+            .add_message::<ConsoleChatNotifyEvent>()
             .add_message::<CommandQuestEvent>()
             //quest
             .add_message::<QuestBeginEvent>()
+            .add_message::<QuestFinishEvent>()
             .add_message::<QuestListUpdateEvent>()
             //scene
             .add_message::<BeginEnterSceneEvent>()

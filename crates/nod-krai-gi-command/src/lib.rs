@@ -1,7 +1,7 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
-use common::gm_util::parse_command;
 use common::gm_util::Command;
+use common::gm_util::{parse_command, TpAction};
 use common::time_util::unix_timestamp;
 use nod_krai_gi_data::excel::{gadget_excel_config_collection, monster_excel_config_collection};
 use nod_krai_gi_entity::ability::Ability;
@@ -33,7 +33,8 @@ pub struct CommandPlugin;
 impl Plugin for CommandPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, debug_command_handler)
-            .add_systems(Update, gm_command_handler);
+            .add_systems(Update, gm_command_handler)
+            .add_systems(Update, gm_talk_notify);
     }
 }
 
@@ -133,7 +134,7 @@ pub fn debug_command_handler(
                 let mut fight_properties = create_fight_properties_by_gadget_config(config);
                 fight_properties.apply_base_values();
 
-                let ability = Ability::new_for_gadget(config.json_name.as_str());
+                let ability = Ability::new_for_gadget(&config.json_name);
 
                 commands
                     .spawn(GadgetBundle {
@@ -179,18 +180,50 @@ pub fn debug_command_handler(
 
 #[instrument(skip_all)]
 pub fn gm_command_handler(
-    mut events: MessageReader<ConsoleChatEvent>,
-    message_output: Res<MessageOutput>,
+    mut events: MessageReader<ConsoleChatReqEvent>,
+    players: Res<Players>,
+    mut gm_notify_events: MessageWriter<ConsoleChatNotifyEvent>,
+    mut tp_events: MessageWriter<ScenePlayerJumpEvent>,
     mut quest_events: MessageWriter<CommandQuestEvent>,
 ) {
-    for ConsoleChatEvent(player_uid, console_content) in events.read() {
+    for ConsoleChatReqEvent(player_uid, console_content) in events.read() {
+        let player_info = players.get(*player_uid);
+        if player_info.cache.is_tp {
+            continue;
+        }
         let result = parse_command(console_content);
         match result {
             Ok(gm) => {
                 debug!("gm_command_handler result: {:?}", gm);
                 match gm {
                     Command::Avatar(_) => {}
-                    Command::Tp(_) => {}
+                    Command::Tp(action) => match action {
+                        TpAction::A { id, x, y, z } => {
+                            tp_events.write(ScenePlayerJumpEvent(
+                                *player_uid,
+                                id,
+                                Vector3 {
+                                    x: x.unwrap_or_default(),
+                                    y: y.unwrap_or_default(),
+                                    z: z.unwrap_or_default(),
+                                },
+                            ));
+                        }
+                        TpAction::R { id, x, y, z } => {
+                            tp_events.write(ScenePlayerJumpEvent(
+                                *player_uid,
+                                id,
+                                Vector3 {
+                                    x: player_info.world_position.position.0
+                                        + x.unwrap_or_default(),
+                                    y: player_info.world_position.position.1
+                                        + y.unwrap_or_default(),
+                                    z: player_info.world_position.position.2
+                                        + z.unwrap_or_default(),
+                                },
+                            ));
+                        }
+                    },
                     Command::Quest(action) => {
                         quest_events.write(CommandQuestEvent(*player_uid, action));
                     }
@@ -201,23 +234,32 @@ pub fn gm_command_handler(
                 }
             }
             Err(error) => {
-                message_output.send(
+                gm_notify_events.write(ConsoleChatNotifyEvent(
                     *player_uid,
-                    "PrivateChatNotify",
-                    PrivateChatNotify {
-                        chat_info: Some(ChatInfo {
-                            time: unix_timestamp() as u32,
-                            to_uid: *player_uid,
-                            uid: 123,
-                            content: Some(nod_krai_gi_proto::chat_info::Content::Text(format!(
-                                "error:{}",
-                                error
-                            ))),
-                            ..Default::default()
-                        }),
-                    },
-                );
+                    format!("error:{}", error),
+                ));
             }
         }
+    }
+}
+
+pub fn gm_talk_notify(
+    mut events: MessageReader<ConsoleChatNotifyEvent>,
+    message_output: Res<MessageOutput>,
+) {
+    for ConsoleChatNotifyEvent(player_uid, content) in events.read() {
+        message_output.send(
+            *player_uid,
+            "PrivateChatNotify",
+            PrivateChatNotify {
+                chat_info: Some(ChatInfo {
+                    time: unix_timestamp() as u32,
+                    to_uid: *player_uid,
+                    uid: 123,
+                    content: Some(nod_krai_gi_proto::chat_info::Content::Text(content.clone())),
+                    ..Default::default()
+                }),
+            },
+        );
     }
 }

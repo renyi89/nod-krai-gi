@@ -14,7 +14,7 @@ pub fn ability_action_set_random_override_map_value_event(
         _target_entity,
     ) in events.read()
     {
-        let override_map_key = action.override_map_key.as_deref().unwrap_or("");
+        let override_map_key = action.override_map_key.unwrap_or("".into());
 
         if override_map_key.is_empty() {
             tracing::debug!(
@@ -40,7 +40,7 @@ pub fn ability_action_set_random_override_map_value_event(
         if let Some(ability) = abilities.list.get_mut(*ability_index as usize) {
             ability
                 .ability_specials
-                .insert(override_map_key.to_string(), random_value);
+                .insert(override_map_key, random_value);
             tracing::debug!(
                 "[AbilityActionSetRandomOverrideMapValueEvent] Setting random override map value {} to {}",
                 override_map_key,

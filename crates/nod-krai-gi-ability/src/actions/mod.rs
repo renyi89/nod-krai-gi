@@ -28,9 +28,9 @@ pub fn execute_action_system(
     for ExecuteActionEvent(ability_index, ability_entity, action, ability_data, target_entity) in
         events.read()
     {
-        let type_name = action.type_name.as_deref().unwrap_or("");
+        let type_name = action.type_name.unwrap_or("".into());
 
-        match type_name {
+        match type_name.as_str() {
             "HealHP" => match target_entity {
                 Some(target_entity) => {
                     heal_hp_events.write(AbilityActionHealHPEvent(

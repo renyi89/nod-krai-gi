@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 
+use crate::get_player_version;
 use bevy_ecs::prelude::Resource;
+use common::logging::TRACE_LOG_PACKET;
 use nod_krai_gi_proto::packet_head::PacketHead;
 use serde::Serialize;
 use tokio::sync::mpsc;
-use crate::get_player_version;
 
 #[derive(Clone)]
 pub struct ClientOutput(mpsc::Sender<(u16, PacketHead, Box<[u8]>)>);
@@ -24,7 +25,12 @@ impl MessageOutput {
         if let Some(out) = self.0.get(&player_uid) {
             let version = get_player_version!(&player_uid);
             let protocol_version = version.as_str();
-            out.push(PacketHead::default(), protocol_version, message_name, message);
+            out.push(
+                PacketHead::default(),
+                protocol_version,
+                message_name,
+                message,
+            );
         }
     }
 
@@ -122,13 +128,24 @@ impl ClientOutput {
                         );
                     }
                     Some(body) => {
-                        tracing::debug!(
-                            "version:{} cmd_id:{} message_name:{} \nsend:[{}]",
-                            version,
-                            cmd_id,
-                            message_name,
-                            hex::encode(&body)
-                        );
+                        if TRACE_LOG_PACKET.contains(&&*message_name) {
+                            tracing::trace!(
+                                "version:{} cmd_id:{} message_name:{} \nsend:[{}]",
+                                version,
+                                cmd_id,
+                                message_name,
+                                hex::encode(&body)
+                            );
+                        } else {
+                            tracing::debug!(
+                                "version:{} cmd_id:{} message_name:{} \nsend:[{}]",
+                                version,
+                                cmd_id,
+                                message_name,
+                                hex::encode(&body)
+                            );
+                        }
+
                         self.0
                             .blocking_send((
                                 cmd_id,

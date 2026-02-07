@@ -1,3 +1,4 @@
+use common::string_util::InternString;
 use crate::prop_type::FightPropType;
 
 #[derive(Debug, Default, Clone, serde::Deserialize)]
@@ -190,13 +191,13 @@ pub struct PropValConfig {
 #[serde(rename_all = "camelCase")]
 pub struct PropGrowCurve {
     pub r#type: FightPropType,
-    pub grow_curve: String,
+    pub grow_curve: InternString,
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GrowCurveInfo {
-    pub r#type: String,
+    pub r#type: InternString,
     pub arith: GrowCurveArith,
     pub value: f32,
 }
@@ -218,6 +219,6 @@ impl GrowCurveInfo {
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AddProp {
-    pub prop_type: String,
+    pub prop_type: InternString,
     pub value: f32,
 }

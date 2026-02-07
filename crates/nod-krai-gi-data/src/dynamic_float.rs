@@ -1,18 +1,19 @@
+use common::string_util::InternString;
 use serde::{Deserialize, Deserializer};
 use serde_json::Value;
 
 #[derive(Debug, Clone)]
 pub enum DynamicFloat {
     Number(f64),
-    String(String),
-    Array(Vec<NumberOrString>),
+    InternString(InternString),
+    Array(Vec<NumberOrInternString>),
 }
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
-pub enum NumberOrString {
+pub enum NumberOrInternString {
     Number(f64),
-    String(String),
+    InternString(InternString),
 }
 
 impl<'de> Deserialize<'de> for DynamicFloat {
@@ -30,12 +31,12 @@ impl<'de> Deserialize<'de> for DynamicFloat {
 
         // string
         if let Some(s) = v.as_str() {
-            return Ok(DynamicFloat::String(s.to_string()));
+            return Ok(DynamicFloat::InternString(s.into()));
         }
 
         // array
         if let Some(arr) = v.as_array() {
-            let parsed: Result<Vec<NumberOrString>, _> = arr
+            let parsed: Result<Vec<NumberOrInternString>, _> = arr
                 .iter()
                 .map(|x| serde_json::from_value(x.clone()))
                 .collect();
@@ -49,7 +50,7 @@ impl<'de> Deserialize<'de> for DynamicFloat {
         if let Some(obj) = v.as_object() {
             if let Some(inner) = obj.get("__exp_DynamicFloat") {
                 if let Some(fixed) = inner.get("__exp_DynamicKey").and_then(|x| x.as_str()) {
-                    return Ok(DynamicFloat::String(fixed.to_string()));
+                    return Ok(DynamicFloat::InternString(fixed.into()));
                 } else if let Some(fixed) = inner.get("__exp_FixedValue").and_then(|x| x.as_f64()) {
                     return Ok(DynamicFloat::Number(fixed));
                 }
@@ -57,15 +58,15 @@ impl<'de> Deserialize<'de> for DynamicFloat {
                     let mut items = Vec::new();
                     for elem in formula {
                         if let Some(fixed) = elem.get("__exp_DynamicKey").and_then(|x| x.as_str()) {
-                            items.push(NumberOrString::String(fixed.to_string()));
+                            items.push(NumberOrInternString::InternString(fixed.into()));
                         } else if let Some(fixed) =
                             elem.get("__exp_FixedValue").and_then(|x| x.as_f64())
                         {
-                            items.push(NumberOrString::Number(fixed));
+                            items.push(NumberOrInternString::Number(fixed));
                         } else if let Some(op) =
                             elem.get("__exp_Operation").and_then(|x| x.as_str())
                         {
-                            items.push(NumberOrString::String(op.to_string()));
+                            items.push(NumberOrInternString::InternString(op.into()));
                         }
                     }
                     return Ok(DynamicFloat::Array(items));
@@ -118,7 +119,7 @@ where
 
 pub fn any_to_float_hashmap<'de, D>(
     deserializer: D,
-) -> Result<std::collections::HashMap<String, f32>, D::Error>
+) -> Result<std::collections::HashMap<InternString, f32>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -127,7 +128,7 @@ where
         Value::Object(map) => {
             let mut result = std::collections::HashMap::new();
             for (key, val) in map {
-                result.insert(key.clone(), parse_any_to_float(&val));
+                result.insert(key.into(), parse_any_to_float(&val));
             }
             Ok(result)
         }

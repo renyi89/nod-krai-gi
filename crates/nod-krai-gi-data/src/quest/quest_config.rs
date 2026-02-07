@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::str::FromStr;
 use std::sync::Arc;
+use common::string_util::InternString;
 
 pub static QUEST_CONFIG_COLLECTION: std::sync::OnceLock<Arc<HashMap<u32, QuestConfig>>> =
     std::sync::OnceLock::new();
@@ -753,7 +754,7 @@ pub enum QuestContent {
 #[serde(default)]
 pub struct TalkData {
     pub id: u32,
-    pub hero_talk: String,
+    pub hero_talk: InternString,
 }
 
 #[derive(Debug, Clone, Default, serde::Deserialize)]
@@ -764,10 +765,10 @@ pub struct QuestExecParam {
     pub r#type: QuestExec,
     #[serde(default)]
     #[serde(alias = "_param")]
-    pub param: Vec<String>,
+    pub param: Vec<InternString>,
     #[serde(default)]
     #[serde(alias = "_count")]
-    pub count: String,
+    pub count: u32,
 }
 
 #[derive(Debug, Clone, Default, serde::Deserialize)]
@@ -781,7 +782,7 @@ pub struct QuestCondition<T> {
     pub param: Vec<u32>,
     #[serde(default)]
     #[serde(alias = "_param_str")]
-    pub param_str: String,
+    pub param_str: InternString,
     #[serde(default)]
     #[serde(alias = "_count")]
     pub count: u32,
@@ -804,9 +805,9 @@ pub struct ItemParamData {
 pub struct Guide {
     #[serde(default)]
     #[serde(alias = "_type")]
-    pub r#type: String,
+    pub r#type: InternString,
     #[serde(default)]
-    pub param: Vec<String>,
+    pub param: Vec<InternString>,
     #[serde(default)]
     pub guide_scene: u32,
 }
@@ -873,7 +874,7 @@ pub struct QuestConfig {
     #[serde(default)]
     pub talks: Vec<TalkData>,
     #[serde(default)]
-    pub preload_lua_list: Vec<String>,
+    pub preload_lua_list: Vec<InternString>,
 }
 
 pub fn load_quest_configs_from_bin(bin_output_path: &str) {

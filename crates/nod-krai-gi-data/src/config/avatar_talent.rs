@@ -6,8 +6,9 @@ use std::{
     fs::{self, ReadDir},
     sync::OnceLock,
 };
+use common::string_util::InternString;
 
-static AVATAR_TALENT_CONFIG_MAP: OnceLock<HashMap<String, Vec<TalentAction>>> = OnceLock::new();
+static AVATAR_TALENT_CONFIG_MAP: OnceLock<HashMap<InternString, Vec<TalentAction>>> = OnceLock::new();
 
 fn load_avatar_talent_configs(talent_config_dir: ReadDir) -> std::io::Result<()> {
     let mut map = HashMap::new();
@@ -31,10 +32,10 @@ pub fn load_avatar_talent_configs_from_bin(bin_output_path: &str) -> std::io::Re
     Ok(())
 }
 
-pub fn get_avatar_talent_config(name: &str) -> Option<&Vec<TalentAction>> {
+pub fn get_avatar_talent_config(name: &InternString) -> Option<&Vec<TalentAction>> {
     AVATAR_TALENT_CONFIG_MAP.get().unwrap().get(name)
 }
 
-pub fn iter_avatar_talent_config_map() -> Iter<'static, String, Vec<TalentAction>> {
+pub fn iter_avatar_talent_config_map() -> Iter<'static, InternString, Vec<TalentAction>> {
     AVATAR_TALENT_CONFIG_MAP.get().unwrap().iter()
 }

@@ -13,8 +13,7 @@ use nod_krai_gi_proto::retcode::Retcode;
 use nod_krai_gi_proto::{
     AnecdoteAreaInfo, AnecdoteBriefInfo, AnecdoteConflictInfoReq, AnecdoteConflictInfoRsp,
     AnecdoteDataNotify, AnecdoteFinishNotify, AnecdoteFinishReq, AnecdoteFinishRsp, AnecdoteInfo,
-    AnecdoteWishInfo, ChatInfo, NpcTalkReq, NpcTalkRsp, PrivateChatNotify, Quest,
-    QuestListUpdateNotify,
+    AnecdoteWishInfo, NpcTalkReq, NpcTalkRsp, Quest, QuestListUpdateNotify,
 };
 use std::default::Default;
 use std::sync::Arc;
@@ -35,6 +34,7 @@ impl Plugin for QuestPlugin {
         app.add_systems(Update, handle_npc)
             .add_systems(Update, gm_command_handler)
             .add_systems(Update, quest_begin)
+            .add_systems(Update, quest_finish)
             .add_systems(Update, quest_list_update);
     }
 }
@@ -60,7 +60,7 @@ pub fn handle_npc(
                 }
             }
             "AnecdoteDataReq" => {
-                let avatarnecdote_excel_config_collection_clone =
+                let anecdote_excel_config_collection_clone =
                     std::sync::Arc::clone(excel::anecdote_excel_config_collection::get());
                 message_output.send(
                     message.sender_uid(),
@@ -73,7 +73,7 @@ pub fn handle_npc(
                             cur_wished_npc_id: 0,
                             last_wish_time: 1757531084,
                         }),
-                        anecdote_info_list: avatarnecdote_excel_config_collection_clone
+                        anecdote_info_list: anecdote_excel_config_collection_clone
                             .iter()
                             .map(|(id, _)| AnecdoteInfo {
                                 finish_count: 0,
@@ -126,8 +126,9 @@ pub fn handle_npc(
 
 pub fn gm_command_handler(
     mut events: MessageReader<CommandQuestEvent>,
-    message_output: Res<MessageOutput>,
+    mut gm_notify_events: MessageWriter<ConsoleChatNotifyEvent>,
     mut quest_begin_event: MessageWriter<QuestBeginEvent>,
+    mut quest_finish_event: MessageWriter<QuestFinishEvent>,
 ) {
     let sub_quest_config_collection_clone = Arc::clone(
         quest::quest_config::SUB_QUEST_CONFIG_COLLECTION
@@ -146,23 +147,20 @@ pub fn gm_command_handler(
                     quest_begin_event.write(QuestBeginEvent(*player_uid, *id));
                 }
             },
-        }
-        message_output.send(
-            *player_uid,
-            "PrivateChatNotify",
-            PrivateChatNotify {
-                chat_info: Some(ChatInfo {
-                    time: unix_timestamp() as u32,
-                    to_uid: *player_uid,
-                    uid: 123,
-                    content: Some(nod_krai_gi_proto::chat_info::Content::Text(format!(
-                        "result:{}",
-                        result
-                    ))),
-                    ..Default::default()
-                }),
+            QuestAction::Finish { id } => match sub_quest_config_collection_clone.get(id) {
+                None => {
+                    result = "unknown quest id".to_string();
+                }
+                Some(_) => {
+                    result = format!("finish quest {}", id);
+                    quest_finish_event.write(QuestFinishEvent(*player_uid, *id));
+                }
             },
-        );
+        }
+        gm_notify_events.write(ConsoleChatNotifyEvent(
+            *player_uid,
+            format!("result:{}", result),
+        ));
     }
 }
 
@@ -209,6 +207,48 @@ pub fn quest_begin(
     }
 }
 
+pub fn quest_finish(
+    mut events: MessageReader<QuestFinishEvent>,
+    mut quest_list_update_event: MessageWriter<QuestListUpdateEvent>,
+    mut players: ResMut<Players>,
+) {
+    let sub_quest_config_collection_clone = Arc::clone(
+        quest::quest_config::SUB_QUEST_CONFIG_COLLECTION
+            .get()
+            .unwrap(),
+    );
+    for QuestFinishEvent(player_uid, sub_quest_id) in events.read() {
+        match sub_quest_config_collection_clone.get(sub_quest_id) {
+            None => {
+                continue;
+            }
+            Some(sub_quest_data) => {
+                let player_info = players.get_mut(*player_uid);
+
+                player_info.quest_information.sub_quest_map.insert(
+                    *sub_quest_id,
+                    SubQuestItem {
+                        parent_quest_id: sub_quest_data.main_id,
+                        state: QuestState::QuestStateFinished as u32,
+                        start_time: unix_timestamp() as u32,
+                        accept_time: unix_timestamp() as u32,
+                        finish_time: 0,
+                        finish_progress_list: {
+                            if sub_quest_data.finish_cond.is_empty() {
+                                vec![0u32; 10]
+                            } else {
+                                vec![0u32; sub_quest_data.finish_cond.len()]
+                            }
+                        },
+                        fail_progress_list: vec![0u32; sub_quest_data.fail_cond.len()],
+                    },
+                );
+
+                quest_list_update_event.write(QuestListUpdateEvent(*player_uid, *sub_quest_id));
+            }
+        }
+    }
+}
 pub fn quest_list_update(
     mut events: MessageReader<QuestListUpdateEvent>,
     message_output: Res<MessageOutput>,

@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use common::string_util::InternString;
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -16,11 +17,11 @@ pub struct AvatarSkillDepotExcelConfig {
     pub sub_skills: Vec<u32>,
     pub attack_mode_skill: u32,
     pub leader_talent: u32,
-    pub extra_abilities: Vec<String>,
+    pub extra_abilities: Vec<InternString>,
     pub talents: Vec<u32>,
-    pub talent_star_name: String,
+    pub talent_star_name: InternString,
     pub inherent_proud_skill_opens: Vec<ProudSkillOpenConfig>,
-    pub skill_depot_ability_group: String,
+    pub skill_depot_ability_group: InternString,
 }
 
 pub trait AvatarSkillDepotExcelConfigKeyed<K> {

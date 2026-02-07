@@ -89,7 +89,7 @@ pub fn handle_modifier_change(
                                                 let parent_ability_name = get_ability_name(
                                                     mod_change.parent_ability_name.clone(),
                                                 )
-                                                .unwrap_or_else(|| "".to_string());
+                                                .unwrap_or_else(|| "".into());
                                                 if parent_ability_name != "" {
                                                     match target_abilities
                                                         .find_or_add_by_ability_name(
@@ -155,7 +155,7 @@ pub fn handle_modifier_change(
                                 if instanced_ability_data.is_none() {
                                     let parent_ability_name =
                                         get_ability_name(mod_change.parent_ability_name.clone())
-                                            .unwrap_or_else(|| "".to_string());
+                                            .unwrap_or_else(|| "".into());
                                     if parent_ability_name != "" {
                                         match this_instanced_abilities.find_or_add_by_ability_name(
                                             parent_ability_name.clone(),

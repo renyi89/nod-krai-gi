@@ -1,12 +1,13 @@
 use super::common::{IdCountConfig, PropValConfig};
 use std::collections::HashMap;
+use common::string_util::InternString;
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AvatarPromoteExcelConfig {
     pub avatar_promote_id: u32,
     pub promote_level: u32,
-    pub promote_audio: String,
+    pub promote_audio: InternString,
     pub scoin_cost: u32,
     pub cost_items: Vec<IdCountConfig>,
     pub unlock_max_level: u32,

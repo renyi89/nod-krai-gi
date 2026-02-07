@@ -34,7 +34,7 @@ pub fn ability_action_set_override_map_value_event(
             continue;
         };
 
-        let override_map_key = action.override_map_key.as_deref().unwrap_or("");
+        let override_map_key = action.override_map_key.unwrap_or("".into());
 
         if override_map_key.is_empty() {
             tracing::debug!("[AbilityActionSetOverrideMapValueEvent] Missing override_map_key");
@@ -47,7 +47,7 @@ pub fn ability_action_set_override_map_value_event(
         // Set value to override map
         ability
             .ability_specials
-            .insert(override_map_key.to_string(), value);
+            .insert(override_map_key, value);
         tracing::debug!(
             "[AbilityActionSetOverrideMapValueEvent] Setting override map value {} to {}",
             override_map_key,

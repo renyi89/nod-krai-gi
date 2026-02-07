@@ -1,27 +1,24 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
-use common::time_util::unix_timestamp;
 use nod_krai_gi_event::command::*;
 use nod_krai_gi_message::event::ClientMessageEvent;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_proto::retcode::Retcode;
-use nod_krai_gi_proto::{
-    ChatInfo, FriendBrief, GetPlayerFriendListRsp, PrivateChatNotify, PrivateChatReq,
-    ProfilePicture,
-};
+use nod_krai_gi_proto::{FriendBrief, GetPlayerFriendListRsp, PrivateChatReq, ProfilePicture};
 
 pub struct SocialPlugin;
 
 impl Plugin for SocialPlugin {
     fn build(&self, app: &mut App) {
-            app.add_systems(Update, handle_chat);
+        app.add_systems(Update, handle_chat);
     }
 }
 
 pub fn handle_chat(
     mut events: MessageReader<ClientMessageEvent>,
     message_output: Res<MessageOutput>,
-    mut console_chat_event: MessageWriter<ConsoleChatEvent>,
+    mut console_chat_event: MessageWriter<ConsoleChatReqEvent>,
+    mut gm_notify_events: MessageWriter<ConsoleChatNotifyEvent>,
 ) {
     for message in events.read() {
         match message.message_name() {
@@ -65,22 +62,11 @@ pub fn handle_chat(
                             }
                         }
                         console_chat_event
-                            .write(ConsoleChatEvent(message.sender_uid(), recv_text.clone()));
-                        message_output.send(
+                            .write(ConsoleChatReqEvent(message.sender_uid(), recv_text.clone()));
+                        gm_notify_events.write(ConsoleChatNotifyEvent(
                             message.sender_uid(),
-                            "PrivateChatNotify",
-                            PrivateChatNotify {
-                                chat_info: Some(ChatInfo {
-                                    time: unix_timestamp() as u32,
-                                    to_uid: message.sender_uid(),
-                                    uid: req.target_uid,
-                                    content: Some(nod_krai_gi_proto::chat_info::Content::Text(
-                                        format!("console: {}", recv_text),
-                                    )),
-                                    ..Default::default()
-                                }),
-                            },
-                        );
+                            format!("console:{}", recv_text),
+                        ));
                     }
                     message_output.send_none(message.sender_uid(), "PrivateChatRsp");
                 }

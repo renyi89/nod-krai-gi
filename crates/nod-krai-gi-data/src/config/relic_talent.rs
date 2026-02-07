@@ -1,13 +1,15 @@
+pub use super::talent_types::TalentConfig;
+use crate::config::TalentAction;
+use common::string_util::InternString;
+use std::collections::hash_map::Iter;
 use std::{
     collections::HashMap,
     fs::{self, ReadDir},
     sync::OnceLock,
 };
-use std::collections::hash_map::Iter;
-use crate::config::TalentAction;
-pub use super::talent_types::{TalentConfig};
 
-static RELIC_TALENT_CONFIG_MAP: OnceLock<HashMap<String, Vec<TalentAction>>> = OnceLock::new();
+static RELIC_TALENT_CONFIG_MAP: OnceLock<HashMap<InternString, Vec<TalentAction>>> =
+    OnceLock::new();
 
 fn load_relic_talent_configs(talent_config_dir: ReadDir) -> std::io::Result<()> {
     let mut map = HashMap::new();
@@ -31,10 +33,10 @@ pub fn load_relic_talent_configs_from_bin(bin_output_path: &str) -> std::io::Res
     Ok(())
 }
 
-pub fn get_relic_talent_config(name: &str) -> Option<&Vec<TalentAction>> {
+pub fn get_relic_talent_config(name: &InternString) -> Option<&Vec<TalentAction>> {
     RELIC_TALENT_CONFIG_MAP.get().unwrap().get(name)
 }
 
-pub fn iter_relic_talent_config_map() -> Iter<'static, String, Vec<TalentAction>> {
+pub fn iter_relic_talent_config_map() -> Iter<'static, InternString, Vec<TalentAction>> {
     RELIC_TALENT_CONFIG_MAP.get().unwrap().iter()
 }
