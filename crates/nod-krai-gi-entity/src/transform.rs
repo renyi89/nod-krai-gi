@@ -1,12 +1,12 @@
 use std::fmt;
 
 use bevy_ecs::prelude::*;
-use nod_krai_gi_proto::server_only::Vector;
+use nod_krai_gi_proto::server_only::VectorBin;
 
 #[derive(Component, Clone)]
 pub struct Transform {
-    pub position: Vector,
-    pub rotation: Vector,
+    pub position: VectorBin,
+    pub rotation: VectorBin,
 }
 
 impl fmt::Display for Transform {

@@ -15,7 +15,7 @@ pub fn ability_action_set_random_override_map_value_event(
         _target_entity,
     ) in events.read()
     {
-        let override_map_key = action.override_map_key.unwrap_or("".into());
+        let override_map_key = action.override_map_key;
 
         if override_map_key.is_empty() {
             if GAME_SERVER_CONFIG.plugin.ability_log {

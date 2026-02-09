@@ -91,7 +91,7 @@ fn parse_any_to_float(value: &Value) -> f32 {
             } else {
                 (s.as_str(), false)
             };
-            let value = value.parse::<f32>().ok().unwrap();
+            let value = value.parse::<f32>().ok().unwrap_or(0.0);
             if negative {
                 -value
             } else {

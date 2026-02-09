@@ -1,9 +1,10 @@
 use bevy_ecs::prelude::*;
 use nod_krai_gi_entity::avatar::AvatarEquipChangeEvent;
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
-use nod_krai_gi_persistence::{player_information::ItemBin, Players};
+use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::{WearEquipReq, WearEquipRsp};
 use nod_krai_gi_proto::retcode::Retcode;
+use nod_krai_gi_proto::server_only::{equip_bin, item_bin};
 use tracing::{debug, instrument};
 
 #[instrument(skip_all)]
@@ -20,21 +21,30 @@ pub fn change_avatar_equip(
                     let Some(player_info) = players.get_mut(message.sender_uid()) else {
                         continue;
                     };
-                    if !player_info
-                        .item_bin
+                    let Some(ref item_bin) = player_info.item_bin else {
+                        continue;
+                    };
+                    if !item_bin
                         .get_item(&request.equip_guid)
-                        .map(|item| matches!(item, ItemBin::Weapon { .. }))
+                        .map(|item| {
+                            let Some(item_bin::Detail::Equip(ref equip)) = item.detail else {
+                                return false;
+                            };
+                            let Some(equip_bin::Detail::Weapon(ref _weapon)) = equip.detail else {
+                                return false;
+                            };
+                            true
+                        })
                         .unwrap_or(false)
                     {
                         debug!("weapon with guid {} doesn't exist", request.equip_guid);
                         continue;
                     }
 
-                    let Some(avatar) = player_info
-                        .avatar_bin
-                        .avatar_map
-                        .get_mut(&request.avatar_guid)
-                    else {
+                    let Some(ref mut avatar_bin) = player_info.avatar_bin else {
+                        continue;
+                    };
+                    let Some(avatar) = avatar_bin.avatar_map.get_mut(&request.avatar_guid) else {
                         debug!("avatar with guid {} doesn't exist", request.avatar_guid);
                         continue;
                     };

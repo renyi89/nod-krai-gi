@@ -6,25 +6,20 @@ use common::time_util;
 use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_message::output::ClientOutput;
-use nod_krai_gi_persistence::player_information::PlayerDataBin;
 use nod_krai_gi_proto::packet_head::PacketHead;
+use nod_krai_gi_proto::server_only::PlayerDataBin;
 use std::{collections::HashMap, thread};
 
 #[derive(Clone)]
 pub struct LogicSimulator;
 
 impl LogicSimulator {
-    pub fn spawn(save_data_tx: tokio::sync::mpsc::Sender<(u32, serde_json::Value)>) -> Self {
+    pub fn spawn(save_data_tx: tokio::sync::mpsc::Sender<(u32, Vec<u8>)>) -> Self {
         thread::spawn(|| simulation_loop(save_data_tx));
         Self
     }
 
-    pub fn create_world(
-        &self,
-        uid: u32,
-        player_information: PlayerDataBin,
-        output: ClientOutput,
-    ) {
+    pub fn create_world(&self, uid: u32, player_information: PlayerDataBin, output: ClientOutput) {
         LogicCommand::CreateWorld {
             player_information,
             output,
@@ -58,7 +53,7 @@ impl LogicSimulator {
     }
 }
 
-fn simulation_loop(save_data_tx: tokio::sync::mpsc::Sender<(u32, serde_json::Value)>) {
+fn simulation_loop(save_data_tx: tokio::sync::mpsc::Sender<(u32, Vec<u8>)>) {
     // client_player_uid -> world_owner_uid
     let mut player_uid_map: HashMap<u32, u32> = HashMap::new();
     let mut player_world_map: HashMap<u32, PlayerWorld> = HashMap::new();
@@ -146,17 +141,20 @@ fn simulation_loop(save_data_tx: tokio::sync::mpsc::Sender<(u32, serde_json::Val
                                                 world.update();
                                             }
 
-                                            let save_time =
-                                                player_save_time_map.get_mut(&uid).unwrap();
-                                            let cur_time = time_util::unix_timestamp();
-                                            if (cur_time - *save_time) >= 360
-                                                && world.should_save(uid)
-                                            {
-                                                *save_time = cur_time;
-                                                let _ = save_data_tx.blocking_send((
-                                                    uid,
-                                                    world.serialize_player_information(uid),
-                                                ));
+                                            match player_save_time_map.get_mut(&uid) {
+                                                None => {}
+                                                Some(save_time) => {
+                                                    let cur_time = time_util::unix_timestamp();
+                                                    if (cur_time - *save_time) >= 360
+                                                        && world.should_save(uid)
+                                                    {
+                                                        *save_time = cur_time;
+                                                        let _ = save_data_tx.blocking_send((
+                                                            uid,
+                                                            world.serialize_player_information(uid),
+                                                        ));
+                                                    }
+                                                }
                                             }
                                         }
                                     }

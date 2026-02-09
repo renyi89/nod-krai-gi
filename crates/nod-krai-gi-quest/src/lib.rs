@@ -7,13 +7,13 @@ use nod_krai_gi_event::command::*;
 use nod_krai_gi_event::quest::*;
 use nod_krai_gi_message::event::ClientMessageEvent;
 use nod_krai_gi_message::output::MessageOutput;
-use nod_krai_gi_persistence::player_information::QuestItem;
 use nod_krai_gi_persistence::Players;
-use nod_krai_gi_proto::retcode::Retcode;
-use nod_krai_gi_proto::normal::{    AnecdoteAreaInfo, AnecdoteBriefInfo, AnecdoteConflictInfoReq, AnecdoteConflictInfoRsp,
+use nod_krai_gi_proto::normal::{
+    AnecdoteAreaInfo, AnecdoteBriefInfo, AnecdoteConflictInfoReq, AnecdoteConflictInfoRsp,
     AnecdoteDataNotify, AnecdoteFinishNotify, AnecdoteFinishReq, AnecdoteFinishRsp, AnecdoteInfo,
     AnecdoteWishInfo, NpcTalkReq, NpcTalkRsp, Quest, QuestListUpdateNotify,
 };
+use nod_krai_gi_proto::retcode::Retcode;
 use std::default::Default;
 use std::sync::Arc;
 
@@ -182,14 +182,22 @@ pub fn quest_begin(
                 let Some(player_info) = players.get_mut(*player_uid) else {
                     continue;
                 };
-                player_info.quest_bin.quest_map.insert(
+
+                let Some(ref mut quest_bin) = player_info.quest_bin else {
+                    continue;
+                };
+                let Some(ref mut quest_bin) = quest_bin.quest_bin else {
+                    continue;
+                };
+
+                quest_bin.quest_map.insert(
                     *sub_quest_id,
-                    QuestItem {
+                    nod_krai_gi_proto::server_only::QuestBin {
                         parent_quest_id: sub_quest_data.main_id,
-                        state: QuestState::QuestStateUnfinished as u32,
+                        quest_id: *sub_quest_id,
+                        state: QuestState::QuestStateFinished as u32,
                         start_time: unix_timestamp() as u32,
                         accept_time: unix_timestamp() as u32,
-                        finish_time: 0,
                         finish_progress_list: {
                             if sub_quest_data.finish_cond.is_empty() {
                                 vec![0u32; 10]
@@ -198,6 +206,7 @@ pub fn quest_begin(
                             }
                         },
                         fail_progress_list: vec![0u32; sub_quest_data.fail_cond.len()],
+                        ..Default::default()
                     },
                 );
 
@@ -226,14 +235,21 @@ pub fn quest_finish(
                 let Some(player_info) = players.get_mut(*player_uid) else {
                     continue;
                 };
-                player_info.quest_bin.quest_map.insert(
+                let Some(ref mut quest_bin) = player_info.quest_bin else {
+                    continue;
+                };
+                let Some(ref mut quest_bin) = quest_bin.quest_bin else {
+                    continue;
+                };
+
+                quest_bin.quest_map.insert(
                     *sub_quest_id,
-                    QuestItem {
+                    nod_krai_gi_proto::server_only::QuestBin {
                         parent_quest_id: sub_quest_data.main_id,
+                        quest_id: *sub_quest_id,
                         state: QuestState::QuestStateFinished as u32,
                         start_time: unix_timestamp() as u32,
                         accept_time: unix_timestamp() as u32,
-                        finish_time: 0,
                         finish_progress_list: {
                             if sub_quest_data.finish_cond.is_empty() {
                                 vec![0u32; 10]
@@ -242,6 +258,7 @@ pub fn quest_finish(
                             }
                         },
                         fail_progress_list: vec![0u32; sub_quest_data.fail_cond.len()],
+                        ..Default::default()
                     },
                 );
 
@@ -259,11 +276,15 @@ pub fn quest_list_update(
         let Some(player_info) = players.get(*player_uid) else {
             continue;
         };
-        match player_info
-            .quest_bin
-            .quest_map
-            .get(sub_quest_id)
-        {
+
+        let Some(ref quest_bin) = player_info.quest_bin else {
+            continue;
+        };
+        let Some(ref quest_bin) = quest_bin.quest_bin else {
+            continue;
+        };
+
+        match quest_bin.quest_map.get(sub_quest_id) {
             None => {
                 continue;
             }

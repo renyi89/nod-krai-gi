@@ -92,7 +92,7 @@ pub fn ability_action_heal_hp_event(
                 let amount = calc_amount(&ability, caster_props, target_props, action);
 
                 let mut ability_ratio = 1.0f32;
-                if !action.ignore_ability_property.unwrap_or_default() {
+                if !action.ignore_ability_property {
                     ability_ratio += caster_props.get_property(FightPropType::FIGHT_PROP_HEAL_ADD)
                         + target_props.get_property(FightPropType::FIGHT_PROP_HEALED_ADD);
                 }

@@ -1,9 +1,7 @@
 use std::collections::{hash_map::Keys, HashMap};
 
 use bevy_ecs::prelude::Resource;
-use player_information::PlayerDataBin;
-
-pub mod player_information;
+use nod_krai_gi_proto::server_only::PlayerDataBin;
 
 #[derive(Resource)]
 pub struct Players(HashMap<u32, PlayerDataBin>);

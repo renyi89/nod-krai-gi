@@ -1,21 +1,18 @@
 use std::collections::HashMap;
 
-use bevy_ecs::{prelude::*, query::QueryData};
-use nod_krai_gi_data::excel;
-use nod_krai_gi_message::output::MessageOutput;
-use nod_krai_gi_persistence::{
-    player_information::{AvatarBin, ItemBin},
-    Players,
-};
-use nod_krai_gi_proto::normal::{
-    AvatarChangeCostumeNotify, AvatarChangeTraceEffectNotify, SceneEntityInfo,
-};
-
 use crate::{
     int_prop_pair,
     transform::Transform,
     weapon::{WeaponQueryReadOnly, WeaponQueryReadOnlyItem},
 };
+use bevy_ecs::{prelude::*, query::QueryData};
+use nod_krai_gi_data::excel;
+use nod_krai_gi_message::output::MessageOutput;
+use nod_krai_gi_persistence::Players;
+use nod_krai_gi_proto::normal::{
+    AvatarChangeCostumeNotify, AvatarChangeTraceEffectNotify, SceneEntityInfo,
+};
+use nod_krai_gi_proto::server_only::{equip_bin, item_bin, AvatarBin, ItemBin, WeaponBin};
 
 use super::{ability::Ability, common::*};
 
@@ -163,7 +160,7 @@ pub fn update_avatar_appearance(
 pub fn notify_avatar_appearance_change(
     mut events: MessageReader<AvatarAppearanceChangeEvent>,
     avatars: Query<AvatarQueryReadOnly>,
-    weapons: Query<WeaponQueryReadOnly>,
+    weapon_query: Query<WeaponQueryReadOnly>,
     message_output: Res<MessageOutput>,
     players: Res<Players>,
 ) {
@@ -172,8 +169,12 @@ pub fn notify_avatar_appearance_change(
             .iter()
             .find(|avatar_data| avatar_data.guid.0 == event.avatar_guid)
         {
-            let weapon_data = weapons.get(avatar_data.equipment.weapon).unwrap();
-            let entity_info = Some(build_avatar_entity_info(&avatar_data, &weapon_data));
+            let Ok(weapon_data) = weapon_query.get(avatar_data.equipment.weapon) else {
+                tracing::debug!("weapon data {} doesn't exist", avatar_data.equipment.weapon);
+                continue;
+            };
+
+            let entity_info = build_avatar_entity_info(&avatar_data, &weapon_data);
 
             match event.change {
                 AvatarAppearanceChange::Costume(_) => message_output.send_to_all(
@@ -195,13 +196,19 @@ pub fn notify_avatar_appearance_change(
             let Some(player_info) = players.get(event.player_uid) else {
                 continue;
             };
+            let Some(ref avatar_bin) = player_info.avatar_bin else {
+                continue;
+            };
+            let Some(ref item_bin) = player_info.item_bin else {
+                continue;
+            };
 
-            let Some(avatar) = player_info.avatar_bin.avatar_map.get(&event.avatar_guid) else {
+            let Some(avatar) = avatar_bin.avatar_map.get(&event.avatar_guid) else {
                 tracing::debug!("avatar guid {} doesn't exist", event.avatar_guid);
                 continue;
             };
 
-            let Some(weapon) = player_info.item_bin.get_item(&avatar.weapon_guid) else {
+            let Some(weapon) = item_bin.get_item(&avatar.weapon_guid) else {
                 tracing::debug!("weapon guid {} doesn't exist", avatar.weapon_guid);
                 continue;
             };
@@ -241,7 +248,12 @@ pub fn notify_appear_avatar_entities(
     use nod_krai_gi_proto::normal::*;
 
     appear_avatars.iter().for_each(|avatar_data| {
-        let weapon_data = weapons.get(avatar_data.equipment.weapon).unwrap();
+        let Ok(weapon_data) = weapons.get(avatar_data.equipment.weapon) else {
+            return;
+        };
+        let Some(scene_entity_info) = build_avatar_entity_info(&avatar_data, &weapon_data) else {
+            return;
+        };
         message_output.send_to_all(
             "SceneEntityAppearNotify",
             SceneEntityAppearNotify {
@@ -254,7 +266,7 @@ pub fn notify_appear_avatar_entities(
                         speed: Some(Vector::default()),
                         ..Default::default()
                     }),
-                    ..build_avatar_entity_info(&avatar_data, &weapon_data)
+                    ..scene_entity_info
                 }],
             },
         );
@@ -276,7 +288,12 @@ pub fn notify_appear_replace_avatar_entities(
     use nod_krai_gi_proto::normal::*;
 
     appear_avatars.iter().for_each(|(avatar_data, param)| {
-        let weapon_data = weapons.get(avatar_data.equipment.weapon).unwrap();
+        let Ok(weapon_data) = weapons.get(avatar_data.equipment.weapon) else {
+            return;
+        };
+        let Some(scene_entity_info) = build_avatar_entity_info(&avatar_data, &weapon_data) else {
+            return;
+        };
         message_output.send_to_all(
             "SceneEntityAppearNotify",
             SceneEntityAppearNotify {
@@ -289,7 +306,7 @@ pub fn notify_appear_replace_avatar_entities(
                         speed: Some(Vector::default()),
                         ..Default::default()
                     }),
-                    ..build_avatar_entity_info(&avatar_data, &weapon_data)
+                    ..scene_entity_info
                 }],
             },
         );
@@ -305,8 +322,16 @@ pub fn run_if_avatar_entities_appeared(
 fn build_fake_avatar_entity_info(avatar: &AvatarBin, weapon: &ItemBin) -> Option<SceneEntityInfo> {
     use nod_krai_gi_proto::normal::*;
 
-    let ItemBin::Weapon {
-        weapon_id,
+    let weapon_id = weapon.item_id;
+
+    let Some(item_bin::Detail::Equip(ref equip)) = weapon.detail else {
+        return None;
+    };
+    let Some(equip_bin::Detail::Weapon(ref weapon)) = equip.detail else {
+        return None;
+    };
+
+    let WeaponBin {
         level,
         promote_level,
         affix_map,
@@ -325,12 +350,12 @@ fn build_fake_avatar_entity_info(avatar: &AvatarBin, weapon: &ItemBin) -> Option
             uid: (avatar.guid >> 32) as u32,
             avatar_id: avatar.avatar_id,
             guid: avatar.guid,
-            equip_id_list: vec![*weapon_id],
+            equip_id_list: vec![weapon_id],
             skill_depot_id: avatar.skill_depot_id,
             talent_id_list: skill_depot.talent_id_list.clone(),
             weapon: Some(SceneWeaponInfo {
                 guid: avatar.weapon_guid,
-                item_id: *weapon_id,
+                item_id: weapon_id,
                 level: *level,
                 promote_level: *promote_level,
                 affix_map: affix_map.clone(),
@@ -359,18 +384,24 @@ fn build_fake_avatar_entity_info(avatar: &AvatarBin, weapon: &ItemBin) -> Option
 pub fn build_avatar_entity_info(
     avatar_data: &AvatarQueryReadOnlyItem,
     weapon_data: &WeaponQueryReadOnlyItem,
-) -> SceneEntityInfo {
+) -> Option<SceneEntityInfo> {
     use nod_krai_gi_proto::normal::*;
 
     let avatar_skill_depot_excel_config_collection_clone =
         std::sync::Arc::clone(excel::avatar_skill_depot_excel_config_collection::get());
 
-    let skill_depot_data = avatar_skill_depot_excel_config_collection_clone
+    let Some(skill_depot_data) = avatar_skill_depot_excel_config_collection_clone
         .get(&avatar_data.skill_depot.0)
         .cloned()
-        .unwrap();
+    else {
+        tracing::debug!(
+            "skill_depot config {} doesn't exist",
+            avatar_data.skill_depot.0
+        );
+        return None;
+    };
 
-    SceneEntityInfo {
+    Some(SceneEntityInfo {
         entity_type: ProtEntityType::ProtEntityAvatar.into(),
         entity_id: avatar_data.entity_id.0,
         name: String::new(),
@@ -456,5 +487,5 @@ pub fn build_avatar_entity_info(
             ..Default::default()
         })),
         ..Default::default()
-    }
+    })
 }

@@ -104,17 +104,20 @@ fn init_scene(
         let Some(player_info) = players.get_mut(uid) else {
             continue;
         };
+        let Some(ref mut scene_bin) = player_info.scene_bin else {
+            continue;
+        };
 
-        if player_info.scene_bin.my_cur_scene_id == 0 {
-            player_info.scene_bin.my_cur_scene_id = 3;
+        if scene_bin.my_cur_scene_id == 0 {
+            scene_bin.my_cur_scene_id = 3;
         }
 
         enter_events.write(BeginEnterSceneEvent {
             uid,
-            scene_id: player_info.scene_bin.my_cur_scene_id,
+            scene_id: scene_bin.my_cur_scene_id,
             enter_type: EnterType::EnterSelf,
             enter_reason: EnterReason::Login,
-            position: player_info.scene_bin.my_prev_pos.into(),
+            position: scene_bin.my_prev_pos.unwrap_or_default().into(),
         });
     }
 }

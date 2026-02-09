@@ -14,9 +14,9 @@ pub fn ability_action_set_global_value_to_override_map_event(
         _target_entity,
     ) in events.read()
     {
-        let global_value_key = action.global_value_key.unwrap_or("".into());
-        let override_map_key = action.override_map_key.unwrap_or("".into());
-        let ability_formula = action.ability_formula.unwrap_or("".into());
+        let global_value_key = action.global_value_key;
+        let override_map_key = action.override_map_key;
+        let ability_formula = action.ability_formula;
 
         if global_value_key.is_empty() || override_map_key.is_empty() {
             if GAME_SERVER_CONFIG.plugin.ability_log {

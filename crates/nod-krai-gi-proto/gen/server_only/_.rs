@@ -12105,6 +12105,12 @@ pub struct PlayerDataBin {
     #[prost(message, optional, tag = "65")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub gcg_bin: ::core::option::Option<PlayerGcgCompBin>,
+    #[prost(uint32, tag = "10001")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub uid: u32,
+    #[prost(uint32, tag = "10002")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub guid_counter: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -12447,9 +12453,10 @@ pub struct AvatarBin {
     #[prost(uint32, tag = "23")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub weapon_skin_id: u32,
-    #[prost(uint32, tag = "24")]
+    #[serde(with="crate::u64_string")]
+    #[prost(uint64, tag = "24")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub weapon_guid: u32,
+    pub weapon_guid: u64,
     #[serde(flatten)]
     #[prost(oneof = "avatar_bin::Detail", tags = "101, 102, 103")]
     #[serde(skip_serializing_if = "crate::is_default")]
@@ -12637,9 +12644,10 @@ pub struct AvatarRenameBin {
 #[serde(default)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PlayerAvatarCompBin {
-    #[prost(map = "uint32, message", tag = "1")]
+    #[serde(with="crate::u64_map_key_string")]
+    #[prost(map = "uint64, message", tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub avatar_map: ::std::collections::HashMap<u32, AvatarBin>,
+    pub avatar_map: ::std::collections::HashMap<u64, AvatarBin>,
     #[serde(with="crate::u64_string")]
     #[prost(uint64, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
@@ -13061,6 +13069,9 @@ pub struct QuestBin {
     #[prost(fixed32, tag = "8")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub accept_time: u32,
+    #[prost(uint32, tag = "101")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub parent_quest_id: u32,
 }
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(default)]
@@ -13331,9 +13342,10 @@ pub struct PackItemStoreBin {}
 #[serde(default)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ItemStoreBin {
-    #[prost(map = "uint32, message", tag = "1")]
+    #[serde(with="crate::u64_map_key_string")]
+    #[prost(map = "uint64, message", tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub item_map: ::std::collections::HashMap<u32, ItemBin>,
+    pub item_map: ::std::collections::HashMap<u64, ItemBin>,
     #[prost(bool, tag = "2")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub is_material_item_num_alarmed: bool,

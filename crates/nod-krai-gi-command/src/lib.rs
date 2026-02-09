@@ -25,7 +25,7 @@ use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::{ChatInfo, PrivateChatNotify, ProtEntityType};
-use nod_krai_gi_proto::server_only::Vector;
+use nod_krai_gi_proto::server_only::VectorBin;
 use rand::RngCore;
 use tracing::{debug, instrument};
 
@@ -98,13 +98,20 @@ pub fn debug_command_handler(
                         level: Level(level),
                         transform: Transform {
                             // Take Y (height) from player's pos, spawn a bit above
-                            position: (
-                                position.0,
-                                player_info.scene_bin.my_prev_pos.y + 4.0,
-                                position.1,
-                            )
+                            position: {
+                                let y = if let Some(ref scene_bin) = player_info.scene_bin {
+                                    scene_bin.my_prev_pos.unwrap_or_default().y
+                                } else {
+                                    0.0
+                                };
+                                (
+                                    position.0,
+                                    y + 4.0,
+                                    position.1,
+                                )
+                            }
                                 .into(),
-                            rotation: Vector::default(),
+                            rotation: VectorBin::default(),
                         },
                         fight_properties,
                         instanced_abilities: InstancedAbilities::default(),
@@ -150,9 +157,16 @@ pub fn debug_command_handler(
                         level: Level(level),
                         transform: Transform {
                             // Take Y (height) from player's pos, spawn a bit above
-                            position: (position.0, player_info.scene_bin.my_prev_pos.y, position.1)
+                            position: {
+                                let y = if let Some(ref scene_bin) = player_info.scene_bin {
+                                    scene_bin.my_prev_pos.unwrap_or_default().y
+                                } else {
+                                    0.0
+                                };
+                                (position.0, y, position.1)
+                            }
                                 .into(),
-                            rotation: Vector::default(),
+                            rotation: VectorBin::default(),
                         },
                         fight_properties,
                         ability: ability,
@@ -213,16 +227,18 @@ pub fn gm_command_handler(
                             ));
                         }
                         TpAction::R { id, x, y, z } => {
-                            tp_events.write(ScenePlayerJumpEvent(
-                                *player_uid,
-                                id,
-                                EnterReason::Gm,
-                                (
-                                    player_info.scene_bin.my_prev_pos.x + x.unwrap_or_default(),
-                                    player_info.scene_bin.my_prev_pos.y + y.unwrap_or_default(),
-                                    player_info.scene_bin.my_prev_pos.z + z.unwrap_or_default(),
-                                ),
-                            ));
+                            if let Some(ref scene_bin) = player_info.scene_bin {
+                                tp_events.write(ScenePlayerJumpEvent(
+                                    *player_uid,
+                                    id,
+                                    EnterReason::Gm,
+                                    (
+                                        scene_bin.my_prev_pos.unwrap_or_default().x + x.unwrap_or_default(),
+                                        scene_bin.my_prev_pos.unwrap_or_default().y + y.unwrap_or_default(),
+                                        scene_bin.my_prev_pos.unwrap_or_default().z + z.unwrap_or_default(),
+                                    ),
+                                ));
+                            }
                         }
                     },
                     Command::Quest(action) => {

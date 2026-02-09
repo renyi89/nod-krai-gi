@@ -18,7 +18,8 @@ pub struct AbilityConfigWrapper {
 #[serde(rename_all = "camelCase")]
 pub struct AbilityData {
     #[serde(rename = "$type")]
-    pub type_name: Option<InternString>,
+    #[serde(default)]
+    pub type_name: InternString,
     pub ability_name: InternString,
     #[serde(default, deserialize_with = "deserialize_modifiers")]
     pub modifiers: IndexMap<InternString, AbilityModifier>,
@@ -62,7 +63,7 @@ pub struct AbilityModifier {
     #[serde(skip)]
     pub modifier_name: InternString,
     #[serde(default)]
-    pub bonus_critical: Option<f32>,
+    pub bonus_critical: f32,
     #[serde(default, deserialize_with = "skip_strings_in_vec")]
     pub on_added: Vec<AbilityModifierAction>,
     #[serde(default, deserialize_with = "skip_strings_in_vec")]
@@ -104,7 +105,7 @@ pub struct AbilityModifier {
     #[serde(default)]
     pub properties: Option<AbilityModifierProperty>,
     #[serde(default)]
-    pub stacking: Option<InternString>,
+    pub stacking: InternString,
     #[serde(default)]
     pub duration: Option<DynamicFloat>,
     #[serde(default)]
@@ -117,51 +118,59 @@ pub struct AbilityModifier {
 #[serde(rename_all = "camelCase")]
 pub struct AbilityModifierAction {
     #[serde(rename = "$type")]
-    pub type_name: Option<InternString>,
     #[serde(default)]
-    pub target: Option<AbilityTargettingEnum>,
+    pub type_name: InternString,
+    #[serde(default)]
+    pub target: AbilityTargettingEnum,
     pub amount: Option<DynamicFloat>,
     #[serde(rename = "amountByCasterAttackRatio")]
+    #[serde(default)]
     pub amount_by_caster_attack_ratio: Option<DynamicFloat>,
     #[serde(rename = "amountByCasterCurrentHPRatio")]
+    #[serde(default)]
     pub amount_by_caster_current_hp_ratio: Option<DynamicFloat>,
     #[serde(rename = "amountByCasterMaxHPRatio")]
+    #[serde(default)]
     pub amount_by_caster_max_hp_ratio: Option<DynamicFloat>,
     #[serde(rename = "amountByGetDamage")]
+    #[serde(default)]
     pub amount_by_get_damage: Option<DynamicFloat>,
     #[serde(rename = "amountByTargetCurrentHPRatio")]
+    #[serde(default)]
     pub amount_by_target_current_hp_ratio: Option<DynamicFloat>,
     #[serde(rename = "amountByTargetMaxHPRatio")]
+    #[serde(default)]
     pub amount_by_target_max_hp_ratio: Option<DynamicFloat>,
     #[serde(rename = "limboByTargetMaxHPRatio")]
+    #[serde(default)]
     pub limbo_by_target_max_hp_ratio: Option<DynamicFloat>,
     pub heal_ratio: Option<DynamicFloat>,
     pub speed: Option<DynamicFloat>,
     #[serde(default)]
-    pub ignore_ability_property: Option<bool>,
+    pub ignore_ability_property: bool,
     #[serde(default)]
     pub modifier_name: InternString,
-    #[serde(default)]
     #[serde(rename = "enableLockHP")]
-    pub enable_lock_hp: Option<bool>,
     #[serde(default)]
-    pub lethal: Option<bool>,
+    pub enable_lock_hp: bool,
     #[serde(default)]
-    pub by_server: Option<bool>,
+    pub lethal: bool,
     #[serde(default)]
-    pub gadget_id: Option<u32>,
+    pub by_server: bool,
     #[serde(default)]
-    pub state_id: Option<u32>,
+    pub gadget_id: u32,
     #[serde(default)]
-    pub skill_id: Option<u32>,
+    pub state_id: u32,
     #[serde(default)]
-    pub config_id: Option<u32>,
+    pub skill_id: u32,
     #[serde(default)]
-    pub camp_id: Option<u32>,
+    pub config_id: u32,
     #[serde(default)]
-    pub monster_id: Option<u32>,
+    pub camp_id: u32,
     #[serde(default)]
-    pub summon_tag: Option<u32>,
+    pub monster_id: u32,
+    #[serde(default)]
+    pub summon_tag: u32,
     #[serde(default)]
     pub min_value: Option<DynamicFloat>,
     #[serde(default)]
@@ -171,7 +180,7 @@ pub struct AbilityModifierAction {
     #[serde(default)]
     pub cost_stamina_ratio: Option<DynamicFloat>,
     #[serde(default)]
-    pub use_limit_range: Option<bool>,
+    pub use_limit_range: bool,
     #[serde(default)]
     pub base_energy: Option<DynamicFloat>,
     #[serde(default)]
@@ -181,11 +190,11 @@ pub struct AbilityModifierAction {
     #[serde(default, deserialize_with = "any_to_float")]
     pub value_range_max: f32,
     #[serde(default)]
-    pub determine_type: Option<InternString>,
+    pub determine_type: InternString,
     #[serde(default)]
-    pub override_map_key: Option<InternString>,
+    pub override_map_key: InternString,
     #[serde(default)]
-    pub param_num: Option<u32>,
+    pub param_num: u32,
     #[serde(default)]
     pub param1: Option<DynamicFloat>,
     #[serde(default)]
@@ -193,42 +202,42 @@ pub struct AbilityModifierAction {
     #[serde(default)]
     pub param3: Option<DynamicFloat>,
     #[serde(default)]
-    pub key: Option<InternString>,
+    pub key: InternString,
     #[serde(default)]
-    pub ability_name: Option<InternString>,
+    pub ability_name: InternString,
     #[serde(default)]
-    pub global_value_key: Option<InternString>,
+    pub global_value_key: InternString,
     #[serde(default)]
-    pub ability_formula: Option<InternString>,
+    pub ability_formula: InternString,
     #[serde(default)]
-    pub src_target: Option<InternString>,
+    pub src_target: InternString,
     #[serde(default)]
-    pub dst_target: Option<InternString>,
+    pub dst_target: InternString,
     #[serde(default)]
-    pub src_key: Option<InternString>,
+    pub src_key: InternString,
     #[serde(default)]
-    pub dst_key: Option<InternString>,
+    pub dst_key: InternString,
     #[serde(default)]
-    pub heal_tag: Option<InternString>,
+    pub heal_tag: InternString,
     #[serde(default)]
-    pub camp_target_type: Option<InternString>,
+    pub camp_target_type: InternString,
     #[serde(default)]
-    pub func_name: Option<InternString>,
+    pub func_name: InternString,
     #[serde(default)]
-    pub lua_call_type: Option<InternString>,
+    pub lua_call_type: InternString,
     #[serde(default)]
-    pub content: Option<InternString>,
+    pub content: InternString,
     #[serde(default)]
-    pub parameter: Option<InternString>,
+    pub parameter: InternString,
     #[serde(default)]
     pub value: Option<DynamicFloat>,
     #[serde(default)]
-    pub type_field: Option<InternString>,
-    #[serde(default)]
+    pub type_field: InternString,
     #[serde(rename = "healLimitedByCasterMaxHPRatio")]
+    #[serde(default)]
     pub heal_limited_by_caster_max_hp_ratio: Option<DynamicFloat>,
     #[serde(default)]
-    pub effect_templete_id: Option<f32>,
+    pub effect_templete_id: f32,
     #[serde(default)]
     pub actions: Vec<AbilityModifierAction>,
     #[serde(default)]
@@ -238,20 +247,21 @@ pub struct AbilityModifierAction {
     #[serde(default)]
     pub other_targets: Option<Box<AbilityModifierAction>>,
     #[serde(default)]
-    pub call_param_list: Option<Vec<u32>>,
+    pub call_param_list: Vec<u32>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AbilityMixinData {
     #[serde(rename = "$type")]
-    pub type_name: Option<InternString>,
     #[serde(default)]
-    pub modifier_name: Option<serde_json::Value>,
+    pub type_name: InternString,
+    #[serde(default)]
+    pub modifier_name: serde_json::Value,
     #[serde(default)]
     pub state_ids: Vec<InternString>,
     #[serde(default)]
-    pub global_value_key: Option<InternString>,
+    pub global_value_key: InternString,
     #[serde(default)]
     pub speed: Option<DynamicFloat>,
     #[serde(default)]

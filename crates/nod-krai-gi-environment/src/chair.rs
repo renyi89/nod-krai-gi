@@ -35,11 +35,12 @@ pub fn avatar_lock_chair(
                     if let std::collections::hash_map::Entry::Vacant(e) =
                         lock.0.entry(request.chair_id)
                     {
-                        let entity_id = active_entities
+                        let Some((_, entity_id)) = active_entities
                             .iter()
                             .find(|(owner_uid, _)| owner_uid.0 == uid)
-                            .unwrap()
-                            .1;
+                        else {
+                            continue;
+                        };
 
                         e.insert((message.sender_uid(), entity_id.0));
 

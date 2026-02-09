@@ -77,8 +77,9 @@ pub fn change_avatar(
                             let Some(player_info) = players.get_mut(message.sender_uid()) else {
                                 continue;
                             };
-
-                            player_info.avatar_bin.cur_avatar_guid = request.guid;
+                            if let Some(ref mut avatar_bin) = player_info.avatar_bin {
+                                avatar_bin.cur_avatar_guid = request.guid;
+                            }
 
                             message_output.send(
                                 message.sender_uid(),
@@ -98,50 +99,63 @@ pub fn change_avatar(
                     let Some(player_info) = players.get_mut(message.sender_uid()) else {
                         continue;
                     };
+                    let avatar_guid_list = if let Some(ref avatar_bin) = player_info.avatar_bin {
+                        avatar_bin.cur_avatar_guid_list.clone()
+                    } else {
+                        continue;
+                    };
 
                     let mut all_dead = true;
+                    let mut first_alive_avatar_guid = None;
+                    let mut first_alive_avatar_entity = None;
+                    let mut first_alive_avatar_transform = None;
 
-                    let mut is_first_avatar = true;
                     for (avatar_entity, _, life_state, avatar_data, _) in
                         avatars.iter().filter(|(_, _, _, a, _)| {
                             a.owner_player_uid.0 == message.sender_uid()
-                                && player_info
-                                    .avatar_bin
-                                    .cur_avatar_guid_list
-                                    .contains(&a.guid.0)
+                                && avatar_guid_list.contains(&a.guid.0)
                         })
                     {
-                        if *life_state == LifeState::Alive && is_first_avatar {
+                        if *life_state == LifeState::Alive && first_alive_avatar_guid.is_none() {
                             all_dead = false;
-                            is_first_avatar = false;
-                            let transform = match request.reborn_pos {
-                                Some(move_pos) => Transform {
-                                    position: move_pos.into(),
-                                    rotation: avatar_data.transform.rotation,
-                                },
-                                _ => avatar_data.transform.clone(),
-                            };
-
-                            debug!("transform:{}", transform);
-
-                            player_info.avatar_bin.cur_avatar_guid = avatar_data.guid.0;
-
-                            commands
-                                .entity(avatar_entity)
-                                .insert(CurrentPlayerAvatarMarker)
-                                .insert(Visible)
-                                .insert(ReplaceCurrentPlayerAvatarMarker(0))
-                                .insert(transform.clone());
+                            first_alive_avatar_guid = Some(avatar_data.guid.0);
+                            first_alive_avatar_entity = Some(avatar_entity);
+                            first_alive_avatar_transform = Some(avatar_data.transform.clone());
                         }
+                    }
+
+                    if let (Some(guid), Some(entity), Some(transform)) = (first_alive_avatar_guid, first_alive_avatar_entity, first_alive_avatar_transform) {
+                        if let Some(ref mut avatar_bin) = player_info.avatar_bin {
+                            avatar_bin.cur_avatar_guid = guid;
+                        }
+
+                        let transform = match request.reborn_pos {
+                            Some(move_pos) => Transform {
+                                position: move_pos.into(),
+                                rotation: transform.rotation,
+                            },
+                            _ => transform,
+                        };
+
+                        debug!("transform:{}", transform);
+
+                        commands
+                            .entity(entity)
+                            .insert(CurrentPlayerAvatarMarker)
+                            .insert(Visible)
+                            .insert(ReplaceCurrentPlayerAvatarMarker(0))
+                            .insert(transform.clone());
                     }
 
                     debug!("all_dead:{}", all_dead);
                     if all_dead {
+                        let Some(ref avatar_bin) = player_info.avatar_bin else {
+                            continue;
+                        };
                         for (avatar_entity, fight_props, _, avatar_data, _) in
                             avatars.iter().filter(|(_, _, _, a, _)| {
                                 a.owner_player_uid.0 == message.sender_uid()
-                                    && player_info
-                                        .avatar_bin
+                                    && avatar_bin
                                         .cur_avatar_guid_list
                                         .contains(&a.guid.0)
                             })
@@ -154,7 +168,7 @@ pub fn change_avatar(
                                     max_hp,
                                 ),
                             );
-                            if player_info.avatar_bin.cur_avatar_guid == avatar_data.guid.0 {
+                            if avatar_bin.cur_avatar_guid == avatar_data.guid.0 {
                                 let transform = match request.reborn_pos {
                                     Some(move_pos) => Transform {
                                         position: move_pos.into(),
@@ -226,6 +240,9 @@ pub fn set_up_avatar_team(
                     let Some(player_info) = players.get_mut(message.sender_uid()) else {
                         continue;
                     };
+                    let Some(ref mut avatar_bin) = player_info.avatar_bin else {
+                        continue;
+                    };
 
                     let version = get_player_version!(&player_info.uid);
                     let protocol_version = version.as_str();
@@ -236,7 +253,7 @@ pub fn set_up_avatar_team(
                         request.team_id,
                     );
 
-                    if let Some(team) = player_info.avatar_bin.team_map.get_mut(&team_id) {
+                    if let Some(team) = avatar_bin.team_map.get_mut(&team_id) {
                         let mut cur_avatar_guid = replace_in_u64(
                             protocol_version,
                             "SetUpAvatarTeamReq.cur_avatar_guid",
@@ -253,9 +270,9 @@ pub fn set_up_avatar_team(
 
                         team.avatar_guid_list = request.avatar_team_guid_list.clone();
 
-                        if team_id == player_info.avatar_bin.cur_team_id {
-                            player_info.avatar_bin.cur_avatar_guid = cur_avatar_guid;
-                            player_info.avatar_bin.cur_avatar_guid_list =
+                        if team_id == avatar_bin.cur_team_id {
+                            avatar_bin.cur_avatar_guid = cur_avatar_guid;
+                            avatar_bin.cur_avatar_guid_list =
                                 request.avatar_team_guid_list.clone();
 
                             change_events.write(PlayerAvatarTeamChanged {
@@ -362,13 +379,16 @@ pub fn notify_avatar_team_update(
             continue;
         };
 
+        let Some(ref avatar_bin) = player_info.avatar_bin else {
+            continue;
+        };
+        
         out.send(
             event.uid,
             "AvatarTeamUpdateNotify",
             AvatarTeamUpdateNotify {
                 temp_avatar_guid_list: Vec::with_capacity(0),
-                avatar_team_map: player_info
-                    .avatar_bin
+                avatar_team_map: avatar_bin
                     .team_map
                     .iter()
                     .map(|(idx, team)| {

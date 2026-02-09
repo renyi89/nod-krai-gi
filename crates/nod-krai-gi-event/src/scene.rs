@@ -84,7 +84,7 @@ pub struct BeginEnterSceneEvent {
     pub scene_id: u32,
     pub enter_type: EnterType,
     pub enter_reason: EnterReason,
-    pub position: nod_krai_gi_proto::server_only::Vector,
+    pub position: nod_krai_gi_proto::server_only::VectorBin,
 }
 
 #[derive(Message)]

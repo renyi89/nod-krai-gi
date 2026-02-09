@@ -251,7 +251,11 @@ pub fn sync_group_unlimit_point_list_on_post_enter_scene(
         let Some(player_info) = players.get(*uid) else {
             continue;
         };
-        let scene_id = player_info.scene_bin.my_cur_scene_id;
+        let scene_id = if let Some(ref scene_bin) = player_info.scene_bin {
+            scene_bin.my_cur_scene_id
+        } else {
+            continue;
+        };
         match scene_point_config_collection_clone.get(&scene_id) {
             None => {}
             Some(scene_config) => {

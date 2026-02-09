@@ -348,12 +348,14 @@ fn get_cur_team_avatars(
     let Some(player_info) = players.get(player_uid) else {
         return vec![];
     };
+    let Some(ref avatar_bin) = player_info.avatar_bin else {
+        return vec![];
+    };
     avatars
         .iter()
         .filter(|(_, data, _)| {
             data.owner_player_uid.0 == player_uid
-                && player_info
-                    .avatar_bin
+                && avatar_bin
                     .cur_avatar_guid_list
                     .contains(&data.guid.0)
         })
@@ -373,12 +375,14 @@ fn get_cur_local_avatar(
     let Some(player_info) = players.get(player_uid) else {
         return vec![];
     };
+    let Some(ref avatar_bin) = player_info.avatar_bin else {
+        return vec![];
+    };
     avatars
         .iter()
         .filter(|(_, data, is_cur)| {
             data.owner_player_uid.0 == player_uid
-                && player_info
-                    .avatar_bin
+                && avatar_bin
                     .cur_avatar_guid_list
                     .contains(&data.guid.0)
                 && is_cur.is_some()
@@ -401,7 +405,10 @@ fn get_all_player_avatars(
         let Some(player_info) = players.get(*player_uid) else {
             return vec![];
         };
-        all_team_guids.extend(player_info.avatar_bin.cur_avatar_guid_list.iter());
+        let Some(ref avatar_bin) = player_info.avatar_bin else {
+            continue;
+        };
+        all_team_guids.extend(avatar_bin.cur_avatar_guid_list.iter());
     }
 
     avatars

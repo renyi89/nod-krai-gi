@@ -1,13 +1,13 @@
 use bevy_ecs::prelude::*;
 use nod_krai_gi_entity::avatar::{AvatarQueryReadOnly, CurrentPlayerAvatarMarker};
 use nod_krai_gi_entity::common::Visible;
-use nod_krai_gi_entity::transform::{Transform};
+use nod_krai_gi_entity::transform::Transform;
 use nod_krai_gi_entity::EntityDisappearEvent;
 use nod_krai_gi_event::scene::*;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::VisionType;
+use nod_krai_gi_proto::server_only::VectorBin;
 use std::sync::Arc;
-use nod_krai_gi_proto::server_only::Vector;
 
 pub fn player_jump(
     mut events: MessageReader<ScenePlayerJumpEvent>,
@@ -21,26 +21,31 @@ pub fn player_jump(
         let Some(player_info) = players.get_mut(*uid) else {
             continue;
         };
+        let Some(ref mut scene_bin) = player_info.scene_bin else {
+            continue;
+        };
+        let Some(ref avatar_bin) = player_info.avatar_bin else {
+            continue;
+        };
 
         let mut enter_type = nod_krai_gi_proto::normal::EnterType::EnterJump;
-        if *scene_id == player_info.scene_bin.my_cur_scene_id {
+        if *scene_id == scene_bin.my_cur_scene_id {
             enter_type = nod_krai_gi_proto::normal::EnterType::EnterGoto;
         }
 
-        let destination = Vector::from((destination.0, destination.1, destination.2));
+        let destination = VectorBin::from((destination.0, destination.1, destination.2));
 
         // Move directly in the same scene.
         if (*enter_reason == EnterReason::Gm
             || *enter_reason == EnterReason::Lua
             || *enter_reason == EnterReason::LuaSkipUi)
-            && player_info.scene_bin.my_cur_scene_id == *scene_id
+            && scene_bin.my_cur_scene_id == *scene_id
         {
-            player_info.scene_bin.my_cur_scene_id = *scene_id;
-            player_info.scene_bin.my_prev_pos = destination.into();
+            scene_bin.my_cur_scene_id = *scene_id;
+            scene_bin.my_prev_pos = destination.into();
 
             for (avatar_entity, avatar_data) in player_avatar_entities.iter().filter(|(_, data)| {
-                data.owner_player_uid.0 == *uid
-                    && data.guid.0 == player_info.avatar_bin.cur_avatar_guid
+                data.owner_player_uid.0 == *uid && data.guid.0 == avatar_bin.cur_avatar_guid
             }) {
                 commands
                     .entity(avatar_entity)
@@ -57,15 +62,15 @@ pub fn player_jump(
                     .insert(CurrentPlayerAvatarMarker)
                     .insert(Visible)
                     .insert(Transform {
-                        position: player_info.scene_bin.my_prev_pos.into(),
-                        rotation: player_info.scene_bin.my_prev_rot.into(),
+                        position: scene_bin.my_prev_pos.unwrap_or_default().into(),
+                        rotation: scene_bin.my_prev_rot.unwrap_or_default().into(),
                     });
             }
             continue;
         };
 
-        player_info.scene_bin.my_cur_scene_id = *scene_id;
-        player_info.scene_bin.my_prev_pos = destination.into();
+        scene_bin.my_cur_scene_id = *scene_id;
+        scene_bin.my_prev_pos = destination.into();
         enter_events.write(BeginEnterSceneEvent {
             uid: *uid,
             scene_id: *scene_id,
@@ -97,23 +102,28 @@ pub fn player_jump_by_point(
                     };
 
                     let mut enter_type = nod_krai_gi_proto::normal::EnterType::EnterJump;
+                    let Some(ref scene_bin) = player_info.scene_bin else {
+                        continue;
+                    };
                     let mut enter_reason = EnterReason::TransPoint;
                     if !point_config.dungeon_ids.is_empty() {
                         enter_type = nod_krai_gi_proto::normal::EnterType::EnterDungeon;
                         enter_reason = EnterReason::DungeonEnter;
-                    } else if *scene_id == player_info.scene_bin.my_cur_scene_id {
+                    } else if *scene_id == scene_bin.my_cur_scene_id {
                         enter_type = nod_krai_gi_proto::normal::EnterType::EnterGoto;
                         enter_reason = EnterReason::TransPoint;
                     }
 
-                    let destination = Vector::from((
+                    let destination = VectorBin::from((
                         point_config.tran_pos.x,
                         point_config.tran_pos.y,
                         point_config.tran_pos.z,
                     ));
 
-                    player_info.scene_bin.my_cur_scene_id = *scene_id;
-                    player_info.scene_bin.my_prev_pos = destination.into();
+                    if let Some(ref mut scene_bin) = player_info.scene_bin {
+                        scene_bin.my_cur_scene_id = *scene_id;
+                        scene_bin.my_prev_pos = destination.into();
+                    }
                     enter_events.write(BeginEnterSceneEvent {
                         uid: *uid,
                         scene_id: *scene_id,

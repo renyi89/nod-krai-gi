@@ -10,14 +10,15 @@ use nod_krai_gi_entity::{
         OwnerPlayerUID, ProtocolEntityID, ToBeRemovedMarker,
     },
     util::to_protocol_entity_id,
-    weapon::{AffixMap, WeaponPromoteLevel, WeaponBundle, WeaponID, WeaponQueryReadOnly},
+    weapon::{AffixMap, WeaponBundle, WeaponID, WeaponPromoteLevel, WeaponQueryReadOnly},
 };
 use nod_krai_gi_message::output::MessageOutput;
-use nod_krai_gi_persistence::{player_information::ItemBin, Players};
+use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::{
     AbilitySyncStateInfo, AvatarEquipChangeNotify, EntityRendererChangedInfo, ProtEntityType,
     SceneWeaponInfo,
 };
+use nod_krai_gi_proto::server_only::{equip_bin, item_bin, WeaponBin};
 
 pub fn notify_avatar_equip_change(
     avatars: Query<AvatarQueryReadOnly, Changed<Equipment>>,
@@ -92,11 +93,10 @@ pub fn apply_equip_change_to_avatar_entity(
         let Some(player_info) = players.get(avatar_equip_change.player_uid) else {
             continue;
         };
-        let Some(avatar) = player_info
-            .avatar_bin
-            .avatar_map
-            .get(&avatar_equip_change.avatar_guid)
-        else {
+        let Some(ref avatar_bin) = player_info.avatar_bin else {
+            continue;
+        };
+        let Some(avatar) = avatar_bin.avatar_map.get(&avatar_equip_change.avatar_guid) else {
             tracing::debug!(
                 "avatar guid {} doesn't exist",
                 avatar_equip_change.avatar_guid
@@ -104,15 +104,11 @@ pub fn apply_equip_change_to_avatar_entity(
             continue;
         };
 
-        let Some(ItemBin::Weapon {
-            weapon_id,
-            level,
-            exp: _,
-            promote_level,
-            affix_map,
-            is_locked: _,
-        }) = player_info.item_bin.get_item(&avatar_equip_change.weapon_guid)
-        else {
+        let Some(ref item_bin) = player_info.item_bin else {
+            continue;
+        };
+
+        let Some(weapon) = item_bin.get_item(&avatar_equip_change.weapon_guid) else {
             tracing::debug!(
                 "weapon guid {} doesn't exist",
                 avatar_equip_change.weapon_guid
@@ -120,14 +116,30 @@ pub fn apply_equip_change_to_avatar_entity(
             continue;
         };
 
-        let Some(weapon_config) = weapon_excel_config_collection_clone.get(weapon_id) else {
+        let weapon_id = weapon.item_id;
+
+        let Some(item_bin::Detail::Equip(ref equip)) = weapon.detail else {
+            continue;
+        };
+        let Some(equip_bin::Detail::Weapon(ref weapon)) = equip.detail else {
+            continue;
+        };
+
+        let WeaponBin {
+            level,
+            promote_level,
+            affix_map,
+            ..
+        } = weapon;
+
+        let Some(weapon_config) = weapon_excel_config_collection_clone.get(&weapon_id) else {
             tracing::debug!("weapon config {} doesn't exist", weapon_id);
             continue;
         };
 
         let weapon_entity = commands
             .spawn(WeaponBundle {
-                weapon_id: WeaponID(*weapon_id),
+                weapon_id: WeaponID(weapon_id),
                 entity_id: to_protocol_entity_id(
                     ProtEntityType::ProtEntityWeapon,
                     entity_counter.inc(),

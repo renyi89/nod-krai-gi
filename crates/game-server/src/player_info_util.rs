@@ -10,7 +10,7 @@ use nod_krai_gi_data::excel::{
     weapon_excel_config_collection, AvatarExcelConfig, AvatarUseType,
 };
 
-use nod_krai_gi_persistence::player_information::*;
+use nod_krai_gi_proto::server_only::*;
 
 pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerDataBin {
     const DEFAULT_TEAM: [u32; 1] = [10000106];
@@ -33,14 +33,15 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerD
 
     let mut player = PlayerDataBin {
         uid,
-        nick_name,
         guid_counter: 0,
-        basic_bin: PlayerBasicCompBin {
+        basic_bin: Some(PlayerBasicCompBin {
             level: DEFAULT_LEVEL,
             exp: 0,
+            nickname: nick_name,
             is_game_time_locked: false,
-        },
-        avatar_bin: PlayerAvatarCompBin {
+            ..Default::default()
+        }),
+        avatar_bin: Some(PlayerAvatarCompBin {
             choose_avatar_guid: 0,
             cur_team_id: 1,
             cur_avatar_guid: 0,
@@ -59,22 +60,31 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerD
                 .keys()
                 .cloned()
                 .collect(),
-        },
-        item_bin: PlayerItemCompBin {
-            pack_store: ItemStoreBin {
-                item_map: Default::default(),
-            },
-        },
-        scene_bin: PlayerSceneCompBin {
+            ..Default::default()
+        }),
+        item_bin: Some(PlayerItemCompBin {
+            pack_store: Some(ItemStoreBin {
+                item_map: HashMap::new(),
+                ..Default::default()
+            }),
+            ..Default::default()
+        }),
+        scene_bin: Some(PlayerSceneCompBin {
             my_cur_scene_id: 3,
-            my_prev_pos: (2336.789, 249.98996, -751.3081).into(),
-            my_prev_rot: (0.0, 0.0, 0.0).into(),
-        },
-        quest_bin: PlayerQuestCompBin {
-            enable: true,
-            parent_quest_map: Default::default(),
-            quest_map: Default::default(),
-        },
+            my_prev_pos: Some((2336.789, 249.98996, -751.3081).into()),
+            my_prev_rot: Some((0.0, 0.0, 0.0).into()),
+            ..Default::default()
+        }),
+        quest_bin: Some(PlayerQuestCompBin {
+            quest_bin: Some(PlayerQuestBin {
+                quest_map: HashMap::new(),
+            }),
+            parent_quest_bin: Some(PlayerParentQuestBin {
+                parent_quest_map: HashMap::new(),
+            }),
+            ..Default::default()
+        }),
+        ..Default::default()
     };
 
     avatar_excel_config_collection_clone
@@ -82,51 +92,68 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerD
         .filter(|avatar| avatar.use_type == AvatarUseType::Formal)
         .for_each(|avatar| add_avatar_and_weapon(&mut player, avatar));
 
-    player.avatar_bin.team_map.insert(
+    // Get avatar guids first to avoid borrow conflict
+    let avatar_guids: Vec<u64> = DEFAULT_TEAM
+        .iter()
+        .filter_map(|id| {
+            player
+                .avatar_bin
+                .as_ref()
+                .unwrap()
+                .avatar_map
+                .iter()
+                .find(|(_, av)| av.avatar_id == *id)
+                .map(|(guid, _)| *guid)
+        })
+        .collect();
+
+    // Now create the team map
+    player.avatar_bin.as_mut().unwrap().team_map.insert(
         1,
         AvatarTeamBin {
-            avatar_guid_list: DEFAULT_TEAM
-                .iter()
-                .map(|id| {
-                    player
-                        .avatar_bin
-                        .avatar_map
-                        .iter()
-                        .find(|(_, av)| av.avatar_id == *id)
-                        .map(|(guid, _)| *guid)
-                })
-                .flatten()
-                .collect(),
+            avatar_guid_list: avatar_guids,
             team_name: String::new(),
+            ..Default::default()
         },
     );
 
-    player.avatar_bin.cur_avatar_guid_list = player
+    // Get team avatar list first
+    let team_avatar_list = player
         .avatar_bin
+        .as_ref()
+        .unwrap()
         .team_map
         .get(&1)
         .unwrap()
         .avatar_guid_list
         .clone();
 
+    // Update cur_avatar_guid_list
+    player.avatar_bin.as_mut().unwrap().cur_avatar_guid_list = team_avatar_list;
+
     // Add bunch of weapons to inventory
     weapon_excel_config_collection_clone
         .values()
         .for_each(|weapon| {
             let guid = player.next_guid();
-            player.item_bin.add_item(
+            player.item_bin.as_mut().unwrap().add_item(
                 guid,
-                ItemBin::Weapon {
-                    weapon_id: weapon.id,
-                    level: 90,
-                    exp: 0,
-                    promote_level: 6,
-                    affix_map: HashMap::with_capacity(0),
-                    is_locked: false,
+                ItemBin {
+                    item_type: 0,
+                    item_id: weapon.id,
+                    guid,
+                    detail: Some(item_bin::Detail::Equip(EquipBin {
+                        is_locked: false,
+                        detail: Some(equip_bin::Detail::Weapon(WeaponBin {
+                            level: 90,
+                            exp: 0,
+                            promote_level: 6,
+                            affix_map: HashMap::with_capacity(0),
+                        })),
+                    })),
                 },
             );
         });
-
     player
 }
 
@@ -236,6 +263,7 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
                                 *skill_id,
                                 AvatarSkillBin {
                                     max_charge_count: extra_charge,
+                                    ..Default::default()
                                 },
                             );
                         }
@@ -246,7 +274,7 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
     }
 
     if avatar.id == CHOOSE_AVATAR_ID {
-        player.avatar_bin.choose_avatar_guid = avatar_guid;
+        player.avatar_bin.as_mut().unwrap().choose_avatar_guid = avatar_guid;
     }
 
     let mut depot_map: HashMap<u32, AvatarSkillDepotBin> = HashMap::new();
@@ -260,7 +288,7 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
         },
     );
 
-    player.avatar_bin.avatar_map.insert(
+    player.avatar_bin.as_mut().unwrap().avatar_map.insert(
         avatar_guid,
         AvatarBin {
             avatar_id: avatar.id,
@@ -277,18 +305,25 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
             costume_id: 0,
             trace_effect_id: 0,
             weapon_skin_id: 0,
+            ..Default::default()
         },
     );
 
-    player.item_bin.add_item(
+    player.item_bin.as_mut().unwrap().add_item(
         weapon_guid,
-        ItemBin::Weapon {
-            weapon_id: avatar.initial_weapon,
-            level: DEFAULT_WEAPON_LEVEL,
-            exp: 0,
-            promote_level: DEFAULT_WEAPON_PROMOTE_LEVEL,
-            affix_map: HashMap::with_capacity(0),
-            is_locked: false,
+        ItemBin {
+            item_type: 0,
+            item_id: avatar.initial_weapon,
+            guid: weapon_guid,
+            detail: Some(item_bin::Detail::Equip(EquipBin {
+                is_locked: false,
+                detail: Some(equip_bin::Detail::Weapon(WeaponBin {
+                    level: DEFAULT_WEAPON_LEVEL,
+                    exp: 0,
+                    promote_level: DEFAULT_WEAPON_PROMOTE_LEVEL,
+                    affix_map: HashMap::with_capacity(0),
+                })),
+            })),
         },
     );
 }

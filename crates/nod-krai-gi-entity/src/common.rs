@@ -228,18 +228,28 @@ impl FightProperties {
         let monster_curve_excel_config_collection_clone =
             std::sync::Arc::clone(monster_curve_excel_config_collection::get());
         let curve_info = match config_type {
-            GrowCurveConfigType::Avatar => avatar_curve_excel_config_collection_clone
-                .get(&level)
-                .unwrap()
-                .curve_infos
-                .iter()
-                .find(|c| c.r#type == prop_grow_curve.grow_curve),
-            GrowCurveConfigType::Monster => monster_curve_excel_config_collection_clone
-                .get(&level)
-                .unwrap()
-                .curve_infos
-                .iter()
-                .find(|c| c.r#type == prop_grow_curve.grow_curve),
+            GrowCurveConfigType::Avatar => {
+                let Some(avatar_curve) = avatar_curve_excel_config_collection_clone.get(&level)
+                else {
+                    tracing::debug!("avatar_curve config {} doesn't exist", level);
+                    return;
+                };
+                avatar_curve
+                    .curve_infos
+                    .iter()
+                    .find(|c| c.r#type == prop_grow_curve.grow_curve)
+            }
+            GrowCurveConfigType::Monster => {
+                let Some(monster_curve) = monster_curve_excel_config_collection_clone.get(&level)
+                else {
+                    tracing::debug!("monster_curve config {} doesn't exist", level);
+                    return;
+                };
+                monster_curve
+                    .curve_infos
+                    .iter()
+                    .find(|c| c.r#type == prop_grow_curve.grow_curve)
+            }
         };
 
         if let Some(curve_info) = curve_info {

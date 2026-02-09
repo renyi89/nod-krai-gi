@@ -151,13 +151,11 @@ impl ClientOutput {
                             }
                         }
 
-                        self.0
-                            .blocking_send((
-                                cmd_id,
-                                head,
-                                body.into_boxed_slice(), //占位
-                            ))
-                            .unwrap()
+                        let _ = self.0.blocking_send((
+                            cmd_id,
+                            head,
+                            body.into_boxed_slice(), //占位
+                        ));
                     }
                 }
             }
@@ -180,13 +178,11 @@ impl ClientOutput {
                     cmd_id,
                     message_name
                 );
-                self.0
-                    .blocking_send((
-                        cmd_id,
-                        head,
-                        Vec::new().into_boxed_slice(), //占位
-                    ))
-                    .unwrap()
+                let _ = self.0.blocking_send((
+                    cmd_id,
+                    head,
+                    Vec::new().into_boxed_slice(), //占位
+                ));
             }
         }
     }

@@ -19,7 +19,9 @@ use nod_krai_gi_message::{
     output::{ClientOutput, MessageOutput},
 };
 use nod_krai_gi_pathfinding::PathfindingPlugin;
-use nod_krai_gi_persistence::{player_information::PlayerDataBin, Players};
+use nod_krai_gi_persistence::Players;
+use nod_krai_gi_proto::server_only::PlayerDataBin;
+use nod_krai_gi_proto::Protobuf;
 use nod_krai_gi_quest::QuestPlugin;
 use nod_krai_gi_scene::{common::WorldOwnerUID, ScenePlugin};
 use nod_krai_gi_social::SocialPlugin;
@@ -110,16 +112,30 @@ impl PlayerWorld {
         self.0.update();
     }
 
-    pub fn serialize_player_information(&mut self, uid: u32) -> serde_json::Value {
-        let players = self.0.world_mut().get_resource::<Players>().unwrap();
-        serde_json::to_value(players.get(uid)).unwrap()
+    pub fn serialize_player_information(&mut self, uid: u32) -> Vec<u8> {
+        let Some(players) = self.0.world_mut().get_resource::<Players>() else {
+            return vec![];
+        };
+        match players.get(uid) {
+            None => {
+                vec![]
+            }
+            Some(player) => player.encode_to_vec(),
+        }
     }
 
     pub fn should_save(&mut self, uid: u32) -> bool {
-        let players = self.0.world_mut().get_resource::<Players>().unwrap();
+        let Some(players) = self.0.world_mut().get_resource::<Players>() else {
+            return false;
+        };
         let Some(player_info) = players.get(uid) else {
             return false;
         };
-        [3, 5, 6, 7, 11, 101].contains(&player_info.scene_bin.my_cur_scene_id)
+        let scene_id = if let Some(ref scene_bin) = player_info.scene_bin {
+            scene_bin.my_cur_scene_id
+        } else {
+            return false;
+        };
+        [3, 5, 6, 7, 11, 101].contains(&scene_id)
     }
 }

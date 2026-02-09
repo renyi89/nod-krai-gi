@@ -24,9 +24,3 @@ pub struct UserUidRow {
     pub account_uid: String,
     pub uid: i32,
 }
-
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
-pub struct PlayerDataRow {
-    pub uid: i32,
-    pub data: serde_json::Value,
-}

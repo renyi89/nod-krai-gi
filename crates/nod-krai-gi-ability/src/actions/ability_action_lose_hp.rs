@@ -92,7 +92,7 @@ pub fn ability_action_lose_hp_event(
                 let mut amount = calc_amount(&ability, caster_props, target_props, action);
 
                 if target_props.get_property(FightPropType::FIGHT_PROP_CUR_HP) < amount + 0.01
-                    && !action.lethal.unwrap_or_default()
+                    && !action.lethal
                 {
                     amount = 0.0;
                 }

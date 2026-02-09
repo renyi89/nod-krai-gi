@@ -68,6 +68,9 @@ pub fn notify_scene_team_update(
                         let Some(player_info) = players.get(avatar_data.owner_player_uid.0) else {
                             return None;
                         };
+                        let Some(ref scene_bin) = player_info.scene_bin else {
+                            return None;
+                        };
                         Some(SceneTeamAvatar {
                             is_on_scene: true,
                             is_player_cur_avatar: is_cur.is_some(),
@@ -78,7 +81,7 @@ pub fn notify_scene_team_update(
                             weapon_entity_id: weapon_data.entity_id.0,
                             avatar_info: None,
                             scene_avatar_info: None,
-                            scene_id: player_info.scene_bin.my_cur_scene_id,
+                            scene_id: scene_bin.my_cur_scene_id,
                             player_uid: avatar_data.owner_player_uid.0,
                             server_buff_list: Vec::with_capacity(0),
                             ability_control_block: Some(avatar_data.ability.build_control_block()),
@@ -89,8 +92,8 @@ pub fn notify_scene_team_update(
                                 entity_id: avatar_data.entity_id.0,
                                 name: String::with_capacity(0),
                                 motion_info: Some(MotionInfo {
-                                    pos: Some(player_info.scene_bin.my_prev_pos.into()),
-                                    rot: Some(player_info.scene_bin.my_prev_rot.into()),
+                                    pos: Some(scene_bin.my_prev_pos.unwrap_or_default().into()),
+                                    rot: Some(scene_bin.my_prev_rot.unwrap_or_default().into()),
                                     speed: Some(Vector::default()),
                                     ..Default::default()
                                 }),

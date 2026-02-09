@@ -68,6 +68,8 @@ message PlayerDataBin {
     PlayerUgcCompBin ugc_bin = 60;
     PlayerAranaraCollectionCompBin aranara_collection_bin = 61;
     PlayerGCGCompBin gcg_bin = 65;
+    uint32 uid = 10001;
+    uint32 guid_counter = 10002;
 }
 
 message PlayerBasicCompBin {
@@ -192,7 +194,7 @@ message AvatarBin {
     repeated AvatarExtraPropBin extra_prop_list = 21;
     uint32 trace_effect_id = 22;
     uint32 weapon_skin_id = 23;
-    uint32 weapon_guid = 24;
+    uint64 weapon_guid = 24;
     oneof detail {
         FormalAvatarBin formal_avatar = 101;
         TrialAvatarBin trial_avatar = 102;
@@ -257,7 +259,7 @@ message AvatarRenameBin {
 }
 
 message PlayerAvatarCompBin {
-    map<uint32, AvatarBin> avatar_map = 1;
+    map<uint64, AvatarBin> avatar_map = 1;
     uint64 cur_avatar_guid = 2;
     VectorBin pb_only_cur_pos = 3;
     VectorBin pb_only_cur_rot = 4;
@@ -419,6 +421,7 @@ message QuestBin {
     repeated QuestTalkRecordBin talk_history_list = 6;
     fixed32 start_game_time = 7;
     fixed32 accept_time = 8;
+    uint32 parent_quest_id = 101;
 }
 
 message PlayerQuestBin {
@@ -529,7 +532,7 @@ message PackItemStoreBin {
 }
 
 message ItemStoreBin {
-    map<uint32, ItemBin> item_map = 1;
+    map<uint64, ItemBin> item_map = 1;
     bool is_material_item_num_alarmed = 2;
     oneof ext {
         PackItemStoreBin pack_store = 101;

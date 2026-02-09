@@ -42,8 +42,9 @@ impl ClientMessageEvent {
         let binding = get_player_version!(&self.0.user_id);
         let version = binding.as_str();
 
-        let binding =
-            nod_krai_gi_proto::dy_parser::get_name_by_cmd_id_version(version, self.1).unwrap();
+        let Some(binding) = nod_krai_gi_proto::dy_parser::get_name_by_cmd_id_version(version, self.1) else {
+            return None;
+        };
         let message_name = binding.as_str();
         match nod_krai_gi_proto::dy_parser::decode_from_vec_by_name_version::<T>(
             version,

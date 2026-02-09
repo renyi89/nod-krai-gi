@@ -5,14 +5,15 @@ use nod_krai_gi_data::excel::{
 };
 use nod_krai_gi_entity::avatar::{AvatarAppearanceChange, AvatarAppearanceChangeEvent};
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
-use nod_krai_gi_persistence::{player_information::PlayerDataBin, Players};
+use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::{
     AvatarChangeCostumeReq, AvatarChangeCostumeRsp, AvatarChangeTraceEffectReq,
     AvatarChangeTraceEffectRsp, AvatarFlycloakChangeNotify, AvatarWearFlycloakReq,
     AvatarWearFlycloakRsp,
 };
 use nod_krai_gi_proto::retcode::Retcode;
-use tracing::{debug, warn, instrument};
+use tracing::{debug, instrument, warn};
+use nod_krai_gi_proto::server_only::PlayerDataBin;
 
 #[instrument(skip_all)]
 pub fn handle_appearance_change_request(
@@ -81,7 +82,9 @@ pub fn handle_appearance_change_request(
                         };
                         let mut rsp = AvatarChangeTraceEffectRsp::default();
 
-                        if let Some(change_event) = change_trace_effect(player_info, request, &mut rsp) {
+                        if let Some(change_event) =
+                            change_trace_effect(player_info, request, &mut rsp)
+                        {
                             change_events.write(change_event);
                         }
 
@@ -106,8 +109,13 @@ fn wear_flycloak(
     request: AvatarWearFlycloakReq,
     response: &mut AvatarWearFlycloakRsp,
 ) -> Option<AvatarFlycloakChangeNotify> {
-    if !player
-        .avatar_bin
+    let Some(ref avatar_bin) = player.avatar_bin else {
+        debug!("avatar_bin is None");
+        response.retcode = Retcode::RetCanNotFindAvatar.into();
+        return None;
+    };
+
+    if !avatar_bin
         .owned_flycloak_list
         .contains(&request.flycloak_id)
     {
@@ -117,8 +125,11 @@ fn wear_flycloak(
     }
 
     response.avatar_guid_list = vec![];
+    let Some(ref mut avatar_bin) = player.avatar_bin else {
+        return None;
+    };
     for avatar_guid in request.avatar_guid_list {
-        let Some(avatar) = player.avatar_bin.avatar_map.get_mut(&avatar_guid) else {
+        let Some(avatar) = avatar_bin.avatar_map.get_mut(&avatar_guid) else {
             debug!("avatar guid {} doesn't exist", avatar_guid);
             response.retcode = Retcode::RetCanNotFindAvatar.into();
             return None;
@@ -161,22 +172,22 @@ fn change_costume(
         return None;
     };
 
-    if !player
-        .avatar_bin
-        .owned_costume_list
-        .contains(&request.costume_id)
-        && config.is_some()
-    {
+    let Some(ref avatar_bin) = player.avatar_bin else {
+        debug!("avatar_bin is None");
+        return None;
+    };
+
+    if !avatar_bin.owned_costume_list.contains(&request.costume_id) && config.is_some() {
         debug!("costume is not unlocked, id: {}", request.costume_id);
         response.retcode = Retcode::RetNotHasCostume.into();
         return None;
     }
 
-    let Some(avatar) = player
-        .avatar_bin
-        .avatar_map
-        .get_mut(&request.avatar_guid)
-    else {
+    let Some(ref mut avatar_bin) = player.avatar_bin else {
+        return None;
+    };
+
+    let Some(avatar) = avatar_bin.avatar_map.get_mut(&request.avatar_guid) else {
         debug!("avatar guid {} doesn't exist", request.avatar_guid);
         return None;
     };
@@ -232,8 +243,12 @@ fn change_trace_effect(
         return None;
     };
 
-    if !player
-        .avatar_bin
+    let Some(ref avatar_bin) = player.avatar_bin else {
+        debug!("avatar_bin is None");
+        return None;
+    };
+
+    if !avatar_bin
         .owned_trace_effect_list
         .contains(&request.trace_effect_id)
         && config.is_some()
@@ -246,11 +261,11 @@ fn change_trace_effect(
         return None;
     }
 
-    let Some(avatar) = player
-        .avatar_bin
-        .avatar_map
-        .get_mut(&request.avatar_guid)
-    else {
+    let Some(ref mut avatar_bin) = player.avatar_bin else {
+        return None;
+    };
+
+    let Some(avatar) = avatar_bin.avatar_map.get_mut(&request.avatar_guid) else {
         debug!("avatar guid {} doesn't exist", request.avatar_guid);
         return None;
     };

@@ -1,11 +1,11 @@
+use crate::player_info_util;
 use nod_krai_gi_database::{rocksdb_op, DbConnection, DbError};
-use nod_krai_gi_persistence::player_information::PlayerDataBin;
+use nod_krai_gi_proto::server_only::PlayerDataBin;
 use tokio::{
     select,
     sync::{mpsc, oneshot},
 };
-
-use crate::player_info_util;
+use nod_krai_gi_proto::Protobuf;
 
 enum DbOperation {
     Fetch(u32, oneshot::Sender<Option<PlayerDataBin>>),
@@ -33,7 +33,7 @@ impl DbWorkerHandle {
     }
 }
 
-pub fn start(connection: DbConnection) -> (DbWorkerHandle, mpsc::Sender<(u32, serde_json::Value)>) {
+pub fn start(connection: DbConnection) -> (DbWorkerHandle, mpsc::Sender<(u32, Vec<u8>)>) {
     let (op_tx, op_rx) = mpsc::channel(32);
     let (save_data_tx, save_data_rx) = mpsc::channel(32);
 
@@ -47,7 +47,7 @@ pub fn start(connection: DbConnection) -> (DbWorkerHandle, mpsc::Sender<(u32, se
 async fn db_work_loop(
     connection: DbConnection,
     mut op_rx: mpsc::Receiver<DbOperation>,
-    mut save_data_rx: mpsc::Receiver<(u32, serde_json::Value)>,
+    mut save_data_rx: mpsc::Receiver<(u32, Vec<u8>)>,
 ) {
     loop {
         select! {
@@ -56,7 +56,7 @@ async fn db_work_loop(
                     Some(DbOperation::Fetch(uid, tx)) => {
                         let result = match rocksdb_op::select_player_data_by_uid(&connection, uid as i32)
                         {
-                            Ok(Some(row)) => Some(serde_json::from_value(row.data).unwrap_or_else(|err| {
+                            Ok(Some(row)) => Some(PlayerDataBin::decode(&*row).unwrap_or_else(|err| {
                                 // as of early development state, player info schema will change from time to time
                                 // it's better to replace it with default one everytime it changes, for now
                                 tracing::warn!("failed to deserialize player data (uid: {uid}), replacing with default, error: {err}");

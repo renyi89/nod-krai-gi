@@ -19,8 +19,9 @@ use nod_krai_gi_entity::{
     weapon::{AffixMap, WeaponBundle, WeaponID, WeaponPromoteLevel},
 };
 use nod_krai_gi_event::scene::*;
-use nod_krai_gi_persistence::{player_information::ItemBin, Players};
+use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::ProtEntityType;
+use nod_krai_gi_proto::server_only::{equip_bin, item_bin, WeaponBin};
 
 pub fn player_join_team(
     mut events: MessageReader<PlayerJoinTeamEvent>,
@@ -50,6 +51,15 @@ pub fn player_join_team(
         let Some(player_info) = players.get(uid) else {
             continue;
         };
+        let Some(ref scene_bin) = player_info.scene_bin else {
+            continue;
+        };
+        let Some(ref avatar_bin) = player_info.avatar_bin else {
+            continue;
+        };
+        let Some(ref item_bin) = player_info.item_bin else {
+            continue;
+        };
 
         for (idx, to_spawn_guid) in event.avatar_guid_list.iter().enumerate() {
             match avatars
@@ -62,8 +72,8 @@ pub fn player_join_team(
                         .insert(IndexInSceneTeam(idx as u8))
                         .insert(CurrentTeam)
                         .insert(Transform {
-                            position: player_info.scene_bin.my_prev_pos.into(),
-                            rotation: player_info.scene_bin.my_prev_rot.into(),
+                            position: scene_bin.my_prev_pos.unwrap_or_default().into(),
+                            rotation: scene_bin.my_prev_rot.unwrap_or_default().into(),
                         });
 
                     if *to_spawn_guid == event.appear_avatar_guid {
@@ -74,24 +84,31 @@ pub fn player_join_team(
                     }
                 }
                 None => {
-                    let Some(to_spawn) = player_info.avatar_bin.avatar_map.get(to_spawn_guid)
-                    else {
+                    let Some(to_spawn) = avatar_bin.avatar_map.get(to_spawn_guid) else {
                         tracing::debug!("avatar guid {} doesn't exist", to_spawn_guid);
                         continue;
                     };
 
-                    let Some(ItemBin::Weapon {
-                        weapon_id,
-                        level,
-                        exp: _,
-                        promote_level,
-                        affix_map,
-                        is_locked: _,
-                    }) = player_info.item_bin.get_item(&to_spawn.weapon_guid)
-                    else {
+                    let Some(weapon) = item_bin.get_item(&to_spawn.weapon_guid) else {
                         tracing::debug!("weapon guid {} doesn't exist", to_spawn.weapon_guid);
                         continue;
                     };
+
+                    let weapon_id = weapon.item_id;
+
+                    let Some(item_bin::Detail::Equip(ref equip)) = weapon.detail else {
+                        continue;
+                    };
+                    let Some(equip_bin::Detail::Weapon(ref weapon)) = equip.detail else {
+                        continue;
+                    };
+
+                    let WeaponBin {
+                        level,
+                        promote_level,
+                        affix_map,
+                        ..
+                    } = weapon;
 
                     let Some(avatar_data) =
                         avatar_excel_config_collection_clone.get(&to_spawn.avatar_id)
@@ -100,7 +117,7 @@ pub fn player_join_team(
                         continue;
                     };
 
-                    let Some(weapon_config) = weapon_excel_config_collection_clone.get(weapon_id)
+                    let Some(weapon_config) = weapon_excel_config_collection_clone.get(&weapon_id)
                     else {
                         tracing::debug!("weapon config {} doesn't exist", weapon_id);
                         continue;
@@ -124,7 +141,7 @@ pub fn player_join_team(
 
                     let weapon_entity = commands
                         .spawn(WeaponBundle {
-                            weapon_id: WeaponID(*weapon_id),
+                            weapon_id: WeaponID(weapon_id),
                             entity_id: to_protocol_entity_id(
                                 ProtEntityType::ProtEntityWeapon,
                                 entity_counter.inc(),
@@ -173,8 +190,8 @@ pub fn player_join_team(
                             trace_effect_id: to_spawn.trace_effect_id,
                         },
                         transform: Transform {
-                            position: player_info.scene_bin.my_prev_pos.into(),
-                            rotation: player_info.scene_bin.my_prev_rot.into(),
+                            position: scene_bin.my_prev_pos.unwrap_or_default().into(),
+                            rotation: scene_bin.my_prev_rot.unwrap_or_default().into(),
                         },
                         ability: Ability::new_for_avatar(to_spawn.avatar_id, open_configs),
                         born_time: BornTime(to_spawn.born_time),

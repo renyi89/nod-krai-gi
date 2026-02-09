@@ -8,7 +8,7 @@ use nod_krai_gi_entity::{
     int_prop_map,
 };
 use nod_krai_gi_message::output::MessageOutput;
-use nod_krai_gi_persistence::{player_information::ItemBin, Players};
+use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::*;
 
 pub struct PlayerDataSyncPlugin;
@@ -34,21 +34,24 @@ pub fn sync_player_data(players: Res<Players>, out: Res<MessageOutput>) {
         let Some(player_info) = players.get(*uid) else {
             continue;
         };
+        let Some(ref basic_bin) = player_info.basic_bin else {
+            continue;
+        };
         out.send(
             *uid,
             "PlayerDataNotify",
             PlayerDataNotify {
-                nick_name: player_info.nick_name.clone(),
+                nick_name: basic_bin.nickname.clone(),
                 prop_map: int_prop_map! {
                     PROP_IS_SPRING_AUTO_USE: 1;
                     PROP_SPRING_AUTO_USE_PERCENT: 50;
                     PROP_IS_FLYABLE: 1;
-                    PROP_IS_GAME_TIME_LOCKED: player_info.basic_bin.is_game_time_locked as i64;
+                    PROP_IS_GAME_TIME_LOCKED: basic_bin.is_game_time_locked as i64;
                     PROP_IS_TRANSFERABLE: 1;
                     PROP_MAX_STAMINA: 24000;
                     PROP_CUR_PERSIST_STAMINA: 24000;
-                    PROP_PLAYER_LEVEL: player_info.basic_bin.level;
-                    PROP_PLAYER_EXP: player_info.basic_bin.exp;
+                    PROP_PLAYER_LEVEL: basic_bin.level;
+                    PROP_PLAYER_EXP: basic_bin.exp;
                     PROP_PLAYER_MP_SETTING_TYPE :1;
                     PROP_IS_MP_MODE_AVAILABLE :1;
                     PROP_PLAYER_RESIN:200;
@@ -71,6 +74,9 @@ pub fn sync_player_store(players: Res<Players>, out: Res<MessageOutput>) {
         let Some(player_info) = players.get(*uid) else {
             continue;
         };
+        let Some(ref item_bin) = player_info.item_bin else {
+            continue;
+        };
 
         out.send(
             *uid,
@@ -78,32 +84,9 @@ pub fn sync_player_store(players: Res<Players>, out: Res<MessageOutput>) {
             PlayerStoreNotify {
                 store_type: StoreType::StorePack.into(),
                 weight_limit: 30_000,
-                item_list: player_info
-                    .item_bin
+                item_list: item_bin
                     .iter()
-                    .map(|(guid, item)| match item {
-                        ItemBin::Weapon {
-                            weapon_id,
-                            level,
-                            exp,
-                            promote_level,
-                            affix_map,
-                            is_locked,
-                        } => Item {
-                            item_id: *weapon_id,
-                            guid: *guid,
-                            detail: Some(item::Detail::Equip(Equip {
-                                is_locked: *is_locked,
-                                detail: Some(equip::Detail::Weapon(Weapon {
-                                    level: *level,
-                                    exp: *exp,
-                                    promote_level: *promote_level,
-                                    affix_map: affix_map.clone(),
-                                    ..Default::default()
-                                })),
-                            })),
-                        },
-                    })
+                    .filter_map(|(_guid, item)| item.to_normal_proto())
                     .collect(),
             },
         );
@@ -121,14 +104,16 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
         let Some(player_info) = players.get(*uid) else {
             continue;
         };
+        let Some(ref avatar_bin) = player_info.avatar_bin else {
+            continue;
+        };
 
         out.send(
             *uid,
             "AvatarDataNotify",
             AvatarDataNotify {
-                choose_avatar_guid: player_info.avatar_bin.choose_avatar_guid,
-                avatar_list: player_info
-                    .avatar_bin
+                choose_avatar_guid: avatar_bin.choose_avatar_guid,
+                avatar_list: avatar_bin
                     .avatar_map
                     .values()
                     .filter_map(|a| {
@@ -218,8 +203,7 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                         })
                     })
                     .collect(),
-                avatar_team_map: player_info
-                    .avatar_bin
+                avatar_team_map: avatar_bin
                     .team_map
                     .iter()
                     .map(|(idx, team)| {
@@ -232,21 +216,10 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                         )
                     })
                     .collect(),
-                cur_avatar_team_id: player_info.avatar_bin.cur_team_id,
-                owned_flycloak_list: player_info
-                    .avatar_bin
-                    .owned_flycloak_list
-                    .iter()
-                    .copied()
-                    .collect(),
-                owned_costume_list: player_info
-                    .avatar_bin
-                    .owned_costume_list
-                    .iter()
-                    .copied()
-                    .collect(),
-                owned_trace_effect_list: player_info
-                    .avatar_bin
+                cur_avatar_team_id: avatar_bin.cur_team_id,
+                owned_flycloak_list: avatar_bin.owned_flycloak_list.iter().copied().collect(),
+                owned_costume_list: avatar_bin.owned_costume_list.iter().copied().collect(),
+                owned_trace_effect_list: avatar_bin
                     .owned_trace_effect_list
                     .iter()
                     .copied()
@@ -276,21 +249,23 @@ pub fn sync_open_state_map(players: Res<Players>, out: Res<MessageOutput>) {
 }
 
 pub fn sync_quest_list(players: Res<Players>, out: Res<MessageOutput>) {
-    // let sub_quest_config_collection_clone = Arc::clone(
-    //     excel::quest_config::SUB_QUEST_CONFIG_COLLECTION
-    //         .get()
-    //         .unwrap(),
-    // );
     for uid in players.keys() {
         let Some(player_info) = players.get(*uid) else {
             continue;
         };
+
+        let Some(ref quest_bin) = player_info.quest_bin else {
+            continue;
+        };
+        let Some(ref quest_bin) = quest_bin.quest_bin else {
+            continue;
+        };
+
         out.send(
             *uid,
             "QuestListNotify",
             QuestListNotify {
-                quest_list: player_info
-                    .quest_bin
+                quest_list: quest_bin
                     .quest_map
                     .iter()
                     .map(|(sub_quest_id, quest_item)| Quest {

@@ -4,33 +4,25 @@ pub use sdk_rocksdb_op::{
     insert_combo_token, insert_sdk_account, select_combo_token_by_account, SelectSdkAccount,
 };
 
-use crate::{
-    data::{PlayerDataRow, UserUidRow},
-    DbConnection, DbError,
-};
+use crate::{data::UserUidRow, DbConnection, DbError};
 
 pub fn insert_or_update_player_data(
     conn: &DbConnection,
     uid: i32,
-    data: serde_json::Value,
+    data: Vec<u8>,
 ) -> Result<(), DbError> {
     let key = format!("player_data:{}", uid);
-    let player_data = PlayerDataRow { uid, data };
-    let value = serde_json::to_vec(&player_data)?;
-    conn.0.put(key, value)?;
+    conn.0.put(key, data)?;
     Ok(())
 }
 
 pub fn select_player_data_by_uid(
     conn: &DbConnection,
     uid: i32,
-) -> Result<Option<PlayerDataRow>, DbError> {
+) -> Result<Option<Vec<u8>>, DbError> {
     let key = format!("player_data:{}", uid);
     match conn.0.get(key)? {
-        Some(value) => {
-            let player_data: PlayerDataRow = serde_json::from_slice(&value)?;
-            Ok(Some(player_data))
-        }
+        Some(value) => Ok(Some(value)),
         None => Ok(None),
     }
 }
