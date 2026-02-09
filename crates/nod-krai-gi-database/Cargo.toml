@@ -13,3 +13,5 @@ serde_json.workspace = true
 pbkdf2.workspace = true
 password-hash.workspace = true
 rand.workspace = true
+
+common.workspace = true

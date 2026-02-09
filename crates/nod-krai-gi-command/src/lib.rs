@@ -1,5 +1,6 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
+use common::game_server_config::cache_get_is_tp;
 use common::gm_util::Command;
 use common::gm_util::{parse_command, TpAction};
 use common::time_util::unix_timestamp;
@@ -149,7 +150,11 @@ pub fn debug_command_handler(
                         level: Level(level),
                         transform: Transform {
                             // Take Y (height) from player's pos, spawn a bit above
-                            position: (position.0, player_info.world_position.position.1, position.1)
+                            position: (
+                                position.0,
+                                player_info.world_position.position.1,
+                                position.1,
+                            )
                                 .into(),
                             rotation: Vector3::default(),
                         },
@@ -162,20 +167,17 @@ pub fn debug_command_handler(
                     })
                     .insert(Visible);
             }
-            CommandKind::QuickTravel { scene_id, position } => {
-                let destination =
-                    Vector3::from((position.0, position.1.unwrap_or(2600.0), position.2));
-                match scene_id {
-                    None => {}
-                    Some(scene_id) => {
-                        jump_events.write(ScenePlayerJumpEvent(
-                            command.executor_uid,
-                            scene_id,
-                            destination,
-                        ));
-                    }
+            CommandKind::QuickTravel { scene_id, position } => match scene_id {
+                None => {}
+                Some(scene_id) => {
+                    jump_events.write(ScenePlayerJumpEvent(
+                        command.executor_uid,
+                        scene_id,
+                        EnterReason::TransPoint,
+                        (position.0, position.1.unwrap_or(2600.0), position.2),
+                    ));
                 }
-            }
+            },
         }
     }
 }
@@ -192,7 +194,7 @@ pub fn gm_command_handler(
         let Some(player_info) = players.get(*player_uid) else {
             continue;
         };
-        if player_info.cache.is_tp {
+        if cache_get_is_tp(*player_uid).unwrap_or(true) {
             continue;
         }
         let result = parse_command(console_content);
@@ -206,25 +208,24 @@ pub fn gm_command_handler(
                             tp_events.write(ScenePlayerJumpEvent(
                                 *player_uid,
                                 id,
-                                Vector3 {
-                                    x: x.unwrap_or_default(),
-                                    y: y.unwrap_or_default(),
-                                    z: z.unwrap_or_default(),
-                                },
+                                EnterReason::Gm,
+                                (
+                                    x.unwrap_or_default(),
+                                    y.unwrap_or_default(),
+                                    z.unwrap_or_default(),
+                                ),
                             ));
                         }
                         TpAction::R { id, x, y, z } => {
                             tp_events.write(ScenePlayerJumpEvent(
                                 *player_uid,
                                 id,
-                                Vector3 {
-                                    x: player_info.world_position.position.0
-                                        + x.unwrap_or_default(),
-                                    y: player_info.world_position.position.1
-                                        + y.unwrap_or_default(),
-                                    z: player_info.world_position.position.2
-                                        + z.unwrap_or_default(),
-                                },
+                                EnterReason::Gm,
+                                (
+                                    player_info.world_position.position.0 + x.unwrap_or_default(),
+                                    player_info.world_position.position.1 + y.unwrap_or_default(),
+                                    player_info.world_position.position.2 + z.unwrap_or_default(),
+                                ),
                             ));
                         }
                     },

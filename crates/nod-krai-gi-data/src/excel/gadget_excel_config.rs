@@ -111,12 +111,11 @@ impl GadgetExcelConfigKeyed<u32> for GadgetExcelConfig {
     }
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, GadgetExcelConfig> {
-        let file = std::fs::File::open(&format!(
+        let json =  std::fs::read(&format!(
             "{excel_bin_output_path}/GadgetExcelConfigData.json"
         ))
         .unwrap();
-        let content = std::io::BufReader::new(file);
-        let list: Vec<GadgetExcelConfig> = serde_json::from_reader(content).unwrap();
+        let list: Vec<GadgetExcelConfig> = serde_json::from_slice(&*json).unwrap();
         let data = list
             .iter()
             .map(|item| (item.key().clone(), item.clone()))

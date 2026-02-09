@@ -134,22 +134,35 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                     .avatar_module
                     .avatar_map
                     .values()
-                    .map(|a| {
-                        let skill_depot_data = avatar_skill_depot_excel_config_collection_clone
-                            .get(&a.skill_depot_id)
-                            .cloned()
-                            .unwrap();
+                    .filter_map(|a| {
+                        let Some(skill_depot_data) =
+                            avatar_skill_depot_excel_config_collection_clone
+                                .get(&a.skill_depot_id)
+                                .cloned()
+                        else {
+                            tracing::debug!("skill_depot config {} doesn't exist", a.skill_depot_id);
+                            return None;
+                        };
 
                         let mut fetter_data_list = vec![];
 
                         if fetter_data_entries_clone.contains_key(&a.avatar_id) {
-                            fetter_data_list = fetter_data_entries_clone
-                                .get(&a.avatar_id)
-                                .cloned()
-                                .unwrap();
+                            let Some(temp_fetter_data_list) =
+                                fetter_data_entries_clone.get(&a.avatar_id).cloned()
+                            else {
+                                tracing::debug!("fetter config {} doesn't exist", a.avatar_id);
+                                return None;
+                            };
+                            fetter_data_list = temp_fetter_data_list;
                         }
 
-                        AvatarInfo {
+                        let Some(avatar_data) =
+                            avatar_excel_config_collection_clone.get(&a.avatar_id)
+                        else {
+                            tracing::debug!("avatar config {} doesn't exist", a.avatar_id);
+                            return None;
+                        };
+                        Some(AvatarInfo {
                             avatar_id: a.avatar_id,
                             guid: a.guid,
                             equip_guid_list: vec![a.weapon_guid],
@@ -204,9 +217,7 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                                 PROP_BREAK_LEVEL: a.break_level;
                             },
                             fight_prop_map: create_fight_props(
-                                avatar_excel_config_collection_clone
-                                    .get(&a.avatar_id)
-                                    .unwrap(),
+                                avatar_data,
                                 a.cur_hp,
                                 a.level,
                                 a.break_level,
@@ -216,7 +227,7 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                             .map(|(ty, val)| (*ty as u32, *val))
                             .collect(),
                             ..Default::default()
-                        }
+                        })
                     })
                     .collect(),
                 avatar_team_map: player_info
@@ -292,7 +303,7 @@ pub fn sync_quest_list(players: Res<Players>, out: Res<MessageOutput>) {
             QuestListNotify {
                 quest_list: player_info
                     .quest_information
-                    .sub_quest_map
+                    .quest_map
                     .iter()
                     .map(|(sub_quest_id, quest_item)| Quest {
                         quest_id: *sub_quest_id,

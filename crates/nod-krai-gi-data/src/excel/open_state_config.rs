@@ -53,11 +53,10 @@ impl OpenStateConfigKeyed<u32> for OpenStateConfig {
     }
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, OpenStateConfig> {
-        let file =
-            std::fs::File::open(&format!("{excel_bin_output_path}/OpenStateConfigData.json"))
+        let json =
+            std::fs::read(&format!("{excel_bin_output_path}/OpenStateConfigData.json"))
                 .unwrap();
-        let content = std::io::BufReader::new(file);
-        let list: Vec<OpenStateConfig> = serde_json::from_reader(content).unwrap();
+        let list: Vec<OpenStateConfig> = serde_json::from_slice(&*json).unwrap();
         let data = list
             .iter()
             .map(|item| (item.key().clone(), item.clone()))

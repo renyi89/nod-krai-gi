@@ -7,7 +7,7 @@ use nod_krai_gi_event::command::*;
 use nod_krai_gi_event::quest::*;
 use nod_krai_gi_message::event::ClientMessageEvent;
 use nod_krai_gi_message::output::MessageOutput;
-use nod_krai_gi_persistence::player_information::SubQuestItem;
+use nod_krai_gi_persistence::player_information::QuestItem;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::retcode::Retcode;
 use nod_krai_gi_proto::{
@@ -183,9 +183,9 @@ pub fn quest_begin(
                 let Some(player_info) = players.get_mut(*player_uid) else {
                     continue;
                 };
-                player_info.quest_information.sub_quest_map.insert(
+                player_info.quest_information.quest_map.insert(
                     *sub_quest_id,
-                    SubQuestItem {
+                    QuestItem {
                         parent_quest_id: sub_quest_data.main_id,
                         state: QuestState::QuestStateUnfinished as u32,
                         start_time: unix_timestamp() as u32,
@@ -227,9 +227,9 @@ pub fn quest_finish(
                 let Some(player_info) = players.get_mut(*player_uid) else {
                     continue;
                 };
-                player_info.quest_information.sub_quest_map.insert(
+                player_info.quest_information.quest_map.insert(
                     *sub_quest_id,
-                    SubQuestItem {
+                    QuestItem {
                         parent_quest_id: sub_quest_data.main_id,
                         state: QuestState::QuestStateFinished as u32,
                         start_time: unix_timestamp() as u32,
@@ -262,7 +262,7 @@ pub fn quest_list_update(
         };
         match player_info
             .quest_information
-            .sub_quest_map
+            .quest_map
             .get(sub_quest_id)
         {
             None => {

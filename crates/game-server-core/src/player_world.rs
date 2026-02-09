@@ -6,9 +6,9 @@ use nod_krai_gi_ability::AbilityPlugin;
 use nod_krai_gi_avatar::AvatarPlugin;
 use nod_krai_gi_combat::CombatPlugin;
 use nod_krai_gi_command::CommandPlugin;
+use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_entity::EntityPlugin;
 use nod_krai_gi_environment::EnvironmentPlugin;
-use nod_krai_gi_event::time::*;
 use nod_krai_gi_event::EventRegistryPlugin;
 use nod_krai_gi_inventory::InventoryPlugin;
 use nod_krai_gi_luashell::{LuaShellPlugin, LuaShellSettings};
@@ -53,15 +53,15 @@ impl PlayerWorld {
             .add_plugins(MapPlugin)
             .add_plugins(LuaShellPlugin);
 
-        if true {
+        if GAME_SERVER_CONFIG.plugin.ability {
             app.add_plugins(AbilityPlugin);
         }
 
-        if true {
+        if GAME_SERVER_CONFIG.plugin.social {
             app.add_plugins(SocialPlugin);
         }
 
-        if true {
+        if GAME_SERVER_CONFIG.plugin.quest {
             app.add_plugins(QuestPlugin);
         }
 
@@ -106,12 +106,6 @@ impl PlayerWorld {
             .write_message(ClientMessageEvent::new(head, cmd_id, data, message_name));
     }
 
-    pub fn update_client_time(&mut self, uid: u32, client_time: u32) {
-        self.0
-            .world_mut()
-            .write_message(UpdateClientTimeEvent(uid, client_time));
-    }
-
     pub fn update(&mut self) {
         self.0.update();
     }
@@ -126,6 +120,6 @@ impl PlayerWorld {
         let Some(player_info) = players.get(uid) else {
             return false;
         };
-        player_info.world_position.scene_id == 3
+        [3, 5, 6, 7, 11, 101].contains(&player_info.world_position.scene_id)
     }
 }

@@ -11,3 +11,4 @@ indexmap.workspace = true
 rayon.workspace = true
 
 common.workspace = true
+nod-krai-gi-database.workspace = true

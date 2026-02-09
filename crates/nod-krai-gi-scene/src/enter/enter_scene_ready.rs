@@ -19,7 +19,11 @@ pub fn on_enter_scene_ready(
             continue;
         };
 
-        let enter_scene_token = player_scene_states.get(&uid).unwrap().enter_scene_token();
+        let Some(player_scene_state) = player_scene_states.get(&uid) else {
+            continue;
+        };
+
+        let enter_scene_token = player_scene_state.enter_scene_token();
 
         let peer_id = peer_manager.get_or_add_peer(uid);
         if peer_manager.peer_count() == 1 {

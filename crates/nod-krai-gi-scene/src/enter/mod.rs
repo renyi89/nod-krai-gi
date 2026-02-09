@@ -74,7 +74,9 @@ pub fn handle_enter_scene_state_change(
             }
         }
 
-        let player_scene_state = player_scene_states.get_mut(&msg.sender_uid()).unwrap();
+        let Some(player_scene_state) = player_scene_states.get_mut(&msg.sender_uid()) else {
+            continue;
+        };
         let prev_enter_state = player_scene_state.enter_state();
 
         if player_scene_state.change_enter_state(next_enter_state) {
@@ -100,7 +102,12 @@ pub fn handle_enter_scene_state_change(
                 }
             }
 
-            commands.run_system(*systems.0.get(&next_enter_state).unwrap());
+            match systems.0.get(&next_enter_state) {
+                Some(next_enter_state) => {
+                    commands.run_system(*next_enter_state);
+                }
+                _ => {}
+            }
         } else {
             tracing::debug!(
                 "EnterScene: state transition not allowed: {:?} -> {:?}",

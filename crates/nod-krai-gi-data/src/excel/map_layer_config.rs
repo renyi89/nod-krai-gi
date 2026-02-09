@@ -22,12 +22,11 @@ impl MapLayerConfigKeyed<u32> for MapLayerConfig {
     }
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, MapLayerConfig> {
-        let file = std::fs::File::open(&format!(
+        let json =  std::fs::read(&format!(
             "{excel_bin_output_path}/MapLayerExcelConfigData.json"
         ))
         .unwrap();
-        let content = std::io::BufReader::new(file);
-        let list: Vec<MapLayerConfig> = serde_json::from_reader(content).unwrap();
+        let list: Vec<MapLayerConfig> = serde_json::from_slice(&*json).unwrap();
         let data = list
             .iter()
             .map(|item| (item.key().clone(), item.clone()))

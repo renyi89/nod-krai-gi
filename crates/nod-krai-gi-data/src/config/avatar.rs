@@ -42,9 +42,8 @@ fn load_avatar_configs(avatar_config_dir: ReadDir) -> std::io::Result<()> {
             .replace("ConfigAvatar_", "")
             .replace(".json", "");
 
-        let data = fs::File::open(entry.path())?;
-        let reader = std::io::BufReader::new(data);
-        let config: AvatarConfig = serde_json::from_reader(reader)?;
+        let json =  std::fs::read(entry.path())?;
+        let config: AvatarConfig = serde_json::from_slice(&*json)?;
         map.insert(avatar_name.into(), config);
     }
 

@@ -19,7 +19,6 @@ pub enum LogicCommand {
         immediate_mode: bool,
     },
     WorldUpdate(),
-    UpdateClientTime(u32),
     Offline(),
 }
 

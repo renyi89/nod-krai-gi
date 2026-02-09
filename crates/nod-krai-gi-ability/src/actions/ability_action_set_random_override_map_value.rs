@@ -1,4 +1,5 @@
 use bevy_ecs::prelude::*;
+use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_event::ability::*;
 use rand::Rng;
 
@@ -17,18 +18,22 @@ pub fn ability_action_set_random_override_map_value_event(
         let override_map_key = action.override_map_key.unwrap_or("".into());
 
         if override_map_key.is_empty() {
-            tracing::debug!(
-                "[AbilityActionSetRandomOverrideMapValueEvent] Missing override_map_key"
-            );
+            if GAME_SERVER_CONFIG.plugin.ability_log {
+                tracing::debug!(
+                    "[AbilityActionSetRandomOverrideMapValueEvent] Missing override_map_key"
+                );
+            }
             continue;
         }
 
         // Get abilities from ability entity (ability_index only applies to ability_entity)
         let Ok(mut abilities) = abilities_query.get_mut(*ability_entity) else {
-            tracing::debug!(
-                "[AbilityActionSetRandomOverrideMapValueEvent] Failed to get abilities for entity {}",
-                ability_entity
-            );
+            if GAME_SERVER_CONFIG.plugin.ability_log {
+                tracing::debug!(
+                    "[AbilityActionSetRandomOverrideMapValueEvent] Failed to get abilities for entity {}",
+                    ability_entity
+                );
+            }
             continue;
         };
 
@@ -41,11 +46,13 @@ pub fn ability_action_set_random_override_map_value_event(
             ability
                 .ability_specials
                 .insert(override_map_key, random_value);
-            tracing::debug!(
-                "[AbilityActionSetRandomOverrideMapValueEvent] Setting random override map value {} to {}",
-                override_map_key,
-                random_value
-            );
+            if GAME_SERVER_CONFIG.plugin.ability_log {
+                tracing::debug!(
+                    "[AbilityActionSetRandomOverrideMapValueEvent] Setting random override map value {} to {}",
+                    override_map_key,
+                    random_value
+                );
+            }
         }
     }
 }

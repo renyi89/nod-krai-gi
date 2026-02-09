@@ -1,4 +1,5 @@
 use bevy_ecs::prelude::*;
+use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_event::ability::*;
 
 pub fn ability_action_set_global_value_to_override_map_event(
@@ -18,20 +19,24 @@ pub fn ability_action_set_global_value_to_override_map_event(
         let ability_formula = action.ability_formula.unwrap_or("".into());
 
         if global_value_key.is_empty() || override_map_key.is_empty() {
-            tracing::debug!(
-                "[AbilityActionSetGlobalValueToOverrideMapEvent] Missing required keys: global_value_key={}, override_map_key={}",
-                global_value_key,
-                override_map_key
-            );
+            if GAME_SERVER_CONFIG.plugin.ability_log {
+                tracing::debug!(
+                    "[AbilityActionSetGlobalValueToOverrideMapEvent] Missing required keys: global_value_key={}, override_map_key={}",
+                    global_value_key,
+                    override_map_key
+                );
+            }
             continue;
         }
 
         // Get abilities from ability entity (ability_index only applies to ability_entity)
         let Ok(mut abilities) = abilities_query.get_mut(*ability_entity) else {
-            tracing::debug!(
-                "[AbilityActionSetGlobalValueToOverrideMapEvent] Failed to get abilities for entity {}",
-                ability_entity
-            );
+            if GAME_SERVER_CONFIG.plugin.ability_log {
+                tracing::debug!(
+                    "[AbilityActionSetGlobalValueToOverrideMapEvent] Failed to get abilities for entity {}",
+                    ability_entity
+                );
+            }
             continue;
         };
 
@@ -48,12 +53,14 @@ pub fn ability_action_set_global_value_to_override_map_event(
             ability
                 .ability_specials
                 .insert(override_map_key, global_value);
-            tracing::debug!(
-                "[AbilityActionSetGlobalValueToOverrideMapEvent] Setting global value {} to override map key {} with value {}",
-                global_value_key,
-                override_map_key,
-                global_value
-            );
+            if GAME_SERVER_CONFIG.plugin.ability_log {
+                tracing::debug!(
+                    "[AbilityActionSetGlobalValueToOverrideMapEvent] Setting global value {} to override map key {} with value {}",
+                    global_value_key,
+                    override_map_key,
+                    global_value
+                );
+            }
         }
     }
 }

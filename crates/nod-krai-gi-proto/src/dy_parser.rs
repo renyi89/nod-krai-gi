@@ -155,7 +155,7 @@ fn update_proto(name: &str) {
 
             if replace_file_path.exists() {
                 replace_value_map =
-                    serde_json::from_reader(std::fs::File::open(replace_file_path).unwrap())
+                    serde_json::from_slice(&*std::fs::read(replace_file_path).unwrap())
                         .unwrap();
             };
 

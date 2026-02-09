@@ -17,6 +17,7 @@ use nod_krai_gi_proto::{
     UnionCmdNotify,
 };
 use tokio::sync::mpsc;
+use common::game_server_config::cache_set_client_time;
 
 enum InputItem {
     NewConnection(Connection),
@@ -193,7 +194,7 @@ async fn handle_packet(
                                         version
                                     );
 
-                                    nod_krai_gi_message::USER_VERSION
+                                    nod_krai_gi_message::PLAYER_VERSION
                                         .get()
                                         .unwrap()
                                         .insert(uid, version.to_string());
@@ -204,9 +205,9 @@ async fn handle_packet(
                                     ) {
                                         None => {
                                             tracing::error!(
-                                        "version:{} message_name:{} error",
-                                        version, "GetPlayerTokenRsp"
-                                    );
+                                                "version:{} message_name:{} error",
+                                                version, "GetPlayerTokenRsp"
+                                            );
                                         }
                                         Some(cmd_id) => {
                                             match nod_krai_gi_proto::dy_parser::encode_to_vec_by_name_version::<GetPlayerTokenRsp>(
@@ -280,9 +281,7 @@ async fn handle_packet(
                             match session.player_uid.get() {
                                 None => {}
                                 Some(uid) => {
-                                    state
-                                        .logic_simulator
-                                        .update_client_time(*uid, ping_req.client_time);
+                                    cache_set_client_time(*uid, ping_req.client_time);
                                 }
                             }
 

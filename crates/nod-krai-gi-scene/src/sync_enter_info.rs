@@ -40,11 +40,14 @@ pub fn sync_enter_info(
             continue;
         };
 
-        let cur_avatar_entity_id = avatars
+        let Some(cur_avatar_entity_id) = avatars
             .iter()
             .find(|(data, cur)| data.owner_player_uid.0 == uid && cur.is_some())
             .map(|(data, _)| data.entity_id.0)
-            .unwrap();
+        else {
+            tracing::error!("cur_avatar_entity_id None");
+            continue;
+        };
 
         let scalar_value = AbilityScalarValueEntry {
             float_value: 100.0,
@@ -72,29 +75,34 @@ pub fn sync_enter_info(
             authority_peer_id: authority_peer_id.0,
         };
 
+        let Some(player_scene_state) = player_scene_states.get(&uid) else {
+            continue;
+        };
+
         message_output.send(
             uid,
             "PlayerEnterSceneInfoNotify",
             PlayerEnterSceneInfoNotify {
-                enter_scene_token: player_scene_states.get(&uid).unwrap().enter_scene_token(),
+                enter_scene_token: player_scene_state.enter_scene_token(),
                 cur_avatar_entity_id,
                 team_enter_info: Some(team_enter_info),
                 mp_level_entity_info: Some(mp_level_entity_info),
                 avatar_enter_info: avatars
                     .iter()
                     .filter(|(data, _)| data.owner_player_uid.0 == uid)
-                    .map(|(avatar_data, _)| {
-                        let weapon_data = weapons.get(avatar_data.equipment.weapon).unwrap();
-
-                        AvatarEnterSceneInfo {
-                            avatar_guid: avatar_data.guid.0,
-                            weapon_guid: weapon_data.guid.0,
-                            avatar_entity_id: avatar_data.entity_id.0,
-                            weapon_entity_id: weapon_data.entity_id.0,
-                            avatar_ability_info: Some(AbilitySyncStateInfo::default()),
-                            weapon_ability_info: Some(AbilitySyncStateInfo::default()),
-                            buff_id_list: Vec::with_capacity(0),
-                            server_buff_list: Vec::with_capacity(0),
+                    .filter_map(|(avatar_data, _)| {
+                        match weapons.get(avatar_data.equipment.weapon) {
+                            Ok(weapon_data) => Some(AvatarEnterSceneInfo {
+                                avatar_guid: avatar_data.guid.0,
+                                weapon_guid: weapon_data.guid.0,
+                                avatar_entity_id: avatar_data.entity_id.0,
+                                weapon_entity_id: weapon_data.entity_id.0,
+                                avatar_ability_info: Some(AbilitySyncStateInfo::default()),
+                                weapon_ability_info: Some(AbilitySyncStateInfo::default()),
+                                buff_id_list: Vec::with_capacity(0),
+                                server_buff_list: Vec::with_capacity(0),
+                            }),
+                            Err(_) => None,
                         }
                     })
                     .collect(),

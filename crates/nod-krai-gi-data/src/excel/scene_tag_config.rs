@@ -26,11 +26,10 @@ impl SceneTagConfigKeyed<u32> for SceneTagConfig {
     }
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, SceneTagConfig> {
-        let file =
-            std::fs::File::open(&format!("{excel_bin_output_path}/SceneTagConfigData.json"))
+        let json =
+            std::fs::read(&format!("{excel_bin_output_path}/SceneTagConfigData.json"))
                 .unwrap();
-        let content = std::io::BufReader::new(file);
-        let list: Vec<SceneTagConfig> = serde_json::from_reader(content).unwrap();
+        let list: Vec<SceneTagConfig> = serde_json::from_slice(&*json).unwrap();
         let data = list
             .iter()
             .map(|item| (item.key().clone(), item.clone()))

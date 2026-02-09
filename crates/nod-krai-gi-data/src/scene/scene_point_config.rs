@@ -57,10 +57,9 @@ pub fn load_scene_point_configs_from_bin(bin_output_path: &str) {
 
                 match u32::from_str(file_name.as_str()) {
                     Ok(scene_id) => {
-                        let file = fs::File::open(entry.path()).unwrap();
-                        let content = std::io::BufReader::new(file);
+                        let json = std::fs::read(entry.path()).unwrap();
                         let result: serde_json::Result<ScenePointConfig> =
-                            serde_json::from_reader(content);
+                            serde_json::from_slice(&*json);
                         match result {
                             Ok(config) => {
                                 data.insert(scene_id, config.clone());

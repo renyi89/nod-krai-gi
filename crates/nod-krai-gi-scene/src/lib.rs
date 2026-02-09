@@ -1,6 +1,8 @@
 use avatar::{change_avatar, notify_avatar_team_update, replace_avatar_team, set_up_avatar_team};
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
+use ::common::game_server_config::cache_set_is_tp;
+use ::common::time_util::unix_timestamp_ms;
 use common::{PlayerSceneState, PlayerSceneStates, ScenePeerManager, WorldOwnerUID};
 use enter::EnterSceneStateSystems;
 use nod_krai_gi_data::excel::{SceneTagConfig, SceneTagConfigKeyed};
@@ -20,7 +22,7 @@ use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
-use nod_krai_gi_proto::dy_parser::replace_out_u32;
+use nod_krai_gi_proto::dy_parser::{replace_out_u32, replace_out_u64};
 use nod_krai_gi_proto::{EnterType, ProtEntityType, VisionType};
 use std::sync::Arc;
 
@@ -111,6 +113,7 @@ fn init_scene(
             uid,
             scene_id: player_info.world_position.scene_id,
             enter_type: EnterType::EnterSelf,
+            enter_reason: EnterReason::Login,
             position: player_info.world_position.position.into(),
         });
     }
@@ -120,15 +123,11 @@ fn begin_enter_scene(
     mut events: MessageReader<BeginEnterSceneEvent>,
     mut commands: Commands,
     mut player_scene_states: ResMut<PlayerSceneStates>,
-    mut players: ResMut<Players>,
     player_avatar_entities: Query<(Entity, AvatarQueryReadOnly)>,
     mut disappear_events: MessageWriter<EntityDisappearEvent>,
 ) {
     for event in events.read() {
-        let Some(player_info) = players.get_mut(event.uid) else {
-            continue;
-        };
-        player_info.cache.is_tp = true;
+        cache_set_is_tp(event.uid, true);
         for (avatar_entity, avatar_data) in player_avatar_entities
             .iter()
             .filter(|(_, data)| data.owner_player_uid.0 == event.uid)
@@ -186,13 +185,14 @@ fn notify_player_enter_scene(
     for event in events.read() {
         let version = get_player_version!(&event.uid);
         let protocol_version = version.as_str();
-        let enter_scene_token = player_scene_states
-            .get(&event.uid)
-            .unwrap()
-            .enter_scene_token();
+        let Some(player_scene_state) = player_scene_states.get(&event.uid) else {
+            continue;
+        };
+
+        let enter_scene_token = player_scene_state.enter_scene_token();
         tracing::debug!("Player enter scene: {:?}", enter_scene_token);
         let mut scene_tag_id_list = vec![];
-        if event.scene_id > 2 && event.scene_id < 102 {
+        if [3, 5, 6, 7, 11, 101].contains(&event.scene_id) {
             let scene_tag_entries_clone = Arc::clone(SceneTagConfig::get_scene_tag_entries());
             match scene_tag_entries_clone.get(&event.scene_id) {
                 None => {}
@@ -215,10 +215,7 @@ fn notify_player_enter_scene(
                 enter_scene_token: replace_out_u32(
                     protocol_version,
                     "PlayerEnterSceneNotify.enter_scene_token",
-                    player_scene_states
-                        .get(&event.uid)
-                        .unwrap()
-                        .enter_scene_token(),
+                    enter_scene_token,
                 ),
                 target_uid: replace_out_u32(
                     protocol_version,
@@ -235,6 +232,21 @@ fn notify_player_enter_scene(
                     179398
                 ),
                 r#type: event.enter_type.into(),
+                world_level: replace_out_u32(
+                    protocol_version,
+                    "PlayerEnterSceneNotify.world_level",
+                    9,
+                ),
+                enter_reason: replace_out_u32(
+                    protocol_version,
+                    "PlayerEnterSceneNotify.enter_reason",
+                    event.enter_reason as u32,
+                ),
+                scene_begin_time: replace_out_u64(
+                    protocol_version,
+                    "PlayerEnterSceneNotify.scene_begin_time",
+                    unix_timestamp_ms(),
+                ),
                 scene_tag_id_list,
                 ..Default::default()
             },

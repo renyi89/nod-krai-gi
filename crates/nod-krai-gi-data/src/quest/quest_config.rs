@@ -891,10 +891,9 @@ pub fn load_quest_configs_from_bin(bin_output_path: &str) {
                 let file_name = entry.file_name().to_string_lossy().replace(".json", "");
                 match u32::from_str(file_name.as_str()) {
                     Ok(file_quest_id) => {
-                        let file = fs::File::open(entry.path()).ok()?;
-                        let content = std::io::BufReader::new(file);
+                        let json =  std::fs::read(entry.path()).ok()?;
                         let result: serde_json::Result<QuestConfig> =
-                            serde_json::from_reader(content);
+                            serde_json::from_slice(&*json);
                         match result {
                             Ok(mut config) => {
                                 if config.sub_quests.is_none() {

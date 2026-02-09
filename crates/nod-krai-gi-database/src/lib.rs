@@ -1,13 +1,11 @@
-mod config;
 pub mod data;
 mod error;
 pub mod rocksdb_op;
 mod util;
 pub use error::DbError;
 
-pub use config::DatabaseSettings;
-
-use rocksdb::{DB, Options, WriteBatch, DBCompressionType};
+use common::database_config::DatabaseSettings;
+use rocksdb::{DBCompressionType, Options, WriteBatch, DB};
 
 pub struct DbConnection(pub(crate) DB);
 
@@ -17,7 +15,7 @@ pub fn connect_to(settings: &DatabaseSettings) -> Result<DbConnection, DbError> 
     opts.set_compression_type(DBCompressionType::Zstd);
     opts.set_max_background_jobs(4);
     opts.set_write_buffer_size(64 * 1024 * 1024); // 64MB
-    
+
     let db = DB::open(&opts, settings.db_file.clone())?;
     Ok(DbConnection(db))
 }

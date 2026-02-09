@@ -25,7 +25,13 @@ pub fn notify_avatar_equip_change(
     message_output: Res<MessageOutput>,
 ) {
     for avatar_data in avatars.iter() {
-        let weapon_data = weapons.get(avatar_data.equipment.weapon).unwrap();
+        let Ok(weapon_data) = weapons.get(avatar_data.equipment.weapon) else {
+            tracing::debug!(
+                "weapon config {} doesn't exist",
+                avatar_data.equipment.weapon
+            );
+            continue;
+        };
 
         message_output.send_to_all(
             "AvatarEquipChangeNotify",
@@ -86,25 +92,38 @@ pub fn apply_equip_change_to_avatar_entity(
         let Some(player_info) = players.get(avatar_equip_change.player_uid) else {
             continue;
         };
-        let avatar = player_info
+        let Some(avatar) = player_info
             .avatar_module
             .avatar_map
             .get(&avatar_equip_change.avatar_guid)
-            .unwrap();
+        else {
+            tracing::debug!(
+                "avatar guid {} doesn't exist",
+                avatar_equip_change.avatar_guid
+            );
+            continue;
+        };
 
-        let ItemInformation::Weapon {
+        let Some(ItemInformation::Weapon {
             weapon_id,
             level,
             exp: _,
             promote_level,
             affix_map,
             is_locked: _,
-        } = player_info
-            .item_map
-            .get(&avatar_equip_change.weapon_guid)
-            .unwrap();
+        }) = player_info.item_map.get(&avatar_equip_change.weapon_guid)
+        else {
+            tracing::debug!(
+                "weapon guid {} doesn't exist",
+                avatar_equip_change.weapon_guid
+            );
+            continue;
+        };
 
-        let weapon_config = weapon_excel_config_collection_clone.get(weapon_id).unwrap();
+        let Some(weapon_config) = weapon_excel_config_collection_clone.get(weapon_id) else {
+            tracing::debug!("weapon config {} doesn't exist", weapon_id);
+            continue;
+        };
 
         let weapon_entity = commands
             .spawn(WeaponBundle {
@@ -124,10 +143,12 @@ pub fn apply_equip_change_to_avatar_entity(
         equipment.weapon = weapon_entity;
 
         let cur_hp = fight_props.get_property(FightPropType::FIGHT_PROP_CUR_HP);
+        let Some(avatar_data) = avatar_excel_config_collection_clone.get(&avatar.avatar_id) else {
+            tracing::debug!("avatar config {} doesn't exist", avatar.avatar_id);
+            continue;
+        };
         *fight_props = create_fight_props_with_weapon(
-            avatar_excel_config_collection_clone
-                .get(&avatar.avatar_id)
-                .unwrap(),
+            avatar_data,
             cur_hp,
             avatar.level,
             avatar.break_level,

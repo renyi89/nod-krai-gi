@@ -1,9 +1,12 @@
+use crate::AppState;
+use common::game_server_config::{
+    cache_set_language, cache_set_online_status, is_player_online, PlayerStatusType,
+};
+use common::language::Language;
 use nod_krai_gi_encryption::xor::{MhyXorpad, XorpadGenerationMethod};
 use nod_krai_gi_proto::retcode::Retcode;
 use nod_krai_gi_proto::{GetPlayerTokenReq, GetPlayerTokenRsp};
 use rand::RngCore;
-
-use crate::AppState;
 
 use super::Session;
 
@@ -13,10 +16,31 @@ pub fn process_message(
     req: GetPlayerTokenReq,
     uid: u32,
 ) -> GetPlayerTokenRsp {
+    let language = Language::from(req.lang);
+
     let mut rsp = GetPlayerTokenRsp {
         retcode: Retcode::RetFail.into(),
         ..Default::default()
     };
+
+    //if online
+    if is_player_online(uid) {
+        let mut msg = "Your account is logged in on another device. Please wait.".to_string();
+
+        if language == Language::Chs || language == Language::Cht {
+            msg = "已在其他设备登录，等待".to_string();
+        }
+
+        return GetPlayerTokenRsp {
+            retcode: Retcode::RetAntiAddict.into(),
+            msg,
+            uid,
+            ..rsp
+        };
+    }
+
+    cache_set_online_status(uid, PlayerStatusType::PlayerStatusOnline);
+    cache_set_language(uid, language);
 
     if let Some(account_uid) = session.account_uid.get() {
         tracing::debug!("repeated GetPlayerTokenReq (account_uid: {account_uid})");
@@ -88,7 +112,8 @@ fn gen_session_key(
 
     let server_rand_key = rand::thread_rng().next_u64();
 
-    rsp.server_rand_key = base64_simd::STANDARD.encode_to_string(&keys.client_encrypt(&server_rand_key.to_be_bytes()));
+    rsp.server_rand_key = base64_simd::STANDARD
+        .encode_to_string(&keys.client_encrypt(&server_rand_key.to_be_bytes()));
     rsp.sign = base64_simd::STANDARD.encode_to_string(&keys.sign(&server_rand_key.to_be_bytes()));
 
     Some(MhyXorpad::new::<byteorder::BE>(

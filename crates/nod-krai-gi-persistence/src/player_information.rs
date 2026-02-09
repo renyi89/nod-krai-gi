@@ -14,8 +14,6 @@ pub struct PlayerInformation {
     pub item_map: HashMap<u64, ItemInformation>,
     pub world_position: PlayerPositionInformation,
     pub quest_information: QuestInformation,
-    #[serde(skip)]
-    pub cache: CacheInformation,
 }
 
 impl PlayerInformation {
@@ -58,7 +56,6 @@ pub struct AvatarInformation {
     pub break_level: u32,
     pub core_proud_skill_level: u32,
     pub skill_extra_charge_map: HashMap<u32, u32>,
-    pub open_configs: Vec<String>,
     pub skill_depot_id: u32,
     pub guid: u64,
     pub born_time: u32,
@@ -90,29 +87,21 @@ pub struct PlayerPositionInformation {
     pub rotation: (f32, f32, f32),
 }
 
-#[derive(Default)]
-pub struct CacheInformation {
-    pub is_tp: bool,
-    pub is_mp: bool,
-    pub is_pause: bool,
-    pub client_time: u32,
-}
-
 #[derive(Serialize, Deserialize, Default)]
 pub struct QuestInformation {
     pub enable: bool,
-    pub parent_quest_map: HashMap<u32, MainQuestItem>,
-    pub sub_quest_map: HashMap<u32, SubQuestItem>,
+    pub parent_quest_map: HashMap<u32, ParentQuestItem>,
+    pub quest_map: HashMap<u32, QuestItem>,
 }
 
 #[derive(Serialize, Deserialize, Default)]
-pub struct MainQuestItem {
+pub struct ParentQuestItem {
     pub accept_time: u32,
     pub quest_vars: Vec<u32>,
 }
 
 #[derive(Serialize, Deserialize, Default)]
-pub struct SubQuestItem {
+pub struct QuestItem {
     pub parent_quest_id: u32,
     pub state: u32,
     pub start_time: u32,

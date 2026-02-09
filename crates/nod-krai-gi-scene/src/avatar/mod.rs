@@ -137,7 +137,6 @@ pub fn change_avatar(
 
                     debug!("all_dead:{}", all_dead);
                     if all_dead {
-                        let mut is_first_avatar = true;
                         for (avatar_entity, fight_props, _, avatar_data, _) in
                             avatars.iter().filter(|(_, _, _, a, _)| {
                                 a.owner_player_uid.0 == message.sender_uid()
@@ -155,9 +154,7 @@ pub fn change_avatar(
                                     max_hp,
                                 ),
                             );
-                            if is_first_avatar {
-                                is_first_avatar = false;
-
+                            if player_info.avatar_module.cur_avatar_guid == avatar_data.guid.0 {
                                 let transform = match request.reborn_pos {
                                     Some(move_pos) => Transform {
                                         position: move_pos.into(),
@@ -247,8 +244,11 @@ pub fn set_up_avatar_team(
                         );
 
                         if !request.avatar_team_guid_list.contains(&cur_avatar_guid) {
-                            cur_avatar_guid =
-                                request.avatar_team_guid_list.first().unwrap().clone();
+                            let Some(temp_cur_avatar_guid) = request.avatar_team_guid_list.first()
+                            else {
+                                continue;
+                            };
+                            cur_avatar_guid = *temp_cur_avatar_guid;
                         }
 
                         team.avatar_guid_list = request.avatar_team_guid_list.clone();

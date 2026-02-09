@@ -18,10 +18,13 @@ pub fn on_enter_scene_done(
     for event in reader.read() {
         let uid = event.0;
 
-        let (cur_player_avatar, _) = avatars
+        let Some((cur_player_avatar, _)) = avatars
             .iter()
             .find(|(_, data)| data.owner_player_uid.0 == uid)
-            .unwrap();
+        else {
+            tracing::error!("cur_player_avatar None");
+            continue;
+        };
 
         commands.entity(cur_player_avatar).insert(Visible);
     }
@@ -37,6 +40,9 @@ pub fn enter_scene_done_send_rsp(
 
         let version = get_player_version!(&uid);
         let protocol_version = version.as_str();
+        let Some(player_scene_state) = player_scene_states.get(&uid) else {
+            continue;
+        };
 
         message_output.send(
             uid,
@@ -46,7 +52,7 @@ pub fn enter_scene_done_send_rsp(
                 enter_scene_token: replace_out_u32(
                     protocol_version,
                     "EnterSceneDoneRsp.enter_scene_token",
-                    player_scene_states.get(&uid).unwrap().enter_scene_token(),
+                    player_scene_state.enter_scene_token(),
                 ),
             },
         );

@@ -1,25 +1,25 @@
 use crate::common::PlayerSceneStates;
 use bevy_ecs::prelude::*;
+use common::game_server_config::cache_set_is_tp;
 use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_message::output::MessageOutput;
-use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::dy_parser::replace_out_u32;
 
 pub fn on_post_enter_scene(
     mut reader: MessageReader<PostEnterSceneEvent>,
     player_scene_states: Res<PlayerSceneStates>,
-    mut players: ResMut<Players>,
     out: Res<MessageOutput>,
 ) {
     for PostEnterSceneEvent(uid) in reader.read() {
-        let Some(player_info) = players.get_mut(*uid) else {
-            continue;
-        };
-        player_info.cache.is_tp = false;
+        cache_set_is_tp(*uid, false);
 
         let version = get_player_version!(uid);
         let protocol_version = version.as_str();
+
+        let Some(player_scene_state) = player_scene_states.get(&uid) else {
+            continue;
+        };
 
         out.send(
             *uid,
@@ -29,7 +29,7 @@ pub fn on_post_enter_scene(
                 enter_scene_token: replace_out_u32(
                     protocol_version,
                     "PostEnterSceneRsp.enter_scene_token",
-                    player_scene_states.get(uid).unwrap().enter_scene_token(),
+                    player_scene_state.enter_scene_token(),
                 ),
             },
         );

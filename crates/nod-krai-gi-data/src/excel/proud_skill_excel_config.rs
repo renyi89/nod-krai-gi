@@ -45,12 +45,11 @@ impl ProudSkillExcelConfigKeyed<u32> for ProudSkillExcelConfig {
     }
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, ProudSkillExcelConfig> {
-        let file = std::fs::File::open(&format!(
+        let json =  std::fs::read(&format!(
             "{excel_bin_output_path}/ProudSkillExcelConfigData.json"
         ))
         .unwrap();
-        let content = std::io::BufReader::new(file);
-        let list: Vec<ProudSkillExcelConfig> = serde_json::from_reader(content).unwrap();
+        let list: Vec<ProudSkillExcelConfig> = serde_json::from_slice(&*json).unwrap();
         let data = list
             .iter()
             .map(|item| (item.key().clone(), item.clone()))

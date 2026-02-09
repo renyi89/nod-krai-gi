@@ -118,7 +118,7 @@ fn wear_flycloak(
     response.avatar_guid_list = vec![];
     for avatar_guid in request.avatar_guid_list {
         let Some(avatar) = player.avatar_module.avatar_map.get_mut(&avatar_guid) else {
-            debug!("avatar with guid {} not found", avatar_guid);
+            debug!("avatar guid {} doesn't exist", avatar_guid);
             response.retcode = Retcode::RetCanNotFindAvatar.into();
             return None;
         };

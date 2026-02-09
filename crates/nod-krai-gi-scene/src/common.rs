@@ -90,11 +90,9 @@ impl ScenePeerManager {
     }
 
     pub fn get_peer_id_by_uid(&self, player_uid: u32) -> u32 {
-        *self
-            .peer_map
-            .iter()
-            .find(|(_, uid)| **uid == player_uid)
-            .unwrap()
-            .0
+        let Some(map) = self.peer_map.iter().find(|(_, uid)| **uid == player_uid) else {
+            return 0;
+        };
+        *map.0
     }
 }

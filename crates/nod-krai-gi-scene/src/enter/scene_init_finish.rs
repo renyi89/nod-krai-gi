@@ -18,14 +18,25 @@ pub fn on_scene_init_finish(
             continue;
         };
 
+        let Some(team_info) = player_info
+            .avatar_module
+            .team_map
+            .get(&player_info.avatar_module.cur_avatar_team_id)
+        else {
+            tracing::debug!(
+                "team_info {} doesn't exist",
+                player_info.avatar_module.cur_avatar_team_id
+            );
+            continue;
+        };
+
         if player_info.avatar_module.cur_avatar_guid_list.is_empty() {
-            player_info.avatar_module.cur_avatar_guid_list = player_info
-                .avatar_module
-                .team_map
-                .get(&player_info.avatar_module.cur_avatar_team_id)
-                .unwrap()
-                .avatar_guid_list
-                .clone();
+            player_info.avatar_module.cur_avatar_guid_list = team_info.avatar_guid_list.clone();
+        }
+
+        if player_info.avatar_module.cur_avatar_guid_list.is_empty() {
+            tracing::debug!("cur_avatar_guid_list is_empty");
+            continue;
         }
 
         let appear_avatar_guid = {
@@ -39,7 +50,7 @@ pub fn on_scene_init_finish(
                     .cur_avatar_guid_list
                     .first()
                     .copied()
-                    .unwrap();
+                    .unwrap_or_default();
             }
             player_info.avatar_module.cur_avatar_guid
         };
@@ -63,6 +74,10 @@ pub fn scene_init_finish_send_rsp(
         let version = get_player_version!(&uid);
         let protocol_version = version.as_str();
 
+        let Some(player_scene_state) = player_scene_states.get(&uid) else {
+            continue;
+        };
+
         message_output.send(
             uid,
             "SceneInitFinishRsp",
@@ -71,7 +86,7 @@ pub fn scene_init_finish_send_rsp(
                 enter_scene_token: replace_out_u32(
                     protocol_version,
                     "SceneInitFinishRsp.enter_scene_token",
-                    player_scene_states.get(&uid).unwrap().enter_scene_token(),
+                    player_scene_state.enter_scene_token(),
                 ),
             },
         );

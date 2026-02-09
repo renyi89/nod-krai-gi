@@ -4,7 +4,7 @@ use nod_krai_gi_data::ability::AbilityTargettingEnum;
 use nod_krai_gi_data::ability::{get_ability_name_by_hash, AbilityModifierAction};
 use nod_krai_gi_data::dynamic_float::NumberOrInternString;
 use nod_krai_gi_data::prop_type::FightPropType;
-use nod_krai_gi_data::DynamicFloat;
+use nod_krai_gi_data::{DynamicFloat, GAME_SERVER_CONFIG};
 use nod_krai_gi_entity::avatar::{AvatarQueryReadOnly, CurrentPlayerAvatarMarker};
 use nod_krai_gi_entity::common::FightProperties;
 use nod_krai_gi_entity::common::InstancedAbility;
@@ -184,7 +184,9 @@ pub fn eval(
             result
         }
         DynamicFloat::Array(arr) => {
-            tracing::debug!("eval Array: {:?}", arr);
+            if GAME_SERVER_CONFIG.plugin.ability_log {
+                tracing::debug!("eval Array: {:?}", arr);
+            }
             let input = arr.clone();
             // Preprocess array to convert all elements to numbers or operators
             let mut preprocessed = Vec::new();
@@ -208,7 +210,9 @@ pub fn eval(
                     }
                 }
             }
-            tracing::debug!("eval Array: {:?}", preprocessed);
+            if GAME_SERVER_CONFIG.plugin.ability_log {
+                tracing::debug!("eval Array: {:?}", preprocessed);
+            }
             let result = calc(&mut preprocessed);
             result
         }
@@ -414,24 +418,32 @@ pub fn get_ability_name(ability_name: Option<AbilityString>) -> Option<InternStr
                 if s.is_interned() {
                     Some(s.clone().into())
                 } else {
-                    tracing::debug!("ability:{} is not interned", s);
+                    if GAME_SERVER_CONFIG.plugin.ability_log {
+                        tracing::debug!("ability:{} is not interned", s);
+                    }
                     None
                 }
             }
             Some(Type::Hash(hash)) => match get_ability_name_by_hash(*hash) {
                 Some(name) => Some(name),
                 None => {
-                    tracing::debug!("No ability found for hash {}", hash);
+                    if GAME_SERVER_CONFIG.plugin.ability_log {
+                        tracing::debug!("No ability found for hash {}", hash);
+                    }
                     None
                 }
             },
             None => {
-                tracing::debug!("No ability name or hash provided");
+                if GAME_SERVER_CONFIG.plugin.ability_log {
+                    tracing::debug!("No ability name or hash provided");
+                }
                 None
             }
         },
         None => {
-            tracing::debug!("No ability name provided");
+            if GAME_SERVER_CONFIG.plugin.ability_log {
+                tracing::debug!("No ability name provided");
+            }
             None
         }
     }

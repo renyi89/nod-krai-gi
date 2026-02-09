@@ -45,9 +45,8 @@ impl FetterDataConfigKeyed<u32> for FetterDataConfig {
             "PhotographExpressionExcelConfigData.json",
             "PhotographPosenameExcelConfigData.json",
         ] {
-            let file = std::fs::File::open(&format!("{excel_bin_output_path}/{file}")).unwrap();
-            let content = std::io::BufReader::new(file);
-            let mut sub_list: Vec<FetterDataConfig> = serde_json::from_reader(content).unwrap();
+            let json =  std::fs::read(&format!("{excel_bin_output_path}/{file}")).unwrap();
+            let mut sub_list: Vec<FetterDataConfig> = serde_json::from_slice(&*json).unwrap();
             list.append(&mut sub_list);
         }
 

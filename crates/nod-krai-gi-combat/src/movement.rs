@@ -1,4 +1,5 @@
 use bevy_ecs::prelude::*;
+use common::game_server_config::cache_get_is_tp;
 use nod_krai_gi_entity::common::{EntityById, Visible};
 use nod_krai_gi_entity::{
     avatar::CurrentPlayerAvatarMarker,
@@ -37,6 +38,10 @@ pub fn entity_movement(
             }
         }
 
+        if cache_get_is_tp(*originator_uid).unwrap_or(true) {
+            continue;
+        }
+
         if let Some((Some(pos), Some(rot))) = info.motion_info.as_ref().map(|i| (i.pos, i.rot)) {
             transform.position = pos.into();
             transform.rotation = rot.into();
@@ -59,9 +64,7 @@ pub fn track_player_position(
         let Some(player_info) = players.get_mut(owner_uid.0) else {
             continue;
         };
-        if player_info.cache.is_tp {
-            continue;
-        }
+
         player_info.world_position.position = transform.position.into();
         player_info.world_position.rotation = transform.rotation.into();
 

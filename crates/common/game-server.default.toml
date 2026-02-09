@@ -5,5 +5,12 @@ encryption_config_path = "assets/region/encryption_config.json"
 [network]
 udp_host = "127.0.0.1:21002"
 
+[plugin]
+packet_log = false
+ability = true
+ability_log = false
+social = true
+quest = true
+
 [database]
 db_file = "game.db"

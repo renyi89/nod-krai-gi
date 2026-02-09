@@ -170,14 +170,14 @@ pub fn sync_scene_info_list_on_scene_init(
 
     let mut info_list: Vec<PlayerWorldSceneInfo> = vec![];
 
-    (3..=101).for_each(|scene_id| match scene_tag_entries_clone.get(&scene_id) {
+    [3, 5, 6, 7, 11, 101].iter().for_each(|scene_id| match scene_tag_entries_clone.get(scene_id) {
         None => {}
         Some(scene_tag_list) => {
             let mut scene_tag_id_list: Vec<u32> = vec![];
             scene_tag_list.iter().for_each(|item| {
                 scene_tag_id_list.push(item.id);
             });
-            if scene_id == 3 {
+            if *scene_id == 3 {
                 info_list.push(PlayerWorldSceneInfo {
                     is_locked: false,
                     scene_id: 3,
@@ -197,7 +197,7 @@ pub fn sync_scene_info_list_on_scene_init(
                     }),
                     scene_tag_id_list,
                 });
-            } else if scene_id == 101 {
+            } else if *scene_id == 101 {
                 info_list.push(PlayerWorldSceneInfo {
                     is_locked: false,
                     scene_id: 101,
@@ -216,7 +216,7 @@ pub fn sync_scene_info_list_on_scene_init(
             } else {
                 info_list.push(PlayerWorldSceneInfo {
                     is_locked: false,
-                    scene_id: scene_id,
+                    scene_id: *scene_id,
                     map_layer_info: None,
                     scene_tag_id_list,
                 });

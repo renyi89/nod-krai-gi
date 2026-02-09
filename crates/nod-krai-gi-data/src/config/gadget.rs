@@ -44,10 +44,8 @@ fn load_gadget_configs(gadget_config_dir: ReadDir) -> std::io::Result<()> {
     let mut map = HashMap::new();
     for entry in gadget_config_dir {
         let entry = entry?;
-        let data = fs::File::open(entry.path())?;
-        let reader = std::io::BufReader::new(data);
-
-        match serde_json::from_reader(reader) {
+        let json =  std::fs::read(entry.path())?;
+        match serde_json::from_slice(&*json) {
             Ok(config) => {
                 let configs: HashMap<InternString, GadgetConfig> = config;
                 // 将所有解析出的配置添加到全局 map 中

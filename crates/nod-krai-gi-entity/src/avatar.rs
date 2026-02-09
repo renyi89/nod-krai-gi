@@ -192,12 +192,16 @@ pub fn notify_avatar_appearance_change(
             let Some(player_info) = players.get(event.player_uid) else {
                 continue;
             };
-            let avatar = player_info
-                .avatar_module
-                .avatar_map
-                .get(&event.avatar_guid)
-                .unwrap();
-            let weapon = player_info.item_map.get(&avatar.weapon_guid).unwrap();
+
+            let Some(avatar) = player_info.avatar_module.avatar_map.get(&event.avatar_guid) else {
+                tracing::debug!("avatar guid {} doesn't exist", event.avatar_guid);
+                continue;
+            };
+
+            let Some(weapon) = player_info.item_map.get(&avatar.weapon_guid) else {
+                tracing::debug!("weapon guid {} doesn't exist", avatar.weapon_guid);
+                continue;
+            };
 
             let entity_info = Some(build_fake_avatar_entity_info(avatar, weapon));
             match event.change {
@@ -238,7 +242,7 @@ pub fn notify_appear_avatar_entities(
         message_output.send_to_all(
             "SceneEntityAppearNotify",
             SceneEntityAppearNotify {
-                appear_type: VisionType::VisionMeet.into(),
+                appear_type: VisionType::VisionTransport.into(),
                 param: 0,
                 entity_list: vec![SceneEntityInfo {
                     motion_info: Some(MotionInfo {

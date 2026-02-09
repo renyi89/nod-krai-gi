@@ -1,4 +1,5 @@
 use bevy_ecs::prelude::*;
+use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_entity::common::{
     AbilityModifierController, EntityById, InstancedAbilities, InstancedModifiers,
 };
@@ -16,14 +17,18 @@ pub fn handle_modifier_change(
         let entity = match index.0.get(&invoke.entity_id) {
             Some(e) => *e,
             None => {
-                tracing::debug!("[ModifierChange] Entity {} not found", invoke.entity_id);
+                if GAME_SERVER_CONFIG.plugin.ability_log {
+                    tracing::debug!("[ModifierChange] Entity {} not found", invoke.entity_id);
+                }
                 continue;
             }
         };
 
         match invoke.head {
             None => {
-                tracing::debug!("[ModifierChange] AbilityInvokeEntry head is missing");
+                if GAME_SERVER_CONFIG.plugin.ability_log {
+                    tracing::debug!("[ModifierChange] AbilityInvokeEntry head is missing");
+                }
             }
             Some(head) => {
                 if head.instanced_modifier_id == 0 || head.instanced_modifier_id > 2000 {
@@ -35,9 +40,11 @@ pub fn handle_modifier_change(
                 >(version, "AbilityMetaModifierChange", &*invoke.ability_data)
                 {
                     None => {
-                        tracing::debug!(
-                            "[ModifierChange] Failed to decode AbilityMetaModifierChange"
-                        );
+                        if GAME_SERVER_CONFIG.plugin.ability_log {
+                            tracing::debug!(
+                                "[ModifierChange] Failed to decode AbilityMetaModifierChange"
+                            );
+                        }
                     }
                     Some(mod_change) => {
                         let instanced_ability_id = head.instanced_ability_id;
@@ -48,11 +55,13 @@ pub fn handle_modifier_change(
 
                         match mod_change.action() {
                             ModifierAction::Added => {
-                                tracing::debug!(
-                                    "[ModifierChange] invoke.entity_id: {}",
-                                    invoke.entity_id
-                                );
-                                tracing::debug!("[ModifierChange] instanced_ability_id: {} instanced_modifier_id: {} modifier_local_id: {} target_id: {}", instanced_ability_id,instanced_modifier_id,modifier_local_id,target_id);
+                                if GAME_SERVER_CONFIG.plugin.ability_log {
+                                    tracing::debug!(
+                                        "[ModifierChange] invoke.entity_id: {}",
+                                        invoke.entity_id
+                                    );
+                                    tracing::debug!("[ModifierChange] instanced_ability_id: {} instanced_modifier_id: {} modifier_local_id: {} target_id: {}", instanced_ability_id,instanced_modifier_id,modifier_local_id,target_id);
+                                }
 
                                 let mut instanced_ability_data = None;
 
@@ -97,10 +106,13 @@ pub fn handle_modifier_change(
                                                             instanced_ability_id,
                                                         ) {
                                                         None => {
-                                                            tracing::debug!(
-                                                                "[ModifierChange] No ability found: {}",
-                                                                parent_ability_name
-                                                            );
+                                                            if GAME_SERVER_CONFIG.plugin.ability_log
+                                                            {
+                                                                tracing::debug!(
+                                                                    "[ModifierChange] No ability found: {}",
+                                                                    parent_ability_name
+                                                                );
+                                                            }
                                                         }
                                                         Some((target_index, target_ability)) => {
                                                             instanced_ability_data =
@@ -127,10 +139,12 @@ pub fn handle_modifier_change(
                                     mut this_instanced_modifiers,
                                 )) = entities.get_mut(entity)
                                 else {
-                                    tracing::debug!(
-                                        "[ModifierChange] Failed to get entity components for {}",
-                                        invoke.entity_id
-                                    );
+                                    if GAME_SERVER_CONFIG.plugin.ability_log {
+                                        tracing::debug!(
+                                            "[ModifierChange] Failed to get entity components for {}",
+                                            invoke.entity_id
+                                        );
+                                    }
                                     continue;
                                 };
 
@@ -162,10 +176,12 @@ pub fn handle_modifier_change(
                                             instanced_ability_id,
                                         ) {
                                             None => {
-                                                tracing::debug!(
-                                                    "[ModifierChange] No ability found: {}",
-                                                    parent_ability_name
-                                                );
+                                                if GAME_SERVER_CONFIG.plugin.ability_log {
+                                                    tracing::debug!(
+                                                        "[ModifierChange] No ability found: {}",
+                                                        parent_ability_name
+                                                    );
+                                                }
                                             }
                                             Some((this_index, this_ability)) => {
                                                 instanced_ability_data = this_ability.ability_data;
@@ -181,11 +197,9 @@ pub fn handle_modifier_change(
                                     }
                                 }
 
-                                if instanced_ability_data.is_none() {
+                                let Some(ability_data) = instanced_ability_data else {
                                     continue;
-                                }
-
-                                let ability_data = instanced_ability_data.unwrap();
+                                };
 
                                 let modifier_data = match ability_data
                                     .modifiers
@@ -193,11 +207,13 @@ pub fn handle_modifier_change(
                                 {
                                     Some((_, m)) => m,
                                     None => {
-                                        tracing::debug!(
+                                        if GAME_SERVER_CONFIG.plugin.ability_log {
+                                            tracing::debug!(
                                                 "[ModifierChange] Modifier local id {} not found in ability {}",
-                                            modifier_local_id,
-                                            ability_data.ability_name
-                                        );
+                                                modifier_local_id,
+                                                ability_data.ability_name
+                                            );
+                                        }
                                         continue;
                                     }
                                 };
@@ -206,22 +222,26 @@ pub fn handle_modifier_change(
                                     .0
                                     .contains_key(&instanced_modifier_id);
 
-                                tracing::debug!("[ModifierChange] log_string:{}", log_string);
+                                if GAME_SERVER_CONFIG.plugin.ability_log {
+                                    tracing::debug!("[ModifierChange] log_string:{}", log_string);
+                                }
 
-                                if is_replacing {
-                                    tracing::debug!("[ModifierChange] Replacing entity {} instanced_modifier_id: {} with ability {} modifier {}",
+                                if GAME_SERVER_CONFIG.plugin.ability_log {
+                                    if is_replacing {
+                                        tracing::debug!("[ModifierChange] Replacing entity {} instanced_modifier_id: {} with ability {} modifier {}",
                                         invoke.entity_id,
                                         instanced_modifier_id,
                                         ability_data.ability_name,
                                         modifier_data.modifier_name
                                     );
-                                } else {
-                                    tracing::debug!("[ModifierChange] Adding entity {} instanced_modifier_id: {} with ability {} modifier {}",
+                                    } else {
+                                        tracing::debug!("[ModifierChange] Adding entity {} instanced_modifier_id: {} with ability {} modifier {}",
                                         invoke.entity_id,
                                         instanced_modifier_id,
                                         ability_data.ability_name,
                                         modifier_data.modifier_name
                                     );
+                                    }
                                 }
 
                                 let modifier_controller = AbilityModifierController {
@@ -238,18 +258,21 @@ pub fn handle_modifier_change(
                                 let Ok((_, mut this_instanced_modifiers)) =
                                     entities.get_mut(entity)
                                 else {
-                                    tracing::debug!(
-                                        "[ModifierChange] Failed to get entity components for {}",
-                                        invoke.entity_id
-                                    );
+                                    if GAME_SERVER_CONFIG.plugin.ability_log {
+                                        tracing::debug!(
+                                            "[ModifierChange] Failed to get entity components for {}",
+                                            invoke.entity_id
+                                        );
+                                    }
                                     continue;
                                 };
-
-                                tracing::debug!(
-                                    "[ModifierChange] Removed on entity {} instanced_modifier_id: {}",
-                                    invoke.entity_id,
-                                    instanced_modifier_id,
-                                );
+                                if GAME_SERVER_CONFIG.plugin.ability_log {
+                                    tracing::debug!(
+                                        "[ModifierChange] Removed on entity {} instanced_modifier_id: {}",
+                                        invoke.entity_id,
+                                        instanced_modifier_id,
+                                    );
+                                }
 
                                 this_instanced_modifiers.0.remove(&instanced_modifier_id);
                             }

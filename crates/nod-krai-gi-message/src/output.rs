@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::get_player_version;
 use bevy_ecs::prelude::Resource;
 use common::logging::TRACE_LOG_PACKET;
+use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_proto::packet_head::PacketHead;
 use serde::Serialize;
 use tokio::sync::mpsc;
@@ -130,20 +131,24 @@ impl ClientOutput {
                     Some(body) => {
                         if TRACE_LOG_PACKET.contains(&&*message_name) {
                             tracing::trace!(
-                                "version:{} cmd_id:{} message_name:{} \nsend:[{}]",
+                                "version:{} cmd_id:{} message_name:{}",
                                 version,
                                 cmd_id,
-                                message_name,
-                                hex::encode(&body)
+                                message_name
                             );
+                            if GAME_SERVER_CONFIG.plugin.packet_log {
+                                tracing::trace!("send:[{}]", hex::encode(&body));
+                            }
                         } else {
                             tracing::debug!(
-                                "version:{} cmd_id:{} message_name:{} \nsend:[{}]",
+                                "version:{} cmd_id:{} message_name:{}",
                                 version,
                                 cmd_id,
-                                message_name,
-                                hex::encode(&body)
+                                message_name
                             );
+                            if GAME_SERVER_CONFIG.plugin.packet_log {
+                                tracing::debug!("send:[{}]", hex::encode(&body));
+                            }
                         }
 
                         self.0

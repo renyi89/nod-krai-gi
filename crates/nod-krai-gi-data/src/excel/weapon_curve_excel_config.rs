@@ -20,12 +20,11 @@ impl WeaponCurveExcelConfigKeyed<u32> for WeaponCurveExcelConfig {
     }
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, WeaponCurveExcelConfig> {
-        let file = std::fs::File::open(&format!(
+        let json =  std::fs::read(&format!(
             "{excel_bin_output_path}/WeaponCurveExcelConfigData.json"
         ))
         .unwrap();
-        let content = std::io::BufReader::new(file);
-        let list :Vec<WeaponCurveExcelConfig>= serde_json::from_reader(content).unwrap();
+        let list :Vec<WeaponCurveExcelConfig>= serde_json::from_slice(&*json).unwrap();
         let data = list
             .iter()
             .map(|item| (item.key().clone(), item.clone()))

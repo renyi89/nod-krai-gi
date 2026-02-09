@@ -1,5 +1,6 @@
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::prop_type::FightPropType;
+use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_event::ability::*;
 
 pub fn ability_action_get_hp_paid_debts_event(
@@ -18,25 +19,31 @@ pub fn ability_action_get_hp_paid_debts_event(
         let override_map_key = action.override_map_key.unwrap_or("".into());
 
         if override_map_key.is_empty() {
-            tracing::debug!("[AbilityActionGetHPPaidDebtsEvent] Missing override_map_key");
+            if GAME_SERVER_CONFIG.plugin.ability_log {
+                tracing::debug!("[AbilityActionGetHPPaidDebtsEvent] Missing override_map_key");
+            }
             continue;
         }
 
         // Get fight properties from target entity
         let Ok(mut fight_props) = fight_props_query.get_mut(*target_entity) else {
-            tracing::debug!(
-                "[AbilityActionGetHPPaidDebtsEvent] Failed to get fight properties for entity {}",
-                target_entity
-            );
+            if GAME_SERVER_CONFIG.plugin.ability_log {
+                tracing::debug!(
+                    "[AbilityActionGetHPPaidDebtsEvent] Failed to get fight properties for entity {}",
+                    target_entity
+                );
+            }
             continue;
         };
 
         // Get abilities from ability entity (ability_index only applies to ability_entity)
         let Ok(mut abilities) = abilities_query.get_mut(*ability_entity) else {
-            tracing::debug!(
-                "[AbilityActionGetHPPaidDebtsEvent] Failed to get abilities for entity {}",
-                ability_entity
-            );
+            if GAME_SERVER_CONFIG.plugin.ability_log {
+                tracing::debug!(
+                    "[AbilityActionGetHPPaidDebtsEvent] Failed to get abilities for entity {}",
+                    ability_entity
+                );
+            }
             continue;
         };
 
@@ -51,11 +58,13 @@ pub fn ability_action_get_hp_paid_debts_event(
         // Store the value in the ability's specials
         if let Some(ability) = abilities.list.get_mut(*ability_index as usize) {
             ability.ability_specials.insert(override_map_key, paid_debt);
-            tracing::debug!(
-                "[AbilityActionGetHPPaidDebtsEvent] Setting override map value {} to {}",
-                override_map_key,
-                paid_debt
-            );
+            if GAME_SERVER_CONFIG.plugin.ability_log {
+                tracing::debug!(
+                    "[AbilityActionGetHPPaidDebtsEvent] Setting override map value {} to {}",
+                    override_map_key,
+                    paid_debt
+                );
+            }
         }
 
         // Update the entity's fight property

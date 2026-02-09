@@ -101,7 +101,7 @@ impl Ability {
     }
 
     fn process_open_configs(
-        open_configs: Vec<String>,
+        open_configs: Vec<InternString>,
         ability_map: &mut IndexMap<InternString, AbilityData>,
     ) {
         for open_config in open_configs {
@@ -116,9 +116,9 @@ impl Ability {
         }
     }
 
-    pub fn new_for_avatar(id: u32, open_configs: Vec<String>) -> Self {
+    pub fn new_for_avatar(id: u32, open_configs: Vec<InternString>) -> Self {
         let avatar_excel_config_collection_clone =
-            std::sync::Arc::clone(avatar_excel_config_collection::get());
+            Arc::clone(avatar_excel_config_collection::get());
         let avatar = avatar_excel_config_collection_clone.get(&id).unwrap();
         let avatar_name = avatar.icon_name.as_str().replace("UI_AvatarIcon_", "");
 

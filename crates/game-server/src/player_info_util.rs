@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
 use common::time_util;
+use nod_krai_gi_data::config::{process_inherent_proud_skills, process_talent_ids};
 use nod_krai_gi_data::excel::{
     avatar_costume_excel_config_collection, avatar_excel_config_collection,
     avatar_flycloak_excel_config_collection, avatar_skill_depot_excel_config_collection,
     avatar_skill_excel_config_collection, avatar_talent_excel_config_collection,
     avatar_trace_effect_excel_config_collection, proud_skill_excel_config_collection,
-    weapon_excel_config_collection, AvatarExcelConfig, AvatarTalentExcelConfig, AvatarUseType,
-    ProudSkillExcelConfig,
+    weapon_excel_config_collection, AvatarExcelConfig, AvatarUseType,
 };
 
 use nod_krai_gi_persistence::player_information::*;
@@ -69,10 +69,7 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerI
         quest_information: QuestInformation {
             enable: true,
             parent_quest_map: Default::default(),
-            sub_quest_map: Default::default(),
-        },
-        cache: CacheInformation {
-            ..Default::default()
+            quest_map: Default::default(),
         },
     };
 
@@ -134,7 +131,7 @@ fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelCon
     const DEFAULT_AVATAR_LEVEL: u32 = 100;
     const DEFAULT_AVATAR_BREAK_LEVEL: u32 = 6;
     const DEFAULT_CORE_PROUD_SKILL_LEVEL: u32 = 6;
-    const DEFAULT_WEAPON_LEVEL: u32 = 90;
+    const DEFAULT_WEAPON_LEVEL: u32 = 100;
     const DEFAULT_WEAPON_PROMOTE_LEVEL: u32 = 6;
     const DEFAULT_FLYCLOAK_ID: u32 = 140001;
 
@@ -251,7 +248,6 @@ fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelCon
             break_level: DEFAULT_AVATAR_BREAK_LEVEL,
             core_proud_skill_level: DEFAULT_CORE_PROUD_SKILL_LEVEL,
             skill_extra_charge_map,
-            open_configs,
             skill_depot_id: avatar.skill_depot_id,
             born_time: time_util::unix_timestamp() as u32,
             guid: avatar_guid,
@@ -276,30 +272,4 @@ fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelCon
             is_locked: false,
         },
     );
-}
-
-fn process_talent_ids(
-    talent_id_list: &[u32],
-    avatar_talent_collection: &std::sync::Arc<HashMap<u32, AvatarTalentExcelConfig>>,
-) -> Vec<String> {
-    let mut open_configs = Vec::new();
-    for talent_id in talent_id_list {
-        if let Some(talent_config) = avatar_talent_collection.get(talent_id) {
-            open_configs.push(talent_config.open_config.as_str().to_string());
-        }
-    }
-    open_configs
-}
-
-fn process_inherent_proud_skills(
-    inherent_proud_skill_list: &[u32],
-    proud_skill_collection: &std::sync::Arc<HashMap<u32, ProudSkillExcelConfig>>,
-) -> Vec<String> {
-    let mut open_configs = Vec::new();
-    for proud_skill_id in inherent_proud_skill_list {
-        if let Some(proud_skill_config) = proud_skill_collection.get(proud_skill_id) {
-            open_configs.push(proud_skill_config.open_config.as_str().to_string());
-        }
-    }
-    open_configs
 }

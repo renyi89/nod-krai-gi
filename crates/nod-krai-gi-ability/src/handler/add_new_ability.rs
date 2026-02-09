@@ -1,5 +1,6 @@
 use crate::util::get_ability_name;
 use bevy_ecs::prelude::*;
+use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_entity::common::{EntityById, InstancedAbilities, ProtocolEntityID};
 use nod_krai_gi_event::ability::*;
 
@@ -12,7 +13,9 @@ pub fn handle_add_new_ability(
         let entity = match index.0.get(&invoke.entity_id) {
             Some(e) => *e,
             None => {
-                tracing::debug!("[AddNewAbility] Entity {} not found", invoke.entity_id);
+                if GAME_SERVER_CONFIG.plugin.ability_log {
+                    tracing::debug!("[AddNewAbility] Entity {} not found", invoke.entity_id);
+                }
                 continue;
             }
         };
@@ -22,7 +25,9 @@ pub fn handle_add_new_ability(
         >(version, "AbilityMetaAddAbility", &*invoke.ability_data)
         {
             None => {
-                tracing::debug!("[AddNewAbility] Failed to decode AbilityMetaAddAbility");
+                if GAME_SERVER_CONFIG.plugin.ability_log {
+                    tracing::debug!("[AddNewAbility] Failed to decode AbilityMetaAddAbility");
+                }
             }
             Some(add_ability) => match entities.get_mut(entity) {
                 Ok((mut instanced_abilities, _)) => match add_ability.ability {
@@ -38,22 +43,26 @@ pub fn handle_add_new_ability(
                                 {
                                     None => {}
                                     Some(_) => {
-                                        tracing::debug!(
-                                            "[AddNewAbility] change ability.instanced_ability_id: {} ability_override",
-                                            ability.instanced_ability_id
-                                        );
+                                        if GAME_SERVER_CONFIG.plugin.ability_log {
+                                            tracing::debug!(
+                                                "[AddNewAbility] change ability.instanced_ability_id: {} ability_override",
+                                                ability.instanced_ability_id
+                                            );
+                                        }
                                     }
                                 }
                                 continue;
                             }
                         };
 
-                        tracing::debug!(
-                            "[AddNewAbility] instanced_ability_id: {} ability_name: {} invoke.entity_id: {}",
-                            ability.instanced_ability_id,
-                            ability_name,
-                            invoke.entity_id
-                        );
+                        if GAME_SERVER_CONFIG.plugin.ability_log {
+                            tracing::debug!(
+                                "[AddNewAbility] instanced_ability_id: {} ability_name: {} invoke.entity_id: {}",
+                                ability.instanced_ability_id,
+                                ability_name,
+                                invoke.entity_id
+                            );
+                        }
 
                         match instanced_abilities.add_or_replace_by_instanced_ability_id(
                             ability.instanced_ability_id,
@@ -61,10 +70,12 @@ pub fn handle_add_new_ability(
                         ) {
                             Some(_) => {}
                             None => {
-                                tracing::debug!(
-                                    "[AddNewAbility] add_with_instanced_ability_id fail {}",
-                                    ability_name
-                                );
+                                if GAME_SERVER_CONFIG.plugin.ability_log {
+                                    tracing::debug!(
+                                        "[AddNewAbility] add_with_instanced_ability_id fail {}",
+                                        ability_name
+                                    );
+                                }
                             }
                         };
                     }

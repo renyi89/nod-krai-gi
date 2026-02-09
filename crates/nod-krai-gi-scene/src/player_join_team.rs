@@ -1,6 +1,11 @@
 use crate::common::ScenePeerManager;
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::excel::{avatar_excel_config_collection, weapon_excel_config_collection};
+use nod_krai_gi_data::config::{process_inherent_proud_skills, process_talent_ids};
+use nod_krai_gi_data::excel::{
+    avatar_excel_config_collection, avatar_skill_depot_excel_config_collection,
+    avatar_talent_excel_config_collection, proud_skill_excel_config_collection,
+    weapon_excel_config_collection,
+};
 use nod_krai_gi_entity::avatar::{AvatarQueryReadOnly, CurrentTeam};
 use nod_krai_gi_entity::{
     ability::Ability,
@@ -29,13 +34,22 @@ pub fn player_join_team(
 ) {
     let is_empty = events.is_empty();
 
+    let weapon_excel_config_collection_clone =
+        std::sync::Arc::clone(weapon_excel_config_collection::get());
+
+    let avatar_excel_config_collection_clone =
+        std::sync::Arc::clone(avatar_excel_config_collection::get());
+
+    let avatar_skill_depot_excel_config_collection_clone =
+        std::sync::Arc::clone(avatar_skill_depot_excel_config_collection::get());
+
+    let avatar_talent_collection_clone =
+        std::sync::Arc::clone(avatar_talent_excel_config_collection::get());
+
+    let proud_skill_collection_clone =
+        std::sync::Arc::clone(proud_skill_excel_config_collection::get());
+
     for event in events.read() {
-        let weapon_excel_config_collection_clone =
-            std::sync::Arc::clone(weapon_excel_config_collection::get());
-
-        let avatar_excel_config_collection_clone =
-            std::sync::Arc::clone(avatar_excel_config_collection::get());
-
         let uid = event.player_uid;
         let Some(player_info) = players.get(uid) else {
             continue;
@@ -64,23 +78,60 @@ pub fn player_join_team(
                     }
                 }
                 None => {
-                    let to_spawn = player_info
-                        .avatar_module
-                        .avatar_map
-                        .get(to_spawn_guid)
-                        .unwrap();
+                    let Some(to_spawn) = player_info.avatar_module.avatar_map.get(to_spawn_guid)
+                    else {
+                        tracing::debug!("avatar guid {} doesn't exist", to_spawn_guid);
+                        continue;
+                    };
 
-                    let ItemInformation::Weapon {
+                    let Some(ItemInformation::Weapon {
                         weapon_id,
                         level,
                         exp: _,
                         promote_level,
                         affix_map,
                         is_locked: _,
-                    } = player_info.item_map.get(&to_spawn.weapon_guid).unwrap();
+                    }) = player_info.item_map.get(&to_spawn.weapon_guid)
+                    else {
+                        tracing::debug!("weapon guid {} doesn't exist", to_spawn.weapon_guid);
+                        continue;
+                    };
 
-                    let weapon_config =
-                        weapon_excel_config_collection_clone.get(weapon_id).unwrap();
+                    let Some(avatar_data) =
+                        avatar_excel_config_collection_clone.get(&to_spawn.avatar_id)
+                    else {
+                        tracing::debug!("avatar config {} doesn't exist", to_spawn.avatar_id);
+                        continue;
+                    };
+
+                    let Some(weapon_config) = weapon_excel_config_collection_clone.get(weapon_id)
+                    else {
+                        tracing::debug!("weapon config {} doesn't exist", weapon_id);
+                        continue;
+                    };
+
+                    let skill_depot = avatar_skill_depot_excel_config_collection_clone
+                        .get(&avatar_data.skill_depot_id)
+                        .unwrap();
+
+                    let talent_id_list: Vec<u32> = if to_spawn.core_proud_skill_level as usize
+                        > skill_depot.talents.len()
+                    {
+                        skill_depot.talents.clone()
+                    } else {
+                        skill_depot.talents[0..to_spawn.core_proud_skill_level as usize].to_vec()
+                    };
+
+                    let mut open_configs = Vec::new();
+                    open_configs.extend(process_talent_ids(
+                        &talent_id_list,
+                        &avatar_talent_collection_clone,
+                    ));
+
+                    open_configs.extend(process_inherent_proud_skills(
+                        &to_spawn.inherent_proud_skill_list,
+                        &proud_skill_collection_clone,
+                    ));
 
                     let weapon_entity = commands
                         .spawn(WeaponBundle {
@@ -113,9 +164,7 @@ pub fn player_join_team(
                         break_level: BreakLevel(to_spawn.break_level),
                         owner_player_uid: OwnerPlayerUID(player_info.uid),
                         fight_properties: create_fight_props_with_weapon(
-                            avatar_excel_config_collection_clone
-                                .get(&to_spawn.avatar_id)
-                                .unwrap(),
+                            avatar_data,
                             to_spawn.cur_hp,
                             to_spawn.level,
                             to_spawn.break_level,
@@ -138,10 +187,7 @@ pub fn player_join_team(
                             position: player_info.world_position.position.into(),
                             rotation: player_info.world_position.rotation.into(),
                         },
-                        ability: Ability::new_for_avatar(
-                            to_spawn.avatar_id,
-                            to_spawn.open_configs.clone(),
-                        ),
+                        ability: Ability::new_for_avatar(to_spawn.avatar_id, open_configs),
                         born_time: BornTime(to_spawn.born_time),
                         index_in_scene_team: IndexInSceneTeam(idx as u8),
                         inherent_proud_skill_list: InherentProudSkillList(

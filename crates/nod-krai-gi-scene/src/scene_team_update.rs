@@ -45,15 +45,28 @@ pub fn notify_scene_team_update(
                     .iter()
                     .sort::<&IndexInSceneTeam>()
                     .filter_map(|(avatar_data, _, is_cur)| {
-                        let weapon_data = weapon_query.get(avatar_data.equipment.weapon).unwrap();
+                        let Ok(weapon_data) = weapon_query.get(avatar_data.equipment.weapon) else {
+                            tracing::debug!(
+                                "weapon data {} doesn't exist",
+                                avatar_data.equipment.weapon
+                            );
+                            return None;
+                        };
 
-                        let skill_depot_data = avatar_skill_depot_excel_config_collection_clone
-                            .get(&avatar_data.skill_depot.0)
-                            .cloned()
-                            .unwrap();
+                        let Some(skill_depot_data) =
+                            avatar_skill_depot_excel_config_collection_clone
+                                .get(&avatar_data.skill_depot.0)
+                                .cloned()
+                        else {
+                            tracing::debug!(
+                                "skill_depot config {} doesn't exist",
+                                avatar_data.skill_depot.0
+                            );
+                            return None;
+                        };
 
                         let Some(player_info) = players.get(avatar_data.owner_player_uid.0) else {
-                           return None;
+                            return None;
                         };
                         Some(SceneTeamAvatar {
                             is_on_scene: true,
@@ -80,13 +93,13 @@ pub fn notify_scene_team_update(
                                         nod_krai_gi_entity::transform::Vector3::from(
                                             player_info.world_position.position,
                                         )
-                                            .into(),
+                                        .into(),
                                     ),
                                     rot: Some(
                                         nod_krai_gi_entity::transform::Vector3::from(
                                             player_info.world_position.rotation,
                                         )
-                                            .into(),
+                                        .into(),
                                     ),
                                     speed: Some(Vector::default()),
                                     ..Default::default()

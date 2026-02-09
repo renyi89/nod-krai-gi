@@ -398,11 +398,9 @@ fn load_ability_configs_recursive(
     }
 
     json_files.par_iter().for_each(|path| {
-        if let Ok(data) = std::fs::File::open(path) {
-            let reader = std::io::BufReader::new(data);
+        if let Ok(json) = std::fs::read(path) {
             let path_str = path.to_string_lossy().to_string();
-
-            if let Ok(wrappers) = serde_json::from_reader::<_, Vec<AbilityConfigWrapper>>(reader) {
+            if let Ok(wrappers) = serde_json::from_slice::<Vec<AbilityConfigWrapper>>(&*json) {
                 let mut map_guard = map.lock().unwrap();
                 for wrapper in wrappers {
                     let ability_name = wrapper.default.ability_name.clone();

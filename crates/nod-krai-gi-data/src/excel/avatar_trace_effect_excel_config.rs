@@ -22,12 +22,11 @@ impl AvatarTraceEffectExcelConfigKeyed<u32> for AvatarTraceEffectExcelConfig {
     }
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, AvatarTraceEffectExcelConfig> {
-        let file = std::fs::File::open(&format!(
+        let json =  std::fs::read(&format!(
             "{excel_bin_output_path}/AvatarTraceEffectExcelConfigData.json"
         ))
         .unwrap();
-        let content = std::io::BufReader::new(file);
-        let list: Vec<AvatarTraceEffectExcelConfig> = serde_json::from_reader(content).unwrap();
+        let list: Vec<AvatarTraceEffectExcelConfig> = serde_json::from_slice(&*json).unwrap();
         let data = list
             .iter()
             .map(|item| (item.key().clone(), item.clone()))

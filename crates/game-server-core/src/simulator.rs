@@ -1,13 +1,14 @@
-use std::{collections::HashMap, thread};
-
 use crate::command::LOGIC_COMMAND_QUEUE;
 use crate::{command::LogicCommand, player_world::PlayerWorld};
+use common::game_server_config::{cache_set_online_status, PlayerStatusType};
 use common::logging::TRACE_LOG_PACKET;
 use common::time_util;
+use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_message::output::ClientOutput;
 use nod_krai_gi_persistence::player_information::PlayerInformation;
 use nod_krai_gi_proto::packet_head::PacketHead;
+use std::{collections::HashMap, thread};
 
 #[derive(Clone)]
 pub struct LogicSimulator;
@@ -46,10 +47,6 @@ impl LogicSimulator {
             immediate_mode,
         }
         .push(uid);
-    }
-
-    pub fn update_client_time(&self, uid: u32, client_time: u32) {
-        LogicCommand::UpdateClientTime(client_time).push(uid);
     }
 
     pub fn update_world(&self, uid: u32) {
@@ -120,20 +117,24 @@ fn simulation_loop(save_data_tx: tokio::sync::mpsc::Sender<(u32, serde_json::Val
                                 } else {
                                     if TRACE_LOG_PACKET.contains(&&*message_name) {
                                         tracing::trace!(
-                                            "version:{} cmd_id: {} message_name:{} \nrecv:[{}]",
+                                            "version:{} cmd_id: {} message_name:{}",
                                             version,
                                             cmd_id,
                                             message_name,
-                                            hex::encode(&data)
                                         );
+                                        if GAME_SERVER_CONFIG.plugin.packet_log {
+                                            tracing::trace!("recv:[{}]", hex::encode(&data));
+                                        }
                                     } else {
                                         tracing::debug!(
-                                            "version:{} cmd_id: {} message_name:{} \nrecv:[{}]",
+                                            "version:{} cmd_id: {} message_name:{}",
                                             version,
                                             cmd_id,
                                             message_name,
-                                            hex::encode(&data)
                                         );
+                                        if GAME_SERVER_CONFIG.plugin.packet_log {
+                                            tracing::debug!("recv:[{}]", hex::encode(&data));
+                                        }
                                     }
 
                                     if let Some(world_owner_uid) = player_uid_map.get(&uid) {
@@ -148,7 +149,7 @@ fn simulation_loop(save_data_tx: tokio::sync::mpsc::Sender<(u32, serde_json::Val
                                             let save_time =
                                                 player_save_time_map.get_mut(&uid).unwrap();
                                             let cur_time = time_util::unix_timestamp();
-                                            if (cur_time - *save_time) >= 30
+                                            if (cur_time - *save_time) >= 360
                                                 && world.should_save(uid)
                                             {
                                                 *save_time = cur_time;
@@ -171,22 +172,18 @@ fn simulation_loop(save_data_tx: tokio::sync::mpsc::Sender<(u32, serde_json::Val
                         }
                     }
                 }
-                UpdateClientTime(client_time) => {
-                    if let Some(world_owner_uid) = player_uid_map.get(&uid) {
-                        if let Some(world) = player_world_map.get_mut(world_owner_uid) {
-                            world.update_client_time(uid, client_time);
-                        }
-                    }
-                }
                 Offline() => {
                     if let Some(&world_owner_uid) = player_uid_map.get(&uid) {
                         if let Some(world) = player_world_map.get_mut(&world_owner_uid) {
-                            let _ = save_data_tx
-                                .blocking_send((uid, world.serialize_player_information(uid)));
+                            if world.should_save(uid) {
+                                let _ = save_data_tx
+                                    .blocking_send((uid, world.serialize_player_information(uid)));
+                            }
                         }
                         player_uid_map.remove(&uid);
                         player_world_map.remove(&world_owner_uid);
                         player_save_time_map.remove(&uid);
+                        cache_set_online_status(uid, PlayerStatusType::PlayerStatusOffline);
                         tracing::info!("Player {} offline", uid);
                     }
                 }

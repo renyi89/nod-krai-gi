@@ -8,6 +8,7 @@ pub(crate) mod ability_action_set_override_map_value;
 pub(crate) mod ability_action_set_random_override_map_value;
 
 use bevy_ecs::prelude::*;
+use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_event::ability::*;
 
 pub fn execute_action_system(
@@ -120,7 +121,9 @@ pub fn execute_action_system(
                 _ => {}
             },
             _ => {
-                tracing::debug!("Unhandled action type: {}", type_name);
+                if GAME_SERVER_CONFIG.plugin.ability_log {
+                    tracing::debug!("Unhandled action type: {}", type_name);
+                }
             }
         }
     }

@@ -13,7 +13,6 @@ use crate::command::*;
 use crate::luashell::*;
 use crate::quest::*;
 use crate::scene::*;
-use crate::time::*;
 use bevy_app::{App, Plugin};
 
 pub struct EventRegistryPlugin;
@@ -43,8 +42,6 @@ impl Plugin for EventRegistryPlugin {
             .add_message::<ScenePlayerJumpByPointEvent>()
             //luashell
             .add_message::<LuaShellEvent>()
-            //time
-            .add_message::<UpdateClientTimeEvent>()
             //combat
             .add_message::<EntityMoveEvent>()
             .add_message::<EntityBeingHitEvent>()
