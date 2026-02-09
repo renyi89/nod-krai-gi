@@ -11,8 +11,7 @@ use nod_krai_gi_entity::{
 use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
-use nod_krai_gi_proto::{
-    ability_string, AbilityScalarValueEntry, AbilityString, AbilitySyncStateInfo,
+use nod_krai_gi_proto::normal::{    ability_string, AbilityScalarValueEntry, AbilityString, AbilitySyncStateInfo,
     AvatarEnterSceneInfo, MpLevelEntityInfo, PlayTeamEntityInfo, PlayerEnterSceneInfoNotify,
     SyncScenePlayTeamEntityNotify, TeamEnterSceneInfo,
 };
@@ -126,7 +125,7 @@ pub fn sync_play_team_entity(
             *uid,
             "SyncScenePlayTeamEntityNotify",
             SyncScenePlayTeamEntityNotify {
-                scene_id: player_info.world_position.scene_id,
+                scene_id: player_info.scene_bin.my_cur_scene_id,
                 entity_info_list: play_team_entities
                     .iter()
                     .map(|(owner_uid, id)| PlayTeamEntityInfo {

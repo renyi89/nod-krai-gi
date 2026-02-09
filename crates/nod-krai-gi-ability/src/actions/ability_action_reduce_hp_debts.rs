@@ -5,7 +5,7 @@ use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_entity::common::ProtocolEntityID;
 use nod_krai_gi_entity::fight::{ChangeReason, EntityFightPropChangeReasonNotifyEvent};
 use nod_krai_gi_event::ability::*;
-use nod_krai_gi_proto::{ChangeHpDebtsReason, PropChangeReason};
+use nod_krai_gi_proto::normal::{ChangeHpDebtsReason, PropChangeReason};
 
 pub fn ability_action_reduce_hp_debts_event(
     mut events: MessageReader<AbilityActionReduceHPDebtsEvent>,

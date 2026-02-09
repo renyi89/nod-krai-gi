@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_entity::common::{EntityById, InstancedAbilities, ProtocolEntityID};
-use nod_krai_gi_proto::AbilityMetaReInitOverrideMap;
+use nod_krai_gi_proto::normal::AbilityMetaReInitOverrideMap;
 
 use crate::util::get_ability_name;
 use nod_krai_gi_event::ability::*;

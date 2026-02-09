@@ -19,7 +19,7 @@ use nod_krai_gi_message::{
     output::{ClientOutput, MessageOutput},
 };
 use nod_krai_gi_pathfinding::PathfindingPlugin;
-use nod_krai_gi_persistence::{player_information::PlayerInformation, Players};
+use nod_krai_gi_persistence::{player_information::PlayerDataBin, Players};
 use nod_krai_gi_quest::QuestPlugin;
 use nod_krai_gi_scene::{common::WorldOwnerUID, ScenePlugin};
 use nod_krai_gi_social::SocialPlugin;
@@ -28,7 +28,7 @@ use nod_krai_gi_time::TimePlugin;
 pub struct PlayerWorld(App);
 
 impl PlayerWorld {
-    pub fn new(player_information: PlayerInformation, output: ClientOutput) -> Self {
+    pub fn new(player_information: PlayerDataBin, output: ClientOutput) -> Self {
         let uid = player_information.uid;
 
         let message_out = MessageOutput::new(HashMap::from([(uid, output.clone())]));
@@ -120,6 +120,6 @@ impl PlayerWorld {
         let Some(player_info) = players.get(uid) else {
             return false;
         };
-        [3, 5, 6, 7, 11, 101].contains(&player_info.world_position.scene_id)
+        [3, 5, 6, 7, 11, 101].contains(&player_info.scene_bin.my_cur_scene_id)
     }
 }

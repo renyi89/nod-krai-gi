@@ -26,7 +26,7 @@ fn data_request_processor(
     mut events: MessageReader<ClientMessageEvent>,
     message_output: Res<MessageOutput>,
 ) {
-    use nod_krai_gi_proto::*;
+    use nod_krai_gi_proto::normal::*;
 
     let scene_point_config_collection_clone = Arc::clone(
         nod_krai_gi_data::scene::scene_point_config::SCENE_POINT_CONFIG_COLLECTION
@@ -45,7 +45,7 @@ fn data_request_processor(
                         message.sender_uid(),
                         "GetSceneAreaRsp",
                         GetSceneAreaRsp {
-                            retcode: retcode::Retcode::RetSucc.into(),
+                            retcode: nod_krai_gi_proto::retcode::Retcode::RetSucc.into(),
                             city_info_list: vec![
                                 CityInfo {
                                     crystal_num: 10,
@@ -164,7 +164,7 @@ pub fn sync_scene_info_list_on_scene_init(
     mut events: MessageReader<SceneInitFinishEvent>,
     message_output: Res<MessageOutput>,
 ) {
-    use nod_krai_gi_proto::*;
+    use nod_krai_gi_proto::normal::*;
 
     let scene_tag_entries_clone = Arc::clone(SceneTagConfig::get_scene_tag_entries());
 
@@ -251,7 +251,7 @@ pub fn sync_group_unlimit_point_list_on_post_enter_scene(
         let Some(player_info) = players.get(*uid) else {
             continue;
         };
-        let scene_id = player_info.world_position.scene_id;
+        let scene_id = player_info.scene_bin.my_cur_scene_id;
         match scene_point_config_collection_clone.get(&scene_id) {
             None => {}
             Some(scene_config) => {
@@ -265,7 +265,7 @@ pub fn sync_group_unlimit_point_list_on_post_enter_scene(
                         out.send(
                             *uid,
                             "UnfreezeGroupLimitNotify",
-                            nod_krai_gi_proto::UnfreezeGroupLimitNotify {
+                            nod_krai_gi_proto::normal::UnfreezeGroupLimitNotify {
                                 point_id: *point_id,
                                 scene_id,
                             },

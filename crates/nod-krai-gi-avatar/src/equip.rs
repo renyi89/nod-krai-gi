@@ -10,11 +10,11 @@ use nod_krai_gi_entity::{
         OwnerPlayerUID, ProtocolEntityID, ToBeRemovedMarker,
     },
     util::to_protocol_entity_id,
-    weapon::{AffixMap, PromoteLevel, WeaponBundle, WeaponID, WeaponQueryReadOnly},
+    weapon::{AffixMap, WeaponPromoteLevel, WeaponBundle, WeaponID, WeaponQueryReadOnly},
 };
 use nod_krai_gi_message::output::MessageOutput;
-use nod_krai_gi_persistence::{player_information::ItemInformation, Players};
-use nod_krai_gi_proto::{
+use nod_krai_gi_persistence::{player_information::ItemBin, Players};
+use nod_krai_gi_proto::normal::{
     AbilitySyncStateInfo, AvatarEquipChangeNotify, EntityRendererChangedInfo, ProtEntityType,
     SceneWeaponInfo,
 };
@@ -93,7 +93,7 @@ pub fn apply_equip_change_to_avatar_entity(
             continue;
         };
         let Some(avatar) = player_info
-            .avatar_module
+            .avatar_bin
             .avatar_map
             .get(&avatar_equip_change.avatar_guid)
         else {
@@ -104,14 +104,14 @@ pub fn apply_equip_change_to_avatar_entity(
             continue;
         };
 
-        let Some(ItemInformation::Weapon {
+        let Some(ItemBin::Weapon {
             weapon_id,
             level,
             exp: _,
             promote_level,
             affix_map,
             is_locked: _,
-        }) = player_info.item_map.get(&avatar_equip_change.weapon_guid)
+        }) = player_info.item_bin.get_item(&avatar_equip_change.weapon_guid)
         else {
             tracing::debug!(
                 "weapon guid {} doesn't exist",
@@ -136,7 +136,7 @@ pub fn apply_equip_change_to_avatar_entity(
                 guid: Guid(avatar_equip_change.weapon_guid),
                 gadget_id: GadgetID(weapon_config.gadget_id),
                 affix_map: AffixMap(affix_map.clone()),
-                promote_level: PromoteLevel(*promote_level),
+                promote_level: WeaponPromoteLevel(*promote_level),
             })
             .id();
 
@@ -151,7 +151,7 @@ pub fn apply_equip_change_to_avatar_entity(
             avatar_data,
             cur_hp,
             avatar.level,
-            avatar.break_level,
+            avatar.promote_level,
             weapon_config,
             *level,
         );

@@ -24,7 +24,7 @@ pub fn on_post_enter_scene(
         out.send(
             *uid,
             "PostEnterSceneRsp",
-            nod_krai_gi_proto::PostEnterSceneRsp {
+            nod_krai_gi_proto::normal::PostEnterSceneRsp {
                 retcode: nod_krai_gi_proto::retcode::Retcode::RetSucc.into(),
                 enter_scene_token: replace_out_u32(
                     protocol_version,

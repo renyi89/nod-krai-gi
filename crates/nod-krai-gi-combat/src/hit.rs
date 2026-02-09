@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::*;
 use nod_krai_gi_entity::common::{EntityById, FightProperties, OwnerPlayerUID, ProtocolEntityID};
 use nod_krai_gi_event::combat::*;
-use nod_krai_gi_proto::ProtEntityType;
+use nod_krai_gi_proto::normal::ProtEntityType;
 use tracing::{debug, instrument};
 
 #[instrument(skip_all)]

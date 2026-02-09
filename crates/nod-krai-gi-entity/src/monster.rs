@@ -35,7 +35,7 @@ pub fn notify_appear_monster_entities(
     monsters: Query<MonsterQueryReadOnly, Added<Visible>>,
     out: Res<MessageOutput>,
 ) {
-    use nod_krai_gi_proto::*;
+    use nod_krai_gi_proto::normal::*;
 
     out.send_to_all(
         "SceneEntityAppearNotify",

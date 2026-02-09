@@ -23,7 +23,7 @@ use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::dy_parser::{replace_out_u32, replace_out_u64};
-use nod_krai_gi_proto::{EnterType, ProtEntityType, VisionType};
+use nod_krai_gi_proto::normal::{EnterType, ProtEntityType, VisionType};
 use std::sync::Arc;
 
 mod avatar;
@@ -105,16 +105,16 @@ fn init_scene(
             continue;
         };
 
-        if player_info.world_position.scene_id == 0 {
-            player_info.world_position.scene_id = 3;
+        if player_info.scene_bin.my_cur_scene_id == 0 {
+            player_info.scene_bin.my_cur_scene_id = 3;
         }
 
         enter_events.write(BeginEnterSceneEvent {
             uid,
-            scene_id: player_info.world_position.scene_id,
+            scene_id: player_info.scene_bin.my_cur_scene_id,
             enter_type: EnterType::EnterSelf,
             enter_reason: EnterReason::Login,
-            position: player_info.world_position.position.into(),
+            position: player_info.scene_bin.my_prev_pos.into(),
         });
     }
 }
@@ -206,7 +206,7 @@ fn notify_player_enter_scene(
         message_output.send(
             event.uid,
             "PlayerEnterSceneNotify",
-            nod_krai_gi_proto::PlayerEnterSceneNotify {
+            nod_krai_gi_proto::normal::PlayerEnterSceneNotify {
                 scene_id: replace_out_u32(
                     protocol_version,
                     "PlayerEnterSceneNotify.scene_id",

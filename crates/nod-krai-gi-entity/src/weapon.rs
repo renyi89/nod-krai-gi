@@ -11,7 +11,7 @@ pub struct WeaponID(pub u32);
 pub struct AffixMap(pub HashMap<u32, u32>);
 
 #[derive(Component, Default)]
-pub struct PromoteLevel(pub u32);
+pub struct WeaponPromoteLevel(pub u32);
 
 #[derive(Bundle)]
 pub struct WeaponBundle {
@@ -20,7 +20,7 @@ pub struct WeaponBundle {
     pub guid: Guid,
     pub level: Level,
     pub gadget_id: GadgetID,
-    pub promote_level: PromoteLevel,
+    pub promote_level: WeaponPromoteLevel,
     pub affix_map: AffixMap,
 }
 
@@ -31,6 +31,6 @@ pub struct WeaponQueryReadOnly {
     pub guid: &'static Guid,
     pub level: &'static Level,
     pub gadget_id: &'static GadgetID,
-    pub promote_level: &'static PromoteLevel,
+    pub promote_level: &'static WeaponPromoteLevel,
     pub affix_map: &'static AffixMap,
 }

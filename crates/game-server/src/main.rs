@@ -57,10 +57,12 @@ async fn main() -> Result<()> {
         .expect("TODO: panic message");
     static STATE: OnceLock<AppState> = OnceLock::new();
 
-    tokio::spawn(async {
-        load_ability_configs_from_bin("assets/BinOutput").unwrap();
-        tracing::info!("load_ability_configs_from_bin end");
-    });
+    if GAME_SERVER_CONFIG.plugin.ability {
+        tokio::spawn(async {
+            load_ability_configs_from_bin("assets/BinOutput").unwrap();
+            tracing::info!("load_ability_configs_from_bin end");
+        });
+    }
 
     tokio::spawn(async {
         load_quest_configs_from_bin("assets/BinOutput");

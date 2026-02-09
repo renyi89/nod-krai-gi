@@ -3,7 +3,7 @@ use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_entity::common::{
     AbilityModifierController, EntityById, InstancedAbilities, InstancedModifiers,
 };
-use nod_krai_gi_proto::{AbilityMetaModifierChange, ModifierAction};
+use nod_krai_gi_proto::normal::{AbilityMetaModifierChange, ModifierAction};
 
 use crate::util::get_ability_name;
 use nod_krai_gi_event::ability::*;

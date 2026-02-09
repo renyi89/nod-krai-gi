@@ -21,7 +21,7 @@ pub fn handle_add_new_ability(
         };
 
         match nod_krai_gi_proto::dy_parser::decode_from_vec_by_name_version::<
-            nod_krai_gi_proto::AbilityMetaAddAbility,
+            nod_krai_gi_proto::normal::AbilityMetaAddAbility,
         >(version, "AbilityMetaAddAbility", &*invoke.ability_data)
         {
             None => {

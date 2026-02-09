@@ -25,8 +25,9 @@ pub mod weapon;
 use crate::common::Visible;
 use crate::fight::EntityFightPropChangeReasonNotifyEvent;
 use crate::{avatar::CurrentPlayerAvatarMarker, client_gadget::EntitySystemSet};
-pub use nod_krai_gi_proto::ProtEntityType;
-use nod_krai_gi_proto::{LifeStateChangeNotify, SceneEntityDisappearNotify, VisionType};
+use nod_krai_gi_proto::normal::{
+    LifeStateChangeNotify, ProtEntityType, SceneEntityDisappearNotify, VisionType,
+};
 
 pub struct EntityPlugin;
 

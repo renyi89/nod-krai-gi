@@ -5,7 +5,8 @@ use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::dy_parser::replace_out_u32;
-use nod_krai_gi_proto::{retcode::Retcode, SceneInitFinishRsp};
+use nod_krai_gi_proto::normal::SceneInitFinishRsp;
+use nod_krai_gi_proto::retcode::Retcode;
 
 pub fn on_scene_init_finish(
     mut reader: MessageReader<SceneInitFinishEvent>,
@@ -19,45 +20,45 @@ pub fn on_scene_init_finish(
         };
 
         let Some(team_info) = player_info
-            .avatar_module
+            .avatar_bin
             .team_map
-            .get(&player_info.avatar_module.cur_avatar_team_id)
+            .get(&player_info.avatar_bin.cur_team_id)
         else {
             tracing::debug!(
                 "team_info {} doesn't exist",
-                player_info.avatar_module.cur_avatar_team_id
+                player_info.avatar_bin.cur_team_id
             );
             continue;
         };
 
-        if player_info.avatar_module.cur_avatar_guid_list.is_empty() {
-            player_info.avatar_module.cur_avatar_guid_list = team_info.avatar_guid_list.clone();
+        if player_info.avatar_bin.cur_avatar_guid_list.is_empty() {
+            player_info.avatar_bin.cur_avatar_guid_list = team_info.avatar_guid_list.clone();
         }
 
-        if player_info.avatar_module.cur_avatar_guid_list.is_empty() {
+        if player_info.avatar_bin.cur_avatar_guid_list.is_empty() {
             tracing::debug!("cur_avatar_guid_list is_empty");
             continue;
         }
 
         let appear_avatar_guid = {
             if !player_info
-                .avatar_module
+                .avatar_bin
                 .cur_avatar_guid_list
-                .contains(&player_info.avatar_module.cur_avatar_guid)
+                .contains(&player_info.avatar_bin.cur_avatar_guid)
             {
-                player_info.avatar_module.cur_avatar_guid = player_info
-                    .avatar_module
+                player_info.avatar_bin.cur_avatar_guid = player_info
+                    .avatar_bin
                     .cur_avatar_guid_list
                     .first()
                     .copied()
                     .unwrap_or_default();
             }
-            player_info.avatar_module.cur_avatar_guid
+            player_info.avatar_bin.cur_avatar_guid
         };
 
         join_team_events.write(PlayerJoinTeamEvent {
             player_uid: uid,
-            avatar_guid_list: player_info.avatar_module.cur_avatar_guid_list.clone(),
+            avatar_guid_list: player_info.avatar_bin.cur_avatar_guid_list.clone(),
             appear_avatar_guid,
         });
     }

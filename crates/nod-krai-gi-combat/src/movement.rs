@@ -65,13 +65,13 @@ pub fn track_player_position(
             continue;
         };
 
-        player_info.world_position.position = transform.position.into();
-        player_info.world_position.rotation = transform.rotation.into();
+        player_info.scene_bin.my_prev_pos = transform.position.into();
+        player_info.scene_bin.my_prev_rot = transform.rotation.into();
 
         trace!(
             "player with uid {} player.scene_id {} moved to {}",
             owner_uid.0,
-            player_info.world_position.scene_id,
+            player_info.scene_bin.my_cur_scene_id,
             transform
         );
     }

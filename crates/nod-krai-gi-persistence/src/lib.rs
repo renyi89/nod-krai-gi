@@ -1,29 +1,29 @@
 use std::collections::{hash_map::Keys, HashMap};
 
 use bevy_ecs::prelude::Resource;
-use player_information::PlayerInformation;
+use player_information::PlayerDataBin;
 
 pub mod player_information;
 
 #[derive(Resource)]
-pub struct Players(HashMap<u32, PlayerInformation>);
+pub struct Players(HashMap<u32, PlayerDataBin>);
 
 impl Players {
-    pub fn keys(&self) -> Keys<'_, u32, PlayerInformation> {
+    pub fn keys(&self) -> Keys<'_, u32, PlayerDataBin> {
         self.0.keys()
     }
 
-    pub fn get(&self, uid: u32) -> Option<&PlayerInformation>  {
+    pub fn get(&self, uid: u32) -> Option<&PlayerDataBin>  {
         self.0.get(&uid)
     }
 
-    pub fn get_mut(&mut self, uid: u32) -> Option<&mut PlayerInformation> {
+    pub fn get_mut(&mut self, uid: u32) -> Option<&mut PlayerDataBin> {
         self.0.get_mut(&uid)
     }
 }
 
-impl From<HashMap<u32, PlayerInformation>> for Players {
-    fn from(value: HashMap<u32, PlayerInformation>) -> Self {
+impl From<HashMap<u32, PlayerDataBin>> for Players {
+    fn from(value: HashMap<u32, PlayerDataBin>) -> Self {
         Self(value)
     }
 }

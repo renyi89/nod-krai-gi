@@ -3,7 +3,11 @@ use bevy_ecs::change_detection::Res;
 use bevy_ecs::message::{Message, MessageReader};
 use bevy_ecs::prelude::{Changed, Query};
 use nod_krai_gi_message::output::MessageOutput;
-use nod_krai_gi_proto::{AvatarFightPropUpdateNotify, ChangeEnergyReason, ChangeHpDebtsReason, ChangeHpReason, EntityFightPropChangeReasonNotify, EntityFightPropUpdateNotify, PropChangeReason, ProtEntityType};
+use nod_krai_gi_proto::normal::{
+    AvatarFightPropUpdateNotify, ChangeEnergyReason, ChangeHpDebtsReason, ChangeHpReason,
+    EntityFightPropChangeReasonNotify, EntityFightPropUpdateNotify, PropChangeReason,
+    ProtEntityType,
+};
 
 pub fn notify_fight_properties_to_clients(
     mut changed_properties: Query<

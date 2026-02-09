@@ -1,6 +1,5 @@
 use bevy_ecs::message::Message;
-use nod_krai_gi_entity::transform::Vector3;
-use nod_krai_gi_proto::EnterType;
+use nod_krai_gi_proto::normal::EnterType;
 
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -85,7 +84,7 @@ pub struct BeginEnterSceneEvent {
     pub scene_id: u32,
     pub enter_type: EnterType,
     pub enter_reason: EnterReason,
-    pub position: Vector3,
+    pub position: nod_krai_gi_proto::server_only::Vector,
 }
 
 #[derive(Message)]

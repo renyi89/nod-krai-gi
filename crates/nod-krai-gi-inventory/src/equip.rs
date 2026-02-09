@@ -1,8 +1,9 @@
 use bevy_ecs::prelude::*;
 use nod_krai_gi_entity::avatar::AvatarEquipChangeEvent;
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
-use nod_krai_gi_persistence::{player_information::ItemInformation, Players};
-use nod_krai_gi_proto::{retcode::Retcode, WearEquipReq, WearEquipRsp};
+use nod_krai_gi_persistence::{player_information::ItemBin, Players};
+use nod_krai_gi_proto::normal::{WearEquipReq, WearEquipRsp};
+use nod_krai_gi_proto::retcode::Retcode;
 use tracing::{debug, instrument};
 
 #[instrument(skip_all)]
@@ -20,9 +21,9 @@ pub fn change_avatar_equip(
                         continue;
                     };
                     if !player_info
-                        .item_map
-                        .get(&request.equip_guid)
-                        .map(|item| matches!(item, ItemInformation::Weapon { .. }))
+                        .item_bin
+                        .get_item(&request.equip_guid)
+                        .map(|item| matches!(item, ItemBin::Weapon { .. }))
                         .unwrap_or(false)
                     {
                         debug!("weapon with guid {} doesn't exist", request.equip_guid);
@@ -30,7 +31,7 @@ pub fn change_avatar_equip(
                     }
 
                     let Some(avatar) = player_info
-                        .avatar_module
+                        .avatar_bin
                         .avatar_map
                         .get_mut(&request.avatar_guid)
                     else {

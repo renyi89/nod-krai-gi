@@ -4,7 +4,7 @@ use nod_krai_gi_event::command::*;
 use nod_krai_gi_message::event::ClientMessageEvent;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_proto::retcode::Retcode;
-use nod_krai_gi_proto::{FriendBrief, GetPlayerFriendListRsp, PrivateChatReq, ProfilePicture};
+use nod_krai_gi_proto::normal::{FriendBrief, GetPlayerFriendListRsp, PrivateChatReq, ProfilePicture};
 
 pub struct SocialPlugin;
 
@@ -54,7 +54,7 @@ pub fn handle_chat(
                     if req.target_uid == 123 {
                         let recv_text;
                         match req.content {
-                            Some(nod_krai_gi_proto::private_chat_req::Content::Text(text)) => {
+                            Some(nod_krai_gi_proto::normal::private_chat_req::Content::Text(text)) => {
                                 recv_text = text.clone();
                             }
                             _ => {

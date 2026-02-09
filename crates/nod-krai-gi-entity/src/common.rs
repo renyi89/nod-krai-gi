@@ -12,15 +12,12 @@ use nod_krai_gi_data::{
     },
     prop_type::FightPropType,
 };
-use nod_krai_gi_proto::ProtEntityType;
+use nod_krai_gi_proto::normal::ProtEntityType;
 
 use crate::fight_props;
 
 #[derive(Component)]
 pub struct Level(pub u32);
-
-#[derive(Component)]
-pub struct BreakLevel(pub u32);
 
 #[derive(Component)]
 pub struct CoreProudSkillLevel(pub u32);

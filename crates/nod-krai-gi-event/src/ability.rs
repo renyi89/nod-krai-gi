@@ -1,7 +1,7 @@
 use bevy_ecs::entity::Entity;
 use bevy_ecs::message::Message;
 use nod_krai_gi_data::ability::{AbilityMixinData, AbilityModifierAction};
-use nod_krai_gi_proto::AbilityInvokeEntry;
+use nod_krai_gi_proto::normal::AbilityInvokeEntry;
 
 //ability
 #[derive(Message)]

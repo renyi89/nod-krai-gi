@@ -1,26 +1,14 @@
 pub use prost::DecodeError as ProtobufDecodeError;
 pub use prost::Message as Protobuf;
 
-pub trait CmdID {
-    const CMD_ID: u16;
-
-    fn get_cmd_id(&self) -> u16 {
-        Self::CMD_ID
-    }
-}
-
-pub trait YSMessage: Protobuf + CmdID {}
-impl<T: Protobuf + CmdID> YSMessage for T {}
-
 pub mod dy_parser;
-mod normal;
+pub mod gm;
+pub mod normal;
 pub mod packet;
 pub mod packet_head;
 pub mod raw_packet;
 pub mod retcode;
-pub mod gm;
-
-pub use normal::*;
+pub mod server_only;
 
 fn is_default<T: Default + PartialEq>(t: &T) -> bool {
     t == &T::default()
@@ -36,7 +24,9 @@ mod base64 {
 
     pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<Vec<u8>, D::Error> {
         let base64 = String::deserialize(d)?;
-        base64_simd::STANDARD.decode_to_vec(&*base64).map_err(|e| serde::de::Error::custom(e))
+        base64_simd::STANDARD
+            .decode_to_vec(&*base64)
+            .map_err(|e| serde::de::Error::custom(e))
     }
 }
 
@@ -147,19 +137,16 @@ mod u64_map_both_string {
     use std::str::FromStr;
 
     #[allow(dead_code)]
-    pub fn serialize<S: Serializer>(
-        map: &HashMap<u64, u64>,
-        s: S,
-    ) -> Result<S::Ok, S::Error> {
-        let string_both_map: HashMap<String, String> =
-            map.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect();
+    pub fn serialize<S: Serializer>(map: &HashMap<u64, u64>, s: S) -> Result<S::Ok, S::Error> {
+        let string_both_map: HashMap<String, String> = map
+            .iter()
+            .map(|(k, v)| (k.to_string(), v.to_string()))
+            .collect();
         string_both_map.serialize(s)
     }
 
     #[allow(dead_code)]
-    pub fn deserialize<'de, D: Deserializer<'de>>(
-        d: D,
-    ) -> Result<HashMap<u64, u64>, D::Error> {
+    pub fn deserialize<'de, D: Deserializer<'de>>(d: D) -> Result<HashMap<u64, u64>, D::Error> {
         let string_both_map: HashMap<String, String> = HashMap::deserialize(d)?;
         string_both_map
             .into_iter()

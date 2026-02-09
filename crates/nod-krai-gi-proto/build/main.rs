@@ -3,20 +3,25 @@ use std::path::Path;
 
 pub fn main() {
     println!("cargo:rerun-if-changed=proto");
+    println!("cargo:rerun-if-changed=server_only");
 
     let _ = fs::create_dir("gen/");
 
+    process_proto_dir("./proto", &["proto"],"normal");
+    
+    process_proto_dir("./server_only", &["server_only"],"server_only");
+}
+
+fn process_proto_dir(dir: &str, includes: &[&str],target:&str) {
     let mut config = prost_build::Config::new();
-    config.out_dir("gen");
+    config.out_dir(format!("gen/{}",target).as_str());
     config.type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]");
     config.message_attribute(".", "#[serde(default)]");
     config.field_attribute(".", "#[serde(skip_serializing_if = \"crate::is_default\")]");
 
-    // config.enum_attribute(".","#[serde(rename_all = \"SCREAMING_SNAKE_CASE\")]");
-
     let mut files: Vec<String> = Vec::new();
 
-    let path = Path::new("./proto");
+    let path = Path::new(dir);
     if path.read_dir().unwrap().count() == 0 {
         return;
     }
@@ -30,9 +35,9 @@ pub fn main() {
         }
     }
 
-    config.compile_protos(&*files, &["proto"]).unwrap();
-    let path = "gen/_.rs"; // prost 生成的文件路径
-    let content = fs::read_to_string(path).expect("无法读取文件");
+    config.compile_protos(&*files, includes).unwrap();
+    let path = format!("gen/{}/_.rs",target);
+    let content = fs::read_to_string(path.as_str()).expect("can not read");
 
     let mut is_enum = false;
     let mut is_oneof = false;
@@ -94,5 +99,5 @@ pub fn main() {
         output1.push_str("\n");
     }
 
-    fs::write(path, output1).expect("无法写入文件");
+    fs::write(path, output1).expect("can not write");
 }

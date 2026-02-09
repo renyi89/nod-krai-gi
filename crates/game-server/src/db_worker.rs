@@ -1,5 +1,5 @@
 use nod_krai_gi_database::{rocksdb_op, DbConnection, DbError};
-use nod_krai_gi_persistence::player_information::PlayerInformation;
+use nod_krai_gi_persistence::player_information::PlayerDataBin;
 use tokio::{
     select,
     sync::{mpsc, oneshot},
@@ -8,14 +8,14 @@ use tokio::{
 use crate::player_info_util;
 
 enum DbOperation {
-    Fetch(u32, oneshot::Sender<Option<PlayerInformation>>),
+    Fetch(u32, oneshot::Sender<Option<PlayerDataBin>>),
     FetchUserUid(String, oneshot::Sender<Result<u32, DbError>>),
 }
 
 pub struct DbWorkerHandle(mpsc::Sender<DbOperation>);
 
 impl DbWorkerHandle {
-    pub async fn fetch(&self, uid: u32) -> Option<PlayerInformation> {
+    pub async fn fetch(&self, uid: u32) -> Option<PlayerDataBin> {
         let (tx, rx) = oneshot::channel();
         let _ = self.0.send(DbOperation::Fetch(uid, tx)).await;
 

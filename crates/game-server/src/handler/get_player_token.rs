@@ -4,8 +4,8 @@ use common::game_server_config::{
 };
 use common::language::Language;
 use nod_krai_gi_encryption::xor::{MhyXorpad, XorpadGenerationMethod};
+use nod_krai_gi_proto::normal::{GetPlayerTokenReq, GetPlayerTokenRsp};
 use nod_krai_gi_proto::retcode::Retcode;
-use nod_krai_gi_proto::{GetPlayerTokenReq, GetPlayerTokenRsp};
 use rand::RngCore;
 
 use super::Session;

@@ -6,3 +6,5 @@ version.workspace = true
 [dependencies]
 bevy_ecs.workspace = true
 serde.workspace = true
+
+nod-krai-gi-proto.workspace = true

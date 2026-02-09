@@ -12,7 +12,7 @@ use nod_krai_gi_entity::{
 use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
-use nod_krai_gi_proto::{
+use nod_krai_gi_proto::normal::{
     scene_entity_info, AbilitySyncStateInfo, AnimatorParameterValueInfo,
     AnimatorParameterValueInfoPair, AvatarExcelInfo, AvatarSkillInfo, AvatarSkillInfoNotify,
     EntityAuthorityInfo, EntityClientData, EntityClientExtraInfo, EntityRendererChangedInfo,
@@ -78,7 +78,7 @@ pub fn notify_scene_team_update(
                             weapon_entity_id: weapon_data.entity_id.0,
                             avatar_info: None,
                             scene_avatar_info: None,
-                            scene_id: player_info.world_position.scene_id,
+                            scene_id: player_info.scene_bin.my_cur_scene_id,
                             player_uid: avatar_data.owner_player_uid.0,
                             server_buff_list: Vec::with_capacity(0),
                             ability_control_block: Some(avatar_data.ability.build_control_block()),
@@ -89,18 +89,8 @@ pub fn notify_scene_team_update(
                                 entity_id: avatar_data.entity_id.0,
                                 name: String::with_capacity(0),
                                 motion_info: Some(MotionInfo {
-                                    pos: Some(
-                                        nod_krai_gi_entity::transform::Vector3::from(
-                                            player_info.world_position.position,
-                                        )
-                                        .into(),
-                                    ),
-                                    rot: Some(
-                                        nod_krai_gi_entity::transform::Vector3::from(
-                                            player_info.world_position.rotation,
-                                        )
-                                        .into(),
-                                    ),
+                                    pos: Some(player_info.scene_bin.my_prev_pos.into()),
+                                    rot: Some(player_info.scene_bin.my_prev_rot.into()),
                                     speed: Some(Vector::default()),
                                     ..Default::default()
                                 }),

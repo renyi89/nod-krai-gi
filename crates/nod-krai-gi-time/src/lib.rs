@@ -6,11 +6,11 @@ use common::time_util;
 use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
 use nod_krai_gi_persistence::Players;
-use nod_krai_gi_proto::{
-    retcode::Retcode, ClientSetGameTimeReq, ClientSetGameTimeRsp, PlayerGameTimeNotify,
-    PlayerSetPauseReq, PlayerSetPauseRsp, PlayerTimeNotify, ServerTimeNotify,
+use nod_krai_gi_proto::normal::{
+    ClientSetGameTimeReq, ClientSetGameTimeRsp, PlayerGameTimeNotify, PlayerSetPauseReq,
+    PlayerSetPauseRsp, PlayerTimeNotify, ServerTimeNotify,
 };
-
+use nod_krai_gi_proto::retcode::Retcode;
 pub struct TimePlugin;
 
 impl Plugin for TimePlugin {
@@ -20,7 +20,7 @@ impl Plugin for TimePlugin {
             .add_systems(PreUpdate, set_pause)
             .add_systems(PreUpdate, client_set_game_time)
             .add_systems(First, sync_scene_time_on_scene_init_finish)
-            // .add_systems(First, sync_scene_time_on_enter_scene_done)
+        // .add_systems(First, sync_scene_time_on_enter_scene_done)
         ;
     }
 }
@@ -69,7 +69,7 @@ pub fn client_set_game_time(
                     };
                     let mut rsp = ClientSetGameTimeRsp::default();
 
-                    if player_info.basic_module.is_game_time_locked {
+                    if player_info.basic_bin.is_game_time_locked {
                         tracing::debug!("game time is locked, uid: {uid}");
                         rsp.retcode = Retcode::RetPlayerTimeLocked.into();
                     } else {
@@ -103,7 +103,7 @@ pub fn sync_scene_time_on_scene_init_finish(
     players: Res<Players>,
     time: Res<SceneTime>,
 ) {
-    use nod_krai_gi_proto::{PlayerGameTimeNotify, SceneTimeNotify};
+    use nod_krai_gi_proto::normal::{PlayerGameTimeNotify, SceneTimeNotify};
 
     for SceneInitFinishEvent(uid) in events.read() {
         let Some(player_info) = players.get(*uid) else {
@@ -123,7 +123,7 @@ pub fn sync_scene_time_on_scene_init_finish(
             "SceneTimeNotify",
             SceneTimeNotify {
                 is_paused: cache_get_is_pause(*uid).unwrap_or_default(),
-                scene_id: player_info.world_position.scene_id,
+                scene_id: player_info.scene_bin.my_cur_scene_id,
                 scene_time: time.scene_time,
             },
         );

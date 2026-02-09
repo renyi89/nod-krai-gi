@@ -8,8 +8,8 @@ use nod_krai_gi_entity::{
     int_prop_map,
 };
 use nod_krai_gi_message::output::MessageOutput;
-use nod_krai_gi_persistence::{player_information::ItemInformation, Players};
-use nod_krai_gi_proto::*;
+use nod_krai_gi_persistence::{player_information::ItemBin, Players};
+use nod_krai_gi_proto::normal::*;
 
 pub struct PlayerDataSyncPlugin;
 
@@ -43,12 +43,12 @@ pub fn sync_player_data(players: Res<Players>, out: Res<MessageOutput>) {
                     PROP_IS_SPRING_AUTO_USE: 1;
                     PROP_SPRING_AUTO_USE_PERCENT: 50;
                     PROP_IS_FLYABLE: 1;
-                    PROP_IS_GAME_TIME_LOCKED: player_info.basic_module.is_game_time_locked as i64;
+                    PROP_IS_GAME_TIME_LOCKED: player_info.basic_bin.is_game_time_locked as i64;
                     PROP_IS_TRANSFERABLE: 1;
                     PROP_MAX_STAMINA: 24000;
                     PROP_CUR_PERSIST_STAMINA: 24000;
-                    PROP_PLAYER_LEVEL: player_info.basic_module.level;
-                    PROP_PLAYER_EXP: player_info.basic_module.exp;
+                    PROP_PLAYER_LEVEL: player_info.basic_bin.level;
+                    PROP_PLAYER_EXP: player_info.basic_bin.exp;
                     PROP_PLAYER_MP_SETTING_TYPE :1;
                     PROP_IS_MP_MODE_AVAILABLE :1;
                     PROP_PLAYER_RESIN:200;
@@ -79,10 +79,10 @@ pub fn sync_player_store(players: Res<Players>, out: Res<MessageOutput>) {
                 store_type: StoreType::StorePack.into(),
                 weight_limit: 30_000,
                 item_list: player_info
-                    .item_map
+                    .item_bin
                     .iter()
                     .map(|(guid, item)| match item {
-                        ItemInformation::Weapon {
+                        ItemBin::Weapon {
                             weapon_id,
                             level,
                             exp,
@@ -114,9 +114,6 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
     let avatar_excel_config_collection_clone =
         std::sync::Arc::clone(excel::avatar_excel_config_collection::get());
 
-    let avatar_skill_depot_excel_config_collection_clone =
-        std::sync::Arc::clone(excel::avatar_skill_depot_excel_config_collection::get());
-
     let fetter_data_entries_clone =
         std::sync::Arc::clone(FetterDataConfig::get_fetter_data_entries());
 
@@ -129,18 +126,14 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
             *uid,
             "AvatarDataNotify",
             AvatarDataNotify {
-                choose_avatar_guid: player_info.avatar_module.choose_avatar_guid,
+                choose_avatar_guid: player_info.avatar_bin.choose_avatar_guid,
                 avatar_list: player_info
-                    .avatar_module
+                    .avatar_bin
                     .avatar_map
                     .values()
                     .filter_map(|a| {
-                        let Some(skill_depot_data) =
-                            avatar_skill_depot_excel_config_collection_clone
-                                .get(&a.skill_depot_id)
-                                .cloned()
-                        else {
-                            tracing::debug!("skill_depot config {} doesn't exist", a.skill_depot_id);
+                        let Some(skill_depot) = a.depot_map.get(&a.skill_depot_id) else {
+                            tracing::debug!("skill_depot bin {} doesn't exist", a.skill_depot_id);
                             return None;
                         };
 
@@ -167,15 +160,8 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                             guid: a.guid,
                             equip_guid_list: vec![a.weapon_guid],
                             skill_depot_id: a.skill_depot_id,
-                            talent_id_list: if a.core_proud_skill_level as usize
-                                > skill_depot_data.talents.len()
-                            {
-                                skill_depot_data.talents
-                            } else {
-                                skill_depot_data.talents[0..a.core_proud_skill_level as usize]
-                                    .to_vec()
-                            },
-                            core_proud_skill_level: a.core_proud_skill_level,
+                            talent_id_list: skill_depot.talent_id_list.clone(),
+                            core_proud_skill_level: skill_depot.core_proud_skill_level,
                             born_time: a.born_time,
                             life_state: (a.cur_hp > 0.0)
                                 .then_some(LifeState::Alive)
@@ -196,31 +182,33 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                                     .collect(),
                                 ..Default::default()
                             }),
-                            skill_level_map: a.skill_level_map.clone(),
+                            skill_level_map: skill_depot.skill_level_map.clone(),
                             // map 转换 HashMap<u32, AvatarSkillInfo, RandomState>
                             skill_map: a
-                                .skill_extra_charge_map
+                                .skill_map
                                 .iter()
                                 .map(|(k, v)| {
                                     (
                                         *k,
                                         AvatarSkillInfo {
-                                            max_charge_count: *v,
+                                            max_charge_count: v.max_charge_count,
                                             ..Default::default()
                                         },
                                     )
                                 })
                                 .collect(),
-                            inherent_proud_skill_list: a.inherent_proud_skill_list.clone(),
+                            inherent_proud_skill_list: skill_depot
+                                .inherent_proud_skill_list
+                                .clone(),
                             prop_map: int_prop_map! {
                                 PROP_LEVEL: a.level;
-                                PROP_BREAK_LEVEL: a.break_level;
+                                PROP_BREAK_LEVEL: a.promote_level;
                             },
                             fight_prop_map: create_fight_props(
                                 avatar_data,
                                 a.cur_hp,
                                 a.level,
-                                a.break_level,
+                                a.promote_level,
                             )
                             .0
                             .iter()
@@ -231,35 +219,35 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                     })
                     .collect(),
                 avatar_team_map: player_info
-                    .avatar_module
+                    .avatar_bin
                     .team_map
                     .iter()
                     .map(|(idx, team)| {
                         (
                             *idx,
                             AvatarTeam {
-                                team_name: team.name.clone(),
+                                team_name: team.team_name.clone(),
                                 avatar_guid_list: team.avatar_guid_list.clone(),
                             },
                         )
                     })
                     .collect(),
-                cur_avatar_team_id: player_info.avatar_module.cur_avatar_team_id,
+                cur_avatar_team_id: player_info.avatar_bin.cur_team_id,
                 owned_flycloak_list: player_info
-                    .avatar_module
-                    .owned_flycloak_set
+                    .avatar_bin
+                    .owned_flycloak_list
                     .iter()
                     .copied()
                     .collect(),
                 owned_costume_list: player_info
-                    .avatar_module
-                    .owned_costume_set
+                    .avatar_bin
+                    .owned_costume_list
                     .iter()
                     .copied()
                     .collect(),
                 owned_trace_effect_list: player_info
-                    .avatar_module
-                    .owned_trace_effect_set
+                    .avatar_bin
+                    .owned_trace_effect_list
                     .iter()
                     .copied()
                     .collect(),
@@ -302,7 +290,7 @@ pub fn sync_quest_list(players: Res<Players>, out: Res<MessageOutput>) {
             "QuestListNotify",
             QuestListNotify {
                 quest_list: player_info
-                    .quest_information
+                    .quest_bin
                     .quest_map
                     .iter()
                     .map(|(sub_quest_id, quest_item)| Quest {

@@ -21,7 +21,7 @@ use nod_krai_gi_entity::client_gadget::EntitySystemSet;
 use nod_krai_gi_event::ability::*;
 use nod_krai_gi_message::event::ClientMessageEvent;
 use nod_krai_gi_message::output::MessageOutput;
-use nod_krai_gi_proto::{
+use nod_krai_gi_proto::normal::{
     AbilityInvocationsNotify, AbilityInvokeArgument, AbilityInvokeEntry,
     ClientAbilitiesInitFinishCombineNotify, ClientAbilityChangeNotify,
     ClientAbilityInitFinishNotify, ForwardType,

@@ -3,7 +3,7 @@ use crate::common::ProtocolEntityID;
 use nod_krai_gi_data::excel::{GadgetExcelConfig, MonsterExcelConfig};
 
 pub const fn to_protocol_entity_id(
-    ty: nod_krai_gi_proto::ProtEntityType,
+    ty: nod_krai_gi_proto::normal::ProtEntityType,
     index: u32,
 ) -> ProtocolEntityID {
     ProtocolEntityID(((ty as u32) << 22) | index)
@@ -32,12 +32,12 @@ macro_rules! int_prop_value {
 #[macro_export]
 macro_rules! int_prop_pair {
     ($prop_name:ident, $value:expr) => {
-        ::nod_krai_gi_proto::PropPair {
+        ::nod_krai_gi_proto::normal::PropPair {
             r#type: ::nod_krai_gi_data::prop_type::$prop_name,
-            prop_value: Some(::nod_krai_gi_proto::PropValue {
+            prop_value: Some(::nod_krai_gi_proto::normal::PropValue {
                 r#type: ::nod_krai_gi_data::prop_type::$prop_name,
                 val: $value as i64,
-                value: Some(::nod_krai_gi_proto::prop_value::Value::Ival($value as i64)),
+                value: Some(::nod_krai_gi_proto::normal::prop_value::Value::Ival($value as i64)),
             }),
         }
     };
@@ -48,10 +48,10 @@ macro_rules! int_prop_map {
     ($($prop_name:ident: $value:expr;)*) => {
         ::std::collections::HashMap::from([$((
             ::nod_krai_gi_data::prop_type::$prop_name,
-            ::nod_krai_gi_proto::PropValue {
+            ::nod_krai_gi_proto::normal::PropValue {
                 r#type: ::nod_krai_gi_data::prop_type::$prop_name,
                 val: $value as i64,
-                value: Some(::nod_krai_gi_proto::prop_value::Value::Ival($value as i64)),
+                value: Some(::nod_krai_gi_proto::normal::prop_value::Value::Ival($value as i64)),
             },
         ),)*])
     };

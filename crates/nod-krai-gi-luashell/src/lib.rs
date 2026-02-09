@@ -2,7 +2,7 @@ use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_event::luashell::*;
 use nod_krai_gi_message::output::MessageOutput;
-use nod_krai_gi_proto::PlayerNormalLuaShellNotify;
+use nod_krai_gi_proto::normal::PlayerNormalLuaShellNotify;
 
 pub struct LuaShellPlugin;
 

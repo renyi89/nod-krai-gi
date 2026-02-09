@@ -5,12 +5,13 @@ use nod_krai_gi_data::excel::{
 };
 use nod_krai_gi_entity::avatar::{AvatarAppearanceChange, AvatarAppearanceChangeEvent};
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
-use nod_krai_gi_persistence::{player_information::PlayerInformation, Players};
-use nod_krai_gi_proto::{
-    retcode::Retcode, AvatarChangeCostumeReq, AvatarChangeCostumeRsp, AvatarChangeTraceEffectReq,
+use nod_krai_gi_persistence::{player_information::PlayerDataBin, Players};
+use nod_krai_gi_proto::normal::{
+    AvatarChangeCostumeReq, AvatarChangeCostumeRsp, AvatarChangeTraceEffectReq,
     AvatarChangeTraceEffectRsp, AvatarFlycloakChangeNotify, AvatarWearFlycloakReq,
     AvatarWearFlycloakRsp,
 };
+use nod_krai_gi_proto::retcode::Retcode;
 use tracing::{debug, warn, instrument};
 
 #[instrument(skip_all)]
@@ -101,13 +102,13 @@ pub fn handle_appearance_change_request(
 
 #[instrument(skip(player, response))]
 fn wear_flycloak(
-    player: &mut PlayerInformation,
+    player: &mut PlayerDataBin,
     request: AvatarWearFlycloakReq,
     response: &mut AvatarWearFlycloakRsp,
 ) -> Option<AvatarFlycloakChangeNotify> {
     if !player
-        .avatar_module
-        .owned_flycloak_set
+        .avatar_bin
+        .owned_flycloak_list
         .contains(&request.flycloak_id)
     {
         debug!("flycloak id {} is not owned", request.flycloak_id);
@@ -117,7 +118,7 @@ fn wear_flycloak(
 
     response.avatar_guid_list = vec![];
     for avatar_guid in request.avatar_guid_list {
-        let Some(avatar) = player.avatar_module.avatar_map.get_mut(&avatar_guid) else {
+        let Some(avatar) = player.avatar_bin.avatar_map.get_mut(&avatar_guid) else {
             debug!("avatar guid {} doesn't exist", avatar_guid);
             response.retcode = Retcode::RetCanNotFindAvatar.into();
             return None;
@@ -142,7 +143,7 @@ fn wear_flycloak(
 
 #[instrument(skip(player, response))]
 fn change_costume(
-    player: &mut PlayerInformation,
+    player: &mut PlayerDataBin,
     request: AvatarChangeCostumeReq,
     response: &mut AvatarChangeCostumeRsp,
 ) -> Option<AvatarAppearanceChangeEvent> {
@@ -161,8 +162,8 @@ fn change_costume(
     };
 
     if !player
-        .avatar_module
-        .owned_costume_set
+        .avatar_bin
+        .owned_costume_list
         .contains(&request.costume_id)
         && config.is_some()
     {
@@ -172,7 +173,7 @@ fn change_costume(
     }
 
     let Some(avatar) = player
-        .avatar_module
+        .avatar_bin
         .avatar_map
         .get_mut(&request.avatar_guid)
     else {
@@ -210,7 +211,7 @@ fn change_costume(
 
 #[instrument(skip(player, response))]
 fn change_trace_effect(
-    player: &mut PlayerInformation,
+    player: &mut PlayerDataBin,
     request: AvatarChangeTraceEffectReq,
     response: &mut AvatarChangeTraceEffectRsp,
 ) -> Option<AvatarAppearanceChangeEvent> {
@@ -232,8 +233,8 @@ fn change_trace_effect(
     };
 
     if !player
-        .avatar_module
-        .owned_trace_effect_set
+        .avatar_bin
+        .owned_trace_effect_list
         .contains(&request.trace_effect_id)
         && config.is_some()
     {
@@ -246,7 +247,7 @@ fn change_trace_effect(
     }
 
     let Some(avatar) = player
-        .avatar_module
+        .avatar_bin
         .avatar_map
         .get_mut(&request.avatar_guid)
     else {

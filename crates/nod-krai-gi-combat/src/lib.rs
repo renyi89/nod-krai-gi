@@ -4,7 +4,7 @@ use hit::deal_damage_on_hit;
 use movement::{entity_movement, track_player_position};
 use nod_krai_gi_message::event::*;
 use nod_krai_gi_message::output::MessageOutput;
-use nod_krai_gi_proto::{
+use nod_krai_gi_proto::normal::{
     CombatInvocationsNotify, CombatInvokeEntry, EntityMoveInfo, EvtAnimatorParameterInfo,
     EvtBeingHitInfo, ForwardType,
 };
@@ -48,7 +48,7 @@ fn combat_invocation_processor(
                     let mut invoke_list_to_ohers: Vec<CombatInvokeEntry> = Vec::new();
                     let mut invoke_list_to_host: Vec<CombatInvokeEntry> = Vec::new();
                     for mut invoke in notify.invoke_list {
-                        use nod_krai_gi_proto::CombatTypeArgument::*;
+                        use nod_krai_gi_proto::normal::CombatTypeArgument::*;
 
                         match invoke.argument_type() {
                             EntityMove => {

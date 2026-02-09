@@ -3,7 +3,7 @@ use common::string_util;
 use common::string_util::InternString;
 use indexmap::IndexMap;
 use nod_krai_gi_data::{config, excel::avatar_excel_config_collection};
-use nod_krai_gi_proto::{AbilityControlBlock, AbilityEmbryo};
+use nod_krai_gi_proto::normal::{AbilityControlBlock, AbilityEmbryo};
 use std::collections::HashMap;
 use std::sync::{Arc, OnceLock};
 

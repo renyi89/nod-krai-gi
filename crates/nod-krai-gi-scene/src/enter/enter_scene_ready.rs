@@ -36,7 +36,7 @@ pub fn on_enter_scene_ready(
         out.send(
             uid,
             "EnterScenePeerNotify",
-            nod_krai_gi_proto::EnterScenePeerNotify {
+            nod_krai_gi_proto::normal::EnterScenePeerNotify {
                 enter_scene_token: replace_out_u32(
                     protocol_version,
                     "EnterScenePeerNotify.enter_scene_token",
@@ -44,14 +44,14 @@ pub fn on_enter_scene_ready(
                 ),
                 peer_id,
                 host_peer_id: peer_manager.host_peer_id(),
-                dest_scene_id: player_info.world_position.scene_id,
+                dest_scene_id: player_info.scene_bin.my_cur_scene_id,
             },
         );
 
         out.send(
             uid,
             "EnterSceneReadyRsp",
-            nod_krai_gi_proto::EnterSceneReadyRsp {
+            nod_krai_gi_proto::normal::EnterSceneReadyRsp {
                 enter_scene_token: replace_out_u32(
                     protocol_version,
                     "EnterSceneReadyRsp.enter_scene_token",

@@ -46,7 +46,7 @@ pub fn notify_appear_gadget_entities(
     gadgets: Query<GadgetQueryReadOnly, Added<Visible>>,
     out: Res<MessageOutput>,
 ) {
-    use nod_krai_gi_proto::*;
+    use nod_krai_gi_proto::normal::*;
 
     let gadget_excel_config_collection_clone =
         std::sync::Arc::clone(gadget_excel_config_collection::get());

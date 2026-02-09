@@ -9,8 +9,8 @@ use nod_krai_gi_entity::avatar::{AvatarQueryReadOnly, CurrentPlayerAvatarMarker}
 use nod_krai_gi_entity::common::FightProperties;
 use nod_krai_gi_entity::common::InstancedAbility;
 use nod_krai_gi_persistence::Players;
-use nod_krai_gi_proto::ability_string::Type;
-use nod_krai_gi_proto::AbilityString;
+use nod_krai_gi_proto::normal::ability_string::Type;
+use nod_krai_gi_proto::normal::AbilityString;
 
 #[derive(Debug, Clone)]
 enum MathOp {
@@ -353,7 +353,7 @@ fn get_cur_team_avatars(
         .filter(|(_, data, _)| {
             data.owner_player_uid.0 == player_uid
                 && player_info
-                    .avatar_module
+                    .avatar_bin
                     .cur_avatar_guid_list
                     .contains(&data.guid.0)
         })
@@ -378,7 +378,7 @@ fn get_cur_local_avatar(
         .filter(|(_, data, is_cur)| {
             data.owner_player_uid.0 == player_uid
                 && player_info
-                    .avatar_module
+                    .avatar_bin
                     .cur_avatar_guid_list
                     .contains(&data.guid.0)
                 && is_cur.is_some()
@@ -401,7 +401,7 @@ fn get_all_player_avatars(
         let Some(player_info) = players.get(*player_uid) else {
             return vec![];
         };
-        all_team_guids.extend(player_info.avatar_module.cur_avatar_guid_list.iter());
+        all_team_guids.extend(player_info.avatar_bin.cur_avatar_guid_list.iter());
     }
 
     avatars

@@ -17,15 +17,15 @@ use nod_krai_gi_entity::{
         InstancedModifiers, Level, LifeState, Visible,
     },
     monster::{MonsterBundle, MonsterID},
-    transform::{Transform, Vector3},
+    transform::Transform,
     util::to_protocol_entity_id,
-    ProtEntityType,
 };
 use nod_krai_gi_event::command::*;
 use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
-use nod_krai_gi_proto::{ChatInfo, PrivateChatNotify};
+use nod_krai_gi_proto::normal::{ChatInfo, PrivateChatNotify, ProtEntityType};
+use nod_krai_gi_proto::server_only::Vector;
 use rand::RngCore;
 use tracing::{debug, instrument};
 
@@ -100,11 +100,11 @@ pub fn debug_command_handler(
                             // Take Y (height) from player's pos, spawn a bit above
                             position: (
                                 position.0,
-                                player_info.world_position.position.1 + 4.0,
+                                player_info.scene_bin.my_prev_pos.y + 4.0,
                                 position.1,
                             )
                                 .into(),
-                            rotation: Vector3::default(),
+                            rotation: Vector::default(),
                         },
                         fight_properties,
                         instanced_abilities: InstancedAbilities::default(),
@@ -150,13 +150,9 @@ pub fn debug_command_handler(
                         level: Level(level),
                         transform: Transform {
                             // Take Y (height) from player's pos, spawn a bit above
-                            position: (
-                                position.0,
-                                player_info.world_position.position.1,
-                                position.1,
-                            )
+                            position: (position.0, player_info.scene_bin.my_prev_pos.y, position.1)
                                 .into(),
-                            rotation: Vector3::default(),
+                            rotation: Vector::default(),
                         },
                         fight_properties,
                         ability: ability,
@@ -222,9 +218,9 @@ pub fn gm_command_handler(
                                 id,
                                 EnterReason::Gm,
                                 (
-                                    player_info.world_position.position.0 + x.unwrap_or_default(),
-                                    player_info.world_position.position.1 + y.unwrap_or_default(),
-                                    player_info.world_position.position.2 + z.unwrap_or_default(),
+                                    player_info.scene_bin.my_prev_pos.x + x.unwrap_or_default(),
+                                    player_info.scene_bin.my_prev_pos.y + y.unwrap_or_default(),
+                                    player_info.scene_bin.my_prev_pos.z + z.unwrap_or_default(),
                                 ),
                             ));
                         }
@@ -261,7 +257,9 @@ pub fn gm_talk_notify(
                     time: unix_timestamp() as u32,
                     to_uid: *player_uid,
                     uid: 123,
-                    content: Some(nod_krai_gi_proto::chat_info::Content::Text(content.clone())),
+                    content: Some(nod_krai_gi_proto::normal::chat_info::Content::Text(
+                        content.clone(),
+                    )),
                     ..Default::default()
                 }),
             },

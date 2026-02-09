@@ -6,7 +6,7 @@ use common::time_util;
 use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_message::output::ClientOutput;
-use nod_krai_gi_persistence::player_information::PlayerInformation;
+use nod_krai_gi_persistence::player_information::PlayerDataBin;
 use nod_krai_gi_proto::packet_head::PacketHead;
 use std::{collections::HashMap, thread};
 
@@ -22,7 +22,7 @@ impl LogicSimulator {
     pub fn create_world(
         &self,
         uid: u32,
-        player_information: PlayerInformation,
+        player_information: PlayerDataBin,
         output: ClientOutput,
     ) {
         LogicCommand::CreateWorld {

@@ -4,10 +4,10 @@ use bevy_ecs::{prelude::*, query::QueryData};
 use nod_krai_gi_data::excel;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::{
-    player_information::{AvatarInformation, ItemInformation},
+    player_information::{AvatarBin, ItemBin},
     Players,
 };
-use nod_krai_gi_proto::{
+use nod_krai_gi_proto::normal::{
     AvatarChangeCostumeNotify, AvatarChangeTraceEffectNotify, SceneEntityInfo,
 };
 
@@ -54,6 +54,9 @@ pub struct AvatarAppearanceChangeEvent {
 pub struct AvatarID(pub u32);
 
 #[derive(Component)]
+pub struct AvatarPromoteLevel(pub u32);
+
+#[derive(Component)]
 pub struct ControlPeer(pub u32);
 
 #[derive(Component)]
@@ -89,7 +92,7 @@ pub struct AvatarBundle {
     pub entity_id: ProtocolEntityID,
     pub guid: Guid,
     pub level: Level,
-    pub break_level: BreakLevel,
+    pub break_level: AvatarPromoteLevel,
     pub core_proud_skill_level: CoreProudSkillLevel,
     pub control_peer: ControlPeer,
     pub skill_depot: SkillDepot,
@@ -116,7 +119,7 @@ pub struct AvatarQueryReadOnly {
     pub entity_id: &'static ProtocolEntityID,
     pub guid: &'static Guid,
     pub level: &'static Level,
-    pub break_level: &'static BreakLevel,
+    pub break_level: &'static AvatarPromoteLevel,
     pub core_proud_skill_level: &'static CoreProudSkillLevel,
     pub control_peer: &'static ControlPeer,
     pub skill_depot: &'static SkillDepot,
@@ -193,17 +196,17 @@ pub fn notify_avatar_appearance_change(
                 continue;
             };
 
-            let Some(avatar) = player_info.avatar_module.avatar_map.get(&event.avatar_guid) else {
+            let Some(avatar) = player_info.avatar_bin.avatar_map.get(&event.avatar_guid) else {
                 tracing::debug!("avatar guid {} doesn't exist", event.avatar_guid);
                 continue;
             };
 
-            let Some(weapon) = player_info.item_map.get(&avatar.weapon_guid) else {
+            let Some(weapon) = player_info.item_bin.get_item(&avatar.weapon_guid) else {
                 tracing::debug!("weapon guid {} doesn't exist", avatar.weapon_guid);
                 continue;
             };
 
-            let entity_info = Some(build_fake_avatar_entity_info(avatar, weapon));
+            let entity_info = build_fake_avatar_entity_info(avatar, weapon);
             match event.change {
                 AvatarAppearanceChange::Costume(_) => message_output.send(
                     event.player_uid,
@@ -235,7 +238,7 @@ pub fn notify_appear_avatar_entities(
     weapons: Query<WeaponQueryReadOnly>,
     message_output: Res<MessageOutput>,
 ) {
-    use nod_krai_gi_proto::*;
+    use nod_krai_gi_proto::normal::*;
 
     appear_avatars.iter().for_each(|avatar_data| {
         let weapon_data = weapons.get(avatar_data.equipment.weapon).unwrap();
@@ -270,7 +273,7 @@ pub fn notify_appear_replace_avatar_entities(
     weapons: Query<WeaponQueryReadOnly>,
     message_output: Res<MessageOutput>,
 ) {
-    use nod_krai_gi_proto::*;
+    use nod_krai_gi_proto::normal::*;
 
     appear_avatars.iter().for_each(|(avatar_data, param)| {
         let weapon_data = weapons.get(avatar_data.equipment.weapon).unwrap();
@@ -299,13 +302,10 @@ pub fn run_if_avatar_entities_appeared(
     !appear_avatars.is_empty()
 }
 
-fn build_fake_avatar_entity_info(
-    avatar: &AvatarInformation,
-    weapon: &ItemInformation,
-) -> SceneEntityInfo {
-    use nod_krai_gi_proto::*;
+fn build_fake_avatar_entity_info(avatar: &AvatarBin, weapon: &ItemBin) -> Option<SceneEntityInfo> {
+    use nod_krai_gi_proto::normal::*;
 
-    let ItemInformation::Weapon {
+    let ItemBin::Weapon {
         weapon_id,
         level,
         promote_level,
@@ -313,15 +313,12 @@ fn build_fake_avatar_entity_info(
         ..
     } = weapon;
 
-    let avatar_skill_depot_excel_config_collection_clone =
-        std::sync::Arc::clone(excel::avatar_skill_depot_excel_config_collection::get());
+    let Some(skill_depot) = avatar.depot_map.get(&avatar.skill_depot_id) else {
+        tracing::debug!("skill_depot bin {} doesn't exist", weapon_id);
+        return None;
+    };
 
-    let skill_depot_data = avatar_skill_depot_excel_config_collection_clone
-        .get(&avatar.skill_depot_id)
-        .cloned()
-        .unwrap();
-
-    SceneEntityInfo {
+    Some(SceneEntityInfo {
         entity_type: ProtEntityType::ProtEntityAvatar.into(),
         entity_id: 0,
         entity: Some(scene_entity_info::Entity::Avatar(SceneAvatarInfo {
@@ -330,13 +327,7 @@ fn build_fake_avatar_entity_info(
             guid: avatar.guid,
             equip_id_list: vec![*weapon_id],
             skill_depot_id: avatar.skill_depot_id,
-            talent_id_list: if avatar.core_proud_skill_level as usize
-                > skill_depot_data.talents.len()
-            {
-                skill_depot_data.talents
-            } else {
-                skill_depot_data.talents[0..avatar.core_proud_skill_level as usize].to_vec()
-            },
+            talent_id_list: skill_depot.talent_id_list.clone(),
             weapon: Some(SceneWeaponInfo {
                 guid: avatar.weapon_guid,
                 item_id: *weapon_id,
@@ -346,9 +337,9 @@ fn build_fake_avatar_entity_info(
                 ..Default::default()
             }),
             reliquary_list: Vec::with_capacity(0),
-            core_proud_skill_level: avatar.core_proud_skill_level,
-            inherent_proud_skill_list: avatar.inherent_proud_skill_list.clone(),
-            skill_level_map: avatar.skill_level_map.clone(),
+            core_proud_skill_level: skill_depot.core_proud_skill_level,
+            inherent_proud_skill_list: skill_depot.inherent_proud_skill_list.clone(),
+            skill_level_map: skill_depot.skill_level_map.clone(),
             proud_skill_extra_level_map: HashMap::with_capacity(0),
             server_buff_list: Vec::with_capacity(0),
             team_resonance_list: Vec::with_capacity(0),
@@ -362,14 +353,14 @@ fn build_fake_avatar_entity_info(
             ..Default::default()
         })),
         ..Default::default()
-    }
+    })
 }
 
 pub fn build_avatar_entity_info(
     avatar_data: &AvatarQueryReadOnlyItem,
     weapon_data: &WeaponQueryReadOnlyItem,
 ) -> SceneEntityInfo {
-    use nod_krai_gi_proto::*;
+    use nod_krai_gi_proto::normal::*;
 
     let avatar_skill_depot_excel_config_collection_clone =
         std::sync::Arc::clone(excel::avatar_skill_depot_excel_config_collection::get());

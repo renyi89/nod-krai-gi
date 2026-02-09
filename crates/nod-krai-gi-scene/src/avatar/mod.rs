@@ -13,11 +13,11 @@ use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::dy_parser::{
     replace_in_u32, replace_in_u64, replace_out_i32, replace_out_u32, replace_out_u64,
 };
-use nod_krai_gi_proto::{
-    retcode::Retcode, AvatarDieAnimationEndReq, AvatarDieAnimationEndRsp, AvatarTeam,
-    AvatarTeamUpdateNotify, ChangeAvatarReq, ChangeAvatarRsp, SetUpAvatarTeamReq,
-    SetUpAvatarTeamRsp, VisionType,
+use nod_krai_gi_proto::normal::{
+    AvatarDieAnimationEndReq, AvatarDieAnimationEndRsp, AvatarTeam, AvatarTeamUpdateNotify,
+    ChangeAvatarReq, ChangeAvatarRsp, SetUpAvatarTeamReq, SetUpAvatarTeamRsp, VisionType,
 };
+use nod_krai_gi_proto::retcode::Retcode;
 use std::collections::HashSet;
 use tracing::{debug, instrument};
 
@@ -78,7 +78,7 @@ pub fn change_avatar(
                                 continue;
                             };
 
-                            player_info.avatar_module.cur_avatar_guid = request.guid;
+                            player_info.avatar_bin.cur_avatar_guid = request.guid;
 
                             message_output.send(
                                 message.sender_uid(),
@@ -106,7 +106,7 @@ pub fn change_avatar(
                         avatars.iter().filter(|(_, _, _, a, _)| {
                             a.owner_player_uid.0 == message.sender_uid()
                                 && player_info
-                                    .avatar_module
+                                    .avatar_bin
                                     .cur_avatar_guid_list
                                     .contains(&a.guid.0)
                         })
@@ -124,7 +124,7 @@ pub fn change_avatar(
 
                             debug!("transform:{}", transform);
 
-                            player_info.avatar_module.cur_avatar_guid = avatar_data.guid.0;
+                            player_info.avatar_bin.cur_avatar_guid = avatar_data.guid.0;
 
                             commands
                                 .entity(avatar_entity)
@@ -141,7 +141,7 @@ pub fn change_avatar(
                             avatars.iter().filter(|(_, _, _, a, _)| {
                                 a.owner_player_uid.0 == message.sender_uid()
                                     && player_info
-                                        .avatar_module
+                                        .avatar_bin
                                         .cur_avatar_guid_list
                                         .contains(&a.guid.0)
                             })
@@ -154,7 +154,7 @@ pub fn change_avatar(
                                     max_hp,
                                 ),
                             );
-                            if player_info.avatar_module.cur_avatar_guid == avatar_data.guid.0 {
+                            if player_info.avatar_bin.cur_avatar_guid == avatar_data.guid.0 {
                                 let transform = match request.reborn_pos {
                                     Some(move_pos) => Transform {
                                         position: move_pos.into(),
@@ -236,7 +236,7 @@ pub fn set_up_avatar_team(
                         request.team_id,
                     );
 
-                    if let Some(team) = player_info.avatar_module.team_map.get_mut(&team_id) {
+                    if let Some(team) = player_info.avatar_bin.team_map.get_mut(&team_id) {
                         let mut cur_avatar_guid = replace_in_u64(
                             protocol_version,
                             "SetUpAvatarTeamReq.cur_avatar_guid",
@@ -253,9 +253,9 @@ pub fn set_up_avatar_team(
 
                         team.avatar_guid_list = request.avatar_team_guid_list.clone();
 
-                        if team_id == player_info.avatar_module.cur_avatar_team_id {
-                            player_info.avatar_module.cur_avatar_guid = cur_avatar_guid;
-                            player_info.avatar_module.cur_avatar_guid_list =
+                        if team_id == player_info.avatar_bin.cur_team_id {
+                            player_info.avatar_bin.cur_avatar_guid = cur_avatar_guid;
+                            player_info.avatar_bin.cur_avatar_guid_list =
                                 request.avatar_team_guid_list.clone();
 
                             change_events.write(PlayerAvatarTeamChanged {
@@ -368,14 +368,14 @@ pub fn notify_avatar_team_update(
             AvatarTeamUpdateNotify {
                 temp_avatar_guid_list: Vec::with_capacity(0),
                 avatar_team_map: player_info
-                    .avatar_module
+                    .avatar_bin
                     .team_map
                     .iter()
                     .map(|(idx, team)| {
                         (
                             *idx,
                             AvatarTeam {
-                                team_name: team.name.clone(),
+                                team_name: team.team_name.clone(),
                                 avatar_guid_list: team.avatar_guid_list.clone(),
                             },
                         )

@@ -1,10 +1,8 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
-use nod_krai_gi_proto::{
-    query_path_rsp::PathStatusType, retcode::Retcode, QueryPathReq,
-    QueryPathRsp,
-};
+use nod_krai_gi_proto::normal::{query_path_rsp::PathStatusType, QueryPathReq, QueryPathRsp};
+use nod_krai_gi_proto::retcode::Retcode;
 
 pub struct PathfindingPlugin;
 

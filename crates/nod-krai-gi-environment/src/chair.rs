@@ -6,9 +6,10 @@ use nod_krai_gi_entity::{
     common::{OwnerPlayerUID, ProtocolEntityID, ToBeRemovedMarker},
 };
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
-use nod_krai_gi_proto::{
-    retcode::Retcode, EvtAvatarLockChairReq, EvtAvatarLockChairRsp, EvtAvatarStandUpNotify,
+use nod_krai_gi_proto::normal::{
+    EvtAvatarLockChairReq, EvtAvatarLockChairRsp, EvtAvatarStandUpNotify,
 };
+use nod_krai_gi_proto::retcode::Retcode;
 use tracing::{debug, instrument};
 
 #[derive(Resource, Default)]
@@ -56,8 +57,7 @@ pub fn avatar_lock_chair(
                         rsp.retcode = Retcode::RetFail.into();
                     }
 
-
-                    out.send(message.sender_uid(), "EvtAvatarLockChairRsp",rsp);
+                    out.send(message.sender_uid(), "EvtAvatarLockChairRsp", rsp);
                 }
             }
             "EvtAvatarStandUpNotify" => {

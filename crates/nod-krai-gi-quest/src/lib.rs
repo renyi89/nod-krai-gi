@@ -10,8 +10,7 @@ use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::player_information::QuestItem;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::retcode::Retcode;
-use nod_krai_gi_proto::{
-    AnecdoteAreaInfo, AnecdoteBriefInfo, AnecdoteConflictInfoReq, AnecdoteConflictInfoRsp,
+use nod_krai_gi_proto::normal::{    AnecdoteAreaInfo, AnecdoteBriefInfo, AnecdoteConflictInfoReq, AnecdoteConflictInfoRsp,
     AnecdoteDataNotify, AnecdoteFinishNotify, AnecdoteFinishReq, AnecdoteFinishRsp, AnecdoteInfo,
     AnecdoteWishInfo, NpcTalkReq, NpcTalkRsp, Quest, QuestListUpdateNotify,
 };
@@ -183,7 +182,7 @@ pub fn quest_begin(
                 let Some(player_info) = players.get_mut(*player_uid) else {
                     continue;
                 };
-                player_info.quest_information.quest_map.insert(
+                player_info.quest_bin.quest_map.insert(
                     *sub_quest_id,
                     QuestItem {
                         parent_quest_id: sub_quest_data.main_id,
@@ -227,7 +226,7 @@ pub fn quest_finish(
                 let Some(player_info) = players.get_mut(*player_uid) else {
                     continue;
                 };
-                player_info.quest_information.quest_map.insert(
+                player_info.quest_bin.quest_map.insert(
                     *sub_quest_id,
                     QuestItem {
                         parent_quest_id: sub_quest_data.main_id,
@@ -261,7 +260,7 @@ pub fn quest_list_update(
             continue;
         };
         match player_info
-            .quest_information
+            .quest_bin
             .quest_map
             .get(sub_quest_id)
         {

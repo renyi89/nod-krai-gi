@@ -12,7 +12,7 @@ use nod_krai_gi_data::excel::{
 
 use nod_krai_gi_persistence::player_information::*;
 
-pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerInformation {
+pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerDataBin {
     const DEFAULT_TEAM: [u32; 1] = [10000106];
     const DEFAULT_LEVEL: u32 = 60;
 
@@ -31,42 +31,46 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerI
     let avatar_trace_effect_excel_config_collection_clone =
         std::sync::Arc::clone(avatar_trace_effect_excel_config_collection::get());
 
-    let mut player = PlayerInformation {
+    let mut player = PlayerDataBin {
         uid,
         nick_name,
         guid_counter: 0,
-        basic_module: BasicModuleInformation {
+        basic_bin: PlayerBasicCompBin {
             level: DEFAULT_LEVEL,
             exp: 0,
             is_game_time_locked: false,
         },
-        avatar_module: AvatarModuleInformation {
+        avatar_bin: PlayerAvatarCompBin {
             choose_avatar_guid: 0,
-            cur_avatar_team_id: 1,
+            cur_team_id: 1,
             cur_avatar_guid: 0,
             cur_avatar_guid_list: vec![],
             avatar_map: HashMap::new(),
             team_map: HashMap::new(),
-            owned_flycloak_set: avatar_flycloak_excel_config_collection_clone
+            owned_flycloak_list: avatar_flycloak_excel_config_collection_clone
                 .keys()
                 .cloned()
                 .collect(),
-            owned_costume_set: avatar_costume_excel_config_collection_clone
+            owned_costume_list: avatar_costume_excel_config_collection_clone
                 .keys()
                 .cloned()
                 .collect(),
-            owned_trace_effect_set: avatar_trace_effect_excel_config_collection_clone
+            owned_trace_effect_list: avatar_trace_effect_excel_config_collection_clone
                 .keys()
                 .cloned()
                 .collect(),
         },
-        item_map: HashMap::new(),
-        world_position: PlayerPositionInformation {
-            scene_id: 3,
-            position: (2336.789, 249.98996, -751.3081),
-            rotation: (0.0, 0.0, 0.0),
+        item_bin: PlayerItemCompBin {
+            pack_store: ItemStoreBin {
+                item_map: Default::default(),
+            },
         },
-        quest_information: QuestInformation {
+        scene_bin: PlayerSceneCompBin {
+            my_cur_scene_id: 3,
+            my_prev_pos: (2336.789, 249.98996, -751.3081).into(),
+            my_prev_rot: (0.0, 0.0, 0.0).into(),
+        },
+        quest_bin: PlayerQuestCompBin {
             enable: true,
             parent_quest_map: Default::default(),
             quest_map: Default::default(),
@@ -78,14 +82,14 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerI
         .filter(|avatar| avatar.use_type == AvatarUseType::Formal)
         .for_each(|avatar| add_avatar_and_weapon(&mut player, avatar));
 
-    player.avatar_module.team_map.insert(
+    player.avatar_bin.team_map.insert(
         1,
-        AvatarTeamInformation {
+        AvatarTeamBin {
             avatar_guid_list: DEFAULT_TEAM
                 .iter()
                 .map(|id| {
                     player
-                        .avatar_module
+                        .avatar_bin
                         .avatar_map
                         .iter()
                         .find(|(_, av)| av.avatar_id == *id)
@@ -93,12 +97,12 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerI
                 })
                 .flatten()
                 .collect(),
-            name: String::new(),
+            team_name: String::new(),
         },
     );
 
-    player.avatar_module.cur_avatar_guid_list = player
-        .avatar_module
+    player.avatar_bin.cur_avatar_guid_list = player
+        .avatar_bin
         .team_map
         .get(&1)
         .unwrap()
@@ -110,9 +114,9 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerI
         .values()
         .for_each(|weapon| {
             let guid = player.next_guid();
-            player.item_map.insert(
+            player.item_bin.add_item(
                 guid,
-                ItemInformation::Weapon {
+                ItemBin::Weapon {
                     weapon_id: weapon.id,
                     level: 90,
                     exp: 0,
@@ -126,10 +130,10 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerI
     player
 }
 
-fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelConfig) {
+fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig) {
     const CHOOSE_AVATAR_ID: u32 = 10000007;
     const DEFAULT_AVATAR_LEVEL: u32 = 100;
-    const DEFAULT_AVATAR_BREAK_LEVEL: u32 = 6;
+    const DEFAULT_AVATAR_PROMOTE_LEVEL: u32 = 6;
     const DEFAULT_CORE_PROUD_SKILL_LEVEL: u32 = 6;
     const DEFAULT_WEAPON_LEVEL: u32 = 100;
     const DEFAULT_WEAPON_PROMOTE_LEVEL: u32 = 6;
@@ -211,7 +215,7 @@ fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelCon
         &proud_skill_collection_clone,
     ));
 
-    let mut skill_extra_charge_map: HashMap<u32, u32> = HashMap::new();
+    let mut skill_extra_charge_map: HashMap<u32, AvatarSkillBin> = HashMap::new();
 
     for open_config in &open_configs {
         match nod_krai_gi_data::config::get_avatar_talent_config(&open_config.clone().into()) {
@@ -228,7 +232,12 @@ fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelCon
                         {
                             let max_charge_num = skill_config.max_charge_num;
                             let extra_charge = max_charge_num + point_delta;
-                            skill_extra_charge_map.insert(*skill_id, extra_charge);
+                            skill_extra_charge_map.insert(
+                                *skill_id,
+                                AvatarSkillBin {
+                                    max_charge_count: extra_charge,
+                                },
+                            );
                         }
                     }
                 }
@@ -237,33 +246,43 @@ fn add_avatar_and_weapon(player: &mut PlayerInformation, avatar: &AvatarExcelCon
     }
 
     if avatar.id == CHOOSE_AVATAR_ID {
-        player.avatar_module.choose_avatar_guid = avatar_guid;
+        player.avatar_bin.choose_avatar_guid = avatar_guid;
     }
 
-    player.avatar_module.avatar_map.insert(
+    let mut depot_map: HashMap<u32, AvatarSkillDepotBin> = HashMap::new();
+    depot_map.insert(
+        avatar.skill_depot_id,
+        AvatarSkillDepotBin {
+            talent_id_list,
+            core_proud_skill_level: DEFAULT_CORE_PROUD_SKILL_LEVEL,
+            inherent_proud_skill_list,
+            skill_level_map,
+        },
+    );
+
+    player.avatar_bin.avatar_map.insert(
         avatar_guid,
-        AvatarInformation {
+        AvatarBin {
             avatar_id: avatar.id,
             level: DEFAULT_AVATAR_LEVEL,
-            break_level: DEFAULT_AVATAR_BREAK_LEVEL,
-            core_proud_skill_level: DEFAULT_CORE_PROUD_SKILL_LEVEL,
-            skill_extra_charge_map,
+            promote_level: DEFAULT_AVATAR_PROMOTE_LEVEL,
+            skill_map: skill_extra_charge_map,
+            depot_map: depot_map,
             skill_depot_id: avatar.skill_depot_id,
             born_time: time_util::unix_timestamp() as u32,
             guid: avatar_guid,
             weapon_guid,
             cur_hp: avatar.hp_base,
-            skill_level_map,
-            inherent_proud_skill_list,
             wearing_flycloak_id: DEFAULT_FLYCLOAK_ID,
             costume_id: 0,
             trace_effect_id: 0,
+            weapon_skin_id: 0,
         },
     );
 
-    player.item_map.insert(
+    player.item_bin.add_item(
         weapon_guid,
-        ItemInformation::Weapon {
+        ItemBin::Weapon {
             weapon_id: avatar.initial_weapon,
             level: DEFAULT_WEAPON_LEVEL,
             exp: 0,
