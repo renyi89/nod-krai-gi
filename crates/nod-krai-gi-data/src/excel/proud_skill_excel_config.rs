@@ -18,7 +18,6 @@ pub struct ProudSkillExcelConfig {
     pub cost_items: Vec<CostItem>,
     pub desc_text_map_hash: u64,
     pub filter_conds: Vec<InternString>,
-    pub icon: InternString,
     pub is_hide_life_proud_skill: bool,
     pub level: u32,
     pub life_effect_params: Vec<InternString>,

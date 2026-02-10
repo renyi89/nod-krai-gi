@@ -14,9 +14,11 @@ pub struct WeaponProperty {
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WeaponExcelConfig {
+    pub id: u32,
+    pub item_type: ItemType,
     pub weapon_type: WeaponType,
-    pub rank_level: u32,
     pub material_type: MaterialType,
+    
     pub weapon_base_exp: u32,
     pub skill_affix: Vec<u32>,
     pub awaken_material: u32,
@@ -28,15 +30,11 @@ pub struct WeaponExcelConfig {
     pub weapon_promote_id: u32,
     pub story_id: u32,
     pub awaken_costs: Vec<u32>,
-    pub gacha_card_name_hash: u64,
     pub destroy_return_material: Vec<u32>,
     pub destroy_return_material_count: Vec<u32>,
-    pub initial_lock_state: u32,
-    pub id: u32,
-    pub icon: InternString,
-    pub item_type: ItemType,
-    pub weight: u32,
+
     pub rank: u32,
+    pub rank_level: u32,
     pub gadget_id: u32,
     pub desc_text_map_hash: u64,
     pub name_text_map_hash: u64,

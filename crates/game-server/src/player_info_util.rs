@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use common::time_util;
 use nod_krai_gi_data::config::{process_inherent_proud_skills, process_talent_ids};
+use nod_krai_gi_data::excel::common::{EquipType, ItemType};
 use nod_krai_gi_data::excel::{
     avatar_costume_excel_config_collection, avatar_excel_config_collection,
     avatar_flycloak_excel_config_collection, avatar_skill_depot_excel_config_collection,
@@ -9,7 +10,6 @@ use nod_krai_gi_data::excel::{
     avatar_trace_effect_excel_config_collection, proud_skill_excel_config_collection,
     weapon_excel_config_collection, AvatarExcelConfig, AvatarUseType,
 };
-
 use nod_krai_gi_proto::server_only::*;
 
 pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerDataBin {
@@ -139,7 +139,7 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerD
             player.item_bin.as_mut().unwrap().add_item(
                 guid,
                 ItemBin {
-                    item_type: 0,
+                    item_type: ItemType::WEAPON as u32,
                     item_id: weapon.id,
                     guid,
                     detail: Some(item_bin::Detail::Equip(EquipBin {
@@ -168,6 +168,14 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
 
     let avatar_guid = player.next_guid();
     let weapon_guid = player.next_guid();
+
+    let Some(ref mut avatar_bin) = player.avatar_bin else {
+        return;
+    };
+
+    let Some(ref mut item_bin) = player.item_bin else {
+        return;
+    };
 
     let mut skill_level_map = HashMap::new();
     let mut inherent_proud_skill_list = Vec::new();
@@ -217,13 +225,17 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
             .for_each(|s| inherent_proud_skill_list.push(s.proud_skill_group_id * 100 + 1));
     }
 
-    let avatar = avatar_excel_config_collection_clone
-        .get(&avatar.id)
-        .unwrap();
+    let Some(avatar) = avatar_excel_config_collection_clone.get(&avatar.id) else {
+        tracing::debug!("avatar config {} doesn't exist", avatar.id);
+        return;
+    };
 
-    let skill_depot = avatar_skill_depot_excel_config_collection_clone
-        .get(&avatar.skill_depot_id)
-        .unwrap();
+    let Some(skill_depot) =
+        avatar_skill_depot_excel_config_collection_clone.get(&avatar.skill_depot_id)
+    else {
+        tracing::debug!("skill_depot config {} doesn't exist", avatar.skill_depot_id);
+        return;
+    };
 
     let talent_id_list: Vec<u32> =
         if DEFAULT_CORE_PROUD_SKILL_LEVEL as usize > skill_depot.talents.len() {
@@ -233,10 +245,12 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
         };
 
     let mut open_configs = Vec::new();
+
     open_configs.extend(process_talent_ids(
         &talent_id_list,
         &avatar_talent_collection_clone,
     ));
+
     open_configs.extend(process_inherent_proud_skills(
         &inherent_proud_skill_list,
         &proud_skill_collection_clone,
@@ -274,7 +288,7 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
     }
 
     if avatar.id == CHOOSE_AVATAR_ID {
-        player.avatar_bin.as_mut().unwrap().choose_avatar_guid = avatar_guid;
+        avatar_bin.choose_avatar_guid = avatar_guid;
     }
 
     let mut depot_map: HashMap<u32, AvatarSkillDepotBin> = HashMap::new();
@@ -288,9 +302,30 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
         },
     );
 
-    player.avatar_bin.as_mut().unwrap().avatar_map.insert(
+    let mut equip_map = HashMap::new();
+    let weapon_item_bin = ItemBin {
+        item_type: ItemType::WEAPON as u32,
+        item_id: avatar.initial_weapon,
+        guid: weapon_guid,
+        detail: Some(item_bin::Detail::Equip(EquipBin {
+            is_locked: false,
+            detail: Some(equip_bin::Detail::Weapon(WeaponBin {
+                level: DEFAULT_WEAPON_LEVEL,
+                exp: 0,
+                promote_level: DEFAULT_WEAPON_PROMOTE_LEVEL,
+                affix_map: HashMap::with_capacity(0),
+            })),
+        })),
+    };
+
+    equip_map.insert(EquipType::Weapon as u32, weapon_item_bin.clone());
+
+    item_bin.add_item(weapon_guid, weapon_item_bin);
+
+    avatar_bin.avatar_map.insert(
         avatar_guid,
         AvatarBin {
+            avatar_type: 1,
             avatar_id: avatar.id,
             level: DEFAULT_AVATAR_LEVEL,
             promote_level: DEFAULT_AVATAR_PROMOTE_LEVEL,
@@ -299,31 +334,13 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
             skill_depot_id: avatar.skill_depot_id,
             born_time: time_util::unix_timestamp() as u32,
             guid: avatar_guid,
-            weapon_guid,
+            equip_map,
             cur_hp: avatar.hp_base,
             wearing_flycloak_id: DEFAULT_FLYCLOAK_ID,
             costume_id: 0,
             trace_effect_id: 0,
             weapon_skin_id: 0,
             ..Default::default()
-        },
-    );
-
-    player.item_bin.as_mut().unwrap().add_item(
-        weapon_guid,
-        ItemBin {
-            item_type: 0,
-            item_id: avatar.initial_weapon,
-            guid: weapon_guid,
-            detail: Some(item_bin::Detail::Equip(EquipBin {
-                is_locked: false,
-                detail: Some(equip_bin::Detail::Weapon(WeaponBin {
-                    level: DEFAULT_WEAPON_LEVEL,
-                    exp: 0,
-                    promote_level: DEFAULT_WEAPON_PROMOTE_LEVEL,
-                    affix_map: HashMap::with_capacity(0),
-                })),
-            })),
         },
     );
 }

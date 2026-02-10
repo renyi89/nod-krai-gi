@@ -7,6 +7,7 @@ use crate::{
 };
 use bevy_ecs::{prelude::*, query::QueryData};
 use nod_krai_gi_data::excel;
+use nod_krai_gi_data::excel::common::EquipType;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::{
@@ -32,7 +33,6 @@ pub struct AvatarAppearance {
 pub struct AvatarEquipChangeEvent {
     pub player_uid: u32,
     pub avatar_guid: u64,
-    pub weapon_guid: u64,
 }
 
 pub enum AvatarAppearanceChange {
@@ -199,21 +199,18 @@ pub fn notify_avatar_appearance_change(
             let Some(ref avatar_bin) = player_info.avatar_bin else {
                 continue;
             };
-            let Some(ref item_bin) = player_info.item_bin else {
-                continue;
-            };
 
             let Some(avatar) = avatar_bin.avatar_map.get(&event.avatar_guid) else {
                 tracing::debug!("avatar guid {} doesn't exist", event.avatar_guid);
                 continue;
             };
 
-            let Some(weapon) = item_bin.get_item(&avatar.weapon_guid) else {
-                tracing::debug!("weapon guid {} doesn't exist", avatar.weapon_guid);
+            let Some(weapon_item_bin) = avatar.equip_map.get(&(EquipType::Weapon as u32)) else {
+                tracing::debug!("weapon doesn't exist {}", event.avatar_guid);
                 continue;
             };
 
-            let entity_info = build_fake_avatar_entity_info(avatar, weapon);
+            let entity_info = build_fake_avatar_entity_info(avatar, weapon_item_bin);
             match event.change {
                 AvatarAppearanceChange::Costume(_) => message_output.send(
                     event.player_uid,
@@ -343,6 +340,11 @@ fn build_fake_avatar_entity_info(avatar: &AvatarBin, weapon: &ItemBin) -> Option
         return None;
     };
 
+    let Some(weapon_item_bin) = avatar.equip_map.get(&(EquipType::Weapon as u32)) else {
+        tracing::debug!("weapon doesn't exist {}",avatar.guid);
+        return None;
+    };
+
     Some(SceneEntityInfo {
         entity_type: ProtEntityType::ProtEntityAvatar.into(),
         entity_id: 0,
@@ -354,7 +356,7 @@ fn build_fake_avatar_entity_info(avatar: &AvatarBin, weapon: &ItemBin) -> Option
             skill_depot_id: avatar.skill_depot_id,
             talent_id_list: skill_depot.talent_id_list.clone(),
             weapon: Some(SceneWeaponInfo {
-                guid: avatar.weapon_guid,
+                guid: weapon_item_bin.guid,
                 item_id: weapon_id,
                 level: *level,
                 promote_level: *promote_level,

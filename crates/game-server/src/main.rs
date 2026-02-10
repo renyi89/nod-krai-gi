@@ -1,7 +1,6 @@
 use crate::net::udp_server::ConnectionManager;
 use anyhow::Result;
 use common::data::{EncryptionConfig, RegionConfig};
-use common::game_server_config::init_player_cache;
 use common::logging;
 use dashmap::DashMap;
 use db_worker::DbWorkerHandle;
@@ -22,6 +21,7 @@ use std::fs;
 use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, OnceLock};
 use tokio::net::UdpSocket;
+use common::player_cache::init_player_cache;
 
 mod db_worker;
 mod player_info_util;

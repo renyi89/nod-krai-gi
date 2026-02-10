@@ -1,6 +1,7 @@
 use crate::common::ScenePeerManager;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::config::{process_inherent_proud_skills, process_talent_ids};
+use nod_krai_gi_data::excel::common::EquipType;
 use nod_krai_gi_data::excel::{
     avatar_excel_config_collection, avatar_talent_excel_config_collection,
     proud_skill_excel_config_collection, weapon_excel_config_collection,
@@ -57,9 +58,6 @@ pub fn player_join_team(
         let Some(ref avatar_bin) = player_info.avatar_bin else {
             continue;
         };
-        let Some(ref item_bin) = player_info.item_bin else {
-            continue;
-        };
 
         for (idx, to_spawn_guid) in event.avatar_guid_list.iter().enumerate() {
             match avatars
@@ -89,17 +87,20 @@ pub fn player_join_team(
                         continue;
                     };
 
-                    let Some(weapon) = item_bin.get_item(&to_spawn.weapon_guid) else {
-                        tracing::debug!("weapon guid {} doesn't exist", to_spawn.weapon_guid);
+                    let Some(weapon_item_bin) = to_spawn.equip_map.get(&(EquipType::Weapon as u32))
+                    else {
+                        tracing::debug!("weapon doesn't exist {}", to_spawn_guid);
                         continue;
                     };
 
-                    let weapon_id = weapon.item_id;
+                    let weapon_id = weapon_item_bin.item_id;
+                    let weapon_guid = weapon_item_bin.guid;
 
-                    let Some(item_bin::Detail::Equip(ref equip)) = weapon.detail else {
+                    let Some(item_bin::Detail::Equip(ref equip_bin)) = weapon_item_bin.detail
+                    else {
                         continue;
                     };
-                    let Some(equip_bin::Detail::Weapon(ref weapon)) = equip.detail else {
+                    let Some(equip_bin::Detail::Weapon(ref weapon_bin)) = equip_bin.detail else {
                         continue;
                     };
 
@@ -108,7 +109,7 @@ pub fn player_join_team(
                         promote_level,
                         affix_map,
                         ..
-                    } = weapon;
+                    } = weapon_bin;
 
                     let Some(avatar_data) =
                         avatar_excel_config_collection_clone.get(&to_spawn.avatar_id)
@@ -147,7 +148,7 @@ pub fn player_join_team(
                                 entity_counter.inc(),
                             ),
                             level: Level(*level),
-                            guid: Guid(to_spawn.weapon_guid),
+                            guid: Guid(weapon_guid),
                             gadget_id: GadgetID(weapon_config.gadget_id),
                             affix_map: AffixMap(affix_map.clone()),
                             promote_level: WeaponPromoteLevel(*promote_level),

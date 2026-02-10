@@ -12420,9 +12420,9 @@ pub struct AvatarBin {
     #[prost(map = "uint32, message", tag = "12")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub depot_map: ::std::collections::HashMap<u32, AvatarSkillDepotBin>,
-    #[prost(message, repeated, tag = "13")]
+    #[prost(map = "uint32, message", tag = "13")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub equip_list: ::prost::alloc::vec::Vec<ItemBin>,
+    pub equip_map: ::std::collections::HashMap<u32, ItemBin>,
     #[prost(float, tag = "14")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub satiation_val: f32,
@@ -12453,10 +12453,6 @@ pub struct AvatarBin {
     #[prost(uint32, tag = "23")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub weapon_skin_id: u32,
-    #[serde(with="crate::u64_string")]
-    #[prost(uint64, tag = "24")]
-    #[serde(skip_serializing_if = "crate::is_default")]
-    pub weapon_guid: u64,
     #[serde(flatten)]
     #[prost(oneof = "avatar_bin::Detail", tags = "101, 102, 103")]
     #[serde(skip_serializing_if = "crate::is_default")]

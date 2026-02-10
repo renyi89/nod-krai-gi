@@ -75,9 +75,27 @@ impl PlayerDataBin {
 }
 
 impl PlayerItemCompBin {
+    pub fn has_material(&self, item_id: u32) -> Option<u64> {
+        let Some(ref pack_store) = self.pack_store else {
+            return None;
+        };
+        for (guid, mut item_bin) in pack_store.item_map.iter() {
+            if item_bin.item_id == item_id {
+                return Some((*guid));
+            }
+        }
+        None
+    }
+
     pub fn add_item(&mut self, guid: u64, item: ItemBin) {
         if let Some(store) = self.pack_store.as_mut() {
             store.item_map.insert(guid, item);
+        }
+    }
+
+    pub fn remove_item(&mut self, guid: &u64) {
+        if let Some(store) = self.pack_store.as_mut() {
+            store.item_map.remove(guid);
         }
     }
 
@@ -85,6 +103,13 @@ impl PlayerItemCompBin {
         self.pack_store
             .as_ref()
             .and_then(|store| store.item_map.get(guid))
+    }
+
+    pub fn get_mut_item(&mut self, guid: &u64) -> Option<&mut ItemBin> {
+        let Some(ref mut pack_store) = self.pack_store else {
+            return None;
+        };
+        pack_store.item_map.get_mut(guid)
     }
 
     pub fn iter(&self) -> impl Iterator<Item = (&u64, &ItemBin)> {
@@ -116,10 +141,43 @@ impl ItemBin {
                         )),
                     })),
                 }),
-                Some(equip_bin::Detail::Reliquary(ref weapon)) => None,
+                Some(equip_bin::Detail::Reliquary(ref reliquary)) => Some(crate::normal::Item {
+                    item_id: self.item_id,
+                    guid: self.guid,
+                    detail: Some(crate::normal::item::Detail::Equip(crate::normal::Equip {
+                        is_locked: equip.is_locked,
+                        detail: Some(crate::normal::equip::Detail::Reliquary(
+                            crate::normal::Reliquary {
+                                level: reliquary.level,
+                                exp: reliquary.exp,
+                                main_prop_id: reliquary.main_prop_id,
+                                append_prop_id_list: reliquary.append_prop_id_list.clone(),
+                                ..Default::default()
+                            },
+                        )),
+                    })),
+                }),
                 _ => None,
             },
-            Some(item_bin::Detail::Material(ref material)) => None,
+            Some(item_bin::Detail::Material(ref material)) => Some(crate::normal::Item {
+                item_id: self.item_id,
+                guid: self.guid,
+                detail: Some(crate::normal::item::Detail::Material(
+                    crate::normal::Material {
+                        delete_info: None,
+                        count: material.count,
+                    },
+                )),
+            }),
+            Some(item_bin::Detail::Furniture(ref furniture)) => Some(crate::normal::Item {
+                item_id: self.item_id,
+                guid: self.guid,
+                detail: Some(crate::normal::item::Detail::Furniture(
+                    crate::normal::Furniture {
+                        count: furniture.count,
+                    },
+                )),
+            }),
             _ => None,
         }
     }

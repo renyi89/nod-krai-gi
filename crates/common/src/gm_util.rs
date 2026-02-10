@@ -101,7 +101,7 @@ pub enum AvatarAction {
         lv: Option<u32>,
         sl: Option<u32>,
     },
-    Spawn {
+    Lv {
         id: u32,
     },
 }
@@ -135,8 +135,10 @@ pub enum QuestAction {
 pub enum ItemAction {
     Add {
         id: u32,
-        p: HashMap<u32, u32>,
-        lv: Option<u32>,
+        num: Option<u32>,
+        level: Option<u32>,
+        main_prop_id: Option<u32>,
+        append_prop_id_list: HashMap<u32, u32>,
     },
 }
 
@@ -188,8 +190,8 @@ pub fn parse_command(input: &str) -> Result<Command, String> {
             },
         ),
 
-        ("avatar", "spawn") => parse_struct(parts, "avatar spawn <id>", |mut map| {
-            Ok(Command::Avatar(AvatarAction::Spawn {
+        ("avatar", "lv") => parse_struct(parts, "avatar lv <id>", |mut map| {
+            Ok(Command::Avatar(AvatarAction::Lv {
                 id: map.take("id")?,
             }))
         }),
@@ -232,17 +234,17 @@ pub fn parse_command(input: &str) -> Result<Command, String> {
             }))
         }),
 
-        ("item", "add") => parse_struct(
-            parts,
-            "item add <id> [props k,v;k,v] [level <num>]",
-            |mut map| {
+        ("item", "add") => {
+            parse_struct(parts, "item add <id> [p k,v;k,v] [lv <num>]", |mut map| {
                 Ok(Command::Item(ItemAction::Add {
                     id: map.take("id")?,
-                    p: map.take_map_u32("p")?,
-                    lv: map.take_opt("lv"),
+                    num: map.take_opt("n"),
+                    level: map.take_opt("lv"),
+                    main_prop_id: map.take_opt("m"),
+                    append_prop_id_list: map.take_map_u32("p")?,
                 }))
-            },
-        ),
+            })
+        }
 
         _ => Err(format!("unknown command:{} {}", first, second)),
     }

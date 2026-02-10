@@ -1,5 +1,5 @@
 use crate::AppState;
-use common::game_server_config::{
+use common::player_cache::{
     cache_set_language, cache_set_online_status, is_player_online, PlayerStatusType,
 };
 use common::language::Language;

@@ -104,6 +104,7 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
         let Some(player_info) = players.get(*uid) else {
             continue;
         };
+
         let Some(ref avatar_bin) = player_info.avatar_bin else {
             continue;
         };
@@ -140,10 +141,12 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                             tracing::debug!("avatar config {} doesn't exist", a.avatar_id);
                             return None;
                         };
+
                         Some(AvatarInfo {
+                            avatar_type: 1,
                             avatar_id: a.avatar_id,
                             guid: a.guid,
-                            equip_guid_list: vec![a.weapon_guid],
+                            equip_guid_list: a.equip_map.iter().map(|(_, item)| item.guid).collect(),
                             skill_depot_id: a.skill_depot_id,
                             talent_id_list: skill_depot.talent_id_list.clone(),
                             core_proud_skill_level: skill_depot.core_proud_skill_level,
@@ -152,7 +155,6 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                                 .then_some(LifeState::Alive)
                                 .unwrap_or(LifeState::Dead)
                                 as u32,
-                            avatar_type: 1, // TODO!
                             wearing_flycloak_id: a.wearing_flycloak_id,
                             costume_id: a.costume_id,
                             trace_effect_id: a.trace_effect_id,
@@ -168,7 +170,6 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                                 ..Default::default()
                             }),
                             skill_level_map: skill_depot.skill_level_map.clone(),
-                            // map 转换 HashMap<u32, AvatarSkillInfo, RandomState>
                             skill_map: a
                                 .skill_map
                                 .iter()

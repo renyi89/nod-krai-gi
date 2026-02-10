@@ -1,7 +1,7 @@
 use avatar::{change_avatar, notify_avatar_team_update, replace_avatar_team, set_up_avatar_team};
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
-use ::common::game_server_config::cache_set_is_tp;
+use ::common::player_cache::cache_set_is_tp;
 use ::common::time_util::unix_timestamp_ms;
 use common::{PlayerSceneState, PlayerSceneStates, ScenePeerManager, WorldOwnerUID};
 use enter::EnterSceneStateSystems;

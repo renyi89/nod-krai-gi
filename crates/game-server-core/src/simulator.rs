@@ -1,6 +1,6 @@
 use crate::command::LOGIC_COMMAND_QUEUE;
 use crate::{command::LogicCommand, player_world::PlayerWorld};
-use common::game_server_config::{cache_set_online_status, PlayerStatusType};
+use common::player_cache::{cache_set_online_status, PlayerStatusType};
 use common::logging::TRACE_LOG_PACKET;
 use common::time_util;
 use nod_krai_gi_data::GAME_SERVER_CONFIG;

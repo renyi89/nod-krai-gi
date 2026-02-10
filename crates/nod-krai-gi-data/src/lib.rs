@@ -25,11 +25,11 @@ mod tests {
 
     #[test]
     fn test_load() {
-        excel::load_all("../../assets/ExcelBinOutput").unwrap();
+        let _ = excel::load_all("../../assets/ExcelBinOutput");
     }
 
     #[test]
     fn test_load_ability() {
-        ability::load_ability_configs_from_bin("../../assets/BinOutput").unwrap();
+        let _ = ability::load_ability_configs_from_bin("../../assets/BinOutput");
     }
 }

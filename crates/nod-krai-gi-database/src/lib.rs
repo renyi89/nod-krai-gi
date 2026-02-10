@@ -1,7 +1,6 @@
 pub mod data;
 mod error;
 pub mod rocksdb_op;
-mod util;
 pub use error::DbError;
 
 use common::database_config::DatabaseSettings;

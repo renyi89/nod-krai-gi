@@ -1,7 +1,7 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 
-use common::game_server_config::{cache_get_client_time, cache_get_is_pause, cache_set_is_pause};
+use common::player_cache::{cache_get_client_time, cache_get_is_pause, cache_set_is_pause};
 use common::time_util;
 use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
@@ -20,8 +20,7 @@ impl Plugin for TimePlugin {
             .add_systems(PreUpdate, set_pause)
             .add_systems(PreUpdate, client_set_game_time)
             .add_systems(First, sync_scene_time_on_scene_init_finish)
-        // .add_systems(First, sync_scene_time_on_enter_scene_done)
-        ;
+            .add_systems(First, sync_scene_time_on_enter_scene_done);
     }
 }
 

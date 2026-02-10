@@ -183,7 +183,7 @@ message AvatarBin {
     map<uint32, AvatarSkillBin> skill_map = 10;
     map<uint32, AvatarBuffBin> buff_map = 11;
     map<uint32, AvatarSkillDepotBin> depot_map = 12;
-    repeated ItemBin equip_list = 13;
+    map<uint32, ItemBin> equip_map = 13;
     float satiation_val = 14;
     float satiation_penalty_time = 15;
     uint32 wearing_flycloak_id = 16;
@@ -194,7 +194,6 @@ message AvatarBin {
     repeated AvatarExtraPropBin extra_prop_list = 21;
     uint32 trace_effect_id = 22;
     uint32 weapon_skin_id = 23;
-    uint64 weapon_guid = 24;
     oneof detail {
         FormalAvatarBin formal_avatar = 101;
         TrialAvatarBin trial_avatar = 102;

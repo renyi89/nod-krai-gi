@@ -1,8 +1,8 @@
+use common::string_util::InternString;
 use std::collections::HashMap;
 use std::fs;
 use std::str::FromStr;
 use std::sync::Arc;
-use common::string_util::InternString;
 
 pub static QUEST_CONFIG_COLLECTION: std::sync::OnceLock<Arc<HashMap<u32, QuestConfig>>> =
     std::sync::OnceLock::new();
@@ -30,7 +30,7 @@ pub enum QuestType {
     #[serde(alias = "WQ")]
     WQ,
 }
-#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[derive(Debug, Default, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum LogicType {
     #[serde(alias = "LOGIC_NONE")]
     #[default]
@@ -55,12 +55,8 @@ pub enum LogicType {
     QuestHidden,
 }
 
-#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[derive(Debug, Default, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum QuestExec {
-    #[serde(alias = "QUEST_EXEC_NONE")]
-    #[default]
-    None,
-
     #[serde(alias = "QUEST_EXEC_DEL_PACK_ITEM")]
     DelPackItem,
 
@@ -268,16 +264,13 @@ pub enum QuestExec {
     #[serde(alias = "QUEST_EXEC_GRANT_TRIAL_AVATAR_BATCH_AND_LOCK_TEAM")]
     GrantTrialAvatarBatchAndLockTeam,
 
+    #[serde(alias = "QUEST_EXEC_NONE")]
     #[serde(other)]
-    #[serde(alias = "QUEST_EXEC_UNKNOWN")]
-    Unknown,
-}
-#[derive(Debug, Default, Clone, serde::Deserialize)]
-pub enum QuestCond {
-    #[serde(alias = "QUEST_COND_NONE")]
     #[default]
     None,
-
+}
+#[derive(Debug, Default, Clone, serde::Deserialize, PartialEq, Eq)]
+pub enum QuestCond {
     #[serde(alias = "QUEST_COND_STATE_EQUAL")]
     StateEqual,
 
@@ -512,16 +505,13 @@ pub enum QuestCond {
     #[serde(alias = "QUEST_COND_PLAYER_ENTER_REGION")]
     PlayerEnterRegion,
 
+    #[serde(alias = "QUEST_COND_NONE")]
     #[serde(other)]
-    #[serde(alias = "QUEST_COND_UNKNOWN")]
-    Unknown,
-}
-#[derive(Debug, Default, Clone, serde::Deserialize)]
-pub enum QuestContent {
-    #[serde(alias = "QUEST_CONTENT_NONE")]
     #[default]
     None,
-
+}
+#[derive(Debug, Default, Clone, serde::Deserialize, PartialEq, Eq)]
+pub enum QuestContent {
     #[serde(alias = "QUEST_CONTENT_KILL_MONSTER")]
     KillMonster,
 
@@ -744,9 +734,10 @@ pub enum QuestContent {
     #[serde(alias = "QUEST_CONTENT_GADGET_STATE_CHANGE")]
     GadgetStateChange,
 
+    #[serde(alias = "QUEST_CONTENT_NONE")]
     #[serde(other)]
-    #[serde(alias = "QUEST_CONTENT_UNKNOWN")]
-    Unknown,
+    #[default]
+    None,
 }
 
 #[derive(Debug, Clone, Default, serde::Deserialize)]
@@ -891,7 +882,7 @@ pub fn load_quest_configs_from_bin(bin_output_path: &str) {
                 let file_name = entry.file_name().to_string_lossy().replace(".json", "");
                 match u32::from_str(file_name.as_str()) {
                     Ok(file_quest_id) => {
-                        let json =  std::fs::read(entry.path()).ok()?;
+                        let json = std::fs::read(entry.path()).ok()?;
                         let result: serde_json::Result<QuestConfig> =
                             serde_json::from_slice(&*json);
                         match result {

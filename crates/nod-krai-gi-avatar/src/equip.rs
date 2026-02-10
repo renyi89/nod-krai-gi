@@ -1,4 +1,5 @@
 use bevy_ecs::prelude::*;
+use nod_krai_gi_data::excel::common::EquipType;
 use nod_krai_gi_data::{
     excel::{avatar_excel_config_collection, weapon_excel_config_collection},
     prop_type::FightPropType,
@@ -104,21 +105,14 @@ pub fn apply_equip_change_to_avatar_entity(
             continue;
         };
 
-        let Some(ref item_bin) = player_info.item_bin else {
+        let Some(weapon_item_bin) = avatar.equip_map.get(&(EquipType::Weapon as u32)) else {
+            tracing::debug!("weapon doesn't exist {}", avatar.guid);
             continue;
         };
 
-        let Some(weapon) = item_bin.get_item(&avatar_equip_change.weapon_guid) else {
-            tracing::debug!(
-                "weapon guid {} doesn't exist",
-                avatar_equip_change.weapon_guid
-            );
-            continue;
-        };
+        let weapon_id = weapon_item_bin.item_id;
 
-        let weapon_id = weapon.item_id;
-
-        let Some(item_bin::Detail::Equip(ref equip)) = weapon.detail else {
+        let Some(item_bin::Detail::Equip(ref equip)) = weapon_item_bin.detail else {
             continue;
         };
         let Some(equip_bin::Detail::Weapon(ref weapon)) = equip.detail else {
@@ -145,7 +139,7 @@ pub fn apply_equip_change_to_avatar_entity(
                     entity_counter.inc(),
                 ),
                 level: Level(*level),
-                guid: Guid(avatar_equip_change.weapon_guid),
+                guid: Guid(weapon_item_bin.guid),
                 gadget_id: GadgetID(weapon_config.gadget_id),
                 affix_map: AffixMap(affix_map.clone()),
                 promote_level: WeaponPromoteLevel(*promote_level),

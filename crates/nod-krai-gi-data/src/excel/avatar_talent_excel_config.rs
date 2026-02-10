@@ -7,7 +7,6 @@ use super::common::AddProp;
 pub struct AvatarTalentExcelConfig {
     pub add_props: Vec<AddProp>,
     pub desc_text_map_hash: u64,
-    pub icon: InternString,
     pub main_cost_item_count: u32,
     pub main_cost_item_id: u32,
     pub name_text_map_hash: u64,

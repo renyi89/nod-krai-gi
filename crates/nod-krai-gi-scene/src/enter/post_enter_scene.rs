@@ -1,6 +1,6 @@
 use crate::common::PlayerSceneStates;
 use bevy_ecs::prelude::*;
-use common::game_server_config::cache_set_is_tp;
+use common::player_cache::cache_set_is_tp;
 use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_message::output::MessageOutput;

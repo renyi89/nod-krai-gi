@@ -7,7 +7,6 @@ use std::sync::{Arc, OnceLock};
 use crate::handler::gm_util::execute_gm_cmd;
 use crate::{net::Connection, util, AppState};
 use anyhow::Result;
-use common::game_server_config::cache_set_client_time;
 use nod_krai_gi_encryption::xor::MhyXorpad;
 use nod_krai_gi_message::output::ClientOutput;
 use nod_krai_gi_proto::normal::{
@@ -20,6 +19,7 @@ use nod_krai_gi_proto::{
     Protobuf,
 };
 use tokio::sync::mpsc;
+use common::player_cache::cache_set_client_time;
 
 enum InputItem {
     NewConnection(Connection),

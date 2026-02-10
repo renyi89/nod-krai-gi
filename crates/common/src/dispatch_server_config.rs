@@ -1,6 +1,6 @@
 use std::net::SocketAddr;
-use common::TomlConfig;
 use serde::Deserialize;
+use crate::TomlConfig;
 
 #[derive(Deserialize)]
 pub struct DispatchConfig {

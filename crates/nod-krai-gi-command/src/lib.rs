@@ -1,8 +1,8 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
-use common::game_server_config::cache_get_is_tp;
 use common::gm_util::Command;
 use common::gm_util::{parse_command, TpAction};
+use common::player_cache::cache_get_is_tp;
 use common::time_util::unix_timestamp;
 use nod_krai_gi_data::excel::{gadget_excel_config_collection, monster_excel_config_collection};
 use nod_krai_gi_entity::ability::Ability;
@@ -25,9 +25,9 @@ use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::{ChatInfo, PrivateChatNotify, ProtEntityType};
-use nod_krai_gi_proto::server_only::VectorBin;
 use rand::RngCore;
 use tracing::{debug, instrument};
+use nod_krai_gi_proto::server_only::VectorBin;
 
 pub struct CommandPlugin;
 
@@ -104,13 +104,9 @@ pub fn debug_command_handler(
                                 } else {
                                     0.0
                                 };
-                                (
-                                    position.0,
-                                    y + 4.0,
-                                    position.1,
-                                )
+                                (position.0, y + 4.0, position.1)
                             }
-                                .into(),
+                            .into(),
                             rotation: VectorBin::default(),
                         },
                         fight_properties,
@@ -165,7 +161,7 @@ pub fn debug_command_handler(
                                 };
                                 (position.0, y, position.1)
                             }
-                                .into(),
+                            .into(),
                             rotation: VectorBin::default(),
                         },
                         fight_properties,
@@ -199,6 +195,7 @@ pub fn gm_command_handler(
     mut gm_notify_events: MessageWriter<ConsoleChatNotifyEvent>,
     mut tp_events: MessageWriter<ScenePlayerJumpEvent>,
     mut quest_events: MessageWriter<CommandQuestEvent>,
+    mut item_events: MessageWriter<CommandItemEvent>,
 ) {
     for ConsoleChatReqEvent(player_uid, console_content) in events.read() {
         let Some(player_info) = players.get(*player_uid) else {
@@ -233,9 +230,12 @@ pub fn gm_command_handler(
                                     id,
                                     EnterReason::Gm,
                                     (
-                                        scene_bin.my_prev_pos.unwrap_or_default().x + x.unwrap_or_default(),
-                                        scene_bin.my_prev_pos.unwrap_or_default().y + y.unwrap_or_default(),
-                                        scene_bin.my_prev_pos.unwrap_or_default().z + z.unwrap_or_default(),
+                                        scene_bin.my_prev_pos.unwrap_or_default().x
+                                            + x.unwrap_or_default(),
+                                        scene_bin.my_prev_pos.unwrap_or_default().y
+                                            + y.unwrap_or_default(),
+                                        scene_bin.my_prev_pos.unwrap_or_default().z
+                                            + z.unwrap_or_default(),
                                     ),
                                 ));
                             }
@@ -244,7 +244,9 @@ pub fn gm_command_handler(
                     Command::Quest(action) => {
                         quest_events.write(CommandQuestEvent(*player_uid, action));
                     }
-                    Command::Item(_) => {}
+                    Command::Item(action) => {
+                        item_events.write(CommandItemEvent(*player_uid, action));
+                    }
                     Command::Prop(_, _) => {}
                     Command::Dun(_) => {}
                     Command::Pos => {}

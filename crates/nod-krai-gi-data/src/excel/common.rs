@@ -1,7 +1,8 @@
-use common::string_util::InternString;
 use crate::prop_type::FightPropType;
+use common::string_util::InternString;
 
-#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[repr(u32)]
+#[derive(Debug, Default, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum WeaponType {
     #[default]
     #[serde(alias = "WEAPON_NONE")]
@@ -34,7 +35,8 @@ pub enum WeaponType {
     Pole = 13,
 }
 
-#[derive(Default, Clone, serde::Deserialize, Debug)]
+#[repr(u32)]
+#[derive(Default, Clone, serde::Deserialize, Debug, PartialEq, Eq)]
 pub enum ItemType {
     #[default]
     #[serde(alias = "ITEM_NONE")]
@@ -53,112 +55,117 @@ pub enum ItemType {
     FURNITURE = 6,
 }
 
-#[derive(Default, Clone, serde::Deserialize, Debug)]
+#[derive(Default, Clone, serde::Deserialize, Debug, PartialEq, Eq)]
 pub enum MaterialType {
-    #[serde(alias = "MATERIAL_NONE", alias = "WEAPON_MATERIAL_NONE")]
-    #[default]
-    None = 0,
     #[serde(alias = "MATERIAL_FOOD")]
-    Food = 1,
+    Food,
     #[serde(alias = "MATERIAL_QUEST")]
-    Quest = 2,
+    Quest,
     #[serde(alias = "MATERIAL_EXCHANGE")]
-    Exchange = 4,
+    Exchange,
     #[serde(alias = "MATERIAL_CONSUME")]
-    Consume = 5,
+    Consume,
     #[serde(alias = "MATERIAL_EXP_FRUIT")]
-    ExpFruit = 6,
+    ExpFruit,
     #[serde(alias = "MATERIAL_AVATAR")]
-    Avatar = 7,
+    Avatar,
     #[serde(alias = "MATERIAL_ADSORBATE")]
-    Adsorbate = 8,
+    Adsorbate,
     #[serde(alias = "MATERIAL_CRICKET")]
-    Cricket = 9,
+    Cricket,
     #[serde(alias = "MATERIAL_ELEM_CRYSTAL")]
-    ElemCrystal = 10,
+    ElemCrystal,
     #[serde(alias = "MATERIAL_WEAPON_EXP_STONE")]
-    WeaponExpStone = 11,
+    WeaponExpStone,
     #[serde(alias = "MATERIAL_CHEST")]
-    Chest = 12,
+    Chest,
     #[serde(alias = "MATERIAL_RELIQUARY_MATERIAL")]
-    ReliquaryMaterial = 13,
+    ReliquaryMaterial,
     #[serde(alias = "MATERIAL_AVATAR_MATERIAL")]
-    AvatarMaterial = 14,
+    AvatarMaterial,
     #[serde(alias = "MATERIAL_NOTICE_ADD_HP")]
-    NoticeAddHp = 15,
+    NoticeAddHp,
     #[serde(alias = "MATERIAL_SEA_LAMP")]
-    SeaLamp = 16,
+    SeaLamp,
     #[serde(alias = "MATERIAL_SELECTABLE_CHEST")]
-    SelectableChest = 17,
+    SelectableChest,
     #[serde(alias = "MATERIAL_FLYCLOAK")]
-    Flycloak = 18,
+    Flycloak,
     #[serde(alias = "MATERIAL_NAMECARD")]
-    Namecard = 19,
+    Namecard,
     #[serde(alias = "MATERIAL_TALENT")]
-    Talent = 20,
+    Talent,
     #[serde(alias = "MATERIAL_WIDGET")]
-    Widget = 21,
+    Widget,
     #[serde(alias = "MATERIAL_CHEST_BATCH_USE")]
-    ChestBatchUse = 22,
+    ChestBatchUse,
     #[serde(alias = "MATERIAL_FAKE_ABSORBATE")]
-    FakeAbsorbate = 23,
+    FakeAbsorbate,
     #[serde(alias = "MATERIAL_CONSUME_BATCH_USE")]
-    ConsumeBatchUse = 24,
+    ConsumeBatchUse,
     #[serde(alias = "MATERIAL_WOOD")]
-    Wood = 25,
+    Wood,
     #[serde(alias = "MATERIAL_FURNITURE_FORMULA")]
-    FurnitureFormula = 27,
+    FurnitureFormula,
     #[serde(alias = "MATERIAL_CHANNELLER_SLAB_BUFF")]
-    ChannellerSlabBuff = 28,
+    ChannellerSlabBuff,
     #[serde(alias = "MATERIAL_FURNITURE_SUITE_FORMULA")]
-    FurnitureSuiteFormula = 29,
+    FurnitureSuiteFormula,
     #[serde(alias = "MATERIAL_COSTUME")]
-    Costume = 30,
+    Costume,
+    #[serde(alias = "MATERIAL_AVATAR_TRACE")]
+    AvatarTrace,
     #[serde(alias = "MATERIAL_HOME_SEED")]
-    HomeSeed = 31,
+    HomeSeed,
     #[serde(alias = "MATERIAL_FISH_BAIT")]
-    FishBait = 32,
+    FishBait,
     #[serde(alias = "MATERIAL_FISH_ROD")]
-    FishRod = 33,
+    FishRod,
     #[serde(alias = "MATERIAL_SUMO_BUFF")]
-    SumoBuff = 34,
+    SumoBuff,
     #[serde(alias = "MATERIAL_FIREWORKS")]
-    Fireworks = 35,
+    Fireworks,
     #[serde(alias = "MATERIAL_BGM")]
-    Bgm = 36,
+    Bgm,
     #[serde(alias = "MATERIAL_SPICE_FOOD")]
-    SpiceFood = 37,
-    #[serde(alias = "MATERIAL_ACTIVITY_ROBOT")]
-    ActivityRobot = 38,
-    #[serde(alias = "MATERIAL_ACTIVITY_GEAR")]
-    ActivityGear = 39,
-    #[serde(alias = "MATERIAL_ACTIVITY_JIGSAW")]
-    ActivityJigsaw = 40,
+    SpiceFood,
     #[serde(alias = "MATERIAL_ARANARA")]
-    Aranara = 41,
+    Aranara,
     #[serde(alias = "MATERIAL_DESHRET_MANUAL")]
     DeshretManual = 46,
+    #[serde(alias = "MATERIAL_FIRE_MASTER_AVATAR_TALENT_ITEM")]
+    FireMasterAvatarTalentItem = 47,
+    #[serde(alias = "MATERIAL_RENAME_ITEM")]
+    RenameItem = 48,
+    #[serde(alias = "MATERIAL_AVATAR_TALENT_MATERIAL")]
+    AvatarTalentMaterial,
+    #[serde(alias = "MATERIAL_NONE", alias = "WEAPON_MATERIAL_NONE")]
+    #[serde(other)]
+    #[default]
+    None,
 }
 
-#[derive(Default, Clone, serde::Deserialize, Debug)]
+#[repr(u32)]
+#[derive(Default, Clone, serde::Deserialize, Debug, PartialEq, Eq)]
 pub enum EquipType {
     #[serde(alias = "EQUIP_NONE")]
     #[default]
     None = 0,
     #[serde(alias = "EQUIP_BRACER")]
-    Bracer = 1,
+    Bracer = 1,//生之花
     #[serde(alias = "EQUIP_NECKLACE")]
-    Necklace = 2,
+    Necklace = 2,//死之羽
     #[serde(alias = "EQUIP_SHOES")]
-    Shoes = 3,
+    Shoes = 3,//时之沙
     #[serde(alias = "EQUIP_RING")]
-    Ring = 4,
+    Ring = 4,//空之杯
     #[serde(alias = "EQUIP_DRESS")]
-    Dress = 5,
+    Dress = 5,//理之冠
     #[serde(alias = "EQUIP_WEAPON")]
     Weapon = 6,
 }
 
+#[repr(u32)]
 #[derive(Default, Debug, serde::Deserialize, Clone, Copy)]
 pub enum GrowCurveArith {
     #[default]
@@ -215,10 +222,9 @@ impl GrowCurveInfo {
     }
 }
 
-
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AddProp {
-    pub prop_type: InternString,
+    pub prop_type: FightPropType,
     pub value: f32,
 }

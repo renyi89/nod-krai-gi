@@ -1,4 +1,3 @@
-mod config;
 mod handlers;
 
 use std::{
@@ -13,7 +12,7 @@ use common::{
     data::{EncryptionConfig, RegionConfig},
     logging, TomlConfig,
 };
-use config::DispatchConfig;
+use common::dispatch_server_config::DispatchConfig;
 use nod_krai_gi_encryption::{rsa::RsaKeyPair, xor::MhyXorpad};
 
 struct AppState {

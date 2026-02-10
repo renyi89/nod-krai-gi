@@ -1,5 +1,5 @@
 use bevy_ecs::prelude::*;
-use common::game_server_config::cache_get_is_tp;
+use common::player_cache::cache_get_is_tp;
 use nod_krai_gi_entity::common::{EntityById, Visible};
 use nod_krai_gi_entity::{
     avatar::CurrentPlayerAvatarMarker,
