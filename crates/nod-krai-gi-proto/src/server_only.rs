@@ -77,21 +77,23 @@ impl PlayerDataBin {
 impl AvatarBin {
     pub fn get_scene_reliquary_info_list(&self) -> Vec<crate::normal::SceneReliquaryInfo> {
         let mut result = vec![];
-        for (_, item) in self.equip_map.iter() {
-            let Some(item_bin::Detail::Equip(ref equip)) = item.detail else {
-                break;
-            };
-            let Some(equip_bin::Detail::Reliquary(ref reliquary)) = equip.detail else {
-                break;
-            };
+        self.equip_map
+            .iter()
+            .for_each(|(_, item)| {
+                let Some(item_bin::Detail::Equip(ref equip)) = item.detail else {
+                    return;
+                };
+                let Some(equip_bin::Detail::Reliquary(ref reliquary)) = equip.detail else {
+                    return;
+                };
 
-            result.push(crate::normal::SceneReliquaryInfo {
-                guid: item.guid.clone(),
-                level: reliquary.level,
-                item_id: item.item_id,
-                promote_level: 0,
+                result.push(crate::normal::SceneReliquaryInfo {
+                    guid: item.guid.clone(),
+                    level: reliquary.level,
+                    item_id: item.item_id,
+                    promote_level: 0,
+                });
             });
-        }
         result
     }
 }
