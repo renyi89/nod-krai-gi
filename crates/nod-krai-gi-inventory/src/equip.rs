@@ -61,7 +61,7 @@ pub fn change_avatar_equip(
 
                         match reliquary_excel_config_collection_clone.get(&wear_item_bin.item_id) {
                             None => {
-                                debug!("reliquary excel {} doesn't exist", wear_item_bin.item_id);
+                                debug!("reliquary config {} doesn't exist", wear_item_bin.item_id);
                                 continue;
                             }
                             Some(reliquary_config) => {

@@ -198,10 +198,10 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
     let proud_skill_collection_clone =
         std::sync::Arc::clone(proud_skill_excel_config_collection::get());
 
-    if let Some(skill_depot) =
+    if let Some(skill_depot_config) =
         avatar_skill_depot_excel_config_collection_clone.get(&avatar.skill_depot_id)
     {
-        skill_depot
+        skill_depot_config
             .skills
             .iter()
             .filter(|id| **id != 0)
@@ -209,7 +209,7 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
                 skill_level_map.insert(*id, 14);
             });
 
-        skill_depot
+        skill_depot_config
             .sub_skills
             .iter()
             .filter(|id| **id != 0)
@@ -217,9 +217,9 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
                 skill_level_map.insert(*id, 14);
             });
 
-        skill_level_map.insert(skill_depot.energy_skill, 14);
+        skill_level_map.insert(skill_depot_config.energy_skill, 14);
 
-        skill_depot
+        skill_depot_config
             .inherent_proud_skill_opens
             .iter()
             .filter(|s| {
@@ -228,23 +228,23 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
             .for_each(|s| inherent_proud_skill_list.push(s.proud_skill_group_id * 100 + 1));
     }
 
-    let Some(avatar) = avatar_excel_config_collection_clone.get(&avatar.id) else {
+    let Some(avatar_config) = avatar_excel_config_collection_clone.get(&avatar.id) else {
         tracing::debug!("avatar config {} doesn't exist", avatar.id);
         return;
     };
 
-    let Some(skill_depot) =
-        avatar_skill_depot_excel_config_collection_clone.get(&avatar.skill_depot_id)
+    let Some(skill_depot_config) =
+        avatar_skill_depot_excel_config_collection_clone.get(&avatar_config.skill_depot_id)
     else {
-        tracing::debug!("skill_depot config {} doesn't exist", avatar.skill_depot_id);
+        tracing::debug!("avatar skill depot config {} doesn't exist", avatar_config.skill_depot_id);
         return;
     };
 
     let talent_id_list: Vec<u32> =
-        if DEFAULT_CORE_PROUD_SKILL_LEVEL as usize > skill_depot.talents.len() {
-            skill_depot.talents.clone()
+        if DEFAULT_CORE_PROUD_SKILL_LEVEL as usize > skill_depot_config.talents.len() {
+            skill_depot_config.talents.clone()
         } else {
-            skill_depot.talents[0..DEFAULT_CORE_PROUD_SKILL_LEVEL as usize].to_vec()
+            skill_depot_config.talents[0..DEFAULT_CORE_PROUD_SKILL_LEVEL as usize].to_vec()
         };
 
     let mut open_configs = Vec::new();
@@ -290,13 +290,13 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
         }
     }
 
-    if avatar.id == CHOOSE_AVATAR_ID {
+    if avatar_config.id == CHOOSE_AVATAR_ID {
         avatar_bin.choose_avatar_guid = avatar_guid;
     }
 
     let mut depot_map: HashMap<u32, AvatarSkillDepotBin> = HashMap::new();
     depot_map.insert(
-        avatar.skill_depot_id,
+        avatar_config.skill_depot_id,
         AvatarSkillDepotBin {
             talent_id_list,
             core_proud_skill_level: DEFAULT_CORE_PROUD_SKILL_LEVEL,
@@ -308,7 +308,7 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
     let mut equip_map = HashMap::new();
     let weapon_item_bin = ItemBin {
         item_type: ItemType::WEAPON as u32,
-        item_id: avatar.initial_weapon,
+        item_id: avatar_config.initial_weapon,
         guid: weapon_guid,
         owner_guid: avatar_guid,
         detail: Some(item_bin::Detail::Equip(EquipBin {
@@ -330,16 +330,16 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
         avatar_guid,
         AvatarBin {
             avatar_type: 1,
-            avatar_id: avatar.id,
+            avatar_id: avatar_config.id,
             level: DEFAULT_AVATAR_LEVEL,
             promote_level: DEFAULT_AVATAR_PROMOTE_LEVEL,
             skill_map: skill_extra_charge_map,
             depot_map: depot_map,
-            skill_depot_id: avatar.skill_depot_id,
+            skill_depot_id: avatar_config.skill_depot_id,
             born_time: time_util::unix_timestamp() as u32,
             guid: avatar_guid,
             equip_map,
-            cur_hp: avatar.hp_base,
+            cur_hp: avatar_config.hp_base,
             wearing_flycloak_id: DEFAULT_FLYCLOAK_ID,
             costume_id: 0,
             trace_effect_id: 0,

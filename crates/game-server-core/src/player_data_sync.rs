@@ -142,7 +142,7 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                             fetter_data_list = temp_fetter_data_list;
                         }
 
-                        let Some(avatar_data) =
+                        let Some(avatar_config) =
                             avatar_excel_config_collection_clone.get(&avatar_bin.avatar_id)
                         else {
                             tracing::debug!("avatar config {} doesn't exist", avatar_bin.avatar_id);
@@ -203,7 +203,7 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                             },
                             fight_prop_map: create_fight_props_with_equip(
                                 avatar_bin,
-                                avatar_data,
+                                avatar_config,
                             )
                             .0
                             .iter()

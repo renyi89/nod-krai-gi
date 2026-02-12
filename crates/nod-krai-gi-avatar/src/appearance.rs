@@ -12,8 +12,8 @@ use nod_krai_gi_proto::normal::{
     AvatarWearFlycloakRsp,
 };
 use nod_krai_gi_proto::retcode::Retcode;
-use tracing::{debug, instrument, warn};
 use nod_krai_gi_proto::server_only::PlayerDataBin;
+use tracing::{debug, instrument, warn};
 
 #[instrument(skip_all)]
 pub fn handle_appearance_change_request(
@@ -109,13 +109,13 @@ fn wear_flycloak(
     request: AvatarWearFlycloakReq,
     response: &mut AvatarWearFlycloakRsp,
 ) -> Option<AvatarFlycloakChangeNotify> {
-    let Some(ref avatar_bin) = player.avatar_bin else {
+    let Some(ref mut player_avatar_bin) = player.avatar_bin else {
         debug!("avatar_bin is None");
         response.retcode = Retcode::RetCanNotFindAvatar.into();
         return None;
     };
 
-    if !avatar_bin
+    if !player_avatar_bin
         .owned_flycloak_list
         .contains(&request.flycloak_id)
     {
@@ -125,11 +125,9 @@ fn wear_flycloak(
     }
 
     response.avatar_guid_list = vec![];
-    let Some(ref mut avatar_bin) = player.avatar_bin else {
-        return None;
-    };
+
     for avatar_guid in request.avatar_guid_list {
-        let Some(avatar) = avatar_bin.avatar_map.get_mut(&avatar_guid) else {
+        let Some(avatar_bin) = player_avatar_bin.avatar_map.get_mut(&avatar_guid) else {
             debug!("avatar guid {} doesn't exist", avatar_guid);
             response.retcode = Retcode::RetCanNotFindAvatar.into();
             return None;
@@ -137,7 +135,7 @@ fn wear_flycloak(
 
         response.avatar_guid_list.push(avatar_guid);
 
-        avatar.wearing_flycloak_id = request.flycloak_id;
+        avatar_bin.wearing_flycloak_id = request.flycloak_id;
         debug!(
             "wear flycloak_id: {}, avatar_guid: {}",
             request.flycloak_id, avatar_guid
@@ -172,31 +170,31 @@ fn change_costume(
         return None;
     };
 
-    let Some(ref avatar_bin) = player.avatar_bin else {
+    let Some(ref mut player_avatar_bin) = player.avatar_bin else {
         debug!("avatar_bin is None");
         return None;
     };
 
-    if !avatar_bin.owned_costume_list.contains(&request.costume_id) && config.is_some() {
+    if !player_avatar_bin
+        .owned_costume_list
+        .contains(&request.costume_id)
+        && config.is_some()
+    {
         debug!("costume is not unlocked, id: {}", request.costume_id);
         response.retcode = Retcode::RetNotHasCostume.into();
         return None;
     }
 
-    let Some(ref mut avatar_bin) = player.avatar_bin else {
-        return None;
-    };
-
-    let Some(avatar) = avatar_bin.avatar_map.get_mut(&request.avatar_guid) else {
+    let Some(avatar_bin) = player_avatar_bin.avatar_map.get_mut(&request.avatar_guid) else {
         debug!("avatar guid {} doesn't exist", request.avatar_guid);
         return None;
     };
 
     if let Some(config) = config {
-        if config.character_id != avatar.avatar_id {
+        if config.character_id != avatar_bin.avatar_id {
             debug!(
                 "avatar costume mismatch, config: {}, requested: {}",
-                config.character_id, avatar.avatar_id
+                config.character_id, avatar_bin.avatar_id
             );
             response.retcode = Retcode::RetCostumeAvatarError.into();
             return None;
@@ -206,11 +204,11 @@ fn change_costume(
     response.avatar_guid = request.avatar_guid;
     response.costume_id = request.costume_id;
     response.retcode = Retcode::RetSucc.into();
-    avatar.costume_id = request.costume_id;
+    avatar_bin.costume_id = request.costume_id;
 
     debug!(
         "change costume for avatar {} to {}",
-        avatar.avatar_id, request.costume_id
+        avatar_bin.avatar_id, request.costume_id
     );
 
     Some(AvatarAppearanceChangeEvent {
@@ -243,12 +241,12 @@ fn change_trace_effect(
         return None;
     };
 
-    let Some(ref avatar_bin) = player.avatar_bin else {
+    let Some(ref mut player_avatar_bin) = player.avatar_bin else {
         debug!("avatar_bin is None");
         return None;
     };
 
-    if !avatar_bin
+    if !player_avatar_bin
         .owned_trace_effect_list
         .contains(&request.trace_effect_id)
         && config.is_some()
@@ -261,20 +259,16 @@ fn change_trace_effect(
         return None;
     }
 
-    let Some(ref mut avatar_bin) = player.avatar_bin else {
-        return None;
-    };
-
-    let Some(avatar) = avatar_bin.avatar_map.get_mut(&request.avatar_guid) else {
+    let Some(avatar_bin) = player_avatar_bin.avatar_map.get_mut(&request.avatar_guid) else {
         debug!("avatar guid {} doesn't exist", request.avatar_guid);
         return None;
     };
 
     if let Some(config) = config {
-        if config.avatar_id != avatar.avatar_id {
+        if config.avatar_id != avatar_bin.avatar_id {
             debug!(
                 "avatar trace effect mismatch, config: {}, requested: {}",
-                config.avatar_id, avatar.avatar_id
+                config.avatar_id, avatar_bin.avatar_id
             );
             response.retcode = Retcode::RetTraceEffectAvatarError.into();
             return None;
@@ -284,11 +278,11 @@ fn change_trace_effect(
     response.avatar_guid = request.avatar_guid;
     response.trace_effect_id = request.trace_effect_id;
     response.retcode = Retcode::RetSucc.into();
-    avatar.trace_effect_id = request.trace_effect_id;
+    avatar_bin.trace_effect_id = request.trace_effect_id;
 
     debug!(
         "change trace effect for avatar {} to {}",
-        avatar.avatar_id, request.trace_effect_id
+        avatar_bin.avatar_id, request.trace_effect_id
     );
 
     Some(AvatarAppearanceChangeEvent {

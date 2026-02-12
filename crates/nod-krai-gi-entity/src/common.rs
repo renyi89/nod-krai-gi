@@ -235,12 +235,12 @@ impl FightProperties {
             std::sync::Arc::clone(monster_curve_excel_config_collection::get());
         let curve_info = match config_type {
             GrowCurveConfigType::Avatar => {
-                let Some(avatar_curve) = avatar_curve_excel_config_collection_clone.get(&level)
+                let Some(avatar_curve_config) = avatar_curve_excel_config_collection_clone.get(&level)
                 else {
-                    tracing::debug!("avatar_curve config {} doesn't exist", level);
+                    tracing::debug!("avatar curve config {} doesn't exist", level);
                     return;
                 };
-                avatar_curve
+                avatar_curve_config
                     .curve_infos
                     .iter()
                     .find(|c| c.r#type == prop_grow_curve.grow_curve)
@@ -248,7 +248,7 @@ impl FightProperties {
             GrowCurveConfigType::Monster => {
                 let Some(monster_curve) = monster_curve_excel_config_collection_clone.get(&level)
                 else {
-                    tracing::debug!("monster_curve config {} doesn't exist", level);
+                    tracing::debug!("monster curve config {} doesn't exist", level);
                     return;
                 };
                 monster_curve

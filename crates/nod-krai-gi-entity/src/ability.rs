@@ -119,13 +119,13 @@ impl Ability {
     pub fn new_for_avatar(id: u32, open_configs: Vec<InternString>) -> Self {
         let avatar_excel_config_collection_clone =
             Arc::clone(avatar_excel_config_collection::get());
-        let Some(avatar) = avatar_excel_config_collection_clone.get(&id) else {
+        let Some(avatar_config) = avatar_excel_config_collection_clone.get(&id) else {
             tracing::debug!("avatar config {} doesn't exist", id);
             return Self {
                 target_ability_map: Default::default(),
             };
         };
-        let avatar_name = avatar.icon_name.as_str().replace("UI_AvatarIcon_", "");
+        let avatar_name = avatar_config.icon_name.as_str().replace("UI_AvatarIcon_", "");
 
         if let Some(config) = config::get_avatar_config(&avatar_name.into()) {
             let mut ability_map: IndexMap<InternString, AbilityData> = IndexMap::new();
@@ -144,7 +144,7 @@ impl Ability {
                 target_ability_map: ability_map,
             }
         } else {
-            tracing::warn!("missing ConfigAvatar for {}", avatar.icon_name);
+            tracing::warn!("missing ConfigAvatar for {}", avatar_config.icon_name);
             let mut ability_map: IndexMap<InternString, AbilityData> = IndexMap::new();
             match Arc::clone(&get_temp_abilities()).get(&id) {
                 None => {}

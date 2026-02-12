@@ -75,11 +75,11 @@ pub fn item_command_handler(
                     ItemType::NONE => {}
                     ItemType::VIRTUAL => {}
                     ItemType::MATERIAL => {
-                        let Some(material_data) = material_excel_config_collection_clone.get(&id)
+                        let Some(material_config) = material_excel_config_collection_clone.get(&id)
                         else {
                             continue;
                         };
-                        if material_data.use_on_gain {
+                        if material_config.use_on_gain {
                             continue;
                         }
                         let guid = player_item_bin.has_material(*id);
@@ -117,12 +117,12 @@ pub fn item_command_handler(
                             .write(StoreItemChangeEvent(*player_uid, change_map));
                     }
                     ItemType::RELIQUARY => {
-                        let Some(_reliquary_data) =
+                        let Some(_reliquary_config) =
                             reliquary_excel_config_collection_clone.get(&id)
                         else {
                             continue;
                         };
-                        let Some(_reliquary_main_prop) =
+                        let Some(_reliquary_main_prop_config) =
                             reliquary_main_prop_excel_config_collection_clone
                                 .get(&main_prop_id.unwrap_or(0))
                         else {

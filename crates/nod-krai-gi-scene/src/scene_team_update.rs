@@ -59,7 +59,7 @@ pub fn notify_scene_team_update(
                                 .cloned()
                         else {
                             tracing::debug!(
-                                "skill_depot config {} doesn't exist",
+                                "avatar skill depot config {} doesn't exist",
                                 avatar_data.skill_depot.0
                             );
                             return None;
