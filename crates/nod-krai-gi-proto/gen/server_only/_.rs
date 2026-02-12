@@ -12640,8 +12640,7 @@ pub struct AvatarRenameBin {
 #[serde(default)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct PlayerAvatarCompBin {
-    #[serde(with="crate::u64_map_key_string")]
-    #[prost(map = "uint64, message", tag = "1")]
+    #[prost(map = "fixed64, message", tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub avatar_map: ::std::collections::HashMap<u64, AvatarBin>,
     #[serde(with="crate::u64_string")]
@@ -13311,6 +13310,9 @@ pub struct ItemBin {
     #[prost(fixed64, tag = "3")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub guid: u64,
+    #[prost(fixed64, tag = "1001")]
+    #[serde(skip_serializing_if = "crate::is_default")]
+    pub owner_guid: u64,
     #[serde(flatten)]
     #[prost(oneof = "item_bin::Detail", tags = "101, 102, 103")]
     #[serde(skip_serializing_if = "crate::is_default")]
@@ -13338,8 +13340,7 @@ pub struct PackItemStoreBin {}
 #[serde(default)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ItemStoreBin {
-    #[serde(with="crate::u64_map_key_string")]
-    #[prost(map = "uint64, message", tag = "1")]
+    #[prost(map = "fixed64, message", tag = "1")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub item_map: ::std::collections::HashMap<u64, ItemBin>,
     #[prost(bool, tag = "2")]

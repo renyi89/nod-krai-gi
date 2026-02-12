@@ -99,8 +99,8 @@ pub fn debug_command_handler(
                         transform: Transform {
                             // Take Y (height) from player's pos, spawn a bit above
                             position: {
-                                let y = if let Some(ref scene_bin) = player_info.scene_bin {
-                                    scene_bin.my_prev_pos.unwrap_or_default().y
+                                let y = if let Some(ref player_scene_bin) = player_info.scene_bin {
+                                    player_scene_bin.my_prev_pos.unwrap_or_default().y
                                 } else {
                                     0.0
                                 };
@@ -154,8 +154,8 @@ pub fn debug_command_handler(
                         transform: Transform {
                             // Take Y (height) from player's pos, spawn a bit above
                             position: {
-                                let y = if let Some(ref scene_bin) = player_info.scene_bin {
-                                    scene_bin.my_prev_pos.unwrap_or_default().y
+                                let y = if let Some(ref player_scene_bin) = player_info.scene_bin {
+                                    player_scene_bin.my_prev_pos.unwrap_or_default().y
                                 } else {
                                     0.0
                                 };
@@ -224,17 +224,17 @@ pub fn gm_command_handler(
                             ));
                         }
                         TpAction::R { id, x, y, z } => {
-                            if let Some(ref scene_bin) = player_info.scene_bin {
+                            if let Some(ref player_scene_bin) = player_info.scene_bin {
                                 tp_events.write(ScenePlayerJumpEvent(
                                     *player_uid,
                                     id,
                                     EnterReason::Gm,
                                     (
-                                        scene_bin.my_prev_pos.unwrap_or_default().x
+                                        player_scene_bin.my_prev_pos.unwrap_or_default().x
                                             + x.unwrap_or_default(),
-                                        scene_bin.my_prev_pos.unwrap_or_default().y
+                                        player_scene_bin.my_prev_pos.unwrap_or_default().y
                                             + y.unwrap_or_default(),
-                                        scene_bin.my_prev_pos.unwrap_or_default().z
+                                        player_scene_bin.my_prev_pos.unwrap_or_default().z
                                             + z.unwrap_or_default(),
                                     ),
                                 ));

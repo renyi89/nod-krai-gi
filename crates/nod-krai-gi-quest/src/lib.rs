@@ -183,10 +183,10 @@ pub fn quest_begin(
                     continue;
                 };
 
-                let Some(ref mut quest_bin) = player_info.quest_bin else {
+                let Some(ref mut player_quest_bin) = player_info.quest_bin else {
                     continue;
                 };
-                let Some(ref mut quest_bin) = quest_bin.quest_bin else {
+                let Some(ref mut quest_bin) = player_quest_bin.quest_bin else {
                     continue;
                 };
 
@@ -235,10 +235,10 @@ pub fn quest_finish(
                 let Some(player_info) = players.get_mut(*player_uid) else {
                     continue;
                 };
-                let Some(ref mut quest_bin) = player_info.quest_bin else {
+                let Some(ref mut player_quest_bin) = player_info.quest_bin else {
                     continue;
                 };
-                let Some(ref mut quest_bin) = quest_bin.quest_bin else {
+                let Some(ref mut quest_bin) = player_quest_bin.quest_bin else {
                     continue;
                 };
 
@@ -277,10 +277,10 @@ pub fn quest_list_update(
             continue;
         };
 
-        let Some(ref quest_bin) = player_info.quest_bin else {
+        let Some(ref player_quest_bin) = player_info.quest_bin else {
             continue;
         };
-        let Some(ref quest_bin) = quest_bin.quest_bin else {
+        let Some(ref quest_bin) = player_quest_bin.quest_bin else {
             continue;
         };
 

@@ -1,24 +1,33 @@
 use std::collections::HashMap;
 
+use super::{ability::Ability, common::*};
+use crate::util::to_protocol_entity_id;
+use crate::weapon::{AffixMap, WeaponBundle, WeaponID, WeaponPromoteLevel};
 use crate::{
     int_prop_pair,
     transform::Transform,
     weapon::{WeaponQueryReadOnly, WeaponQueryReadOnlyItem},
 };
 use bevy_ecs::{prelude::*, query::QueryData};
+use nod_krai_gi_data::config::{process_inherent_proud_skills, process_talent_ids};
 use nod_krai_gi_data::excel;
 use nod_krai_gi_data::excel::common::EquipType;
+use nod_krai_gi_data::excel::{
+    avatar_excel_config_collection, avatar_talent_excel_config_collection,
+    proud_skill_excel_config_collection, weapon_excel_config_collection,
+};
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::{
-    AvatarChangeCostumeNotify, AvatarChangeTraceEffectNotify, SceneEntityInfo,
+    AvatarChangeCostumeNotify, AvatarChangeTraceEffectNotify, ProtEntityType, SceneEntityInfo,
 };
-use nod_krai_gi_proto::server_only::{equip_bin, item_bin, AvatarBin, ItemBin, WeaponBin};
+use nod_krai_gi_proto::server_only::{
+    equip_bin, item_bin, AvatarBin, ItemBin, VectorBin, WeaponBin,
+};
 
-use super::{ability::Ability, common::*};
 
 #[derive(Component)]
-pub struct Equipment {
+pub struct EquipmentWeapon {
     pub weapon: Entity,
 }
 
@@ -33,6 +42,7 @@ pub struct AvatarAppearance {
 pub struct AvatarEquipChangeEvent {
     pub player_uid: u32,
     pub avatar_guid: u64,
+    pub equip_type: EquipType,
 }
 
 pub enum AvatarAppearanceChange {
@@ -93,7 +103,7 @@ pub struct AvatarBundle {
     pub core_proud_skill_level: CoreProudSkillLevel,
     pub control_peer: ControlPeer,
     pub skill_depot: SkillDepot,
-    pub equipment: Equipment,
+    pub equipment_weapon: EquipmentWeapon,
     pub appearance: AvatarAppearance,
     pub transform: Transform,
     pub owner_player_uid: OwnerPlayerUID,
@@ -120,7 +130,7 @@ pub struct AvatarQueryReadOnly {
     pub core_proud_skill_level: &'static CoreProudSkillLevel,
     pub control_peer: &'static ControlPeer,
     pub skill_depot: &'static SkillDepot,
-    pub equipment: &'static Equipment,
+    pub equipment_weapon: &'static EquipmentWeapon,
     pub appearance: &'static AvatarAppearance,
     pub transform: &'static Transform,
     pub owner_player_uid: &'static OwnerPlayerUID,
@@ -165,16 +175,31 @@ pub fn notify_avatar_appearance_change(
     players: Res<Players>,
 ) {
     for event in events.read() {
+        let Some(player_info) = players.get(event.player_uid) else {
+            continue;
+        };
+
+        let Some(ref player_avatar_bin) = player_info.avatar_bin else {
+            continue;
+        };
+
         if let Some(avatar_data) = avatars
             .iter()
             .find(|avatar_data| avatar_data.guid.0 == event.avatar_guid)
         {
-            let Ok(weapon_data) = weapon_query.get(avatar_data.equipment.weapon) else {
-                tracing::debug!("weapon data {} doesn't exist", avatar_data.equipment.weapon);
+            let Ok(weapon_data) = weapon_query.get(avatar_data.equipment_weapon.weapon) else {
+                tracing::debug!(
+                    "weapon data {} doesn't exist",
+                    avatar_data.equipment_weapon.weapon
+                );
                 continue;
             };
 
-            let entity_info = build_avatar_entity_info(&avatar_data, &weapon_data);
+            let Some(ref avatar_bin) = player_avatar_bin.avatar_map.get(&event.avatar_guid) else {
+                continue;
+            };
+
+            let entity_info = build_avatar_entity_info(&avatar_bin, &avatar_data, &weapon_data);
 
             match event.change {
                 AvatarAppearanceChange::Costume(_) => message_output.send_to_all(
@@ -193,24 +218,18 @@ pub fn notify_avatar_appearance_change(
         // that's disgusting, notify required even if avatar is not on scene
         // even though it contains SceneEntityInfo
         else {
-            let Some(player_info) = players.get(event.player_uid) else {
-                continue;
-            };
-            let Some(ref avatar_bin) = player_info.avatar_bin else {
-                continue;
-            };
-
-            let Some(avatar) = avatar_bin.avatar_map.get(&event.avatar_guid) else {
+            let Some(avatar_bin) = player_avatar_bin.avatar_map.get(&event.avatar_guid) else {
                 tracing::debug!("avatar guid {} doesn't exist", event.avatar_guid);
                 continue;
             };
 
-            let Some(weapon_item_bin) = avatar.equip_map.get(&(EquipType::Weapon as u32)) else {
+            let Some(weapon_item_bin) = avatar_bin.equip_map.get(&(EquipType::Weapon as u32))
+            else {
                 tracing::debug!("weapon doesn't exist {}", event.avatar_guid);
                 continue;
             };
 
-            let entity_info = build_fake_avatar_entity_info(avatar, weapon_item_bin);
+            let entity_info = build_fake_avatar_entity_info(avatar_bin, weapon_item_bin);
             match event.change {
                 AvatarAppearanceChange::Costume(_) => message_output.send(
                     event.player_uid,
@@ -241,16 +260,33 @@ pub fn notify_appear_avatar_entities(
     >,
     weapons: Query<WeaponQueryReadOnly>,
     message_output: Res<MessageOutput>,
+    players: Res<Players>,
 ) {
     use nod_krai_gi_proto::normal::*;
 
     appear_avatars.iter().for_each(|avatar_data| {
-        let Ok(weapon_data) = weapons.get(avatar_data.equipment.weapon) else {
+        let Some(player_info) = players.get(avatar_data.owner_player_uid.0) else {
             return;
         };
-        let Some(scene_entity_info) = build_avatar_entity_info(&avatar_data, &weapon_data) else {
+
+        let Some(ref player_avatar_bin) = player_info.avatar_bin else {
             return;
         };
+
+        let Some(ref avatar_bin) = player_avatar_bin.avatar_map.get(&avatar_data.guid.0) else {
+            return;
+        };
+
+        let Ok(weapon_data) = weapons.get(avatar_data.equipment_weapon.weapon) else {
+            return;
+        };
+
+        let Some(scene_entity_info) =
+            build_avatar_entity_info(&avatar_bin, &avatar_data, &weapon_data)
+        else {
+            return;
+        };
+
         message_output.send_to_all(
             "SceneEntityAppearNotify",
             SceneEntityAppearNotify {
@@ -281,16 +317,31 @@ pub fn notify_appear_replace_avatar_entities(
     >,
     weapons: Query<WeaponQueryReadOnly>,
     message_output: Res<MessageOutput>,
+    players: Res<Players>,
 ) {
     use nod_krai_gi_proto::normal::*;
 
     appear_avatars.iter().for_each(|(avatar_data, param)| {
-        let Ok(weapon_data) = weapons.get(avatar_data.equipment.weapon) else {
+        let Some(player_info) = players.get(avatar_data.owner_player_uid.0) else {
             return;
         };
-        let Some(scene_entity_info) = build_avatar_entity_info(&avatar_data, &weapon_data) else {
+
+        let Some(ref player_avatar_bin) = player_info.avatar_bin else {
             return;
         };
+
+        let Some(ref avatar_bin) = player_avatar_bin.avatar_map.get(&avatar_data.guid.0) else {
+            return;
+        };
+
+        let Ok(weapon_data) = weapons.get(avatar_data.equipment_weapon.weapon) else {
+            return;
+        };
+
+        let Some(scene_entity_info) = build_avatar_entity_info(&avatar_bin,&avatar_data, &weapon_data) else {
+            return;
+        };
+
         message_output.send_to_all(
             "SceneEntityAppearNotify",
             SceneEntityAppearNotify {
@@ -341,7 +392,7 @@ fn build_fake_avatar_entity_info(avatar: &AvatarBin, weapon: &ItemBin) -> Option
     };
 
     let Some(weapon_item_bin) = avatar.equip_map.get(&(EquipType::Weapon as u32)) else {
-        tracing::debug!("weapon doesn't exist {}",avatar.guid);
+        tracing::debug!("weapon doesn't exist {}", avatar.guid);
         return None;
     };
 
@@ -363,7 +414,7 @@ fn build_fake_avatar_entity_info(avatar: &AvatarBin, weapon: &ItemBin) -> Option
                 affix_map: affix_map.clone(),
                 ..Default::default()
             }),
-            reliquary_list: Vec::with_capacity(0),
+            reliquary_list: avatar.get_scene_reliquary_info_list(),
             core_proud_skill_level: skill_depot.core_proud_skill_level,
             inherent_proud_skill_list: skill_depot.inherent_proud_skill_list.clone(),
             skill_level_map: skill_depot.skill_level_map.clone(),
@@ -384,6 +435,7 @@ fn build_fake_avatar_entity_info(avatar: &AvatarBin, weapon: &ItemBin) -> Option
 }
 
 pub fn build_avatar_entity_info(
+    avatar_bin: &AvatarBin,
     avatar_data: &AvatarQueryReadOnlyItem,
     weapon_data: &WeaponQueryReadOnlyItem,
 ) -> Option<SceneEntityInfo> {
@@ -471,7 +523,7 @@ pub fn build_avatar_entity_info(
                 renderer_changed_info: Some(EntityRendererChangedInfo::default()),
                 ..Default::default()
             }),
-            reliquary_list: Vec::with_capacity(0),
+            reliquary_list: avatar_bin.get_scene_reliquary_info_list(),
             core_proud_skill_level: avatar_data.core_proud_skill_level.0,
             inherent_proud_skill_list: avatar_data.inherent_proud_skill_list.0.clone(),
             skill_level_map: avatar_data.skill_level_map.0.clone(),
@@ -490,4 +542,139 @@ pub fn build_avatar_entity_info(
         })),
         ..Default::default()
     })
+}
+
+pub fn spawn_avatar_entity(
+    commands: &mut Commands,
+    entity_counter: &mut ResMut<EntityCounter>,
+    avatar_bin: &AvatarBin,
+    position: VectorBin,
+    rotation: VectorBin,
+    uid: u32,
+    peer_id: u32,
+    idx: u8,
+) -> Option<(Entity, Entity)> {
+    let weapon_excel_config_collection_clone =
+        std::sync::Arc::clone(weapon_excel_config_collection::get());
+
+    let avatar_excel_config_collection_clone =
+        std::sync::Arc::clone(avatar_excel_config_collection::get());
+
+    let avatar_talent_collection_clone =
+        std::sync::Arc::clone(avatar_talent_excel_config_collection::get());
+
+    let proud_skill_collection_clone =
+        std::sync::Arc::clone(proud_skill_excel_config_collection::get());
+
+    let Some(weapon_item_bin) = avatar_bin.equip_map.get(&(EquipType::Weapon as u32)) else {
+        tracing::debug!("weapon doesn't exist {}", avatar_bin.guid);
+        return None;
+    };
+
+    let weapon_id = weapon_item_bin.item_id;
+    let weapon_guid = weapon_item_bin.guid;
+
+    let Some(item_bin::Detail::Equip(ref equip_bin)) = weapon_item_bin.detail else {
+        return None;
+    };
+    let Some(equip_bin::Detail::Weapon(ref weapon_bin)) = equip_bin.detail else {
+        return None;
+    };
+
+    let WeaponBin {
+        level,
+        promote_level,
+        affix_map,
+        ..
+    } = weapon_bin;
+
+    let Some(avatar_config) = avatar_excel_config_collection_clone.get(&avatar_bin.avatar_id)
+    else {
+        tracing::debug!("avatar config {} doesn't exist", avatar_bin.avatar_id);
+        return None;
+    };
+
+    let Some(weapon_config) = weapon_excel_config_collection_clone.get(&weapon_id) else {
+        tracing::debug!("weapon config {} doesn't exist", weapon_id);
+        return None;
+    };
+
+    let Some(skill_depot) = avatar_bin.depot_map.get(&avatar_bin.skill_depot_id) else {
+        tracing::debug!("skill_depot bin {} doesn't exist", weapon_id);
+        return None;
+    };
+
+    let mut open_configs = Vec::new();
+    open_configs.extend(process_talent_ids(
+        &skill_depot.talent_id_list,
+        &avatar_talent_collection_clone,
+    ));
+
+    open_configs.extend(process_inherent_proud_skills(
+        &skill_depot.inherent_proud_skill_list,
+        &proud_skill_collection_clone,
+    ));
+
+    let weapon_entity = commands
+        .spawn(WeaponBundle {
+            weapon_id: WeaponID(weapon_id),
+            entity_id: to_protocol_entity_id(
+                ProtEntityType::ProtEntityWeapon,
+                entity_counter.inc(),
+            ),
+            level: Level(*level),
+            guid: Guid(weapon_guid),
+            gadget_id: GadgetID(weapon_config.gadget_id),
+            affix_map: AffixMap(affix_map.clone()),
+            promote_level: WeaponPromoteLevel(*promote_level),
+        })
+        .id();
+
+    let fight_properties =
+        create_fight_props_with_equip(avatar_bin, avatar_config);
+
+    let avatar_entity = commands.spawn(AvatarBundle {
+        avatar_id: AvatarID(avatar_bin.avatar_id),
+        entity_id: to_protocol_entity_id(ProtEntityType::ProtEntityAvatar, entity_counter.inc()),
+        guid: Guid(avatar_bin.guid),
+        control_peer: ControlPeer(peer_id),
+        skill_depot: SkillDepot(avatar_bin.skill_depot_id),
+        core_proud_skill_level: CoreProudSkillLevel(skill_depot.core_proud_skill_level),
+        level: Level(avatar_bin.level),
+        break_level: AvatarPromoteLevel(avatar_bin.promote_level),
+        owner_player_uid: OwnerPlayerUID(uid),
+        fight_properties,
+        instanced_abilities: InstancedAbilities::default(),
+        instanced_modifiers: InstancedModifiers::default(),
+        global_ability_values: GlobalAbilityValues::default(),
+        life_state: LifeState::Alive,
+        equipment_weapon: EquipmentWeapon {
+            weapon: weapon_entity,
+        },
+        appearance: AvatarAppearance {
+            flycloak_id: avatar_bin.wearing_flycloak_id,
+            costume_id: avatar_bin.costume_id,
+            trace_effect_id: avatar_bin.trace_effect_id,
+        },
+        transform: Transform {
+            position: position,
+            rotation: rotation,
+        },
+        ability: Ability::new_for_avatar(avatar_bin.avatar_id, open_configs),
+        born_time: BornTime(avatar_bin.born_time),
+        index_in_scene_team: IndexInSceneTeam(idx as u8),
+        inherent_proud_skill_list: InherentProudSkillList(
+            skill_depot.inherent_proud_skill_list.clone(),
+        ),
+        skill_level_map: SkillLevelMap(skill_depot.skill_level_map.clone()),
+        skill_extra_charge_map: SkillExtraChargeMap(
+            avatar_bin
+                .skill_map
+                .iter()
+                .map(|(k, v)| (*k, v.max_charge_count))
+                .collect(),
+        ),
+    });
+
+    Some((avatar_entity.id(), weapon_entity))
 }

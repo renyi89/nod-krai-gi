@@ -9,7 +9,7 @@ pub struct ReliquaryAffixExcelConfig {
     pub group_id: u32,
     pub id: u32,
     pub prop_type: FightPropType,
-    pub prop_value: f64,
+    pub prop_value: f32,
 }
 
 pub trait ReliquaryAffixExcelConfigKeyed<K> {

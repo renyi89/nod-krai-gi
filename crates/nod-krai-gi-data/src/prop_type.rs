@@ -216,8 +216,12 @@ impl FightPropType {
             "FIGHT_PROP_ELEMENT_MASTERY" => Some(FightPropType::FIGHT_PROP_ELEMENT_MASTERY),
             "FIGHT_PROP_PHYSICAL_SUB_HURT" => Some(FightPropType::FIGHT_PROP_PHYSICAL_SUB_HURT),
             "FIGHT_PROP_PHYSICAL_ADD_HURT" => Some(FightPropType::FIGHT_PROP_PHYSICAL_ADD_HURT),
-            "FIGHT_PROP_DEFENCE_IGNORE_RATIO" => Some(FightPropType::FIGHT_PROP_DEFENCE_IGNORE_RATIO),
-            "FIGHT_PROP_DEFENCE_IGNORE_DELTA" => Some(FightPropType::FIGHT_PROP_DEFENCE_IGNORE_DELTA),
+            "FIGHT_PROP_DEFENCE_IGNORE_RATIO" => {
+                Some(FightPropType::FIGHT_PROP_DEFENCE_IGNORE_RATIO)
+            }
+            "FIGHT_PROP_DEFENCE_IGNORE_DELTA" => {
+                Some(FightPropType::FIGHT_PROP_DEFENCE_IGNORE_DELTA)
+            }
             "FIGHT_PROP_FIRE_ADD_HURT" => Some(FightPropType::FIGHT_PROP_FIRE_ADD_HURT),
             "FIGHT_PROP_ELEC_ADD_HURT" => Some(FightPropType::FIGHT_PROP_ELEC_ADD_HURT),
             "FIGHT_PROP_WATER_ADD_HURT" => Some(FightPropType::FIGHT_PROP_WATER_ADD_HURT),
@@ -249,9 +253,15 @@ impl FightPropType {
             "FIGHT_PROP_MAX_ICE_ENERGY" => Some(FightPropType::FIGHT_PROP_MAX_ICE_ENERGY),
             "FIGHT_PROP_MAX_ROCK_ENERGY" => Some(FightPropType::FIGHT_PROP_MAX_ROCK_ENERGY),
             "FIGHT_PROP_MAX_SPECIAL_ENERGY" => Some(FightPropType::FIGHT_PROP_MAX_SPECIAL_ENERGY),
-            "FIGHT_PROP_START_SPECIAL_ENERGY" => Some(FightPropType::FIGHT_PROP_START_SPECIAL_ENERGY),
-            "FIGHT_PROP_SKILL_CD_MINUS_RATIO" => Some(FightPropType::FIGHT_PROP_SKILL_CD_MINUS_RATIO),
-            "FIGHT_PROP_SHIELD_COST_MINUS_RATIO" => Some(FightPropType::FIGHT_PROP_SHIELD_COST_MINUS_RATIO),
+            "FIGHT_PROP_START_SPECIAL_ENERGY" => {
+                Some(FightPropType::FIGHT_PROP_START_SPECIAL_ENERGY)
+            }
+            "FIGHT_PROP_SKILL_CD_MINUS_RATIO" => {
+                Some(FightPropType::FIGHT_PROP_SKILL_CD_MINUS_RATIO)
+            }
+            "FIGHT_PROP_SHIELD_COST_MINUS_RATIO" => {
+                Some(FightPropType::FIGHT_PROP_SHIELD_COST_MINUS_RATIO)
+            }
             "FIGHT_PROP_CUR_FIRE_ENERGY" => Some(FightPropType::FIGHT_PROP_CUR_FIRE_ENERGY),
             "FIGHT_PROP_CUR_ELEC_ENERGY" => Some(FightPropType::FIGHT_PROP_CUR_ELEC_ENERGY),
             "FIGHT_PROP_CUR_WATER_ENERGY" => Some(FightPropType::FIGHT_PROP_CUR_WATER_ENERGY),
@@ -271,50 +281,181 @@ impl FightPropType {
             "FIGHT_PROP_NONEXTRA_ATTACK" => Some(FightPropType::FIGHT_PROP_NONEXTRA_ATTACK),
             "FIGHT_PROP_NONEXTRA_DEFENSE" => Some(FightPropType::FIGHT_PROP_NONEXTRA_DEFENSE),
             "FIGHT_PROP_NONEXTRA_CRITICAL" => Some(FightPropType::FIGHT_PROP_NONEXTRA_CRITICAL),
-            "FIGHT_PROP_NONEXTRA_ANTI_CRITICAL" => Some(FightPropType::FIGHT_PROP_NONEXTRA_ANTI_CRITICAL),
-            "FIGHT_PROP_NONEXTRA_CRITICAL_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_CRITICAL_HURT),
-            "FIGHT_PROP_NONEXTRA_CHARGE_EFFICIENCY" => Some(FightPropType::FIGHT_PROP_NONEXTRA_CHARGE_EFFICIENCY),
-            "FIGHT_PROP_NONEXTRA_ELEMENT_MASTERY" => Some(FightPropType::FIGHT_PROP_NONEXTRA_ELEMENT_MASTERY),
-            "FIGHT_PROP_NONEXTRA_PHYSICAL_SUB_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_PHYSICAL_SUB_HURT),
-            "FIGHT_PROP_NONEXTRA_FIRE_ADD_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_FIRE_ADD_HURT),
-            "FIGHT_PROP_NONEXTRA_ELEC_ADD_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_ELEC_ADD_HURT),
-            "FIGHT_PROP_NONEXTRA_WATER_ADD_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_WATER_ADD_HURT),
-            "FIGHT_PROP_NONEXTRA_GRASS_ADD_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_GRASS_ADD_HURT),
-            "FIGHT_PROP_NONEXTRA_WIND_ADD_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_WIND_ADD_HURT),
-            "FIGHT_PROP_NONEXTRA_ROCK_ADD_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_ROCK_ADD_HURT),
-            "FIGHT_PROP_NONEXTRA_ICE_ADD_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_ICE_ADD_HURT),
-            "FIGHT_PROP_NONEXTRA_FIRE_SUB_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_FIRE_SUB_HURT),
-            "FIGHT_PROP_NONEXTRA_ELEC_SUB_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_ELEC_SUB_HURT),
-            "FIGHT_PROP_NONEXTRA_WATER_SUB_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_WATER_SUB_HURT),
-            "FIGHT_PROP_NONEXTRA_GRASS_SUB_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_GRASS_SUB_HURT),
-            "FIGHT_PROP_NONEXTRA_WIND_SUB_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_WIND_SUB_HURT),
-            "FIGHT_PROP_NONEXTRA_ROCK_SUB_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_ROCK_SUB_HURT),
-            "FIGHT_PROP_NONEXTRA_ICE_SUB_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_ICE_SUB_HURT),
-            "FIGHT_PROP_NONEXTRA_SKILL_CD_MINUS_RATIO" => Some(FightPropType::FIGHT_PROP_NONEXTRA_SKILL_CD_MINUS_RATIO),
-            "FIGHT_PROP_NONEXTRA_SHIELD_COST_MINUS_RATIO" => Some(FightPropType::FIGHT_PROP_NONEXTRA_SHIELD_COST_MINUS_RATIO),
-            "FIGHT_PROP_NONEXTRA_PHYSICAL_ADD_HURT" => Some(FightPropType::FIGHT_PROP_NONEXTRA_PHYSICAL_ADD_HURT),
+            "FIGHT_PROP_NONEXTRA_ANTI_CRITICAL" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_ANTI_CRITICAL)
+            }
+            "FIGHT_PROP_NONEXTRA_CRITICAL_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_CRITICAL_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_CHARGE_EFFICIENCY" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_CHARGE_EFFICIENCY)
+            }
+            "FIGHT_PROP_NONEXTRA_ELEMENT_MASTERY" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_ELEMENT_MASTERY)
+            }
+            "FIGHT_PROP_NONEXTRA_PHYSICAL_SUB_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_PHYSICAL_SUB_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_FIRE_ADD_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_FIRE_ADD_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_ELEC_ADD_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_ELEC_ADD_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_WATER_ADD_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_WATER_ADD_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_GRASS_ADD_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_GRASS_ADD_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_WIND_ADD_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_WIND_ADD_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_ROCK_ADD_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_ROCK_ADD_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_ICE_ADD_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_ICE_ADD_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_FIRE_SUB_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_FIRE_SUB_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_ELEC_SUB_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_ELEC_SUB_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_WATER_SUB_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_WATER_SUB_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_GRASS_SUB_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_GRASS_SUB_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_WIND_SUB_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_WIND_SUB_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_ROCK_SUB_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_ROCK_SUB_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_ICE_SUB_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_ICE_SUB_HURT)
+            }
+            "FIGHT_PROP_NONEXTRA_SKILL_CD_MINUS_RATIO" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_SKILL_CD_MINUS_RATIO)
+            }
+            "FIGHT_PROP_NONEXTRA_SHIELD_COST_MINUS_RATIO" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_SHIELD_COST_MINUS_RATIO)
+            }
+            "FIGHT_PROP_NONEXTRA_PHYSICAL_ADD_HURT" => {
+                Some(FightPropType::FIGHT_PROP_NONEXTRA_PHYSICAL_ADD_HURT)
+            }
             "FIGHT_PROP_ELEM_REACT_CRITICAL" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_CRITICAL),
-            "FIGHT_PROP_ELEM_REACT_CRITICAL_HURT" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_CRITICAL_HURT),
-            "FIGHT_PROP_ELEM_REACT_EXPLODE_CRITICAL" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_EXPLODE_CRITICAL),
-            "FIGHT_PROP_ELEM_REACT_EXPLODE_CRITICAL_HURT" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_EXPLODE_CRITICAL_HURT),
-            "FIGHT_PROP_ELEM_REACT_SWIRL_CRITICAL" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_SWIRL_CRITICAL),
-            "FIGHT_PROP_ELEM_REACT_SWIRL_CRITICAL_HURT" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_SWIRL_CRITICAL_HURT),
-            "FIGHT_PROP_ELEM_REACT_ELECTRIC_CRITICAL" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_ELECTRIC_CRITICAL),
-            "FIGHT_PROP_ELEM_REACT_ELECTRIC_CRITICAL_HURT" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_ELECTRIC_CRITICAL_HURT),
-            "FIGHT_PROP_ELEM_REACT_SCONDUCT_CRITICAL" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_SCONDUCT_CRITICAL),
-            "FIGHT_PROP_ELEM_REACT_SCONDUCT_CRITICAL_HURT" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_SCONDUCT_CRITICAL_HURT),
-            "FIGHT_PROP_ELEM_REACT_BURN_CRITICAL" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_BURN_CRITICAL),
-            "FIGHT_PROP_ELEM_REACT_BURN_CRITICAL_HURT" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_BURN_CRITICAL_HURT),
-            "FIGHT_PROP_ELEM_REACT_FROZENBROKEN_CRITICAL" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_FROZENBROKEN_CRITICAL),
-            "FIGHT_PROP_ELEM_REACT_FROZENBROKEN_CRITICAL_HURT" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_FROZENBROKEN_CRITICAL_HURT),
-            "FIGHT_PROP_ELEM_REACT_OVERGROW_CRITICAL" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_OVERGROW_CRITICAL),
-            "FIGHT_PROP_ELEM_REACT_OVERGROW_CRITICAL_HURT" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_OVERGROW_CRITICAL_HURT),
-            "FIGHT_PROP_ELEM_REACT_OVERGROW_FIRE_CRITICAL" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_OVERGROW_FIRE_CRITICAL),
-            "FIGHT_PROP_ELEM_REACT_OVERGROW_FIRE_CRITICAL_HURT" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_OVERGROW_FIRE_CRITICAL_HURT),
-            "FIGHT_PROP_ELEM_REACT_OVERGROW_ELECTRIC_CRITICAL" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_OVERGROW_ELECTRIC_CRITICAL),
-            "FIGHT_PROP_ELEM_REACT_OVERGROW_ELECTRIC_CRITICAL_HURT" => Some(FightPropType::FIGHT_PROP_ELEM_REACT_OVERGROW_ELECTRIC_CRITICAL_HURT),
-            "FIGHT_PROP_BASE_ELEM_REACT_CRITICAL" => Some(FightPropType::FIGHT_PROP_BASE_ELEM_REACT_CRITICAL),
-            "FIGHT_PROP_BASE_ELEM_REACT_CRITICAL_HURT" => Some(FightPropType::FIGHT_PROP_BASE_ELEM_REACT_CRITICAL_HURT),
+            "FIGHT_PROP_ELEM_REACT_CRITICAL_HURT" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_CRITICAL_HURT)
+            }
+            "FIGHT_PROP_ELEM_REACT_EXPLODE_CRITICAL" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_EXPLODE_CRITICAL)
+            }
+            "FIGHT_PROP_ELEM_REACT_EXPLODE_CRITICAL_HURT" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_EXPLODE_CRITICAL_HURT)
+            }
+            "FIGHT_PROP_ELEM_REACT_SWIRL_CRITICAL" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_SWIRL_CRITICAL)
+            }
+            "FIGHT_PROP_ELEM_REACT_SWIRL_CRITICAL_HURT" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_SWIRL_CRITICAL_HURT)
+            }
+            "FIGHT_PROP_ELEM_REACT_ELECTRIC_CRITICAL" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_ELECTRIC_CRITICAL)
+            }
+            "FIGHT_PROP_ELEM_REACT_ELECTRIC_CRITICAL_HURT" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_ELECTRIC_CRITICAL_HURT)
+            }
+            "FIGHT_PROP_ELEM_REACT_SCONDUCT_CRITICAL" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_SCONDUCT_CRITICAL)
+            }
+            "FIGHT_PROP_ELEM_REACT_SCONDUCT_CRITICAL_HURT" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_SCONDUCT_CRITICAL_HURT)
+            }
+            "FIGHT_PROP_ELEM_REACT_BURN_CRITICAL" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_BURN_CRITICAL)
+            }
+            "FIGHT_PROP_ELEM_REACT_BURN_CRITICAL_HURT" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_BURN_CRITICAL_HURT)
+            }
+            "FIGHT_PROP_ELEM_REACT_FROZENBROKEN_CRITICAL" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_FROZENBROKEN_CRITICAL)
+            }
+            "FIGHT_PROP_ELEM_REACT_FROZENBROKEN_CRITICAL_HURT" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_FROZENBROKEN_CRITICAL_HURT)
+            }
+            "FIGHT_PROP_ELEM_REACT_OVERGROW_CRITICAL" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_OVERGROW_CRITICAL)
+            }
+            "FIGHT_PROP_ELEM_REACT_OVERGROW_CRITICAL_HURT" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_OVERGROW_CRITICAL_HURT)
+            }
+            "FIGHT_PROP_ELEM_REACT_OVERGROW_FIRE_CRITICAL" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_OVERGROW_FIRE_CRITICAL)
+            }
+            "FIGHT_PROP_ELEM_REACT_OVERGROW_FIRE_CRITICAL_HURT" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_OVERGROW_FIRE_CRITICAL_HURT)
+            }
+            "FIGHT_PROP_ELEM_REACT_OVERGROW_ELECTRIC_CRITICAL" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_OVERGROW_ELECTRIC_CRITICAL)
+            }
+            "FIGHT_PROP_ELEM_REACT_OVERGROW_ELECTRIC_CRITICAL_HURT" => {
+                Some(FightPropType::FIGHT_PROP_ELEM_REACT_OVERGROW_ELECTRIC_CRITICAL_HURT)
+            }
+            "FIGHT_PROP_BASE_ELEM_REACT_CRITICAL" => {
+                Some(FightPropType::FIGHT_PROP_BASE_ELEM_REACT_CRITICAL)
+            }
+            "FIGHT_PROP_BASE_ELEM_REACT_CRITICAL_HURT" => {
+                Some(FightPropType::FIGHT_PROP_BASE_ELEM_REACT_CRITICAL_HURT)
+            }
+            // short name
+            "hp" => Some(FightPropType::FIGHT_PROP_HP),
+            "atk" => Some(FightPropType::FIGHT_PROP_ATTACK),
+            "def" => Some(FightPropType::FIGHT_PROP_DEFENSE),
+            "hp%" => Some(FightPropType::FIGHT_PROP_HP_PERCENT),
+            "atk%" => Some(FightPropType::FIGHT_PROP_ATTACK_PERCENT),
+            "def%" => Some(FightPropType::FIGHT_PROP_DEFENSE_PERCENT),
+            "em" => Some(FightPropType::FIGHT_PROP_ELEMENT_MASTERY),
+            "er" => Some(FightPropType::FIGHT_PROP_CHARGE_EFFICIENCY),
+            "hb" => Some(FightPropType::FIGHT_PROP_HEAL_ADD),
+            "heal" => Some(FightPropType::FIGHT_PROP_HEAL_ADD),
+            "cd" => Some(FightPropType::FIGHT_PROP_CRITICAL_HURT),
+            "cdmg" => Some(FightPropType::FIGHT_PROP_CRITICAL_HURT),
+            "cr" => Some(FightPropType::FIGHT_PROP_CRITICAL),
+            "crate" => Some(FightPropType::FIGHT_PROP_CRITICAL),
+            "phys%" => Some(FightPropType::FIGHT_PROP_PHYSICAL_ADD_HURT),
+            "dendro%" => Some(FightPropType::FIGHT_PROP_GRASS_ADD_HURT),
+            "geo%" => Some(FightPropType::FIGHT_PROP_ROCK_ADD_HURT),
+            "anemo%" => Some(FightPropType::FIGHT_PROP_WIND_ADD_HURT),
+            "hydro%" => Some(FightPropType::FIGHT_PROP_WATER_ADD_HURT),
+            "cryo%" => Some(FightPropType::FIGHT_PROP_ICE_ADD_HURT),
+            "electro%" => Some(FightPropType::FIGHT_PROP_ELEC_ADD_HURT),
+            "pyro%" => Some(FightPropType::FIGHT_PROP_FIRE_ADD_HURT),
+
+            "maxhp" => Some(FightPropType::FIGHT_PROP_MAX_HP),
+            "debt" => Some(FightPropType::FIGHT_PROP_CUR_HP_DEBTS),
+            "paiddebt" => Some(FightPropType::FIGHT_PROP_CUR_HP_PAID_DEBTS),
+            "specialenergy" => Some(FightPropType::FIGHT_PROP_CUR_SPECIAL_ENERGY),
+            "startspecial" => Some(FightPropType::FIGHT_PROP_START_SPECIAL_ENERGY),
+            "dmg" => Some(FightPropType::FIGHT_PROP_ADD_HURT),
+            "cdr" => Some(FightPropType::FIGHT_PROP_SKILL_CD_MINUS_RATIO),
+            "heali" => Some(FightPropType::FIGHT_PROP_HEALED_ADD),
+            "shield" => Some(FightPropType::FIGHT_PROP_SHIELD_COST_MINUS_RATIO),
+            "defi" => Some(FightPropType::FIGHT_PROP_DEFENCE_IGNORE_RATIO),
+
+            "resall" => Some(FightPropType::FIGHT_PROP_SUB_HURT),
+            "resanemo" => Some(FightPropType::FIGHT_PROP_WIND_SUB_HURT),
+            "rescryo" => Some(FightPropType::FIGHT_PROP_ICE_SUB_HURT),
+            "resdendro" => Some(FightPropType::FIGHT_PROP_GRASS_SUB_HURT),
+            "reselectro" => Some(FightPropType::FIGHT_PROP_ELEC_SUB_HURT),
+            "resgeo" => Some(FightPropType::FIGHT_PROP_ROCK_SUB_HURT),
+            "reshydro" => Some(FightPropType::FIGHT_PROP_WATER_SUB_HURT),
+            "respyro" => Some(FightPropType::FIGHT_PROP_FIRE_SUB_HURT),
+            "resphys" => Some(FightPropType::FIGHT_PROP_PHYSICAL_SUB_HURT),
+
             _ => None,
         }
     }

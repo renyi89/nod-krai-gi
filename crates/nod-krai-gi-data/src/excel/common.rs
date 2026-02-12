@@ -152,17 +152,31 @@ pub enum EquipType {
     #[default]
     None = 0,
     #[serde(alias = "EQUIP_BRACER")]
-    Bracer = 1,//生之花
+    Bracer = 1, //生之花
     #[serde(alias = "EQUIP_NECKLACE")]
-    Necklace = 2,//死之羽
+    Necklace = 2, //死之羽
     #[serde(alias = "EQUIP_SHOES")]
-    Shoes = 3,//时之沙
+    Shoes = 3, //时之沙
     #[serde(alias = "EQUIP_RING")]
-    Ring = 4,//空之杯
+    Ring = 4, //空之杯
     #[serde(alias = "EQUIP_DRESS")]
-    Dress = 5,//理之冠
+    Dress = 5, //理之冠
     #[serde(alias = "EQUIP_WEAPON")]
     Weapon = 6,
+}
+
+impl From<u32> for EquipType {
+    fn from(value: u32) -> Self {
+        match value {
+            1 => EquipType::Bracer,
+            2 => EquipType::Necklace,
+            3 => EquipType::Shoes,
+            4 => EquipType::Ring,
+            5 => EquipType::Dress,
+            6 => EquipType::Weapon,
+            _ => EquipType::None,
+        }
+    }
 }
 
 #[repr(u32)]
@@ -185,13 +199,6 @@ pub enum GrowCurveArith {
 pub struct IdCountConfig {
     pub id: u32,
     pub count: u32,
-}
-
-#[derive(Debug, Clone, serde::Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct PropValConfig {
-    pub prop_type: FightPropType,
-    pub value: f32,
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]

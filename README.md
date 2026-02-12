@@ -2,6 +2,8 @@
 
 [English Version](README.en.md) | [中文版本](README.md)
 
+[手册](handbook.md)
+
 ## 简介
 
 `nod-krai-gi` 分叉自 [mavuika-rs](https://git.xeondev.com/mavuika-rs/mavuika-rs) 项目。仅实验性实现。

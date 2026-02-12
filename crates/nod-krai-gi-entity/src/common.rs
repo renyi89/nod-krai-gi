@@ -1,20 +1,26 @@
 use indexmap::IndexMap;
 use std::collections::{HashMap, HashSet};
 
+use crate::fight_props;
 use bevy_ecs::prelude::*;
 use common::string_util::InternString;
 use nod_krai_gi_data::ability::{get_ability_data, AbilityData, AbilityModifier};
+use nod_krai_gi_data::excel::common::EquipType;
+use nod_krai_gi_data::excel::{
+    reliquary_affix_excel_config_collection, reliquary_excel_config_collection,
+    reliquary_level_excel_config_collection, reliquary_main_prop_excel_config_collection,
+    weapon_excel_config_collection,
+};
 use nod_krai_gi_data::{
     excel::{
         avatar_curve_excel_config_collection, avatar_promote_excel_config_collection,
         common::PropGrowCurve, monster_curve_excel_config_collection,
-        weapon_curve_excel_config_collection, AvatarExcelConfig, WeaponExcelConfig,
+        weapon_curve_excel_config_collection, AvatarExcelConfig,
     },
     prop_type::FightPropType,
 };
 use nod_krai_gi_proto::normal::ProtEntityType;
-
-use crate::fight_props;
+use nod_krai_gi_proto::server_only::{equip_bin, item_bin, AvatarBin};
 
 #[derive(Component)]
 pub struct Level(pub u32);
@@ -265,13 +271,28 @@ impl FightProperties {
         let base_attack = self.get_property(FIGHT_PROP_BASE_ATTACK);
         let base_defense = self.get_property(FIGHT_PROP_BASE_DEFENSE);
 
-        self.set_property(FIGHT_PROP_HP, base_hp);
-        self.set_property(FIGHT_PROP_MAX_HP, base_hp);
-        self.set_property(FIGHT_PROP_CUR_HP, base_hp);
-        self.set_property(FIGHT_PROP_ATTACK, base_attack);
-        self.set_property(FIGHT_PROP_CUR_ATTACK, base_attack);
-        self.set_property(FIGHT_PROP_DEFENSE, base_defense);
-        self.set_property(FIGHT_PROP_CUR_DEFENSE, base_defense);
+        self.set_property(
+            FIGHT_PROP_MAX_HP,
+            base_hp
+                + base_hp * self.get_property(FIGHT_PROP_HP_PERCENT)
+                + self.get_property(FIGHT_PROP_HP),
+        );
+
+        self.set_property(FIGHT_PROP_CUR_HP, self.get_property(FIGHT_PROP_MAX_HP));
+
+        self.set_property(
+            FIGHT_PROP_CUR_ATTACK,
+            base_attack
+                + base_attack * self.get_property(FIGHT_PROP_ATTACK_PERCENT)
+                + self.get_property(FIGHT_PROP_ATTACK),
+        );
+
+        self.set_property(
+            FIGHT_PROP_CUR_DEFENSE,
+            base_defense
+                + base_defense * self.get_property(FIGHT_PROP_DEFENSE_PERCENT)
+                + self.get_property(FIGHT_PROP_DEFENSE),
+        );
     }
 
     pub fn get_property(&self, ty: FightPropType) -> f32 {
@@ -316,21 +337,26 @@ impl ProtocolEntityID {
 
 pub fn create_fight_props(
     config: &AvatarExcelConfig,
-    cur_hp: f32,
     level: u32,
     break_level: u32,
 ) -> FightProperties {
     let mut props = fight_props! {
         FIGHT_PROP_BASE_HP: config.hp_base,
         FIGHT_PROP_HP: config.hp_base,
+        FIGHT_PROP_HP_PERCENT: 0.0,
+        FIGHT_PROP_CUR_HP: config.hp_base,
+        FIGHT_PROP_MAX_HP: config.hp_base,
+
         FIGHT_PROP_BASE_ATTACK: config.attack_base,
         FIGHT_PROP_ATTACK: config.attack_base,
+        FIGHT_PROP_ATTACK_PERCENT: 0.0,
+        FIGHT_PROP_CUR_ATTACK: config.attack_base,
+
         FIGHT_PROP_BASE_DEFENSE: config.defense_base,
         FIGHT_PROP_DEFENSE: config.defense_base,
-        FIGHT_PROP_CUR_HP: cur_hp,
-        FIGHT_PROP_MAX_HP: config.hp_base,
-        FIGHT_PROP_CUR_ATTACK: config.attack_base,
+        FIGHT_PROP_DEFENSE_PERCENT: 0.0,
         FIGHT_PROP_CUR_DEFENSE: config.defense_base,
+
         FIGHT_PROP_ELEMENT_MASTERY: config.element_mastery,
         FIGHT_PROP_CRITICAL: config.critical,
         FIGHT_PROP_CRITICAL_HURT: config.critical_hurt,
@@ -350,7 +376,41 @@ pub fn create_fight_props(
         FIGHT_PROP_MAX_ELEC_ENERGY: 100.0,
         FIGHT_PROP_MAX_WATER_ENERGY: 100.0,
         FIGHT_PROP_MAX_ROCK_ENERGY: 100.0,
-        FIGHT_PROP_MAX_SPECIAL_ENERGY: 100.0
+        FIGHT_PROP_MAX_SPECIAL_ENERGY: 100.0,
+
+        FIGHT_PROP_CHARGE_EFFICIENCY: 0.0,
+        FIGHT_PROP_HEAL_ADD: 0.0,
+        FIGHT_PROP_HEALED_ADD: 0.0,
+        FIGHT_PROP_CRITICAL: 0.0,
+        FIGHT_PROP_CRITICAL_HURT: 0.0,
+
+        FIGHT_PROP_ADD_HURT: 0.0,
+        FIGHT_PROP_PHYSICAL_ADD_HURT: 0.0,
+        FIGHT_PROP_GRASS_ADD_HURT: 0.0,
+        FIGHT_PROP_ROCK_ADD_HURT: 0.0,
+        FIGHT_PROP_WIND_ADD_HURT: 0.0,
+        FIGHT_PROP_WATER_ADD_HURT: 0.0,
+        FIGHT_PROP_ICE_ADD_HURT: 0.0,
+        FIGHT_PROP_ELEC_ADD_HURT: 0.0,
+        FIGHT_PROP_FIRE_ADD_HURT: 0.0,
+
+        FIGHT_PROP_SUB_HURT: 0.0,
+        FIGHT_PROP_WIND_SUB_HURT: 0.0,
+        FIGHT_PROP_ICE_SUB_HURT: 0.0,
+        FIGHT_PROP_GRASS_SUB_HURT: 0.0,
+        FIGHT_PROP_ELEC_SUB_HURT: 0.0,
+        FIGHT_PROP_ROCK_SUB_HURT: 0.0,
+        FIGHT_PROP_WATER_SUB_HURT: 0.0,
+        FIGHT_PROP_FIRE_SUB_HURT: 0.0,
+        FIGHT_PROP_PHYSICAL_SUB_HURT: 0.0,
+
+        FIGHT_PROP_SKILL_CD_MINUS_RATIO: 0.0,
+        FIGHT_PROP_SHIELD_COST_MINUS_RATIO: 0.0,
+        FIGHT_PROP_DEFENCE_IGNORE_RATIO: 0.0,
+
+        FIGHT_PROP_CUR_HP_DEBTS: 0.0,
+        FIGHT_PROP_CUR_HP_PAID_DEBTS: 0.0
+
     };
 
     for prop_grow_curve in config.prop_grow_curves.iter() {
@@ -374,38 +434,144 @@ pub fn create_fight_props(
     props
 }
 
-pub fn create_fight_props_with_weapon(
-    config: &AvatarExcelConfig,
-    cur_hp: f32,
-    level: u32,
-    break_level: u32,
-    weapon: &WeaponExcelConfig,
-    weapon_level: u32,
+pub fn create_fight_props_with_equip(
+    avatar_bin: &AvatarBin,
+    avatar_config: &AvatarExcelConfig,
 ) -> FightProperties {
-    let mut props = create_fight_props(config, cur_hp, level, break_level);
-    add_fight_props_from_weapon(&mut props, weapon, weapon_level);
+    let mut props = create_fight_props(avatar_config, avatar_bin.level, avatar_bin.promote_level);
+    add_fight_props_from_weapon(&mut props, avatar_bin);
+    add_fight_props_from_reliquary(&mut props, avatar_bin);
     props.apply_base_values();
+    props.flush_property();
     props
 }
 
-pub fn add_fight_props_from_weapon(
-    props: &mut FightProperties,
-    weapon: &WeaponExcelConfig,
-    level: u32,
-) {
-    let weapon_curve_excel_config_collection_clone =
-        std::sync::Arc::clone(weapon_curve_excel_config_collection::get());
+pub fn add_fight_props_from_weapon(props: &mut FightProperties, avatar_bin: &AvatarBin) {
+    let mut is_add_weapon = false;
+    for (equip_type_id, item) in avatar_bin.equip_map.iter() {
+        let equip_type = EquipType::from(*equip_type_id);
+        if equip_type != EquipType::Weapon {
+            continue;
+        }
+        let Some(item_bin::Detail::Equip(ref equip)) = item.detail else {
+            tracing::warn!("item with guid {} is not equip", item.guid);
+            break;
+        };
+        let Some(equip_bin::Detail::Weapon(ref weapon)) = equip.detail else {
+            tracing::warn!("equip with guid {} is not weapon", item.guid);
+            break;
+        };
 
-    if let Some(weapon_curve_config) = weapon_curve_excel_config_collection_clone.get(&level) {
-        for weapon_property in weapon.weapon_prop.iter() {
-            if let Some(curve_info) = weapon_curve_config
-                .curve_infos
-                .iter()
-                .find(|c| c.r#type == weapon_property.r#type)
-            {
-                let val = curve_info.apply(weapon_property.init_value);
-                props.change_property(weapon_property.prop_type, val);
+        let weapon_excel_config_collection_clone =
+            std::sync::Arc::clone(weapon_excel_config_collection::get());
+
+        let weapon_curve_excel_config_collection_clone =
+            std::sync::Arc::clone(weapon_curve_excel_config_collection::get());
+
+        if let Some(weapon_curve_config) =
+            weapon_curve_excel_config_collection_clone.get(&weapon.level)
+        {
+            let Some(weapon_config) = weapon_excel_config_collection_clone.get(&item.item_id)
+            else {
+                tracing::debug!("weapon config {} doesn't exist", item.item_id);
+                continue;
+            };
+
+            for weapon_property in weapon_config.weapon_prop.iter() {
+                if let Some(curve_info) = weapon_curve_config
+                    .curve_infos
+                    .iter()
+                    .find(|c| c.r#type == weapon_property.r#type)
+                {
+                    is_add_weapon = true;
+                    let val = curve_info.apply(weapon_property.init_value);
+                    props.change_property(weapon_property.prop_type, val);
+                }
             }
         }
+    }
+
+    if !is_add_weapon {
+        tracing::warn!("avatar no weapon avatar_bin.equip_map:{:#?}", avatar_bin.equip_map);
+    }
+}
+
+pub fn add_fight_props_from_reliquary(props: &mut FightProperties, avatar_bin: &AvatarBin) {
+    let reliquary_excel_config_collection_clone =
+        std::sync::Arc::clone(reliquary_excel_config_collection::get());
+
+    let reliquary_main_prop_excel_config_collection_clone =
+        std::sync::Arc::clone(reliquary_main_prop_excel_config_collection::get());
+
+    let reliquary_level_excel_config_collection_clone =
+        std::sync::Arc::clone(reliquary_level_excel_config_collection::get());
+
+    let reliquary_affix_excel_config_collection_clone =
+        std::sync::Arc::clone(reliquary_affix_excel_config_collection::get());
+
+    let mut append_prop_id_list = vec![];
+
+    for (equip_type_id, item) in avatar_bin.equip_map.iter() {
+        let equip_type = EquipType::from(*equip_type_id);
+        if equip_type == EquipType::None || equip_type == EquipType::Weapon {
+            continue;
+        }
+        let Some(item_bin::Detail::Equip(ref equip)) = item.detail else {
+            tracing::warn!("item with guid {} is not equip", item.guid);
+            break;
+        };
+        let Some(equip_bin::Detail::Reliquary(ref reliquary)) = equip.detail else {
+            tracing::warn!("equip with guid {} is not reliquary", item.guid);
+            break;
+        };
+
+        append_prop_id_list.extend(reliquary.append_prop_id_list.clone());
+
+        let Some(reliquary_config) = reliquary_excel_config_collection_clone.get(&item.item_id)
+        else {
+            tracing::debug!("reliquary config {} doesn't exist", item.item_id);
+            break;
+        };
+
+        let Some(reliquary_main_prop_config) =
+            reliquary_main_prop_excel_config_collection_clone.get(&reliquary.main_prop_id)
+        else {
+            tracing::debug!(
+                "reliquary main prop config {} doesn't exist",
+                reliquary.main_prop_id
+            );
+            break;
+        };
+
+        let Some(reliquary_level_config) = reliquary_level_excel_config_collection_clone
+            .get(&(reliquary_config.rank << 8 + (reliquary.level + 1)))
+        else {
+            tracing::debug!(
+                "reliquary level config {} {} doesn't exist",
+                reliquary_config.rank,
+                reliquary.level
+            );
+            break;
+        };
+
+        for add_prop in reliquary_level_config.add_props.iter() {
+            if reliquary_main_prop_config.prop_type == add_prop.prop_type {
+                props.change_property(add_prop.prop_type, add_prop.value);
+            }
+        }
+    }
+
+    for append_prop_id in append_prop_id_list {
+        let Some(reliquary_affix_config) =
+            reliquary_affix_excel_config_collection_clone.get(&append_prop_id)
+        else {
+            tracing::debug!("reliquary affix config {} doesn't exist", append_prop_id);
+            break;
+        };
+
+        props.change_property(
+            reliquary_affix_config.prop_type,
+            reliquary_affix_config.prop_value,
+        );
     }
 }

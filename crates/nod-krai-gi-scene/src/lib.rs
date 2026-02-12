@@ -104,20 +104,20 @@ fn init_scene(
         let Some(player_info) = players.get_mut(uid) else {
             continue;
         };
-        let Some(ref mut scene_bin) = player_info.scene_bin else {
+        let Some(ref mut player_scene_bin) = player_info.scene_bin else {
             continue;
         };
 
-        if scene_bin.my_cur_scene_id == 0 {
-            scene_bin.my_cur_scene_id = 3;
+        if player_scene_bin.my_cur_scene_id == 0 {
+            player_scene_bin.my_cur_scene_id = 3;
         }
 
         enter_events.write(BeginEnterSceneEvent {
             uid,
-            scene_id: scene_bin.my_cur_scene_id,
+            scene_id: player_scene_bin.my_cur_scene_id,
             enter_type: EnterType::EnterSelf,
             enter_reason: EnterReason::Login,
-            position: scene_bin.my_prev_pos.unwrap_or_default().into(),
+            position: player_scene_bin.my_prev_pos.unwrap_or_default().into(),
         });
     }
 }
@@ -148,7 +148,7 @@ fn begin_enter_scene(
 
             // commands.entity(entity).insert(ToBeRemovedMarker);
             // commands
-            //     .entity(avatar_data.equipment.weapon)
+            //     .entity(avatar_data.equipment_weapon.weapon)
             //     .insert(ToBeRemovedMarker);
         }
 

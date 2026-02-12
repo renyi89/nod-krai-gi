@@ -258,7 +258,7 @@ message AvatarRenameBin {
 }
 
 message PlayerAvatarCompBin {
-    map<uint64, AvatarBin> avatar_map = 1;
+    map<fixed64, AvatarBin> avatar_map = 1;
     uint64 cur_avatar_guid = 2;
     VectorBin pb_only_cur_pos = 3;
     VectorBin pb_only_cur_rot = 4;
@@ -520,6 +520,7 @@ message ItemBin {
     uint32 item_type = 1;
     uint32 item_id = 2;
     fixed64 guid = 3;
+    fixed64 owner_guid = 1001;
     oneof detail {
         MaterialBin material = 101;
         EquipBin equip = 102;
@@ -531,7 +532,7 @@ message PackItemStoreBin {
 }
 
 message ItemStoreBin {
-    map<uint64, ItemBin> item_map = 1;
+    map<fixed64, ItemBin> item_map = 1;
     bool is_material_item_num_alarmed = 2;
     oneof ext {
         PackItemStoreBin pack_store = 101;

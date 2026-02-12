@@ -18,7 +18,7 @@ pub fn on_enter_scene_ready(
         let Some(player_info) = players.get(uid) else {
             continue;
         };
-        let Some(ref scene_bin) = player_info.scene_bin else {
+        let Some(ref player_scene_bin) = player_info.scene_bin else {
             continue;
         };
 
@@ -47,7 +47,7 @@ pub fn on_enter_scene_ready(
                 ),
                 peer_id,
                 host_peer_id: peer_manager.host_peer_id(),
-                dest_scene_id: scene_bin.my_cur_scene_id,
+                dest_scene_id: player_scene_bin.my_cur_scene_id,
             },
         );
 

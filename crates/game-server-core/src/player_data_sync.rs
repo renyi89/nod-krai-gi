@@ -3,10 +3,8 @@ use bevy_ecs::prelude::*;
 use common::time_util;
 use nod_krai_gi_data::excel;
 use nod_krai_gi_data::excel::{FetterDataConfig, FetterDataConfigKeyed};
-use nod_krai_gi_entity::{
-    common::{create_fight_props, LifeState},
-    int_prop_map,
-};
+use nod_krai_gi_entity::common::create_fight_props_with_equip;
+use nod_krai_gi_entity::{common::LifeState, int_prop_map};
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::*;
@@ -34,24 +32,24 @@ pub fn sync_player_data(players: Res<Players>, out: Res<MessageOutput>) {
         let Some(player_info) = players.get(*uid) else {
             continue;
         };
-        let Some(ref basic_bin) = player_info.basic_bin else {
+        let Some(ref player_basic_bin) = player_info.basic_bin else {
             continue;
         };
         out.send(
             *uid,
             "PlayerDataNotify",
             PlayerDataNotify {
-                nick_name: basic_bin.nickname.clone(),
+                nick_name: player_basic_bin.nickname.clone(),
                 prop_map: int_prop_map! {
                     PROP_IS_SPRING_AUTO_USE: 1;
                     PROP_SPRING_AUTO_USE_PERCENT: 50;
                     PROP_IS_FLYABLE: 1;
-                    PROP_IS_GAME_TIME_LOCKED: basic_bin.is_game_time_locked as i64;
+                    PROP_IS_GAME_TIME_LOCKED: player_basic_bin.is_game_time_locked as i64;
                     PROP_IS_TRANSFERABLE: 1;
                     PROP_MAX_STAMINA: 24000;
                     PROP_CUR_PERSIST_STAMINA: 24000;
-                    PROP_PLAYER_LEVEL: basic_bin.level;
-                    PROP_PLAYER_EXP: basic_bin.exp;
+                    PROP_PLAYER_LEVEL: player_basic_bin.level;
+                    PROP_PLAYER_EXP: player_basic_bin.exp;
                     PROP_PLAYER_MP_SETTING_TYPE :1;
                     PROP_IS_MP_MODE_AVAILABLE :1;
                     PROP_PLAYER_RESIN:200;
@@ -74,7 +72,7 @@ pub fn sync_player_store(players: Res<Players>, out: Res<MessageOutput>) {
         let Some(player_info) = players.get(*uid) else {
             continue;
         };
-        let Some(ref item_bin) = player_info.item_bin else {
+        let Some(ref player_item_bin) = player_info.item_bin else {
             continue;
         };
 
@@ -84,7 +82,7 @@ pub fn sync_player_store(players: Res<Players>, out: Res<MessageOutput>) {
             PlayerStoreNotify {
                 store_type: StoreType::StorePack.into(),
                 weight_limit: 30_000,
-                item_list: item_bin
+                item_list: player_item_bin
                     .iter()
                     .filter_map(|(_guid, item)| item.to_normal_proto())
                     .collect(),
@@ -105,7 +103,7 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
             continue;
         };
 
-        let Some(ref avatar_bin) = player_info.avatar_bin else {
+        let Some(ref player_avatar_bin) = player_info.avatar_bin else {
             continue;
         };
 
@@ -113,51 +111,64 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
             *uid,
             "AvatarDataNotify",
             AvatarDataNotify {
-                choose_avatar_guid: avatar_bin.choose_avatar_guid,
-                avatar_list: avatar_bin
+                choose_avatar_guid: player_avatar_bin.choose_avatar_guid,
+                avatar_list: player_avatar_bin
                     .avatar_map
                     .values()
-                    .filter_map(|a| {
-                        let Some(skill_depot) = a.depot_map.get(&a.skill_depot_id) else {
-                            tracing::debug!("skill_depot bin {} doesn't exist", a.skill_depot_id);
+                    .filter_map(|avatar_bin| {
+                        let Some(skill_depot) =
+                            avatar_bin.depot_map.get(&avatar_bin.skill_depot_id)
+                        else {
+                            tracing::debug!(
+                                "skill_depot bin {} doesn't exist",
+                                avatar_bin.skill_depot_id
+                            );
                             return None;
                         };
 
                         let mut fetter_data_list = vec![];
 
-                        if fetter_data_entries_clone.contains_key(&a.avatar_id) {
-                            let Some(temp_fetter_data_list) =
-                                fetter_data_entries_clone.get(&a.avatar_id).cloned()
+                        if fetter_data_entries_clone.contains_key(&avatar_bin.avatar_id) {
+                            let Some(temp_fetter_data_list) = fetter_data_entries_clone
+                                .get(&avatar_bin.avatar_id)
+                                .cloned()
                             else {
-                                tracing::debug!("fetter config {} doesn't exist", a.avatar_id);
+                                tracing::debug!(
+                                    "fetter config {} doesn't exist",
+                                    avatar_bin.avatar_id
+                                );
                                 return None;
                             };
                             fetter_data_list = temp_fetter_data_list;
                         }
 
                         let Some(avatar_data) =
-                            avatar_excel_config_collection_clone.get(&a.avatar_id)
+                            avatar_excel_config_collection_clone.get(&avatar_bin.avatar_id)
                         else {
-                            tracing::debug!("avatar config {} doesn't exist", a.avatar_id);
+                            tracing::debug!("avatar config {} doesn't exist", avatar_bin.avatar_id);
                             return None;
                         };
 
                         Some(AvatarInfo {
                             avatar_type: 1,
-                            avatar_id: a.avatar_id,
-                            guid: a.guid,
-                            equip_guid_list: a.equip_map.iter().map(|(_, item)| item.guid).collect(),
-                            skill_depot_id: a.skill_depot_id,
+                            avatar_id: avatar_bin.avatar_id,
+                            guid: avatar_bin.guid,
+                            equip_guid_list: avatar_bin
+                                .equip_map
+                                .iter()
+                                .map(|(_, item)| item.guid)
+                                .collect(),
+                            skill_depot_id: avatar_bin.skill_depot_id,
                             talent_id_list: skill_depot.talent_id_list.clone(),
                             core_proud_skill_level: skill_depot.core_proud_skill_level,
-                            born_time: a.born_time,
-                            life_state: (a.cur_hp > 0.0)
+                            born_time: avatar_bin.born_time,
+                            life_state: (avatar_bin.cur_hp > 0.0)
                                 .then_some(LifeState::Alive)
                                 .unwrap_or(LifeState::Dead)
                                 as u32,
-                            wearing_flycloak_id: a.wearing_flycloak_id,
-                            costume_id: a.costume_id,
-                            trace_effect_id: a.trace_effect_id,
+                            wearing_flycloak_id: avatar_bin.wearing_flycloak_id,
+                            costume_id: avatar_bin.costume_id,
+                            trace_effect_id: avatar_bin.trace_effect_id,
                             fetter_info: Some(AvatarFetterInfo {
                                 fetter_list: fetter_data_list
                                     .into_iter()
@@ -170,7 +181,7 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                                 ..Default::default()
                             }),
                             skill_level_map: skill_depot.skill_level_map.clone(),
-                            skill_map: a
+                            skill_map: avatar_bin
                                 .skill_map
                                 .iter()
                                 .map(|(k, v)| {
@@ -187,14 +198,12 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                                 .inherent_proud_skill_list
                                 .clone(),
                             prop_map: int_prop_map! {
-                                PROP_LEVEL: a.level;
-                                PROP_BREAK_LEVEL: a.promote_level;
+                                PROP_LEVEL: avatar_bin.level;
+                                PROP_BREAK_LEVEL: avatar_bin.promote_level;
                             },
-                            fight_prop_map: create_fight_props(
+                            fight_prop_map: create_fight_props_with_equip(
+                                avatar_bin,
                                 avatar_data,
-                                a.cur_hp,
-                                a.level,
-                                a.promote_level,
                             )
                             .0
                             .iter()
@@ -204,7 +213,7 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                         })
                     })
                     .collect(),
-                avatar_team_map: avatar_bin
+                avatar_team_map: player_avatar_bin
                     .team_map
                     .iter()
                     .map(|(idx, team)| {
@@ -217,10 +226,18 @@ pub fn sync_avatar_data(players: Res<Players>, out: Res<MessageOutput>) {
                         )
                     })
                     .collect(),
-                cur_avatar_team_id: avatar_bin.cur_team_id,
-                owned_flycloak_list: avatar_bin.owned_flycloak_list.iter().copied().collect(),
-                owned_costume_list: avatar_bin.owned_costume_list.iter().copied().collect(),
-                owned_trace_effect_list: avatar_bin
+                cur_avatar_team_id: player_avatar_bin.cur_team_id,
+                owned_flycloak_list: player_avatar_bin
+                    .owned_flycloak_list
+                    .iter()
+                    .copied()
+                    .collect(),
+                owned_costume_list: player_avatar_bin
+                    .owned_costume_list
+                    .iter()
+                    .copied()
+                    .collect(),
+                owned_trace_effect_list: player_avatar_bin
                     .owned_trace_effect_list
                     .iter()
                     .copied()
@@ -255,10 +272,10 @@ pub fn sync_quest_list(players: Res<Players>, out: Res<MessageOutput>) {
             continue;
         };
 
-        let Some(ref quest_bin) = player_info.quest_bin else {
+        let Some(ref player_quest_bin) = player_info.quest_bin else {
             continue;
         };
-        let Some(ref quest_bin) = quest_bin.quest_bin else {
+        let Some(ref quest_bin) = player_quest_bin.quest_bin else {
             continue;
         };
 

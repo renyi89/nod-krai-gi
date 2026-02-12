@@ -25,12 +25,14 @@ pub fn item_command_handler(
 ) {
     let weapon_excel_config_collection_clone =
         std::sync::Arc::clone(weapon_excel_config_collection::get());
+
     let reliquary_excel_config_collection_clone =
         std::sync::Arc::clone(reliquary_excel_config_collection::get());
+
     let material_excel_config_collection_clone =
         std::sync::Arc::clone(material_excel_config_collection::get());
 
-    let reliquary_main_prop_config_collection_clone =
+    let reliquary_main_prop_excel_config_collection_clone =
         std::sync::Arc::clone(reliquary_main_prop_excel_config_collection::get());
 
     let reliquary_affix_excel_config_collection_clone =
@@ -43,7 +45,7 @@ pub fn item_command_handler(
 
         let new_guid = player_info.next_guid();
         let mut change_map: HashMap<u64, u32> = HashMap::new();
-        let Some(ref mut item_bin) = player_info.item_bin else {
+        let Some(ref mut player_item_bin) = player_info.item_bin else {
             continue;
         };
 
@@ -80,14 +82,15 @@ pub fn item_command_handler(
                         if material_data.use_on_gain {
                             continue;
                         }
-                        let guid = item_bin.has_material(*id);
+                        let guid = player_item_bin.has_material(*id);
                         if guid.is_none() {
-                            item_bin.add_item(
+                            player_item_bin.add_item(
                                 new_guid,
                                 ItemBin {
                                     item_type: item_type as u32,
                                     item_id: *id,
                                     guid: new_guid,
+                                    owner_guid: 0,
                                     detail: Some(item_bin::Detail::Material(MaterialBin {
                                         count: num.unwrap_or(1),
                                         delete_bin: None,
@@ -97,7 +100,8 @@ pub fn item_command_handler(
                             change_map.insert(new_guid, num.unwrap_or(1));
                         } else {
                             let material_guid = guid.unwrap();
-                            let Some(ref mut material_bin) = item_bin.get_mut_item(&material_guid)
+                            let Some(ref mut material_bin) =
+                                player_item_bin.get_mut_item(&material_guid)
                             else {
                                 continue;
                             };
@@ -119,7 +123,7 @@ pub fn item_command_handler(
                             continue;
                         };
                         let Some(_reliquary_main_prop) =
-                            reliquary_main_prop_config_collection_clone
+                            reliquary_main_prop_excel_config_collection_clone
                                 .get(&main_prop_id.unwrap_or(0))
                         else {
                             gm_notify_events.write(ConsoleChatNotifyEvent(
@@ -138,12 +142,13 @@ pub fn item_command_handler(
                             ));
                             continue;
                         }
-                        item_bin.add_item(
+                        player_item_bin.add_item(
                             new_guid,
                             ItemBin {
                                 item_type: item_type as u32,
                                 item_id: *id,
                                 guid: new_guid,
+                                owner_guid: 0,
                                 detail: Some(item_bin::Detail::Equip(EquipBin {
                                     is_locked: false,
                                     detail: Some(equip_bin::Detail::Reliquary(ReliquaryBin {
@@ -187,7 +192,7 @@ pub fn update_player_store(
         let Some(player_info) = players.get(uid) else {
             continue;
         };
-        let Some(ref item_bin) = player_info.item_bin else {
+        let Some(ref player_item_bin) = player_info.item_bin else {
             continue;
         };
 
@@ -196,7 +201,7 @@ pub fn update_player_store(
             "StoreItemChangeNotify",
             StoreItemChangeNotify {
                 store_type: StoreType::StorePack.into(),
-                item_list: item_bin
+                item_list: player_item_bin
                     .iter()
                     .filter(|(guid, _)| final_map.contains_key(guid))
                     .filter_map(|(_, item)| item.to_normal_proto())
@@ -208,7 +213,7 @@ pub fn update_player_store(
             uid,
             "ItemAddHintNotify",
             ItemAddHintNotify {
-                item_list: item_bin
+                item_list: player_item_bin
                     .iter()
                     .filter(|(guid, _)| {
                         final_map.contains_key(guid)
@@ -230,7 +235,7 @@ pub fn update_player_store(
 fn expand_map_to_vec(map: &HashMap<u32, u32>) -> Vec<u32> {
     let mut v = Vec::new();
     for (k, count) in map {
-        for _ in 0..u32::max(*count, 1) {
+        for _ in 0..u32::min(u32::max(*count, 1), 10) {
             v.push(*k);
         }
     }

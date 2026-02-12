@@ -21,15 +21,15 @@ pub fn player_jump(
         let Some(player_info) = players.get_mut(*uid) else {
             continue;
         };
-        let Some(ref mut scene_bin) = player_info.scene_bin else {
+        let Some(ref mut player_scene_bin) = player_info.scene_bin else {
             continue;
         };
-        let Some(ref avatar_bin) = player_info.avatar_bin else {
+        let Some(ref player_avatar_bin) = player_info.avatar_bin else {
             continue;
         };
 
         let mut enter_type = nod_krai_gi_proto::normal::EnterType::EnterJump;
-        if *scene_id == scene_bin.my_cur_scene_id {
+        if *scene_id == player_scene_bin.my_cur_scene_id {
             enter_type = nod_krai_gi_proto::normal::EnterType::EnterGoto;
         }
 
@@ -39,13 +39,13 @@ pub fn player_jump(
         if (*enter_reason == EnterReason::Gm
             || *enter_reason == EnterReason::Lua
             || *enter_reason == EnterReason::LuaSkipUi)
-            && scene_bin.my_cur_scene_id == *scene_id
+            && player_scene_bin.my_cur_scene_id == *scene_id
         {
-            scene_bin.my_cur_scene_id = *scene_id;
-            scene_bin.my_prev_pos = destination.into();
+            player_scene_bin.my_cur_scene_id = *scene_id;
+            player_scene_bin.my_prev_pos = destination.into();
 
             for (avatar_entity, avatar_data) in player_avatar_entities.iter().filter(|(_, data)| {
-                data.owner_player_uid.0 == *uid && data.guid.0 == avatar_bin.cur_avatar_guid
+                data.owner_player_uid.0 == *uid && data.guid.0 == player_avatar_bin.cur_avatar_guid
             }) {
                 commands
                     .entity(avatar_entity)
@@ -62,15 +62,15 @@ pub fn player_jump(
                     .insert(CurrentPlayerAvatarMarker)
                     .insert(Visible)
                     .insert(Transform {
-                        position: scene_bin.my_prev_pos.unwrap_or_default().into(),
-                        rotation: scene_bin.my_prev_rot.unwrap_or_default().into(),
+                        position: player_scene_bin.my_prev_pos.unwrap_or_default().into(),
+                        rotation: player_scene_bin.my_prev_rot.unwrap_or_default().into(),
                     });
             }
             continue;
         };
 
-        scene_bin.my_cur_scene_id = *scene_id;
-        scene_bin.my_prev_pos = destination.into();
+        player_scene_bin.my_cur_scene_id = *scene_id;
+        player_scene_bin.my_prev_pos = destination.into();
         enter_events.write(BeginEnterSceneEvent {
             uid: *uid,
             scene_id: *scene_id,
@@ -102,14 +102,14 @@ pub fn player_jump_by_point(
                     };
 
                     let mut enter_type = nod_krai_gi_proto::normal::EnterType::EnterJump;
-                    let Some(ref scene_bin) = player_info.scene_bin else {
+                    let Some(ref player_scene_bin) = player_info.scene_bin else {
                         continue;
                     };
                     let mut enter_reason = EnterReason::TransPoint;
                     if !point_config.dungeon_ids.is_empty() {
                         enter_type = nod_krai_gi_proto::normal::EnterType::EnterDungeon;
                         enter_reason = EnterReason::DungeonEnter;
-                    } else if *scene_id == scene_bin.my_cur_scene_id {
+                    } else if *scene_id == player_scene_bin.my_cur_scene_id {
                         enter_type = nod_krai_gi_proto::normal::EnterType::EnterGoto;
                         enter_reason = EnterReason::TransPoint;
                     }
@@ -120,9 +120,9 @@ pub fn player_jump_by_point(
                         point_config.tran_pos.z,
                     ));
 
-                    if let Some(ref mut scene_bin) = player_info.scene_bin {
-                        scene_bin.my_cur_scene_id = *scene_id;
-                        scene_bin.my_prev_pos = destination.into();
+                    if let Some(ref mut player_scene_bin) = player_info.scene_bin {
+                        player_scene_bin.my_cur_scene_id = *scene_id;
+                        player_scene_bin.my_prev_pos = destination.into();
                     }
                     enter_events.write(BeginEnterSceneEvent {
                         uid: *uid,

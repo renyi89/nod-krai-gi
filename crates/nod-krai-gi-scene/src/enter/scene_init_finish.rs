@@ -18,41 +18,41 @@ pub fn on_scene_init_finish(
         let Some(player_info) = players.get_mut(uid) else {
             continue;
         };
-        let Some(ref mut avatar_bin) = player_info.avatar_bin else {
+        let Some(ref mut player_avatar_bin) = player_info.avatar_bin else {
             continue;
         };
 
-        let Some(team_info) = avatar_bin.team_map.get(&avatar_bin.cur_team_id) else {
-            tracing::debug!("team_info {} doesn't exist", avatar_bin.cur_team_id);
+        let Some(team_info) = player_avatar_bin.team_map.get(&player_avatar_bin.cur_team_id) else {
+            tracing::debug!("team_info {} doesn't exist", player_avatar_bin.cur_team_id);
             continue;
         };
 
-        if avatar_bin.cur_avatar_guid_list.is_empty() {
-            avatar_bin.cur_avatar_guid_list = team_info.avatar_guid_list.clone();
+        if player_avatar_bin.cur_avatar_guid_list.is_empty() {
+            player_avatar_bin.cur_avatar_guid_list = team_info.avatar_guid_list.clone();
         }
 
-        if avatar_bin.cur_avatar_guid_list.is_empty() {
+        if player_avatar_bin.cur_avatar_guid_list.is_empty() {
             tracing::debug!("cur_avatar_guid_list is_empty");
             continue;
         }
 
         let appear_avatar_guid = {
-            if !avatar_bin
+            if !player_avatar_bin
                 .cur_avatar_guid_list
-                .contains(&avatar_bin.cur_avatar_guid)
+                .contains(&player_avatar_bin.cur_avatar_guid)
             {
-                avatar_bin.cur_avatar_guid = avatar_bin
+                player_avatar_bin.cur_avatar_guid = player_avatar_bin
                     .cur_avatar_guid_list
                     .first()
                     .copied()
                     .unwrap_or_default();
             }
-            avatar_bin.cur_avatar_guid
+            player_avatar_bin.cur_avatar_guid
         };
 
         join_team_events.write(PlayerJoinTeamEvent {
             player_uid: uid,
-            avatar_guid_list: avatar_bin.cur_avatar_guid_list.clone(),
+            avatar_guid_list: player_avatar_bin.cur_avatar_guid_list.clone(),
             appear_avatar_guid,
         });
     }

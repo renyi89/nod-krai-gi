@@ -74,6 +74,28 @@ impl PlayerDataBin {
     }
 }
 
+impl AvatarBin {
+    pub fn get_scene_reliquary_info_list(&self) -> Vec<crate::normal::SceneReliquaryInfo> {
+        let mut result = vec![];
+        for (_, item) in self.equip_map.iter() {
+            let Some(item_bin::Detail::Equip(ref equip)) = item.detail else {
+                break;
+            };
+            let Some(equip_bin::Detail::Reliquary(ref reliquary)) = equip.detail else {
+                break;
+            };
+
+            result.push(crate::normal::SceneReliquaryInfo {
+                guid: item.guid.clone(),
+                level: reliquary.level,
+                item_id: item.item_id,
+                promote_level: 0,
+            });
+        }
+        result
+    }
+}
+
 impl PlayerItemCompBin {
     pub fn has_material(&self, item_id: u32) -> Option<u64> {
         let Some(ref pack_store) = self.pack_store else {
@@ -87,16 +109,18 @@ impl PlayerItemCompBin {
         None
     }
 
-    pub fn add_item(&mut self, guid: u64, item: ItemBin) {
+    pub fn add_item(&mut self, guid: u64, item: ItemBin) -> Option<ItemBin> {
         if let Some(store) = self.pack_store.as_mut() {
-            store.item_map.insert(guid, item);
+            return store.item_map.insert(guid, item);
         }
+        None
     }
 
-    pub fn remove_item(&mut self, guid: &u64) {
+    pub fn remove_item(&mut self, guid: &u64) -> Option<ItemBin> {
         if let Some(store) = self.pack_store.as_mut() {
-            store.item_map.remove(guid);
+            return store.item_map.remove(guid);
         }
+        None
     }
 
     pub fn get_item(&self, guid: &u64) -> Option<&ItemBin> {

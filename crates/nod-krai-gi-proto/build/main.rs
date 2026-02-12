@@ -2,19 +2,21 @@ use std::fs::{self};
 use std::path::Path;
 
 pub fn main() {
-    println!("cargo:rerun-if-changed=proto");
+    println!("cargo:rerun-if-changed=normal");
     println!("cargo:rerun-if-changed=server_only");
 
     let _ = fs::create_dir("gen/");
+    let _ = fs::create_dir("normal/");
+    let _ = fs::create_dir("server_only/");
 
-    process_proto_dir("./proto", &["proto"],"normal");
-    
-    process_proto_dir("./server_only", &["server_only"],"server_only");
+    process_proto_dir("./normal", &["normal"], "normal");
+
+    process_proto_dir("./server_only", &["server_only"], "server_only");
 }
 
-fn process_proto_dir(dir: &str, includes: &[&str],target:&str) {
+fn process_proto_dir(dir: &str, includes: &[&str], target: &str) {
     let mut config = prost_build::Config::new();
-    config.out_dir(format!("gen/{}",target).as_str());
+    config.out_dir(format!("gen/{}", target).as_str());
     config.type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]");
     config.message_attribute(".", "#[serde(default)]");
     config.field_attribute(".", "#[serde(skip_serializing_if = \"crate::is_default\")]");
@@ -36,7 +38,7 @@ fn process_proto_dir(dir: &str, includes: &[&str],target:&str) {
     }
 
     config.compile_protos(&*files, includes).unwrap();
-    let path = format!("gen/{}/_.rs",target);
+    let path = format!("gen/{}/_.rs", target);
     let content = fs::read_to_string(path.as_str()).expect("can not read");
 
     let mut is_enum = false;
@@ -74,7 +76,11 @@ fn process_proto_dir(dir: &str, includes: &[&str],target:&str) {
                 }
             }
         }
-        if line.trim_start().starts_with("#[prost(oneof =") || (line.trim_start().starts_with("#[prost(") && i + 1 < lines.len() && lines[i + 1].trim_start().starts_with("oneof =")) {
+        if line.trim_start().starts_with("#[prost(oneof =")
+            || (line.trim_start().starts_with("#[prost(")
+                && i + 1 < lines.len()
+                && lines[i + 1].trim_start().starts_with("oneof ="))
+        {
             output1.push_str("    #[serde(flatten)]\n");
         }
         if line.trim_start().starts_with("pub enum ") {

@@ -91,7 +91,7 @@ pub fn sync_enter_info(
                     .iter()
                     .filter(|(data, _)| data.owner_player_uid.0 == uid)
                     .filter_map(|(avatar_data, _)| {
-                        match weapons.get(avatar_data.equipment.weapon) {
+                        match weapons.get(avatar_data.equipment_weapon.weapon) {
                             Ok(weapon_data) => Some(AvatarEnterSceneInfo {
                                 avatar_guid: avatar_data.guid.0,
                                 weapon_guid: weapon_data.guid.0,
@@ -122,14 +122,14 @@ pub fn sync_play_team_entity(
         let Some(player_info) = players.get(*uid) else {
             continue;
         };
-        let Some(ref scene_bin) = player_info.scene_bin else {
+        let Some(ref player_scene_bin) = player_info.scene_bin else {
             continue;
         };
         message_output.send(
             *uid,
             "SyncScenePlayTeamEntityNotify",
             SyncScenePlayTeamEntityNotify {
-                scene_id: scene_bin.my_cur_scene_id,
+                scene_id: player_scene_bin.my_cur_scene_id,
                 entity_info_list: play_team_entities
                     .iter()
                     .map(|(owner_uid, id)| PlayTeamEntityInfo {

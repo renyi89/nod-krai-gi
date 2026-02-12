@@ -1,28 +1,15 @@
 use crate::common::ScenePeerManager;
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::config::{process_inherent_proud_skills, process_talent_ids};
-use nod_krai_gi_data::excel::common::EquipType;
-use nod_krai_gi_data::excel::{
-    avatar_excel_config_collection, avatar_talent_excel_config_collection,
-    proud_skill_excel_config_collection, weapon_excel_config_collection,
+use nod_krai_gi_entity::avatar::{
+    spawn_avatar_entity, AvatarQueryReadOnly, ControlPeer, CurrentTeam,
 };
-use nod_krai_gi_entity::avatar::{AvatarPromoteLevel, AvatarQueryReadOnly, CurrentTeam};
 use nod_krai_gi_entity::{
-    ability::Ability,
-    avatar::{
-        AvatarAppearance, AvatarBundle, AvatarID, BornTime, ControlPeer, CurrentPlayerAvatarMarker,
-        Equipment, IndexInSceneTeam, InherentProudSkillList, SkillDepot, SkillExtraChargeMap,
-        SkillLevelMap,
-    },
+    avatar::{CurrentPlayerAvatarMarker, IndexInSceneTeam},
     common::*,
     transform::Transform,
-    util::to_protocol_entity_id,
-    weapon::{AffixMap, WeaponBundle, WeaponID, WeaponPromoteLevel},
 };
 use nod_krai_gi_event::scene::*;
 use nod_krai_gi_persistence::Players;
-use nod_krai_gi_proto::normal::ProtEntityType;
-use nod_krai_gi_proto::server_only::{equip_bin, item_bin, WeaponBin};
 
 pub fn player_join_team(
     mut events: MessageReader<PlayerJoinTeamEvent>,
@@ -35,43 +22,33 @@ pub fn player_join_team(
 ) {
     let is_empty = events.is_empty();
 
-    let weapon_excel_config_collection_clone =
-        std::sync::Arc::clone(weapon_excel_config_collection::get());
-
-    let avatar_excel_config_collection_clone =
-        std::sync::Arc::clone(avatar_excel_config_collection::get());
-
-    let avatar_talent_collection_clone =
-        std::sync::Arc::clone(avatar_talent_excel_config_collection::get());
-
-    let proud_skill_collection_clone =
-        std::sync::Arc::clone(proud_skill_excel_config_collection::get());
-
     for event in events.read() {
         let uid = event.player_uid;
         let Some(player_info) = players.get(uid) else {
             continue;
         };
-        let Some(ref scene_bin) = player_info.scene_bin else {
+
+        let Some(ref player_scene_bin) = player_info.scene_bin else {
             continue;
         };
-        let Some(ref avatar_bin) = player_info.avatar_bin else {
+
+        let Some(ref player_avatar_bin) = player_info.avatar_bin else {
             continue;
         };
 
         for (idx, to_spawn_guid) in event.avatar_guid_list.iter().enumerate() {
-            match avatars
-                .iter()
-                .find(|(_, data)| data.guid.0 == *to_spawn_guid && data.owner_player_uid.0 == uid)
-            {
+            match avatars.iter().find(|(_, avatar_data)| {
+                avatar_data.guid.0 == *to_spawn_guid && avatar_data.owner_player_uid.0 == uid
+            }) {
                 Some((avatar_entity, _)) => {
                     commands
                         .entity(avatar_entity)
+                        .insert(ControlPeer(peer_mgr.get_peer_id_by_uid(uid)))
                         .insert(IndexInSceneTeam(idx as u8))
                         .insert(CurrentTeam)
                         .insert(Transform {
-                            position: scene_bin.my_prev_pos.unwrap_or_default().into(),
-                            rotation: scene_bin.my_prev_rot.unwrap_or_default().into(),
+                            position: player_scene_bin.my_prev_pos.unwrap_or_default().into(),
+                            rotation: player_scene_bin.my_prev_rot.unwrap_or_default().into(),
                         });
 
                     if *to_spawn_guid == event.appear_avatar_guid {
@@ -82,134 +59,25 @@ pub fn player_join_team(
                     }
                 }
                 None => {
-                    let Some(to_spawn) = avatar_bin.avatar_map.get(to_spawn_guid) else {
+                    let Some(avatar_bin) = player_avatar_bin.avatar_map.get(&to_spawn_guid) else {
                         tracing::debug!("avatar guid {} doesn't exist", to_spawn_guid);
                         continue;
                     };
 
-                    let Some(weapon_item_bin) = to_spawn.equip_map.get(&(EquipType::Weapon as u32))
-                    else {
-                        tracing::debug!("weapon doesn't exist {}", to_spawn_guid);
+                    let Some((entity, _weapon_entity)) = spawn_avatar_entity(
+                        &mut commands,
+                        &mut entity_counter,
+                        avatar_bin,
+                        player_scene_bin.my_prev_pos.unwrap_or_default().into(),
+                        player_scene_bin.my_prev_rot.unwrap_or_default().into(),
+                        uid,
+                        peer_mgr.get_peer_id_by_uid(uid),
+                        idx as u8,
+                    ) else {
                         continue;
                     };
 
-                    let weapon_id = weapon_item_bin.item_id;
-                    let weapon_guid = weapon_item_bin.guid;
-
-                    let Some(item_bin::Detail::Equip(ref equip_bin)) = weapon_item_bin.detail
-                    else {
-                        continue;
-                    };
-                    let Some(equip_bin::Detail::Weapon(ref weapon_bin)) = equip_bin.detail else {
-                        continue;
-                    };
-
-                    let WeaponBin {
-                        level,
-                        promote_level,
-                        affix_map,
-                        ..
-                    } = weapon_bin;
-
-                    let Some(avatar_data) =
-                        avatar_excel_config_collection_clone.get(&to_spawn.avatar_id)
-                    else {
-                        tracing::debug!("avatar config {} doesn't exist", to_spawn.avatar_id);
-                        continue;
-                    };
-
-                    let Some(weapon_config) = weapon_excel_config_collection_clone.get(&weapon_id)
-                    else {
-                        tracing::debug!("weapon config {} doesn't exist", weapon_id);
-                        continue;
-                    };
-
-                    let Some(skill_depot) = to_spawn.depot_map.get(&to_spawn.skill_depot_id) else {
-                        tracing::debug!("skill_depot bin {} doesn't exist", weapon_id);
-                        continue;
-                    };
-
-                    let mut open_configs = Vec::new();
-                    open_configs.extend(process_talent_ids(
-                        &skill_depot.talent_id_list,
-                        &avatar_talent_collection_clone,
-                    ));
-
-                    open_configs.extend(process_inherent_proud_skills(
-                        &skill_depot.inherent_proud_skill_list,
-                        &proud_skill_collection_clone,
-                    ));
-
-                    let weapon_entity = commands
-                        .spawn(WeaponBundle {
-                            weapon_id: WeaponID(weapon_id),
-                            entity_id: to_protocol_entity_id(
-                                ProtEntityType::ProtEntityWeapon,
-                                entity_counter.inc(),
-                            ),
-                            level: Level(*level),
-                            guid: Guid(weapon_guid),
-                            gadget_id: GadgetID(weapon_config.gadget_id),
-                            affix_map: AffixMap(affix_map.clone()),
-                            promote_level: WeaponPromoteLevel(*promote_level),
-                        })
-                        .id();
-
-                    let mut avatar_entity = commands.spawn(AvatarBundle {
-                        avatar_id: AvatarID(to_spawn.avatar_id),
-                        entity_id: to_protocol_entity_id(
-                            ProtEntityType::ProtEntityAvatar,
-                            entity_counter.inc(),
-                        ),
-                        guid: Guid(to_spawn.guid),
-                        control_peer: ControlPeer(peer_mgr.get_peer_id_by_uid(uid)),
-                        skill_depot: SkillDepot(to_spawn.skill_depot_id),
-                        core_proud_skill_level: CoreProudSkillLevel(
-                            skill_depot.core_proud_skill_level,
-                        ),
-                        level: Level(to_spawn.level),
-                        break_level: AvatarPromoteLevel(to_spawn.promote_level),
-                        owner_player_uid: OwnerPlayerUID(player_info.uid),
-                        fight_properties: create_fight_props_with_weapon(
-                            avatar_data,
-                            to_spawn.cur_hp,
-                            to_spawn.level,
-                            to_spawn.promote_level,
-                            weapon_config,
-                            *level,
-                        ),
-                        instanced_abilities: InstancedAbilities::default(),
-                        instanced_modifiers: InstancedModifiers::default(),
-                        global_ability_values: GlobalAbilityValues::default(),
-                        life_state: LifeState::Alive,
-                        equipment: Equipment {
-                            weapon: weapon_entity,
-                        },
-                        appearance: AvatarAppearance {
-                            flycloak_id: to_spawn.wearing_flycloak_id,
-                            costume_id: to_spawn.costume_id,
-                            trace_effect_id: to_spawn.trace_effect_id,
-                        },
-                        transform: Transform {
-                            position: scene_bin.my_prev_pos.unwrap_or_default().into(),
-                            rotation: scene_bin.my_prev_rot.unwrap_or_default().into(),
-                        },
-                        ability: Ability::new_for_avatar(to_spawn.avatar_id, open_configs),
-                        born_time: BornTime(to_spawn.born_time),
-                        index_in_scene_team: IndexInSceneTeam(idx as u8),
-                        inherent_proud_skill_list: InherentProudSkillList(
-                            skill_depot.inherent_proud_skill_list.clone(),
-                        ),
-                        skill_level_map: SkillLevelMap(skill_depot.skill_level_map.clone()),
-                        skill_extra_charge_map: SkillExtraChargeMap(
-                            to_spawn
-                                .skill_map
-                                .iter()
-                                .map(|(k, v)| (*k, v.max_charge_count))
-                                .collect(),
-                        ),
-                    });
-
+                    let mut avatar_entity = commands.entity(entity);
                     avatar_entity.insert(CurrentTeam);
 
                     if *to_spawn_guid == event.appear_avatar_guid {

@@ -8,10 +8,7 @@ use nod_krai_gi_entity::{
 };
 use nod_krai_gi_event::combat::*;
 use nod_krai_gi_persistence::Players;
-use tracing::log::trace;
-use tracing::{debug, instrument};
 
-#[instrument(skip_all)]
 pub fn entity_movement(
     index: Res<EntityById>,
     mut events: MessageReader<EntityMoveEvent>,
@@ -24,15 +21,16 @@ pub fn entity_movement(
         };
 
         let Ok((mut transform, _, owner_uid)) = entities.get_mut(move_entity) else {
-            debug!("entity with id {} not found", info.entity_id);
+            tracing::debug!("entity with id {} not found", info.entity_id);
             continue;
         };
 
         if let Some(owner_uid) = owner_uid {
             if owner_uid.0 != *originator_uid {
-                debug!(
+                tracing::debug!(
                     "fail: entity owner uid mismatch! owner uid: {}, event originator uid: {}",
-                    owner_uid.0, originator_uid
+                    owner_uid.0,
+                    originator_uid
                 );
                 continue;
             }
@@ -65,14 +63,14 @@ pub fn track_player_position(
             continue;
         };
 
-        if let Some(ref mut scene_bin) = player_info.scene_bin {
-            scene_bin.my_prev_pos = transform.position.into();
-            scene_bin.my_prev_rot = transform.rotation.into();
+        if let Some(ref mut player_scene_bin) = player_info.scene_bin {
+            player_scene_bin.my_prev_pos = transform.position.into();
+            player_scene_bin.my_prev_rot = transform.rotation.into();
 
-            trace!(
+            tracing::trace!(
                 "player with uid {} player.scene_id {} moved to {}",
                 owner_uid.0,
-                scene_bin.my_cur_scene_id,
+                player_scene_bin.my_cur_scene_id,
                 transform
             );
         }

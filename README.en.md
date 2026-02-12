@@ -2,6 +2,8 @@
 
 [English Version](README.en.md) | [中文版本](README.md)
 
+[handbook](handbook.md)
+
 ## Introduction
 
 `nod-krai-gi` is forked from the [mavuika-rs](https://git.xeondev.com/mavuika-rs/mavuika-rs) project. Experimental implementation only.

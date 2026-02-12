@@ -70,6 +70,8 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerD
             ..Default::default()
         }),
         scene_bin: Some(PlayerSceneCompBin {
+            cur_scene_owner_uid: uid,
+            my_prev_scene_id: 3,
             my_cur_scene_id: 3,
             my_prev_pos: Some((2336.789, 249.98996, -751.3081).into()),
             my_prev_rot: Some((0.0, 0.0, 0.0).into()),
@@ -142,6 +144,7 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerD
                     item_type: ItemType::WEAPON as u32,
                     item_id: weapon.id,
                     guid,
+                    owner_guid: 0,
                     detail: Some(item_bin::Detail::Equip(EquipBin {
                         is_locked: false,
                         detail: Some(equip_bin::Detail::Weapon(WeaponBin {
@@ -307,6 +310,7 @@ fn add_avatar_and_weapon(player: &mut PlayerDataBin, avatar: &AvatarExcelConfig)
         item_type: ItemType::WEAPON as u32,
         item_id: avatar.initial_weapon,
         guid: weapon_guid,
+        owner_guid: avatar_guid,
         detail: Some(item_bin::Detail::Equip(EquipBin {
             is_locked: false,
             detail: Some(equip_bin::Detail::Weapon(WeaponBin {

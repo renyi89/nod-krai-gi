@@ -66,12 +66,12 @@ pub fn client_set_game_time(
                     let Some(player_info) = players.get(uid) else {
                         continue;
                     };
-                    let Some(ref basic_bin) = player_info.basic_bin else {
+                    let Some(ref player_basic_bin) = player_info.basic_bin else {
                         continue;
                     };
                     let mut rsp = ClientSetGameTimeRsp::default();
 
-                    if basic_bin.is_game_time_locked {
+                    if player_basic_bin.is_game_time_locked {
                         tracing::debug!("game time is locked, uid: {uid}");
                         rsp.retcode = Retcode::RetPlayerTimeLocked.into();
                     } else {
@@ -120,8 +120,8 @@ pub fn sync_scene_time_on_scene_init_finish(
             },
         );
 
-        let scene_id = if let Some(ref scene_bin) = player_info.scene_bin {
-            scene_bin.my_cur_scene_id
+        let scene_id = if let Some(ref player_scene_bin) = player_info.scene_bin {
+            player_scene_bin.my_cur_scene_id
         } else {
             0
         };

@@ -45,10 +45,10 @@ pub fn notify_scene_team_update(
                     .iter()
                     .sort::<&IndexInSceneTeam>()
                     .filter_map(|(avatar_data, _, is_cur)| {
-                        let Ok(weapon_data) = weapon_query.get(avatar_data.equipment.weapon) else {
+                        let Ok(weapon_data) = weapon_query.get(avatar_data.equipment_weapon.weapon) else {
                             tracing::debug!(
                                 "weapon data {} doesn't exist",
-                                avatar_data.equipment.weapon
+                                avatar_data.equipment_weapon.weapon
                             );
                             return None;
                         };
@@ -68,7 +68,14 @@ pub fn notify_scene_team_update(
                         let Some(player_info) = players.get(avatar_data.owner_player_uid.0) else {
                             return None;
                         };
-                        let Some(ref scene_bin) = player_info.scene_bin else {
+                        let Some(ref player_avatar_bin) = player_info.avatar_bin else {
+                            return None;
+                        };
+                        let Some(ref player_scene_bin) = player_info.scene_bin else {
+                            return None;
+                        };
+                        let Some(avatar_bin) = player_avatar_bin.avatar_map.get(&avatar_data.guid.0) else {
+                            tracing::debug!("avatar guid {} doesn't exist", avatar_data.guid.0);
                             return None;
                         };
                         Some(SceneTeamAvatar {
@@ -81,7 +88,7 @@ pub fn notify_scene_team_update(
                             weapon_entity_id: weapon_data.entity_id.0,
                             avatar_info: None,
                             scene_avatar_info: None,
-                            scene_id: scene_bin.my_cur_scene_id,
+                            scene_id: player_scene_bin.my_cur_scene_id,
                             player_uid: avatar_data.owner_player_uid.0,
                             server_buff_list: Vec::with_capacity(0),
                             ability_control_block: Some(avatar_data.ability.build_control_block()),
@@ -92,8 +99,8 @@ pub fn notify_scene_team_update(
                                 entity_id: avatar_data.entity_id.0,
                                 name: String::with_capacity(0),
                                 motion_info: Some(MotionInfo {
-                                    pos: Some(scene_bin.my_prev_pos.unwrap_or_default().into()),
-                                    rot: Some(scene_bin.my_prev_rot.unwrap_or_default().into()),
+                                    pos: Some(player_scene_bin.my_prev_pos.unwrap_or_default().into()),
+                                    rot: Some(player_scene_bin.my_prev_rot.unwrap_or_default().into()),
                                     speed: Some(Vector::default()),
                                     ..Default::default()
                                 }),
@@ -160,7 +167,7 @@ pub fn notify_scene_team_update(
                                         ),
                                         ..Default::default()
                                     }),
-                                    reliquary_list: Vec::with_capacity(0),
+                                    reliquary_list: avatar_bin.get_scene_reliquary_info_list(),
                                     inherent_proud_skill_list: avatar_data
                                         .inherent_proud_skill_list
                                         .0

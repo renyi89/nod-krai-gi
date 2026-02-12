@@ -4,10 +4,10 @@ use nod_krai_gi_data::excel::reliquary_excel_config_collection;
 use nod_krai_gi_entity::avatar::AvatarEquipChangeEvent;
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
 use nod_krai_gi_persistence::Players;
-use nod_krai_gi_proto::normal::{WearEquipReq, WearEquipRsp};
+use nod_krai_gi_proto::normal::{TakeoffEquipReq, TakeoffEquipRsp, WearEquipReq, WearEquipRsp};
 use nod_krai_gi_proto::retcode::Retcode;
 use nod_krai_gi_proto::server_only::item_bin;
-use tracing::{debug, instrument};
+use tracing::{debug, instrument, warn};
 
 #[instrument(skip_all)]
 pub fn change_avatar_equip(
@@ -23,71 +23,138 @@ pub fn change_avatar_equip(
                     let Some(player_info) = players.get_mut(message.sender_uid()) else {
                         continue;
                     };
-                    let Some(ref item_bin) = player_info.item_bin else {
-                        continue;
-                    };
-                    if !item_bin
-                        .get_item(&request.equip_guid)
-                        .map(|item| {
-                            let Some(item_bin::Detail::Equip(ref _equip)) = item.detail else {
-                                return false;
-                            };
-                            true
-                        })
-                        .unwrap_or(false)
-                    {
-                        debug!("equip with guid {} doesn't exist", request.equip_guid);
-                        continue;
-                    }
 
-                    let Some(ref mut avatar_bin) = player_info.avatar_bin else {
+                    let Some(ref mut player_avatar_bin) = player_info.avatar_bin else {
                         continue;
                     };
 
-                    let Some(ref mut item_bin) = player_info.item_bin else {
-                        continue;
-                    };
-
-                    let Some(avatar) = avatar_bin.avatar_map.get_mut(&request.avatar_guid) else {
+                    let Some(wear_avatar_bin) =
+                        player_avatar_bin.avatar_map.get_mut(&request.avatar_guid)
+                    else {
                         debug!("avatar with guid {} doesn't exist", request.avatar_guid);
                         continue;
                     };
 
-                    let Some(item_bin) = item_bin.get_item(&request.equip_guid) else {
-                        debug!("avatar with guid {} doesn't exist", request.avatar_guid);
+                    let Some(ref mut player_item_bin) = player_info.item_bin else {
                         continue;
                     };
 
-                    if item_bin.item_type == ItemType::WEAPON as u32 {
-                        avatar
-                            .equip_map
-                            .insert(EquipType::Weapon as u32, item_bin.clone());
+                    let Some(mut wear_item_bin) =
+                        player_item_bin.get_item(&request.equip_guid).cloned()
+                    else {
+                        debug!("item with guid {} doesn't exist", request.equip_guid);
+                        continue;
+                    };
+
+                    let Some(item_bin::Detail::Equip(ref _equip)) = wear_item_bin.detail else {
+                        debug!("item with guid {} is not equip", request.equip_guid);
+                        continue;
+                    };
+
+                    let wear_equip_type;
+
+                    if wear_item_bin.item_type == ItemType::WEAPON as u32 {
+                        wear_equip_type = EquipType::Weapon;
                     } else {
                         let reliquary_excel_config_collection_clone =
                             std::sync::Arc::clone(reliquary_excel_config_collection::get());
 
-                        match reliquary_excel_config_collection_clone.get(&item_bin.item_id) {
+                        match reliquary_excel_config_collection_clone.get(&wear_item_bin.item_id) {
                             None => {
-                                debug!("reliquary excel {} doesn't exist", item_bin.item_id);
+                                debug!("reliquary excel {} doesn't exist", wear_item_bin.item_id);
                                 continue;
                             }
                             Some(reliquary_config) => {
-                                if reliquary_config.equip_type != EquipType::None {
-                                    avatar.equip_map.insert(
-                                        reliquary_config.equip_type.clone() as u32,
-                                        item_bin.clone(),
-                                    );
-                                } else {
-                                    continue;
-                                }
+                                wear_equip_type = reliquary_config.equip_type.clone()
                             }
                         }
+                    }
+
+                    let replace_avatar_guid;
+
+                    if wear_equip_type != EquipType::None {
+                        if wear_item_bin.owner_guid == request.avatar_guid {
+                            warn!(
+                                "wear_item_bin.owner_guid == request.avatar_guid:{}",
+                                request.avatar_guid
+                            );
+                            wear_item_bin.owner_guid = 0;
+                            player_item_bin.add_item(wear_item_bin.guid, wear_item_bin.clone());
+                            continue;
+                        }
+
+                        replace_avatar_guid = wear_item_bin.owner_guid;
+
+                        wear_item_bin.owner_guid = request.avatar_guid;
+                        let replace_item_bin = wear_avatar_bin
+                            .equip_map
+                            .insert(wear_equip_type.clone() as u32, wear_item_bin.clone());
+                        player_item_bin.add_item(wear_item_bin.guid, wear_item_bin.clone());
+
+                        if replace_avatar_guid == 0 {
+                            match replace_item_bin {
+                                None => {}
+                                Some(mut replace_item_bin) => {
+                                    replace_item_bin.owner_guid = 0;
+                                    player_item_bin
+                                        .add_item(replace_item_bin.guid, replace_item_bin.clone());
+                                }
+                            }
+                        } else {
+                            match player_avatar_bin.avatar_map.get_mut(&replace_avatar_guid) {
+                                None => {
+                                    debug!(
+                                        "avatar with guid {} doesn't exist",
+                                        replace_avatar_guid
+                                    );
+                                    match replace_item_bin {
+                                        None => {}
+                                        Some(mut replace_item_bin) => {
+                                            replace_item_bin.owner_guid = 0;
+                                            player_item_bin.add_item(
+                                                replace_item_bin.guid,
+                                                replace_item_bin.clone(),
+                                            );
+                                        }
+                                    }
+                                }
+                                Some(other_avatar_bin) => match replace_item_bin {
+                                    None => {
+                                        other_avatar_bin
+                                            .equip_map
+                                            .remove(&(wear_equip_type.clone() as u32));
+                                    }
+                                    Some(mut replace_item_bin) => {
+                                        replace_item_bin.owner_guid = replace_avatar_guid;
+                                        other_avatar_bin.equip_map.insert(
+                                            wear_equip_type.clone() as u32,
+                                            replace_item_bin.clone(),
+                                        );
+                                        player_item_bin.add_item(
+                                            replace_item_bin.guid,
+                                            replace_item_bin.clone(),
+                                        );
+                                    }
+                                },
+                            }
+                        }
+                    } else {
+                        continue;
                     }
 
                     equip_change_events.write(AvatarEquipChangeEvent {
                         player_uid: message.sender_uid(),
                         avatar_guid: request.avatar_guid,
+                        equip_type: wear_equip_type.clone(),
                     });
+
+                    if replace_avatar_guid != 0 {
+                        equip_change_events.write(AvatarEquipChangeEvent {
+                            player_uid: message.sender_uid(),
+                            avatar_guid: replace_avatar_guid,
+                            equip_type: wear_equip_type.clone(),
+                        });
+                    }
 
                     message_output.send(
                         message.sender_uid(),
@@ -96,6 +163,61 @@ pub fn change_avatar_equip(
                             retcode: Retcode::RetSucc.into(),
                             avatar_guid: request.avatar_guid,
                             equip_guid: request.equip_guid,
+                        },
+                    );
+                }
+            }
+            "TakeoffEquipReq" => {
+                if let Some(request) = message.decode::<TakeoffEquipReq>() {
+                    let take_off_equip_type = EquipType::from(request.slot);
+                    if take_off_equip_type == EquipType::None {
+                        continue;
+                    }
+
+                    let Some(player_info) = players.get_mut(message.sender_uid()) else {
+                        continue;
+                    };
+
+                    let Some(ref mut player_avatar_bin) = player_info.avatar_bin else {
+                        continue;
+                    };
+
+                    let Some(take_off_avatar_bin) =
+                        player_avatar_bin.avatar_map.get_mut(&request.avatar_guid)
+                    else {
+                        debug!("avatar with guid {} doesn't exist", request.avatar_guid);
+                        continue;
+                    };
+
+                    let Some(ref mut player_item_bin) = player_info.item_bin else {
+                        continue;
+                    };
+
+                    let take_off_item_bin = take_off_avatar_bin
+                        .equip_map
+                        .remove(&(take_off_equip_type.clone() as u32));
+
+                    match take_off_item_bin {
+                        None => {}
+                        Some(mut take_off_item_bin) => {
+                            take_off_item_bin.owner_guid = 0;
+                            player_item_bin.add_item(take_off_item_bin.guid, take_off_item_bin);
+                        }
+                    }
+
+                    equip_change_events.write(AvatarEquipChangeEvent {
+                        player_uid: message.sender_uid(),
+                        avatar_guid: request.avatar_guid,
+                        equip_type: take_off_equip_type,
+                    });
+
+                    message_output.send(
+                        message.sender_uid(),
+                        "TakeoffEquipRsp",
+                        TakeoffEquipRsp {
+                            retcode: Retcode::RetSucc.into(),
+                            avatar_guid: request.avatar_guid,
+                            slot: request.slot,
                         },
                     );
                 }

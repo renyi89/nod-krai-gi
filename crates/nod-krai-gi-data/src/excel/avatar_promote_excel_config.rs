@@ -1,4 +1,4 @@
-use super::common::{IdCountConfig, PropValConfig};
+use super::common::{IdCountConfig, AddProp};
 use std::collections::HashMap;
 use common::string_util::InternString;
 
@@ -11,7 +11,7 @@ pub struct AvatarPromoteExcelConfig {
     pub scoin_cost: u32,
     pub cost_items: Vec<IdCountConfig>,
     pub unlock_max_level: u32,
-    pub add_props: Vec<PropValConfig>,
+    pub add_props: Vec<AddProp>,
     pub required_player_level: u32,
 }
 

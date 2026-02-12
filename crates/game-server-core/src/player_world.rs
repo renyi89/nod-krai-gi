@@ -131,8 +131,8 @@ impl PlayerWorld {
         let Some(player_info) = players.get(uid) else {
             return false;
         };
-        let scene_id = if let Some(ref scene_bin) = player_info.scene_bin {
-            scene_bin.my_cur_scene_id
+        let scene_id = if let Some(ref player_scene_bin) = player_info.scene_bin {
+            player_scene_bin.my_cur_scene_id
         } else {
             return false;
         };
