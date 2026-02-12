@@ -17,5 +17,5 @@ item add <id> [p k,v;k,v] [lv \<num\>]
 
 grasscutter -> /give 39534 lv20 10002 989001,3 998001,6
 
-nod-krai-gi -> item add 39534 lv20 m 10002 p 989001,3;998001,6
+nod-krai-gi -> item add 39534 lv 20 m 10002 p 989001,3;998001,6
 

@@ -141,7 +141,11 @@ pub fn notify_scene_team_update(
                                     avatar_id: avatar_data.avatar_id.0,
                                     guid: avatar_data.guid.0,
                                     peer_id: avatar_data.control_peer.0,
-                                    equip_id_list: vec![weapon_data.weapon_id.0],
+                                    equip_id_list: avatar_bin
+                                        .equip_map
+                                        .iter()
+                                        .map(|(_, item)| item.item_id)
+                                        .collect(),
                                     skill_depot_id: avatar_data.skill_depot.0,
                                     talent_id_list: if avatar_data.core_proud_skill_level.0 as usize
                                         > skill_depot_data.talents.len()

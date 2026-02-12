@@ -25,7 +25,6 @@ use nod_krai_gi_proto::server_only::{
     equip_bin, item_bin, AvatarBin, ItemBin, VectorBin, WeaponBin,
 };
 
-
 #[derive(Component)]
 pub struct EquipmentWeapon {
     pub weapon: Entity,
@@ -292,15 +291,7 @@ pub fn notify_appear_avatar_entities(
             SceneEntityAppearNotify {
                 appear_type: VisionType::VisionTransport.into(),
                 param: 0,
-                entity_list: vec![SceneEntityInfo {
-                    motion_info: Some(MotionInfo {
-                        pos: Some(avatar_data.transform.position.into()),
-                        rot: Some(avatar_data.transform.rotation.into()),
-                        speed: Some(Vector::default()),
-                        ..Default::default()
-                    }),
-                    ..scene_entity_info
-                }],
+                entity_list: vec![scene_entity_info],
             },
         );
     });
@@ -338,7 +329,9 @@ pub fn notify_appear_replace_avatar_entities(
             return;
         };
 
-        let Some(scene_entity_info) = build_avatar_entity_info(&avatar_bin,&avatar_data, &weapon_data) else {
+        let Some(scene_entity_info) =
+            build_avatar_entity_info(&avatar_bin, &avatar_data, &weapon_data)
+        else {
             return;
         };
 
@@ -347,15 +340,7 @@ pub fn notify_appear_replace_avatar_entities(
             SceneEntityAppearNotify {
                 appear_type: VisionType::VisionReplace.into(),
                 param: param.0,
-                entity_list: vec![SceneEntityInfo {
-                    motion_info: Some(MotionInfo {
-                        pos: Some(avatar_data.transform.position.into()),
-                        rot: Some(avatar_data.transform.rotation.into()),
-                        speed: Some(Vector::default()),
-                        ..Default::default()
-                    }),
-                    ..scene_entity_info
-                }],
+                entity_list: vec![scene_entity_info],
             },
         );
     });
@@ -367,7 +352,10 @@ pub fn run_if_avatar_entities_appeared(
     !appear_avatars.is_empty()
 }
 
-fn build_fake_avatar_entity_info(avatar: &AvatarBin, weapon: &ItemBin) -> Option<SceneEntityInfo> {
+fn build_fake_avatar_entity_info(
+    avatar_bin: &AvatarBin,
+    weapon: &ItemBin,
+) -> Option<SceneEntityInfo> {
     use nod_krai_gi_proto::normal::*;
 
     let weapon_id = weapon.item_id;
@@ -386,13 +374,13 @@ fn build_fake_avatar_entity_info(avatar: &AvatarBin, weapon: &ItemBin) -> Option
         ..
     } = weapon;
 
-    let Some(skill_depot) = avatar.depot_map.get(&avatar.skill_depot_id) else {
+    let Some(skill_depot) = avatar_bin.depot_map.get(&avatar_bin.skill_depot_id) else {
         tracing::debug!("skill_depot bin {} doesn't exist", weapon_id);
         return None;
     };
 
-    let Some(weapon_item_bin) = avatar.equip_map.get(&(EquipType::Weapon as u32)) else {
-        tracing::debug!("weapon doesn't exist {}", avatar.guid);
+    let Some(weapon_item_bin) = avatar_bin.equip_map.get(&(EquipType::Weapon as u32)) else {
+        tracing::debug!("weapon doesn't exist {}", avatar_bin.guid);
         return None;
     };
 
@@ -400,11 +388,15 @@ fn build_fake_avatar_entity_info(avatar: &AvatarBin, weapon: &ItemBin) -> Option
         entity_type: ProtEntityType::ProtEntityAvatar.into(),
         entity_id: 0,
         entity: Some(scene_entity_info::Entity::Avatar(SceneAvatarInfo {
-            uid: (avatar.guid >> 32) as u32,
-            avatar_id: avatar.avatar_id,
-            guid: avatar.guid,
-            equip_id_list: vec![weapon_id],
-            skill_depot_id: avatar.skill_depot_id,
+            uid: (avatar_bin.guid >> 32) as u32,
+            avatar_id: avatar_bin.avatar_id,
+            guid: avatar_bin.guid,
+            equip_id_list: avatar_bin
+                .equip_map
+                .iter()
+                .map(|(_, item)| item.item_id)
+                .collect(),
+            skill_depot_id: avatar_bin.skill_depot_id,
             talent_id_list: skill_depot.talent_id_list.clone(),
             weapon: Some(SceneWeaponInfo {
                 guid: weapon_item_bin.guid,
@@ -414,17 +406,17 @@ fn build_fake_avatar_entity_info(avatar: &AvatarBin, weapon: &ItemBin) -> Option
                 affix_map: affix_map.clone(),
                 ..Default::default()
             }),
-            reliquary_list: avatar.get_scene_reliquary_info_list(),
+            reliquary_list: avatar_bin.get_scene_reliquary_info_list(),
             core_proud_skill_level: skill_depot.core_proud_skill_level,
             inherent_proud_skill_list: skill_depot.inherent_proud_skill_list.clone(),
             skill_level_map: skill_depot.skill_level_map.clone(),
             proud_skill_extra_level_map: HashMap::with_capacity(0),
             server_buff_list: Vec::with_capacity(0),
             team_resonance_list: Vec::with_capacity(0),
-            wearing_flycloak_id: avatar.wearing_flycloak_id,
-            born_time: avatar.born_time,
-            costume_id: avatar.costume_id,
-            trace_effect_id: avatar.trace_effect_id,
+            wearing_flycloak_id: avatar_bin.wearing_flycloak_id,
+            born_time: avatar_bin.born_time,
+            costume_id: avatar_bin.costume_id,
+            trace_effect_id: avatar_bin.trace_effect_id,
             cur_vehicle_info: None,
             excel_info: Some(AvatarExcelInfo::default()),
             anim_hash: 0,
@@ -502,7 +494,11 @@ pub fn build_avatar_entity_info(
             avatar_id: avatar_data.avatar_id.0,
             guid: avatar_data.guid.0,
             peer_id: avatar_data.control_peer.0,
-            equip_id_list: vec![weapon_data.weapon_id.0],
+            equip_id_list: avatar_bin
+                .equip_map
+                .iter()
+                .map(|(_, item)| item.item_id)
+                .collect(),
             skill_depot_id: avatar_data.skill_depot.0,
             talent_id_list: if avatar_data.core_proud_skill_level.0 as usize
                 > skill_depot_data.talents.len()
@@ -630,8 +626,7 @@ pub fn spawn_avatar_entity(
         })
         .id();
 
-    let fight_properties =
-        create_fight_props_with_equip(avatar_bin, avatar_config);
+    let fight_properties = create_fight_props_with_equip(avatar_bin, avatar_config);
 
     let avatar_entity = commands.spawn(AvatarBundle {
         avatar_id: AvatarID(avatar_bin.avatar_id),

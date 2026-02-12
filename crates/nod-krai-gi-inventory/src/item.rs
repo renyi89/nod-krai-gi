@@ -152,8 +152,8 @@ pub fn item_command_handler(
                                 detail: Some(item_bin::Detail::Equip(EquipBin {
                                     is_locked: false,
                                     detail: Some(equip_bin::Detail::Reliquary(ReliquaryBin {
-                                        level: level.unwrap_or(1),
-                                        exp: 0,
+                                        level: (level.unwrap_or(0) + 1).clamp(1, 21),
+                                        exp: 1,
                                         main_prop_id: main_prop_id.unwrap_or(0),
                                         append_prop_id_list: expand_map_to_vec(append_prop_id_list),
                                     })),
@@ -235,7 +235,7 @@ pub fn update_player_store(
 fn expand_map_to_vec(map: &HashMap<u32, u32>) -> Vec<u32> {
     let mut v = Vec::new();
     for (k, count) in map {
-        for _ in 0..u32::min(u32::max(*count, 1), 10) {
+        for _ in 0..(*count).clamp(0, 5) {
             v.push(*k);
         }
     }

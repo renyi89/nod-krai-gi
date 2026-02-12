@@ -235,7 +235,8 @@ impl FightProperties {
             std::sync::Arc::clone(monster_curve_excel_config_collection::get());
         let curve_info = match config_type {
             GrowCurveConfigType::Avatar => {
-                let Some(avatar_curve_config) = avatar_curve_excel_config_collection_clone.get(&level)
+                let Some(avatar_curve_config) =
+                    avatar_curve_excel_config_collection_clone.get(&level)
                 else {
                     tracing::debug!("avatar curve config {} doesn't exist", level);
                     return;
@@ -492,7 +493,10 @@ pub fn add_fight_props_from_weapon(props: &mut FightProperties, avatar_bin: &Ava
     }
 
     if !is_add_weapon {
-        tracing::warn!("avatar no weapon avatar_bin.equip_map:{:#?}", avatar_bin.equip_map);
+        tracing::warn!(
+            "avatar no weapon avatar_bin.equip_map:{:#?}",
+            avatar_bin.equip_map
+        );
     }
 }
 
@@ -544,7 +548,7 @@ pub fn add_fight_props_from_reliquary(props: &mut FightProperties, avatar_bin: &
         };
 
         let Some(reliquary_level_config) = reliquary_level_excel_config_collection_clone
-            .get(&(reliquary_config.rank << 8 + (reliquary.level + 1)))
+            .get(&(reliquary_config.rank << 8 + reliquary.level))
         else {
             tracing::debug!(
                 "reliquary level config {} {} doesn't exist",
