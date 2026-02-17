@@ -18,7 +18,7 @@ pub struct OpenStateCond {
     pub param_2: u32,
 }
 
-#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum OpenStateCondType {
     #[serde(alias = "OPEN_STATE_COND_NONE")]
     #[default]

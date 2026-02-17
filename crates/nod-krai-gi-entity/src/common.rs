@@ -23,6 +23,13 @@ use nod_krai_gi_proto::normal::ProtEntityType;
 use nod_krai_gi_proto::server_only::{equip_bin, item_bin, AvatarBin};
 
 #[derive(Component)]
+pub struct BlockId(pub u32);
+#[derive(Component)]
+pub struct GroupId(pub u32);
+#[derive(Component)]
+pub struct ConfigId(pub u32);
+
+#[derive(Component)]
 pub struct Level(pub u32);
 
 #[derive(Component)]

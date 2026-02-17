@@ -121,3 +121,6 @@ pub struct ScenePlayerJumpEvent(pub u32, pub u32, pub EnterReason, pub (f32, f32
 
 #[derive(Message)]
 pub struct ScenePlayerJumpByPointEvent(pub u32, pub u32, pub u32);
+
+#[derive(Message)]
+pub struct ScenePlayerEnterDungeonEvent(pub u32, pub u32);

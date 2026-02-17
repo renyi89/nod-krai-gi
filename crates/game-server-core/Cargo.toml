@@ -43,3 +43,4 @@ nod-krai-gi-luashell.workspace = true
 nod-krai-gi-data.workspace = true
 nod-krai-gi-proto.workspace = true
 nod-krai-gi-event.workspace = true
+nod-krai-gi-script.workspace = true

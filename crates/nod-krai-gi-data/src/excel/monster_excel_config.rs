@@ -1,6 +1,6 @@
-use super::common::PropGrowCurve;
-use std::collections::HashMap;
+use super::common::{PropGrowCurve, VisionLevelType};
 use common::string_util::InternString;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -9,7 +9,7 @@ pub struct HpDropConfig {
     pub hp_percent: f32,
 }
 
-#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum MonsterType {
     #[serde(alias = "MONSTER_NONE")]
     #[default]
@@ -28,22 +28,7 @@ pub enum MonsterType {
     PARTNER,
 }
 
-#[derive(Debug, Default, Clone, serde::Deserialize)]
-pub enum VisionLevelType {
-    #[serde(alias = "VISION_LEVEL_NORMAL")]
-    #[default]
-    Normal,
-    #[serde(alias = "VISION_LEVEL_LITTLE_REMOTE")]
-    LittleRemote,
-    #[serde(alias = "VISION_LEVEL_REMOTE")]
-    Remote,
-    #[serde(alias = "VISION_LEVEL_SUPER")]
-    Super,
-    #[serde(alias = "VISION_LEVEL_NEARBY")]
-    Nearby,
-    #[serde(alias = "VISION_LEVEL_SUPER_NEARBY")]
-    SuperNearby,
-}
+
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -88,7 +73,7 @@ impl MonsterExcelConfigKeyed<u32> for MonsterExcelConfig {
     }
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, MonsterExcelConfig> {
-        let json =  std::fs::read(&format!(
+        let json = std::fs::read(&format!(
             "{excel_bin_output_path}/MonsterExcelConfigData.json"
         ))
         .unwrap();

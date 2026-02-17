@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum DungeonSubType {
     #[default]
     #[serde(alias = "DUNGEON_SUB_NONE")]
@@ -17,7 +17,7 @@ pub enum DungeonSubType {
     DungeonSubLeyLineChallenge,
 }
 
-#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum DungeonPlayType {
     #[default]
     #[serde(alias = "DUNGEON_PLAY_TYPE_NONE")]
@@ -30,7 +30,7 @@ pub enum DungeonPlayType {
     DungeonPlayTypeTrialAvatar,
 }
 
-#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum DungeonInvolveType {
     #[default]
     #[serde(alias = "INVOLVE_NONE")]
@@ -41,7 +41,7 @@ pub enum DungeonInvolveType {
     InvolveSingleMultiple,
 }
 
-#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum SettleShowType {
     #[default]
     #[serde(alias = "SETTLE_SHOW_NONE")]

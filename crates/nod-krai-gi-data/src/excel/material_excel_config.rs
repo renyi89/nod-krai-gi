@@ -2,7 +2,7 @@ use super::common::{ItemType, MaterialType};
 use common::string_util::InternString;
 use std::collections::HashMap;
 
-#[derive(Default, Clone, serde::Deserialize, Debug, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum ItemUseTarget {
     #[serde(alias = "ITEM_USE_TARGET_NONE")]
     #[default]
@@ -21,7 +21,7 @@ pub enum ItemUseTarget {
     PlayerAvatar,
 }
 
-#[derive(Default, Clone, serde::Deserialize, Debug)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum ItemUseOp {
     #[serde(alias = "ITEM_USE_ACCEPT_QUEST")]
     AcceptQuest,

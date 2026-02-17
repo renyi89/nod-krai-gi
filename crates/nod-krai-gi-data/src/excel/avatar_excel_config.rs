@@ -2,7 +2,7 @@ use super::common::{PropGrowCurve, WeaponType};
 use std::collections::HashMap;
 use common::string_util::InternString;
 
-#[derive(Debug, PartialEq, Default, Clone, serde::Deserialize)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum AvatarUseType {
     #[default]
     #[serde(alias = "AVATAR_TEST")]
@@ -15,7 +15,7 @@ pub enum AvatarUseType {
     Abandon,
 }
 
-#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum AvatarBodyType {
     #[default]
     None,
@@ -31,7 +31,7 @@ pub enum AvatarBodyType {
     Loli,
 }
 
-#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum QualityType {
     #[default]
     #[serde(alias = "QUALITY_NONE")]
@@ -50,7 +50,7 @@ pub enum QualityType {
     OrangeSp,
 }
 
-#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum AvatarIdentityType {
     #[default]
     #[serde(alias = "AVATAR_IDENTITY_MASTER")]

@@ -24,6 +24,7 @@ use nod_krai_gi_proto::server_only::PlayerDataBin;
 use nod_krai_gi_proto::Protobuf;
 use nod_krai_gi_quest::QuestPlugin;
 use nod_krai_gi_scene::{common::WorldOwnerUID, ScenePlugin};
+use nod_krai_gi_script::ScriptPlugin;
 use nod_krai_gi_social::SocialPlugin;
 use nod_krai_gi_time::TimePlugin;
 
@@ -53,7 +54,8 @@ impl PlayerWorld {
             .add_plugins(TimePlugin)
             .add_plugins(CommandPlugin)
             .add_plugins(MapPlugin)
-            .add_plugins(LuaShellPlugin);
+            .add_plugins(LuaShellPlugin)
+            .add_plugins(ScriptPlugin);
 
         if GAME_SERVER_CONFIG.plugin.ability {
             app.add_plugins(AbilityPlugin);

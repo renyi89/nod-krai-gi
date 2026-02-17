@@ -16,15 +16,7 @@ use nod_krai_gi_proto::normal::{
 use nod_krai_gi_proto::retcode::Retcode;
 use std::default::Default;
 use std::sync::Arc;
-
-#[repr(u32)]
-pub enum QuestState {
-    QuestStateNone = 0,
-    QuestStateUnstarted = 1,
-    QuestStateUnfinished = 2,
-    QuestStateFinished = 3,
-    QuestStateFailed = 4,
-}
+use nod_krai_gi_data::excel::common::QuestState;
 
 pub struct QuestPlugin;
 
@@ -195,7 +187,7 @@ pub fn quest_begin(
                     nod_krai_gi_proto::server_only::QuestBin {
                         parent_quest_id: sub_quest_data.main_id,
                         quest_id: *sub_quest_id,
-                        state: QuestState::QuestStateFinished as u32,
+                        state: QuestState::Unfinished as u32,
                         start_time: unix_timestamp() as u32,
                         accept_time: unix_timestamp() as u32,
                         finish_progress_list: {
@@ -247,7 +239,7 @@ pub fn quest_finish(
                     nod_krai_gi_proto::server_only::QuestBin {
                         parent_quest_id: sub_quest_data.main_id,
                         quest_id: *sub_quest_id,
-                        state: QuestState::QuestStateFinished as u32,
+                        state: QuestState::Finished as u32,
                         start_time: unix_timestamp() as u32,
                         accept_time: unix_timestamp() as u32,
                         finish_progress_list: {

@@ -2,6 +2,7 @@ use crate::net::udp_server::ConnectionManager;
 use anyhow::Result;
 use common::data::{EncryptionConfig, RegionConfig};
 use common::logging;
+use common::player_cache::init_player_cache;
 use dashmap::DashMap;
 use db_worker::DbWorkerHandle;
 use game_server_core::LogicSimulator;
@@ -10,6 +11,7 @@ use nod_krai_gi_data::ability::load_ability_configs_from_bin;
 use nod_krai_gi_data::config::load_avatar_talent_configs_from_bin;
 use nod_krai_gi_data::quest::quest_config::load_quest_configs_from_bin;
 use nod_krai_gi_data::scene::scene_point_config::load_scene_point_configs_from_bin;
+use nod_krai_gi_data::scene::script_cache::init_scene_static_templates;
 use nod_krai_gi_data::{
     config::load_avatar_configs_from_bin, config::load_gadget_configs_from_bin, excel,
     GAME_SERVER_CONFIG,
@@ -21,7 +23,6 @@ use std::fs;
 use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, OnceLock};
 use tokio::net::UdpSocket;
-use common::player_cache::init_player_cache;
 
 mod db_worker;
 mod player_info_util;
@@ -56,6 +57,11 @@ async fn main() -> Result<()> {
         .set(Arc::new(DashMap::new()))
         .expect("TODO: panic message");
     static STATE: OnceLock<AppState> = OnceLock::new();
+
+    tokio::spawn(async {
+        init_scene_static_templates("assets/lua/scene");
+        tracing::info!("init_scene_static_templates end");
+    });
 
     if GAME_SERVER_CONFIG.plugin.ability {
         tokio::spawn(async {

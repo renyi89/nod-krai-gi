@@ -291,7 +291,7 @@ pub struct AbilityModifierProperty {
     pub actor_healed_add_delta: Option<DynamicFloat>,
 }
 
-#[derive(Default, Clone, serde::Deserialize, Debug)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum AbilityTargettingEnum {
     #[default]
     #[serde(alias = "Self")]

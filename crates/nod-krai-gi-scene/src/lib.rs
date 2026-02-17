@@ -50,6 +50,7 @@ impl Plugin for ScenePlugin {
             .add_systems(Update, player_join_team::player_join_team)
             .add_systems(Update, player_jump::player_jump)
             .add_systems(Update, player_jump::player_jump_by_point)
+            .add_systems(Update, player_jump::player_enter_dungeon)
             .add_systems(
                 PostUpdate,
                 (

@@ -65,7 +65,7 @@ pub fn change_avatar_equip(
                                 continue;
                             }
                             Some(reliquary_config) => {
-                                wear_equip_type = reliquary_config.equip_type.clone()
+                                wear_equip_type = reliquary_config.equip_type
                             }
                         }
                     }
@@ -88,7 +88,7 @@ pub fn change_avatar_equip(
                         wear_item_bin.owner_guid = request.avatar_guid;
                         let replace_item_bin = wear_avatar_bin
                             .equip_map
-                            .insert(wear_equip_type.clone() as u32, wear_item_bin.clone());
+                            .insert(wear_equip_type as u32, wear_item_bin.clone());
                         player_item_bin.add_item(wear_item_bin.guid, wear_item_bin.clone());
 
                         if replace_avatar_guid == 0 {
@@ -122,12 +122,12 @@ pub fn change_avatar_equip(
                                     None => {
                                         other_avatar_bin
                                             .equip_map
-                                            .remove(&(wear_equip_type.clone() as u32));
+                                            .remove(&(wear_equip_type as u32));
                                     }
                                     Some(mut replace_item_bin) => {
                                         replace_item_bin.owner_guid = replace_avatar_guid;
                                         other_avatar_bin.equip_map.insert(
-                                            wear_equip_type.clone() as u32,
+                                            wear_equip_type as u32,
                                             replace_item_bin.clone(),
                                         );
                                         player_item_bin.add_item(
@@ -145,14 +145,14 @@ pub fn change_avatar_equip(
                     equip_change_events.write(AvatarEquipChangeEvent {
                         player_uid: message.sender_uid(),
                         avatar_guid: request.avatar_guid,
-                        equip_type: wear_equip_type.clone(),
+                        equip_type: wear_equip_type,
                     });
 
                     if replace_avatar_guid != 0 {
                         equip_change_events.write(AvatarEquipChangeEvent {
                             player_uid: message.sender_uid(),
                             avatar_guid: replace_avatar_guid,
-                            equip_type: wear_equip_type.clone(),
+                            equip_type: wear_equip_type,
                         });
                     }
 
@@ -195,7 +195,7 @@ pub fn change_avatar_equip(
 
                     let take_off_item_bin = take_off_avatar_bin
                         .equip_map
-                        .remove(&(take_off_equip_type.clone() as u32));
+                        .remove(&(take_off_equip_type as u32));
 
                     match take_off_item_bin {
                         None => {}

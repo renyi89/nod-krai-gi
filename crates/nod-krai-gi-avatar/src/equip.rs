@@ -87,7 +87,7 @@ pub fn apply_equip_change_to_avatar_entity(
 
         let Some(equip_item_bin) = avatar_bin
             .equip_map
-            .get(&(avatar_equip_change.equip_type.clone() as u32))
+            .get(&(avatar_equip_change.equip_type as u32))
         else {
             message_output.send_to_all(
                 "AvatarEquipChangeNotify",
@@ -95,7 +95,7 @@ pub fn apply_equip_change_to_avatar_entity(
                     avatar_guid: avatar_equip_change.avatar_guid,
                     equip_guid: 0,
                     item_id: 0,
-                    equip_type: avatar_equip_change.equip_type.clone() as u32,
+                    equip_type: avatar_equip_change.equip_type as u32,
                     weapon: None,
                     reliquary: None,
                 },
@@ -124,7 +124,7 @@ pub fn apply_equip_change_to_avatar_entity(
                         avatar_guid: avatar_equip_change.avatar_guid,
                         equip_guid: equip_item_bin.guid,
                         item_id: equip_item_bin.item_id,
-                        equip_type: avatar_equip_change.equip_type.clone() as u32,
+                        equip_type: avatar_equip_change.equip_type as u32,
                         weapon: None,
                         reliquary: Some(SceneReliquaryInfo {
                             guid: equip_item_bin.guid,
@@ -177,7 +177,7 @@ pub fn apply_equip_change_to_avatar_entity(
                         avatar_guid: avatar_equip_change.avatar_guid,
                         equip_guid: equip_item_bin.guid,
                         item_id: equip_item_bin.item_id,
-                        equip_type: avatar_equip_change.equip_type.clone() as u32,
+                        equip_type: avatar_equip_change.equip_type as u32,
                         weapon: Some(SceneWeaponInfo {
                             guid: equip_item_bin.guid,
                             entity_id: entity_id,

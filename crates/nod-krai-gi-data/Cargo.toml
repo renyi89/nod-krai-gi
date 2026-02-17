@@ -9,5 +9,7 @@ serde.workspace = true
 serde_json.workspace = true
 indexmap.workspace = true
 rayon.workspace = true
+dashmap.workspace = true
+mlua.workspace = true
 
 common.workspace = true

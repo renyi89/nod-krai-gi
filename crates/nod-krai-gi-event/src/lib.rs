@@ -2,6 +2,7 @@ pub mod ability;
 pub mod combat;
 pub mod command;
 pub mod inventory;
+pub mod lua;
 pub mod luashell;
 pub mod quest;
 pub mod scene;
@@ -12,6 +13,7 @@ use crate::ability::*;
 use crate::combat::*;
 use crate::command::*;
 use crate::inventory::*;
+use crate::lua::*;
 use crate::luashell::*;
 use crate::quest::*;
 use crate::scene::*;
@@ -30,6 +32,10 @@ impl Plugin for EventRegistryPlugin {
             .add_message::<CommandItemEvent>()
             //
             .add_message::<StoreItemChangeEvent>()
+            //lua
+            .add_message::<LuaTriggerEvent>()
+            .add_message::<SpawnGroupEntityEvent>()
+            .add_message::<DespawnGroupEntityEvent>()
             //quest
             .add_message::<QuestBeginEvent>()
             .add_message::<QuestFinishEvent>()
@@ -45,6 +51,7 @@ impl Plugin for EventRegistryPlugin {
             .add_message::<PlayerAvatarTeamChanged>()
             .add_message::<ScenePlayerJumpEvent>()
             .add_message::<ScenePlayerJumpByPointEvent>()
+            .add_message::<ScenePlayerEnterDungeonEvent>()
             //luashell
             .add_message::<LuaShellEvent>()
             //combat

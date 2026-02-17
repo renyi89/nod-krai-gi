@@ -1,23 +1,16 @@
+use crate::scene::Position;
+use common::string_util::InternString;
 use std::collections::HashMap;
 use std::fs;
 use std::str::FromStr;
 use std::sync::Arc;
-use common::string_util::InternString;
 
 pub static SCENE_POINT_CONFIG_COLLECTION: std::sync::OnceLock<Arc<HashMap<u32, ScenePointConfig>>> =
     std::sync::OnceLock::new();
 
-#[derive(Debug, Clone, Default, serde::Deserialize)]
-#[serde(rename_all = "camelCase")]
-#[serde(default)]
-pub struct Position {
-    #[serde(alias = "_x", alias = "X")]
-    pub x: f32,
-    #[serde(alias = "_y", alias = "Y")]
-    pub y: f32,
-    #[serde(alias = "_z", alias = "Z")]
-    pub z: f32,
-}
+pub static SCENE_POINT_ENTRY_MAP_COLLECTION: std::sync::OnceLock<
+    Arc<HashMap<u32, ScenePointData>>,
+> = std::sync::OnceLock::new();
 
 #[derive(Debug, Clone, Default, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -27,6 +20,7 @@ pub struct ScenePointData {
     pub r#point_type: InternString,
     pub gadget_id: u32,
     pub area_id: u32,
+    pub tran_scene_id: u32,
     pub dungeon_ids: Vec<u32>,
     pub dungeon_random_list: Vec<u32>,
     pub pos: Position,
@@ -45,6 +39,7 @@ pub struct ScenePointConfig {
 
 pub fn load_scene_point_configs_from_bin(bin_output_path: &str) {
     let mut data: HashMap<u32, ScenePointConfig> = HashMap::new();
+    let mut entry_map: HashMap<u32, ScenePointData> = HashMap::new();
 
     for entry in fs::read_dir(format!("{bin_output_path}/Scene/Point/")).unwrap() {
         match entry {
@@ -63,6 +58,14 @@ pub fn load_scene_point_configs_from_bin(bin_output_path: &str) {
                         match result {
                             Ok(config) => {
                                 data.insert(scene_id, config.clone());
+                                for (point_id, point_data) in config.points {
+                                    if point_data.tran_scene_id != 0 {
+                                        entry_map.insert(
+                                            (scene_id << 16) + point_id,
+                                            point_data.clone(),
+                                        );
+                                    }
+                                }
                             }
                             Err(error) => {
                                 println!("error :{} scene_id:{}", error, scene_id);
@@ -77,4 +80,5 @@ pub fn load_scene_point_configs_from_bin(bin_output_path: &str) {
     }
 
     let _ = SCENE_POINT_CONFIG_COLLECTION.set(Arc::new(data));
+    let _ = SCENE_POINT_ENTRY_MAP_COLLECTION.set(Arc::new(entry_map));
 }

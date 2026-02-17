@@ -13,7 +13,7 @@ use tracing::{error, instrument};
 mod hit;
 mod movement;
 
-use nod_krai_gi_event::combat::{EntityBeingHitEvent, EntityMoveEvent};
+use nod_krai_gi_event::combat::{EntityBeingHitEvent, EntityMoveEvent, PlayerMoveEvent};
 use std::sync::atomic::{AtomicU32, Ordering};
 
 static COUNTER: AtomicU32 = AtomicU32::new(0);
@@ -29,7 +29,8 @@ impl Plugin for CombatPlugin {
         app.add_systems(PreUpdate, combat_invocation_processor)
             .add_systems(Update, entity_movement)
             .add_systems(Update, deal_damage_on_hit)
-            .add_systems(PostUpdate, track_player_position);
+            .add_systems(PostUpdate, track_player_position)
+            .add_message::<PlayerMoveEvent>();
     }
 }
 

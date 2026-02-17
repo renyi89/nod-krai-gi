@@ -10,7 +10,7 @@ pub static QUEST_CONFIG_COLLECTION: std::sync::OnceLock<Arc<HashMap<u32, QuestCo
 pub static SUB_QUEST_CONFIG_COLLECTION: std::sync::OnceLock<Arc<HashMap<u32, SubQuestData>>> =
     std::sync::OnceLock::new();
 
-#[derive(Debug, Default, Clone, serde::Deserialize)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum QuestType {
     #[default]
     #[serde(alias = "AQ")]
@@ -30,7 +30,8 @@ pub enum QuestType {
     #[serde(alias = "WQ")]
     WQ,
 }
-#[derive(Debug, Default, Clone, serde::Deserialize, PartialEq, Eq)]
+
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum LogicType {
     #[serde(alias = "LOGIC_NONE")]
     #[default]
@@ -55,7 +56,7 @@ pub enum LogicType {
     QuestHidden,
 }
 
-#[derive(Debug, Default, Clone, serde::Deserialize, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum QuestExec {
     #[serde(alias = "QUEST_EXEC_DEL_PACK_ITEM")]
     DelPackItem,
@@ -269,7 +270,7 @@ pub enum QuestExec {
     #[default]
     None,
 }
-#[derive(Debug, Default, Clone, serde::Deserialize, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum QuestCond {
     #[serde(alias = "QUEST_COND_STATE_EQUAL")]
     StateEqual,
@@ -510,7 +511,7 @@ pub enum QuestCond {
     #[default]
     None,
 }
-#[derive(Debug, Default, Clone, serde::Deserialize, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum QuestContent {
     #[serde(alias = "QUEST_CONTENT_KILL_MONSTER")]
     KillMonster,

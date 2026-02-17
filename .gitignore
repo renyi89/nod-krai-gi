@@ -21,6 +21,7 @@ target
 #.idea/
 assets/BinOutput/*
 assets/ExcelBinOutput/*
+assets/lua/*
 crates/muip-server/*
 Cargo.lock
 

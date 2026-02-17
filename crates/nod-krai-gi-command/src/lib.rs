@@ -4,30 +4,17 @@ use common::gm_util::Command;
 use common::gm_util::{parse_command, TpAction};
 use common::player_cache::cache_get_is_tp;
 use common::time_util::unix_timestamp;
-use nod_krai_gi_data::excel::{gadget_excel_config_collection, monster_excel_config_collection};
-use nod_krai_gi_entity::ability::Ability;
-use nod_krai_gi_entity::common::OwnerProtocolEntityID;
-use nod_krai_gi_entity::gadget::{GadgetBundle, GadgetID};
-use nod_krai_gi_entity::util::{
-    create_fight_properties_by_gadget_config, create_fight_properties_by_monster_config,
-};
-use nod_krai_gi_entity::{
-    common::{
-        EntityCounter, GlobalAbilityValues, GrowCurveConfigType, InstancedAbilities,
-        InstancedModifiers, Level, LifeState, Visible,
-    },
-    monster::{MonsterBundle, MonsterID},
-    transform::Transform,
-    util::to_protocol_entity_id,
-};
+use nod_krai_gi_entity::common::{EntityCounter, Visible};
+use nod_krai_gi_entity::gadget::spawn_gadget_entity;
+use nod_krai_gi_entity::monster::spawn_monster_entity;
 use nod_krai_gi_event::command::*;
 use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
-use nod_krai_gi_proto::normal::{ChatInfo, PrivateChatNotify, ProtEntityType};
+use nod_krai_gi_proto::normal::{ChatInfo, PrivateChatNotify};
+use nod_krai_gi_proto::server_only::VectorBin;
 use rand::RngCore;
 use tracing::{debug, instrument};
-use nod_krai_gi_proto::server_only::VectorBin;
 
 pub struct CommandPlugin;
 
@@ -68,54 +55,27 @@ pub fn debug_command_handler(
                         [rand::thread_rng().next_u32() as usize % 5]
                 });
 
-                let monster_excel_config_collection_clone =
-                    std::sync::Arc::clone(monster_excel_config_collection::get());
-
-                let Some(config) = monster_excel_config_collection_clone.get(&monster_id) else {
-                    debug!("monster config for id {monster_id} not found");
+                let Some(monster_entity) = spawn_monster_entity(
+                    &mut commands,
+                    &mut entity_counter,
+                    {
+                        let y = if let Some(ref player_scene_bin) = player_info.scene_bin {
+                            player_scene_bin.my_prev_pos.unwrap_or_default().y
+                        } else {
+                            0.0
+                        };
+                        (position.0, y + 4.0, position.1)
+                    }
+                    .into(),
+                    VectorBin::default(),
+                    monster_id,
+                    90,
+                    0,
+                    0,
+                ) else {
                     continue;
                 };
-
-                let level = 90;
-
-                let mut fight_properties = create_fight_properties_by_monster_config(config);
-                for grow_curve in config.prop_grow_curves.iter() {
-                    fight_properties.apply_grow_curve(
-                        level,
-                        grow_curve,
-                        GrowCurveConfigType::Monster,
-                    );
-                }
-                fight_properties.apply_base_values();
-
-                commands
-                    .spawn(MonsterBundle {
-                        monster_id: MonsterID(monster_id),
-                        entity_id: to_protocol_entity_id(
-                            ProtEntityType::ProtEntityMonster,
-                            entity_counter.inc(),
-                        ),
-                        level: Level(level),
-                        transform: Transform {
-                            // Take Y (height) from player's pos, spawn a bit above
-                            position: {
-                                let y = if let Some(ref player_scene_bin) = player_info.scene_bin {
-                                    player_scene_bin.my_prev_pos.unwrap_or_default().y
-                                } else {
-                                    0.0
-                                };
-                                (position.0, y + 4.0, position.1)
-                            }
-                            .into(),
-                            rotation: VectorBin::default(),
-                        },
-                        fight_properties,
-                        instanced_abilities: InstancedAbilities::default(),
-                        instanced_modifiers: InstancedModifiers::default(),
-                        global_ability_values: GlobalAbilityValues::default(),
-                        life_state: LifeState::Alive,
-                    })
-                    .insert(Visible);
+                commands.entity(monster_entity).insert(Visible);
             }
             CommandKind::QuickSpawnGadget {
                 gadget_id,
@@ -127,51 +87,26 @@ pub fn debug_command_handler(
                         [rand::thread_rng().next_u32() as usize % 5]
                 });
 
-                let gadget_excel_config_collection_clone =
-                    std::sync::Arc::clone(gadget_excel_config_collection::get());
-
-                let Some(config) = gadget_excel_config_collection_clone.get(&gadget_id) else {
-                    debug!("gadget config for id {gadget_id} not found");
+                let Some(gadget_entity) = spawn_gadget_entity(
+                    &mut commands,
+                    &mut entity_counter,
+                    {
+                        let y = if let Some(ref player_scene_bin) = player_info.scene_bin {
+                            player_scene_bin.my_prev_pos.unwrap_or_default().y
+                        } else {
+                            0.0
+                        };
+                        (position.0, y + 4.0, position.1)
+                    }
+                    .into(),
+                    VectorBin::default(),
+                    gadget_id,
+                    90,
+                ) else {
                     continue;
                 };
 
-                let level = 90;
-
-                let mut fight_properties = create_fight_properties_by_gadget_config(config);
-                fight_properties.apply_base_values();
-
-                let ability = Ability::new_for_gadget(&config.json_name);
-
-                commands
-                    .spawn(GadgetBundle {
-                        gadget_id: GadgetID(gadget_id),
-                        entity_id: to_protocol_entity_id(
-                            ProtEntityType::ProtEntityGadget,
-                            entity_counter.inc(),
-                        ),
-                        owner_entity_id: OwnerProtocolEntityID(None),
-                        level: Level(level),
-                        transform: Transform {
-                            // Take Y (height) from player's pos, spawn a bit above
-                            position: {
-                                let y = if let Some(ref player_scene_bin) = player_info.scene_bin {
-                                    player_scene_bin.my_prev_pos.unwrap_or_default().y
-                                } else {
-                                    0.0
-                                };
-                                (position.0, y, position.1)
-                            }
-                            .into(),
-                            rotation: VectorBin::default(),
-                        },
-                        fight_properties,
-                        ability: ability,
-                        instanced_abilities: InstancedAbilities::default(),
-                        instanced_modifiers: InstancedModifiers::default(),
-                        global_ability_values: GlobalAbilityValues::default(),
-                        life_state: LifeState::Alive,
-                    })
-                    .insert(Visible);
+                commands.entity(gadget_entity).insert(Visible);
             }
             CommandKind::QuickTravel { scene_id, position } => match scene_id {
                 None => {}

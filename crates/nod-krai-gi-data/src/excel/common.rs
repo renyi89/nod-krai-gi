@@ -1,8 +1,278 @@
 use crate::prop_type::FightPropType;
 use common::string_util::InternString;
 
+pub trait LuaEnum {
+    fn variants() -> &'static [(&'static str, u32)];
+}
+
+#[macro_export]
+macro_rules! lua_enum {
+    (
+        $(#[$meta:meta])*
+        pub enum $name:ident {
+            $(
+                alias($alias:literal) $variant:ident = $value:expr,
+            )*
+        }
+    ) => {
+        $(#[$meta])*
+        #[repr(u32)]
+        #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+        pub enum $name {
+            $(
+                $variant = $value,
+            )*
+        }
+
+        impl Default for $name {
+            fn default() -> Self {
+                Self::from(0)
+            }
+        }
+
+        impl From<u32> for $name {
+            fn from(v: u32) -> Self {
+                match v {
+                    $(
+                        $value => $name::$variant,
+                    )*
+                    _ => Self::default(),
+                }
+            }
+        }
+
+        impl<'de> serde::Deserialize<'de> for $name {
+            fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+            {
+                use serde::de::{Error, Unexpected};
+
+                #[derive(serde::Deserialize)]
+                #[serde(untagged)]
+                enum Repr {
+                    Num(u32),
+                    Str(String),
+                }
+
+                match Repr::deserialize(deserializer)? {
+                    Repr::Num(n) => std::result::Result::Ok(Self::from(n)),
+                    Repr::Str(s) => {
+                        match s.as_str() {
+                            $(
+                                $alias | stringify!($variant) => std::result::Result::Ok(Self::$variant),
+                            )*
+                            _ => std::result::Result::Err(D::Error::invalid_value(
+                                Unexpected::Str(&s),
+                                &"valid alias or variant name",
+                            )),
+                        }
+                    }
+                }
+            }
+        }
+
+        impl LuaEnum for $name {
+            fn variants() -> &'static [(&'static str, u32)] {
+                &[
+                    $(
+                        ($alias, $value),
+                    )*
+                ]
+            }
+        }
+    };
+}
+
+lua_enum! {
+    pub enum EntityType {
+        alias("NONE")
+        None = 0,
+        alias("AVATAR")
+        Avatar = 1,
+        alias("MONSTER")
+        Monster = 2,
+        alias("BULLET")
+        Bullet = 3,
+        alias("ATTACK_PHYISICAL_UNIT")
+        AttackPhyisicalUnit = 4,
+        alias("AOE")
+        AOE = 5,
+        alias("CAMERA")
+        Camera = 6,
+        alias("ENVIRO_AREA")
+        EnviroArea = 7,
+        alias("EQUIP")
+        Equip = 8,
+        alias("MONSTER_EQUIP")
+        MonsterEquip = 9,
+        alias("GRASS")
+        Grass = 10,
+        alias("LEVEL")
+        Level = 11,
+        alias("NPC")
+        NPC = 12,
+        alias("TRANS_POINT_FIRST")
+        TransPointFirst = 13,
+        alias("TRANS_POINT_FIRST_GADGET")
+        TransPointFirstGadget = 14,
+        alias("TRANS_POINT_SECOND")
+        TransPointSecond = 15,
+        alias("TRANS_POINT_SECOND_GADGET")
+        TransPointSecondGadget = 16,
+        alias("DROP_ITEM")
+        DropItem = 17,
+        alias("FIELD")
+        Field = 18,
+        alias("GADGET")
+        Gadget = 19,
+        alias("WATER")
+        Water = 20,
+        alias("GATHER_POINT")
+        GatherPoint = 21,
+        alias("GATHER_OBJECT")
+        GatherObject = 22,
+        alias("AIRFLOW_FIELD")
+        AirflowField = 23,
+        alias("SPEEDUP_FIELD")
+        SpeedupField = 24,
+        alias("GEAR")
+        Gear = 25,
+        alias("CHEST")
+        Chest = 26,
+        alias("ENERGY_BALL")
+        EnergyBall = 27,
+        alias("ELEM_CRYSTAL")
+        ElemCrystal = 28,
+        alias("TIMELINE")
+        Timeline = 29,
+        alias("WORKTOP")
+        Worktop = 30,
+        alias("TEAM")
+        Team = 31,
+        alias("PLATFORM")
+        Platform = 32,
+        alias("AMBER_WIND")
+        AmberWind = 33,
+        alias("ENV_ANIMAL")
+        EnvAnimal = 34,
+        alias("SEAL_GADGET")
+        SealGadget = 35,
+        alias("TREE")
+        Tree = 36,
+        alias("BUSH")
+        Bush = 37,
+        alias("QUEST_GADGET")
+        QuestGadget = 38,
+        alias("LIGHTNING")
+        Lightning = 39,
+        alias("REWARD_POINT")
+        RewardPoint = 40,
+        alias("REWARD_STATUE")
+        RewardStatue = 41,
+        alias("MP_LEVEL")
+        MPLevel = 42,
+        alias("WIND_SEED")
+        WindSeed = 43,
+        alias("MP_PLAY_REWARD_POINT")
+        MpPlayRewardPoint = 44,
+        alias("VIEW_POINT")
+        ViewPoint = 45,
+        alias("REMOTE_AVATAR")
+        RemoteAvatar = 46,
+        alias("GENERAL_REWARD_POINT")
+        GeneralRewardPoint = 47,
+        alias("PLAY_TEAM")
+        PlayTeam = 48,
+        alias("OFFERING_GADGET")
+        OfferingGadget = 49,
+        alias("EYE_POINT")
+        EyePoint = 50,
+        alias("MIRACLE_RING")
+        MiracleRing = 51,
+        alias("FOUNDATION")
+        Foundation = 52,
+        alias("WIDGET_GADGET")
+        WidgetGadget = 53,
+        alias("VEHICLE")
+        Vehicle = 54,
+        alias("SUB_EQUIP")
+        SubEquip = 55,
+        alias("FISH_ROD")
+        FishRod = 56,
+        alias("CUSTOM_TILE")
+        CustomTile = 57,
+        alias("FISH_POOL")
+        FishPool = 58,
+        alias("CUSTOM_GADGET")
+        CustomGadget = 59,
+        alias("BLACK_MUD")
+        BlackMud = 60,
+        alias("ROGUELIKE_OPERATOR_GADGET")
+        RoguelikeOperatorGadget = 61,
+        alias("NIGHT_CROW_GADGET")
+        NightCrowGadget = 62,
+        alias("PROJECTOR")
+        Projector = 63,
+        alias("SCREEN")
+        Screen = 64,
+        alias("ECHO_SHELL")
+        EchoShell = 65,
+        alias("UI_INTERACT_GADGET")
+        UIInteractGadget = 66,
+        alias("CURVE_MOVE_GADGET")
+        CurveMoveGadget = 67,
+        alias("COIN_COLLECT_LEVEL_GADGET")
+        CoinCollectLevelGadget = 68,
+        alias("UGC_TOWER_LEVEL_UP_GADGET")
+        UgcTowerLevelUpGadget = 69,
+        alias("JOURNEY_GEAR_OPERATOR_GADGET")
+        JourneyGearOperatorGadget = 70,
+        alias("UGC_SPECIAL_GADGET")
+        UgcSpecialGadget = 71,
+        alias("DESHRET_OBELISK_GADGET")
+        DeshretObeliskGadget = 72,
+        alias("REGION")
+        Region = 98,
+        alias("PLACE_HOLDER")
+        PlaceHolder = 99,
+    }
+}
+
+lua_enum! {
+    pub enum QuestState {
+        alias("NONE")
+        None = 0,
+        alias("UNSTARTED")
+        Unstarted = 1,
+        alias("UNFINISHED")
+        Unfinished = 2,
+        alias("FINISHED")
+        Finished = 3,
+        alias("FAILED")
+        Failed = 4,
+    }
+}
+
+lua_enum! {
+    pub enum VisionLevelType {
+        alias("VISION_LEVEL_NORMAL")
+        Normal = 0,
+        alias("VISION_LEVEL_LITTLE_REMOTE")
+        LittleRemote = 1,
+        alias("VISION_LEVEL_REMOTE")
+        Remote = 2,
+        alias("VISION_LEVEL_SUPER")
+        Super = 3,
+        alias("VISION_LEVEL_NEARBY")
+        Nearby = 4,
+        alias("VISION_LEVEL_SUPER_NEARBY")
+        SuperNearby = 5,
+    }
+}
+
 #[repr(u32)]
-#[derive(Debug, Default, Clone, serde::Deserialize, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum WeaponType {
     #[default]
     #[serde(alias = "WEAPON_NONE")]
@@ -36,7 +306,7 @@ pub enum WeaponType {
 }
 
 #[repr(u32)]
-#[derive(Default, Clone, serde::Deserialize, Debug, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum ItemType {
     #[default]
     #[serde(alias = "ITEM_NONE")]
@@ -55,7 +325,7 @@ pub enum ItemType {
     FURNITURE = 6,
 }
 
-#[derive(Default, Clone, serde::Deserialize, Debug, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum MaterialType {
     #[serde(alias = "MATERIAL_FOOD")]
     Food,
@@ -146,7 +416,7 @@ pub enum MaterialType {
 }
 
 #[repr(u32)]
-#[derive(Default, Clone, serde::Deserialize, Debug, PartialEq, Eq)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum EquipType {
     #[serde(alias = "EQUIP_NONE")]
     #[default]
@@ -180,7 +450,7 @@ impl From<u32> for EquipType {
 }
 
 #[repr(u32)]
-#[derive(Default, Debug, serde::Deserialize, Clone, Copy)]
+#[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum GrowCurveArith {
     #[default]
     None = 0,
