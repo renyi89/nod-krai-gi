@@ -82,6 +82,7 @@ impl From<u32> for EnterReason {
 pub struct BeginEnterSceneEvent {
     pub uid: u32,
     pub scene_id: u32,
+    pub dungeon_id: u32,
     pub enter_type: EnterType,
     pub enter_reason: EnterReason,
     pub position: nod_krai_gi_proto::server_only::VectorBin,

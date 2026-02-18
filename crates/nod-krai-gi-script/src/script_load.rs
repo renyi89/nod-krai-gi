@@ -1,4 +1,5 @@
 use crate::script_lua_vm::LuaRuntime;
+use bevy_ecs::change_detection::ResMut;
 use mlua::Function;
 use nod_krai_gi_data::scene::scene_group_template::SceneGroupTemplate;
 use nod_krai_gi_data::scene::script_cache::{load_scene_group_from_cache, scene_group_is_bad};
@@ -28,7 +29,12 @@ pub struct SceneGroupRuntime {
 }
 
 impl SceneGroupRuntime {
-    pub fn new(scene_id: u32, block_id: u32, group_id: u32, lua_vm: LuaRuntime) -> Option<Self> {
+    pub fn new(
+        scene_id: u32,
+        block_id: u32,
+        group_id: u32,
+        lua_vm: &mut ResMut<LuaRuntime>,
+    ) -> Option<Self> {
         if scene_group_is_bad(group_id) {
             return None;
         }

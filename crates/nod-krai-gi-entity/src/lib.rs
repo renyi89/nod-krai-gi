@@ -5,6 +5,7 @@ use common::{
     EntityById, EntityCounter, FightProperties, LifeState, ProtocolEntityID, ToBeRemovedMarker,
 };
 use nod_krai_gi_data::prop_type::FightPropType;
+use nod_krai_gi_message::event::ClientMessageEvent;
 use nod_krai_gi_message::output::MessageOutput;
 use std::collections::HashMap;
 
@@ -26,7 +27,8 @@ use crate::common::Visible;
 use crate::fight::EntityFightPropChangeReasonNotifyEvent;
 use crate::{avatar::CurrentPlayerAvatarMarker, client_gadget::EntitySystemSet};
 use nod_krai_gi_proto::normal::{
-    LifeStateChangeNotify, ProtEntityType, SceneEntityDisappearNotify, VisionType,
+    GadgetInteractReq, GadgetInteractRsp, LifeStateChangeNotify, ProtEntityType,
+    SceneEntityDisappearNotify, VisionType,
 };
 
 pub struct EntityPlugin;
@@ -42,6 +44,7 @@ impl Plugin for EntityPlugin {
             .add_message::<EntityFightPropChangeReasonNotifyEvent>()
             .add_systems(Update, update_entity_index)
             .add_systems(Update, update_separate_property_entity)
+            .add_systems(Update, handle_entity)
             .add_systems(Update, avatar::update_avatar_appearance)
             .add_systems(
                 Update,
@@ -179,5 +182,31 @@ fn update_entity_index(
 ) {
     for (entity, id) in query.iter() {
         index.0.insert(id.0, entity);
+    }
+}
+
+pub fn handle_entity(
+    mut events: MessageReader<ClientMessageEvent>,
+    message_output: Res<MessageOutput>,
+) {
+    for message in events.read() {
+        match message.message_name() {
+            "GadgetInteractReq" => {
+                if let Some(req) = message.decode::<GadgetInteractReq>() {
+                    message_output.send(
+                        message.sender_uid(),
+                        "GadgetInteractRsp",
+                        GadgetInteractRsp {
+                            retcode: 0,
+                            gadget_id: req.gadget_id,
+                            gadget_entity_id: req.gadget_entity_id,
+                            op_type: req.op_type,
+                            ..Default::default()
+                        },
+                    );
+                }
+            }
+            &_ => {}
+        }
     }
 }

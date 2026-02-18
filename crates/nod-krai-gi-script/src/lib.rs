@@ -40,7 +40,7 @@ impl Plugin for ScriptPlugin {
         let lua_vm = LuaRuntime::new(Arc::new(script_lib.clone()));
 
         app.insert_resource(script_lib)
-            .insert_resource(lua_vm.clone())
+            .insert_resource(lua_vm)
             .insert_resource(ScriptCommandQueue(queue))
             .insert_non_send_resource(SceneGroupRegistry::default())
             .insert_resource(GroupLoadManager::default())
@@ -55,7 +55,7 @@ impl Plugin for ScriptPlugin {
 fn script_command_system(
     mut registry: NonSendMut<SceneGroupRegistry>,
     queue: Res<ScriptCommandQueue>,
-    lua_vm: Res<LuaRuntime>,
+    mut lua_vm: ResMut<LuaRuntime>,
     mut spawn_group_entity_event: MessageWriter<SpawnGroupEntityEvent>,
     mut despawn_group_entity_event: MessageWriter<DespawnGroupEntityEvent>,
 ) {
@@ -106,7 +106,7 @@ fn script_command_system(
                     registry.groups.insert(group_id, GroupLoadState::Loading);
 
                     let runtime =
-                        SceneGroupRuntime::new(scene_id, block_id, group_id, lua_vm.clone());
+                        SceneGroupRuntime::new(scene_id, block_id, group_id, &mut lua_vm);
 
                     match runtime {
                         Some(rt) => {

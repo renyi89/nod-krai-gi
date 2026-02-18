@@ -74,6 +74,7 @@ pub fn player_jump(
         enter_events.write(BeginEnterSceneEvent {
             uid: *uid,
             scene_id: *scene_id,
+            dungeon_id: 0,
             enter_type,
             enter_reason: *enter_reason,
             position: destination,
@@ -133,6 +134,7 @@ pub fn player_jump_by_point(
                     enter_events.write(BeginEnterSceneEvent {
                         uid: *uid,
                         scene_id: tran_scene_id,
+                        dungeon_id: 0,
                         enter_type,
                         enter_reason,
                         position: destination,
@@ -187,6 +189,7 @@ pub fn player_enter_dungeon(
                 enter_events.write(BeginEnterSceneEvent {
                     uid: *uid,
                     scene_id: tran_scene_id,
+                    dungeon_id: *dungeon_id,
                     enter_type,
                     enter_reason,
                     position: destination,

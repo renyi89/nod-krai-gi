@@ -25,6 +25,14 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "ActivateGroupLinkBundleByBundleId",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("ActivateGroupLinkBundleByBundleId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "ActiveChallenge",
             |_,
              _this,
@@ -59,6 +67,22 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "AddChallengeDuration",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, bool)| {
+                tracing::debug!("AddChallengeDuration called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "AddChessBuildingPoints",
+            |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, u32, u32, u32)| {
+                tracing::debug!("AddChessBuildingPoints called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "AddEntityGlobalFloatValueByConfigId",
             |_, _this, (_ctx, _param1, _param2, _param3): (Table, Table, String, u32)| {
                 tracing::debug!("AddEntityGlobalFloatValueByConfigId called");
@@ -68,11 +92,29 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "AddExhibitionAccumulableData",
-            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, String, u32)| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("AddExhibitionAccumulableData called");
                 Ok(-1)
             },
         );
+
+        methods.add_method("AddExhibitionAccumulableDataAfterSuccess", |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, String, u32, Table)| {
+            tracing::debug!("AddExhibitionAccumulableDataAfterSuccess called");
+            Ok(-1)
+        });
+
+        methods.add_method(
+            "AddExhibitionReplaceableData",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("AddExhibitionReplaceableData called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method("AddExhibitionReplaceableDataAfterSuccess", |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, String, u32, Table)| {
+            tracing::debug!("AddExhibitionReplaceableDataAfterSuccess called");
+            Ok(-1)
+        });
 
         methods.add_method(
             "AddExtraFlowSuite",
@@ -94,6 +136,46 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "AddFleurFairMultistagePlayBuffEnergy",
+            |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, u32, u32, u32)| {
+                tracing::debug!("AddFleurFairMultistagePlayBuffEnergy called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "AddGalleryProgressScore",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("AddGalleryProgressScore called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "AddIrodoriChessBuildingPoints",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
+                tracing::debug!("AddIrodoriChessBuildingPoints called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "AddIrodoriChessTowerServerGlobalValue",
+            |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, u32, u32, u32)| {
+                tracing::debug!("AddIrodoriChessTowerServerGlobalValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "AddMechanicusBuildingPoints",
+            |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, u32, u32, u32)| {
+                tracing::debug!("AddMechanicusBuildingPoints called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "AddPlayerGroupVisionType",
             |_, _this, (_ctx, _param1, _param2): (Table, Table, Table)| {
                 tracing::debug!("AddPlayerGroupVisionType called");
@@ -110,9 +192,50 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "AddRegionRecycleProgress",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("AddRegionRecycleProgress called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "AddRegionSearchProgress",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("AddRegionSearchProgress called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "AddRegionalPlayVarValue",
             |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
                 tracing::debug!("AddRegionalPlayVarValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "AddSceneMultiStagePlayUidValue",
+            |_,
+             _this,
+             (_ctx, _param1, _param2, _param3, _param4, _param5): (
+                Table,
+                u32,
+                u32,
+                String,
+                u32,
+                u32,
+            )| {
+                tracing::debug!("AddSceneMultiStagePlayUidValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "AddScenePlayBattleProgress",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("AddScenePlayBattleProgress called");
                 Ok(-1)
             },
         );
@@ -127,8 +250,16 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "AddTeamEntityGlobalFloatValue",
-            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, String, u32)| {
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, Table, u32, u32)| {
                 tracing::debug!("AddTeamEntityGlobalFloatValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "AddTeamServerGlobalValue",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, String, u32)| {
+                tracing::debug!("AddTeamServerGlobalValue called");
                 Ok(-1)
             },
         );
@@ -142,18 +273,16 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "AssignPlayerUidOpNotify",
+            |_, _this, (_ctx, _param1): (Table, Table)| {
+                tracing::debug!("AssignPlayerUidOpNotify called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "AttachChildChallenge",
-            |_,
-             _this,
-             (_ctx, _param1, _param2, _param3, _param4, _param5, _param6): (
-                Table,
-                u32,
-                u32,
-                u32,
-                Table,
-                Table,
-                Table,
-            )| {
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
                 tracing::debug!("AttachChildChallenge called");
                 Ok(-1)
             },
@@ -168,6 +297,14 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "AttachGalleryTeamAbilityGroup",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, Table, u32, u32)| {
+                tracing::debug!("AttachGalleryTeamAbilityGroup called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "AutoMonsterTide",
             |_,
              _this,
@@ -175,7 +312,7 @@ impl UserData for LuaScriptLibHandle {
                 Table,
                 u32,
                 u32,
-                Vec<u32>,
+                u32,
                 u32,
                 u32,
                 u32,
@@ -187,19 +324,7 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "AutoPoolMonsterTide",
-            |_,
-             _this,
-
-             (_ctx, _param1, _param2, _param3, _param4, _param5, _param6, _param7): (
-                Table,
-                u32,
-                u32,
-                Table,
-                u32,
-                Table,
-                Table,
-                Table,
-            )| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("AutoPoolMonsterTide called");
                 Ok(-1)
             },
@@ -223,7 +348,7 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "CancelGroupTimerEvent",
-            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("CancelGroupTimerEvent called");
                 Ok(-1)
             },
@@ -231,6 +356,11 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method("CauseDungeonFail", |_, _this, _ctx: Table| {
             tracing::debug!("CauseDungeonFail called");
+            Ok(-1)
+        });
+
+        methods.add_method("CauseDungeonSuccess", |_, _this, _ctx: Table| {
+            tracing::debug!("CauseDungeonSuccess called");
             Ok(-1)
         });
 
@@ -251,8 +381,16 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "ChangeGroupTempValue",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("ChangeGroupTempValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "ChangeGroupVariableValue",
-            |_, _this, (_ctx, _param1, _param2): (Table, String, u32)| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("ChangeGroupVariableValue called");
                 Ok(-1)
             },
@@ -275,9 +413,25 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
-            "ChangeToTargetLevelTagWith_paramTable",
+            "ChangeToTargetLevelTagWithParamTable",
             |_, _this, (_ctx, _param1, _param2): (Table, u32, Table)| {
-                tracing::debug!("ChangeToTargetLevelTagWith_paramTable called");
+                tracing::debug!("ChangeToTargetLevelTagWithParamTable called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "CharAmusementMultistagePlaySwitchTeam",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
+                tracing::debug!("CharAmusementMultistagePlaySwitchTeam called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "CharAmusementUpdateScore",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
+                tracing::debug!("CharAmusementUpdateScore called");
                 Ok(-1)
             },
         );
@@ -312,6 +466,14 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "ClearExhibitionReplaceableData",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("ClearExhibitionReplaceableData called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "ClearPlayerEyePoint",
             |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("ClearPlayerEyePoint called");
@@ -323,6 +485,14 @@ impl UserData for LuaScriptLibHandle {
             "ClearPoolMonsterTide",
             |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
                 tracing::debug!("ClearPoolMonsterTide called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "ContinueAutoMonster",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("ContinueAutoMonster called");
                 Ok(-1)
             },
         );
@@ -359,10 +529,32 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
+        methods.add_method("CreateFatherChallenge", |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, u32, u32, Table)| {
+            tracing::debug!("CreateFatherChallenge called");
+            Ok(-1)
+        });
+
         methods.add_method(
-            "CreateFatherChallenge",
-            |_,_this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, u32, u32, Table)| {
-                tracing::debug!("CreateFatherChallenge called");
+            "CreateFoundation",
+            |_,
+             _this,
+             (_ctx, _param1, _param2, _param3, _param4, _param5): (
+                Table,
+                u32,
+                u32,
+                u32,
+                u32,
+                u32,
+            )| {
+                tracing::debug!("CreateFoundation called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "CreateFoundations",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
+                tracing::debug!("CreateFoundations called");
                 Ok(-1)
             },
         );
@@ -377,16 +569,57 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "CreateGadgetByConfigIdByPos",
-            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, Table, Table)| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("CreateGadgetByConfigIdByPos called");
                 Ok(-1)
             },
         );
 
         methods.add_method(
+            "CreateGadgetByParamTable",
+            |_, _this, (_ctx, _param1): (Table, Table)| {
+                tracing::debug!("CreateGadgetByParamTable called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "CreateGadgetWave",
+            |_,
+             _this,
+             (_ctx, _param1, _param2, _param3, _param4, _param5): (
+                Table,
+                u32,
+                u32,
+                u32,
+                Table,
+                u32,
+            )| {
+                tracing::debug!("CreateGadgetWave called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "CreateGadgetWithGlobalValue",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, Table)| {
+                tracing::debug!("CreateGadgetWithGlobalValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "CreateGroupTimerEvent",
-            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("CreateGroupTimerEvent called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "CreateGroupTrigger",
+            |_, _this, (_ctx, _param1): (Table, String)| {
+                tracing::debug!("CreateGroupTrigger called");
                 Ok(-1)
             },
         );
@@ -409,7 +642,7 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "CreateMonsterByConfigIdByPos",
-            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, Table)| {
                 tracing::debug!("CreateMonsterByConfigIdByPos called");
                 Ok(-1)
             },
@@ -424,9 +657,78 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "CreateMonsterWithGlobalValue",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, Table)| {
+                tracing::debug!("CreateMonsterWithGlobalValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "CreateMonstersFromMonsterPool",
+            |_, _this, (_ctx, _param1): (Table, String)| {
+                tracing::debug!("CreateMonstersFromMonsterPool called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "CreateScenePlayGeneralRewardGadget",
+            |_, _this, (_ctx, _param1): (Table, Table)| {
+                tracing::debug!("CreateScenePlayGeneralRewardGadget called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "CreateTreasureMapSpotRewardGadget",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("CreateTreasureMapSpotRewardGadget called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method("CreateVehicle", |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, u32, Table, Table)| {
+            tracing::debug!("CreateVehicle called");
+            Ok(-1)
+        });
+
+        methods.add_method(
+            "CrystalLinkDungeonTeamSetUp",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, Table)| {
+                tracing::debug!("CrystalLinkDungeonTeamSetUp called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "DeactivateGroupLinkBundle",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("DeactivateGroupLinkBundle called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "DeactivateGroupLinkBundleByBundleId",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("DeactivateGroupLinkBundleByBundleId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "DelAllSubEntityByOriginOwnerConfigId",
             |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("DelAllSubEntityByOriginOwnerConfigId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "DelGalleryAbilityGroup",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, Table, u32, u32)| {
+                tracing::debug!("DelGalleryAbilityGroup called");
                 Ok(-1)
             },
         );
@@ -457,8 +759,50 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "DelWorktopOptionByGroupId",
-            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
                 tracing::debug!("DelWorktopOptionByGroupId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "DestroyIrodoriChessTower",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
+                tracing::debug!("DestroyIrodoriChessTower called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method("DigRetractAllWidget", |_, _this, _ctx: Table| {
+            tracing::debug!("DigRetractAllWidget called");
+            Ok(-1)
+        });
+
+        methods.add_method(
+            "DigSetSearchingTarget",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("DigSetSearchingTarget called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "DoRoguelikeCardGachaByLua",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("DoRoguelikeCardGachaByLua called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method("EndAllTimeAxis", |_, _this, _ctx: Table| {
+            tracing::debug!("EndAllTimeAxis called");
+            Ok(-1)
+        });
+
+        methods.add_method(
+            "EndFatherChallenge",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("EndFatherChallenge called");
                 Ok(-1)
             },
         );
@@ -472,9 +816,41 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "EndPoolMonsterTide",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("EndPoolMonsterTide called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "EndSceneMultiStagePlay",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, bool)| {
+                tracing::debug!("EndSceneMultiStagePlay called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "EndSceneMultiStagePlayStage",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, String)| {
+                tracing::debug!("EndSceneMultiStagePlayStage called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "EndTimeAxis",
             |_, _this, (_ctx, _param1): (Table, String)| {
                 tracing::debug!("EndTimeAxis called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "EnterCustomDungeonOfficialEdit",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("EnterCustomDungeonOfficialEdit called");
                 Ok(-1)
             },
         );
@@ -488,9 +864,30 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "EnterRogueCell",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("EnterRogueCell called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method("EnterRogueDungeonNextLevel", |_, _this, _ctx: Table| {
+            tracing::debug!("EnterRogueDungeonNextLevel called");
+            Ok(-1)
+        });
+
+        methods.add_method(
             "EnterWeatherArea",
             |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("EnterWeatherArea called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "ExecuteActiveGroupLua",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, String, Table)| {
+                tracing::debug!("ExecuteActiveGroupLua called");
                 Ok(-1)
             },
         );
@@ -514,7 +911,7 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "ExecuteGroupLua",
-            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, String, Table)| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("ExecuteGroupLua called");
                 Ok(-1)
             },
@@ -536,15 +933,52 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
+        methods.add_method(
+            "FailScenePlayBattle",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("FailScenePlayBattle called");
+                Ok(-1)
+            },
+        );
+
         methods.add_method("FinishExpeditionChallenge", |_, _this, _ctx: Table| {
             tracing::debug!("FinishExpeditionChallenge called");
             Ok(-1)
         });
 
+        methods.add_method("FinishFindHilichurlLevel", |_, _this, _ctx: Table| {
+            tracing::debug!("FinishFindHilichurlLevel called");
+            Ok(-1)
+        });
+
+        methods.add_method(
+            "FinishFleurFairGalleryStageByUid",
+            |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, u32, u32, bool)| {
+                tracing::debug!("FinishFleurFairGalleryStageByUid called");
+                Ok(-1)
+            },
+        );
+
         methods.add_method(
             "FinishGroupLinkBundle",
             |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("FinishGroupLinkBundle called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "FinishRogueDiaryDungeonSingleRoom",
+            |_, _this, (_ctx, _param1): (Table, bool)| {
+                tracing::debug!("FinishRogueDiaryDungeonSingleRoom called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "ForbidPlayerRegionVision",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("ForbidPlayerRegionVision called");
                 Ok(-1)
             },
         );
@@ -558,9 +992,43 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "ForceSetIrodoriFoundationTowers",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
+                tracing::debug!("ForceSetIrodoriFoundationTowers called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GadgetPlayUidOp",
+            |_,
+             _this,
+             (_ctx, _param1, _param2, _param3, _param4, _param5, _param6): (
+                Table,
+                u32,
+                u32,
+                Table,
+                u32,
+                String,
+                Table,
+            )| {
+                tracing::debug!("GadgetPlayUidOp called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "GetActivityOpenAndCloseTimeByScheduleId",
             |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("GetActivityOpenAndCloseTimeByScheduleId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetAranaraCollectableCountByTypeAndState",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("GetAranaraCollectableCountByTypeAndState called");
                 Ok(-1)
             },
         );
@@ -590,9 +1058,57 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "GetBonusTreasureMapSolution",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetBonusTreasureMapSolution called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetChainLevel",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetChainLevel called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetChallengeTransaction",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetChallengeTransaction called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "GetChannellerSlabLoopDungeonLimitTime",
             |_, _this, _ctx: Table| {
                 tracing::debug!("GetChannellerSlabLoopDungeonLimitTime called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetCharAmusementGalleryTarget",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, bool)| {
+                tracing::debug!("GetCharAmusementGalleryTarget called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetCharAmusementMultistagePlayGalleryIdVec",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("GetCharAmusementMultistagePlayGalleryIdVec called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetChessMonsterPoolIdVecByRound",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetChessMonsterPoolIdVecByRound called");
                 Ok(-1)
             },
         );
@@ -605,10 +1121,55 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
+        methods.add_method("GetContextGroupId", |_, _this, _ctx: Table| {
+            tracing::debug!("GetContextGroupId called");
+            Ok(-1)
+        });
+
+        methods.add_method(
+            "GetCurFungusFighterPlotConfigIdList",
+            |_, _this, _ctx: Table| {
+                tracing::debug!("GetCurFungusFighterPlotConfigIdList called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetCurFungusFighterTrainingParams",
+            |_, _this, _ctx: Table| {
+                tracing::debug!("GetCurFungusFighterTrainingParams called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetCurFungusFighterTrainingValidBackupFungusIdList",
+            |_, _this, _ctx: Table| {
+                tracing::debug!("GetCurFungusFighterTrainingValidBackupFungusIdList called");
+                Ok(-1)
+            },
+        );
+
         methods.add_method("GetCurTriggerCount", |_, _this, _ctx: Table| {
             tracing::debug!("GetCurTriggerCount called");
             Ok(-1)
         });
+
+        methods.add_method(
+            "GetCurrentCustomDungeonForbidSkill",
+            |_, _this, _ctx: Table| {
+                tracing::debug!("GetCurrentCustomDungeonForbidSkill called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetCurrentCustomDungeonParamVec",
+            |_, _this, _ctx: Table| {
+                tracing::debug!("GetCurrentCustomDungeonParamVec called");
+                Ok(-1)
+            },
+        );
 
         methods.add_method(
             "GetCurrentLevelTagVec",
@@ -618,6 +1179,16 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
+        methods.add_method("GetCustomDungeonCoinNum", |_, _this, _ctx: Table| {
+            tracing::debug!("GetCustomDungeonCoinNum called");
+            Ok(-1)
+        });
+
+        methods.add_method("GetCustomDungeonOpenRoomVec", |_, _this, _ctx: Table| {
+            tracing::debug!("GetCustomDungeonOpenRoomVec called");
+            Ok(-1)
+        });
+
         methods.add_method(
             "GetDeathZoneStatus",
             |_, _this, (_ctx, _param1): (Table, u32)| {
@@ -625,6 +1196,11 @@ impl UserData for LuaScriptLibHandle {
                 Ok(-1)
             },
         );
+
+        methods.add_method("GetDungeonTeamPlayerNum", |_, _this, _ctx: Table| {
+            tracing::debug!("GetDungeonTeamPlayerNum called");
+            Ok(-1)
+        });
 
         methods.add_method("GetEffigyChallengeLimitTime", |_, _this, _ctx: Table| {
             tracing::debug!("GetEffigyChallengeLimitTime called");
@@ -666,6 +1242,43 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "GetExhibitionReplaceableData",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("GetExhibitionReplaceableData called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method("GetFleurFairDungeonSectionId", |_, _this, _ctx: Table| {
+            tracing::debug!("GetFleurFairDungeonSectionId called");
+            Ok(-1)
+        });
+
+        methods.add_method(
+            "GetFleurFairMultistagePlayBuffEnergy",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
+                tracing::debug!("GetFleurFairMultistagePlayBuffEnergy called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetFleurFairMultistagePlayGalleryIdVec",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("GetFleurFairMultistagePlayGalleryIdVec called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetFleurFairMultistagePlayGalleryTempValue",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, String)| {
+                tracing::debug!("GetFleurFairMultistagePlayGalleryTempValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "GetGadgetAbilityFloatValue",
             |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, String)| {
                 tracing::debug!("GetGadgetAbilityFloatValue called");
@@ -677,6 +1290,14 @@ impl UserData for LuaScriptLibHandle {
             "GetGadgetConfigId",
             |_, _this, (_ctx, _param1): (Table, Table)| {
                 tracing::debug!("GetGadgetConfigId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetGadgetHpPercent",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("GetGadgetHpPercent called");
                 Ok(-1)
             },
         );
@@ -699,8 +1320,16 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "GetGalleryProgressScore",
-            |_, _this, (_ctx, _param1, _param2): (Table, String, u32)| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("GetGalleryProgressScore called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetGalleryTransaction",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetGalleryTransaction called");
                 Ok(-1)
             },
         );
@@ -717,6 +1346,27 @@ impl UserData for LuaScriptLibHandle {
             tracing::debug!("GetGameHour called");
             Ok(-1)
         });
+
+        methods.add_method("GetGameTimePassed", |_, _this, _ctx: Table| {
+            tracing::debug!("GetGameTimePassed called");
+            Ok(-1)
+        });
+
+        methods.add_method(
+            "GetGivingItemList",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetGivingItemList called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetGroupAliveMonsterList",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetGroupAliveMonsterList called");
+                Ok(-1)
+            },
+        );
 
         methods.add_method(
             "GetGroupLogicStateValue",
@@ -750,7 +1400,7 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "GetGroupTempValue",
-            |_, _this, (_ctx, _param1, _param2): (Table, u32, Table)| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("GetGroupTempValue called");
                 Ok(-1)
             },
@@ -773,6 +1423,43 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "GetHideAndSeekHunter",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetHideAndSeekHunter called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetHideAndSeekMap",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetHideAndSeekMap called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetHideAndSeekPlayGalleryId",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetHideAndSeekPlayGalleryId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method("GetHideAndSeekPlayIndex", |_, _this, _ctx: Table| {
+            tracing::debug!("GetHideAndSeekPlayIndex called");
+            Ok(-1)
+        });
+
+        methods.add_method(
+            "GetHideAndSeekPlayerSkillList",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("GetHideAndSeekPlayerSkillList called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "GetHostQuestState",
             |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("GetHostQuestState called");
@@ -788,6 +1475,14 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
+        methods.add_method(
+            "GetIrodoriChessSelectedCards",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("GetIrodoriChessSelectedCards called");
+                Ok(-1)
+            },
+        );
+
         methods.add_method("GetLanternRiteValue", |_, _this, _ctx: Table| {
             tracing::debug!("GetLanternRiteValue called");
             Ok(-1)
@@ -797,6 +1492,62 @@ impl UserData for LuaScriptLibHandle {
             "GetLevelTagNameById",
             |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("GetLevelTagNameById called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetLunaRiteSacrificeNum",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetLunaRiteSacrificeNum called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetMechanicusBuildingPoints",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
+                tracing::debug!("GetMechanicusBuildingPoints called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetMechanicusMonsterPoolVec",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetMechanicusMonsterPoolVec called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetMonsterAbilityFloatValue",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, String)| {
+                tracing::debug!("GetMonsterAbilityFloatValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetMonsterAffixListByConfigId",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("GetMonsterAffixListByConfigId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetMonsterConfigId",
+            |_, _this, (_ctx, _param1): (Table, Table)| {
+                tracing::debug!("GetMonsterConfigId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetMonsterIdByEntityId",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetMonsterIdByEntityId called");
                 Ok(-1)
             },
         );
@@ -818,6 +1569,22 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "GetPlatformArrayInfoByPointId",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("GetPlatformArrayInfoByPointId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetPlatformPointArray",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetPlatformPointArray called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "GetPlayerVehicleType",
             |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("GetPlayerVehicleType called");
@@ -833,10 +1600,23 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
+        methods.add_method("GetPotionDungeonAffixParams", |_, _this, _ctx: Table| {
+            tracing::debug!("GetPotionDungeonAffixParams called");
+            Ok(-1)
+        });
+
         methods.add_method(
             "GetQuestState",
             |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
                 tracing::debug!("GetQuestState called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetQuestStateByUid",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("GetQuestStateByUid called");
                 Ok(-1)
             },
         );
@@ -858,12 +1638,77 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "GetRegionalPlayVarValue",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("GetRegionalPlayVarValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetRogueCellState",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetRogueCellState called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method("GetRogueDiaryDungeonStage", |_, _this, _ctx: Table| {
+            tracing::debug!("GetRogueDiaryDungeonStage called");
+            Ok(-1)
+        });
+
+        methods.add_method("GetRogueDiaryRoundAndRoom", |_, _this, _ctx: Table| {
+            tracing::debug!("GetRogueDiaryRoundAndRoom called");
+            Ok(-1)
+        });
+
+        methods.add_method(
             "GetRotationByEntityId",
             |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("GetRotationByEntityId called");
                 Ok(-1)
             },
         );
+
+        methods.add_method("GetSceneMultiStagePlayUidValue", |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, u32, String, u32)| {
+            tracing::debug!("GetSceneMultiStagePlayUidValue called");
+            Ok(-1)
+        });
+
+        methods.add_method("GetSceneOwnerUid", |_, _this, _ctx: Table| {
+            tracing::debug!("GetSceneOwnerUid called");
+            Ok(-1)
+        });
+
+        methods.add_method(
+            "GetScenePlayBattleHostUid",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetScenePlayBattleHostUid called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetScenePlayBattleType",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetScenePlayBattleType called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetScenePlayBattleUidValue",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
+                tracing::debug!("GetScenePlayBattleUidValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method("GetSceneTimeSeconds", |_, _this, _ctx: Table| {
+            tracing::debug!("GetSceneTimeSeconds called");
+            Ok(-1)
+        });
 
         methods.add_method("GetSceneUidList", |_, _this, _ctx: Table| {
             tracing::debug!("GetSceneUidList called");
@@ -881,6 +1726,38 @@ impl UserData for LuaScriptLibHandle {
         });
 
         methods.add_method(
+            "GetSurroundUidList",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("GetSurroundUidList called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetTeamAbilityFloatValue",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("GetTeamAbilityFloatValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetTeamServerGlobalValue",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetTeamServerGlobalValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "GetTreasureSeelieDayByGroupId",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("GetTreasureSeelieDayByGroupId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "GoToFlowSuite",
             |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
                 tracing::debug!("GoToFlowSuite called");
@@ -896,10 +1773,68 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
+        methods.add_method("InitGalleryProgressScore", |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, String, u32, u32, u32)| {
+            tracing::debug!("InitGalleryProgressScore called");
+            Ok(-1)
+        });
+
+        methods.add_method(
+            "InitGalleryProgressWithScore",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("InitGalleryProgressWithScore called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method("InitSceneMultistagePlay", |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, u32, Table, u32)| {
+            tracing::debug!("InitSceneMultistagePlay called");
+            Ok(-1)
+        });
+
         methods.add_method("InitTimeAxis", |_, _this, (_ctx, _param1): (Table, u32)| {
             tracing::debug!("InitTimeAxis called");
             Ok(-1)
         });
+
+        methods.add_method(
+            "InstableSprayGetSGVByBuffId",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("InstableSprayGetSGVByBuffId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "InstableSprayRandomBuffs",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("InstableSprayRandomBuffs called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "InvaildGravenPhotoBundleMark",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("InvaildGravenPhotoBundleMark called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "IsChallengeStartedByChallengeId",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("IsChallengeStartedByChallengeId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "IsChallengeStartedByChallengeIndex",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("IsChallengeStartedByChallengeIndex called");
+                Ok(-1)
+            },
+        );
 
         methods.add_method(
             "IsChannellerSlabLoopDungeonConditionSelected",
@@ -918,9 +1853,33 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "IsFungusCaptured",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("IsFungusCaptured called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "IsGalleryStart",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("IsGalleryStart called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "IsInRegion",
             |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
                 tracing::debug!("IsInRegion called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "IsLevelTagChangeInCD",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("IsLevelTagChangeInCD called");
                 Ok(-1)
             },
         );
@@ -932,6 +1891,19 @@ impl UserData for LuaScriptLibHandle {
                 Ok(-1)
             },
         );
+
+        methods.add_method(
+            "IsPlayerTransmittable",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("IsPlayerTransmittable called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method("IsRogueBossCellPrevCellFinish", |_, _this, _ctx: Table| {
+            tracing::debug!("IsRogueBossCellPrevCellFinish called");
+            Ok(-1)
+        });
 
         methods.add_method(
             "IsWidgetEquipped",
@@ -990,6 +1962,14 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "MarkGroupLuaAction",
+            |_, _this, (_ctx, _param1, _param2): (Table, String, u32)| {
+                tracing::debug!("MarkGroupLuaAction called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "MarkPlayerAction",
             |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
                 tracing::debug!("MarkPlayerAction called");
@@ -998,9 +1978,9 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
-            "ModifyClimatePolygon_paramTable",
+            "ModifyClimatePolygonParamTable",
             |_, _this, (_ctx, _param1, _param2): (Table, u32, Table)| {
-                tracing::debug!("ModifyClimatePolygon_paramTable called");
+                tracing::debug!("ModifyClimatePolygonParamTable called");
                 Ok(-1)
             },
         );
@@ -1056,6 +2036,30 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "PauseAutoMonsterTide",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("PauseAutoMonsterTide called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "PauseAutoPoolMonsterTide",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("PauseAutoPoolMonsterTide called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "PauseChallenge",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("PauseChallenge called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "PauseTimeAxis",
             |_, _this, (_ctx, _param1): (Table, String)| {
                 tracing::debug!("PauseTimeAxis called");
@@ -1067,6 +2071,22 @@ impl UserData for LuaScriptLibHandle {
             "PlayCutScene",
             |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
                 tracing::debug!("PlayCutScene called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "PlayCutSceneWithParam",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, Table)| {
+                tracing::debug!("PlayCutSceneWithParam called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "PrestartScenePlayBattle",
+            |_, _this, (_ctx, _param1): (Table, Table)| {
+                tracing::debug!("PrestartScenePlayBattle called");
                 Ok(-1)
             },
         );
@@ -1087,10 +2107,18 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
-        methods.add_method("PrintLog", |_, _this, log: String| {
-            tracing::debug!("PrintLog called {}", log);
+        methods.add_method("PrintLog", |_, _this, _ctx: String| {
+            tracing::debug!("PrintLog called");
             Ok(-1)
         });
+
+        methods.add_method(
+            "RecieveAllAranaraCollectionByType",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("RecieveAllAranaraCollectionByType called");
+                Ok(-1)
+            },
+        );
 
         methods.add_method(
             "RefreshBlossomDropRewardByGroupId",
@@ -1108,13 +2136,10 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
-        methods.add_method(
-            "RefreshGroup",
-            |_, _this, (_ctx, _param1): (Table, Table)| {
-                tracing::debug!("RefreshGroup called");
-                Ok(-1)
-            },
-        );
+        methods.add_method("RefreshGroup", |_, _this, (_ctx, _param1): (Table, u32)| {
+            tracing::debug!("RefreshGroup called");
+            Ok(-1)
+        });
 
         methods.add_method("RefreshHuntingClueGroup", |_, _this, _ctx: Table| {
             tracing::debug!("RefreshHuntingClueGroup called");
@@ -1149,6 +2174,51 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "ResumeAutoPoolMonsterTide",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("ResumeAutoPoolMonsterTide called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "RevertPlayerRegionVision",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("RevertPlayerRegionVision called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "RevokePlayerShowTemplateReminder",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, Table)| {
+                tracing::debug!("RevokePlayerShowTemplateReminder called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "ScenePlayBattleUidOp",
+            |_,
+             _this,
+             (
+                _ctx,
+                _param1,
+                _param2,
+                _param3,
+                _param4,
+                _param5,
+                _param6,
+                _param7,
+                _param8,
+                _param9,
+            ): (Table, u32, u32, Table, u32, String, Table, Table, u32, u32)| {
+                tracing::debug!("ScenePlayBattleUidOp called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "ScenePlaySound",
             |_, _this, (_ctx, _param1): (Table, Table)| {
                 tracing::debug!("ScenePlaySound called");
@@ -1173,6 +2243,22 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "SetChainLevel",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, bool)| {
+                tracing::debug!("SetChainLevel called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "SetChallengeDuration",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("SetChallengeDuration called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "SetChallengeEventMark",
             |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
                 tracing::debug!("SetChallengeEventMark called");
@@ -1181,8 +2267,32 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "SetChessMystery",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("SetChessMystery called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "SetCurFungusFighterTrainingParams",
+            |_, _this, (_ctx, _param1): (Table, Table)| {
+                tracing::debug!("SetCurFungusFighterTrainingParams called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "SetDarkPressureLevel",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("SetDarkPressureLevel called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "SetEntityServerGlobalValueByConfigId",
-            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, String, u32)| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("SetEntityServerGlobalValueByConfigId called");
                 Ok(-1)
             },
@@ -1196,10 +2306,15 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
+        methods.add_method("SetEnvironmentEffectState", |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, String, u32, u32)| {
+            tracing::debug!("SetEnvironmentEffectState called");
+            Ok(-1)
+        });
+
         methods.add_method(
-            "SetEnvironmentEffectState",
-            |_,_this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, String, u32, u32)| {
-                tracing::debug!("SetEnvironmentEffectState called");
+            "SetFleurFairMultistagePlayBuffEnergy",
+            |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, u32, u32, u32)| {
+                tracing::debug!("SetFleurFairMultistagePlayBuffEnergy called");
                 Ok(-1)
             },
         );
@@ -1244,6 +2359,14 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
+        methods.add_method(
+            "SetGalleryRevivePoint",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
+                tracing::debug!("SetGalleryRevivePoint called");
+                Ok(-1)
+            },
+        );
+
         methods.add_method("SetGroupDead", |_, _this, (_ctx, _param1): (Table, u32)| {
             tracing::debug!("SetGroupDead called");
             Ok(-1)
@@ -1251,7 +2374,7 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "SetGroupGadgetStateByConfigId",
-            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
                 tracing::debug!("SetGroupGadgetStateByConfigId called");
                 Ok(-1)
             },
@@ -1275,7 +2398,7 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "SetGroupTempValue",
-            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, Table)| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("SetGroupTempValue called");
                 Ok(-1)
             },
@@ -1283,7 +2406,7 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "SetGroupVariableValue",
-            |_, _this, (_ctx, _param1, _param2): (Table, String, u32)| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("SetGroupVariableValue called");
                 Ok(-1)
             },
@@ -1314,6 +2437,55 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
+            "SetLanternRiteValue",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("SetLanternRiteValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "SetLimitOptimization",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, bool)| {
+                tracing::debug!("SetLimitOptimization called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "SetMechanicusChallengeState",
+            |_,
+             _this,
+             (_ctx, _param1, _param2, _param3, _param4, _param5): (
+                Table,
+                u32,
+                u32,
+                u32,
+                u32,
+                u32,
+            )| {
+                tracing::debug!("SetMechanicusChallengeState called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "SetMechanicusMonsterPoolVec",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("SetMechanicusMonsterPoolVec called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "SetMistTrialServerGlobalValue",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("SetMistTrialServerGlobalValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "SetMonsterAIByGroup",
             |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
                 tracing::debug!("SetMonsterAIByGroup called");
@@ -1339,7 +2511,7 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "SetPlatformPointArray",
-            |_,_this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, u32, Vec<u32>, Table)| {
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
                 tracing::debug!("SetPlatformPointArray called");
                 Ok(-1)
             },
@@ -1349,6 +2521,14 @@ impl UserData for LuaScriptLibHandle {
             "SetPlatformRouteId",
             |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
                 tracing::debug!("SetPlatformRouteId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "SetPlatformRouteIndexToNext",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("SetPlatformRouteIndexToNext called");
                 Ok(-1)
             },
         );
@@ -1371,7 +2551,7 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "SetPlayerGroupVisionType",
-            |_, _this, (_ctx, _param1, _param2): (Table, u32, Table)| {
+            |_, _this, (_ctx, _param1, _param2): (Table, Table, Table)| {
                 tracing::debug!("SetPlayerGroupVisionType called");
                 Ok(-1)
             },
@@ -1386,8 +2566,73 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method(
-            "SetTeamEntityGlobalFloatValue",
+            "SetPlayerStartGallery",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("SetPlayerStartGallery called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "SetRogueCellState",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("SetRogueCellState called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "SetSceneMultiStagePlayUidValue",
+            |_,
+             _this,
+             (_ctx, _param1, _param2, _param3, _param4, _param5): (
+                Table,
+                u32,
+                u32,
+                String,
+                u32,
+                u32,
+            )| {
+                tracing::debug!("SetSceneMultiStagePlayUidValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "SetSceneMultiStagePlayValue",
             |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, String, u32)| {
+                tracing::debug!("SetSceneMultiStagePlayValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "SetSceneMultiStagePlayValues",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("SetSceneMultiStagePlayValues called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "SetScenePlayBattlePlayTeamEntityGadgetId",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("SetScenePlayBattlePlayTeamEntityGadgetId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "SetScenePlayBattleUidValue",
+            |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, u32, u32, u32)| {
+                tracing::debug!("SetScenePlayBattleUidValue called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "SetTeamEntityGlobalFloatValue",
+            |_, _this, (_ctx, _param1, _param2, _param3): (Table, Table, String, u32)| {
                 tracing::debug!("SetTeamEntityGlobalFloatValue called");
                 Ok(-1)
             },
@@ -1395,7 +2640,7 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "SetTeamServerGlobalValue",
-            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, String, u32)| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("SetTeamServerGlobalValue called");
                 Ok(-1)
             },
@@ -1411,7 +2656,7 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "SetWorktopOptions",
-            |_, _this, (_ctx, _param1): (Table, Vec<u32>)| {
+            |_, _this, (_ctx, _param1): (Table, Table)| {
                 tracing::debug!("SetWorktopOptions called");
                 Ok(-1)
             },
@@ -1419,7 +2664,7 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "SetWorktopOptionsByGroupId",
-            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, Vec<u32>)| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("SetWorktopOptionsByGroupId called");
                 Ok(-1)
             },
@@ -1441,15 +2686,39 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
+        methods.add_method(
+            "ShowCommonPlayerTips",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, Table)| {
+                tracing::debug!("ShowCommonPlayerTips called");
+                Ok(-1)
+            },
+        );
+
         methods.add_method("ShowReminder", |_, _this, (_ctx, _param1): (Table, u32)| {
             tracing::debug!("ShowReminder called");
             Ok(-1)
         });
 
         methods.add_method(
+            "ShowReminderByUid",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("ShowReminderByUid called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
             "ShowReminderRadius",
             |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, u32, u32)| {
                 tracing::debug!("ShowReminderRadius called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "ShowTemplateReminder",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, Table)| {
+                tracing::debug!("ShowTemplateReminder called");
                 Ok(-1)
             },
         );
@@ -1491,6 +2760,11 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
+        methods.add_method("StartSceneMultiStagePlayStage", |_, _this, (_ctx, _param1, _param2, _param3, _param4): (Table, u32, u32, u32, String)| {
+            tracing::debug!("StartSceneMultiStagePlayStage called");
+            Ok(-1)
+        });
+
         methods.add_method(
             "StartSealBattle",
             |_, _this, (_ctx, _param1, _param2): (Table, u32, Table)| {
@@ -1501,16 +2775,26 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "StopChallenge",
-            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("StopChallenge called");
                 Ok(-1)
             },
         );
 
+        methods.add_method("StopFishing", |_, _this, (_ctx, _param1): (Table, u32)| {
+            tracing::debug!("StopFishing called");
+            Ok(-1)
+        });
+
+        methods.add_method("StopGallery", |_, _this, (_ctx, _param1): (Table, u32)| {
+            tracing::debug!("StopGallery called");
+            Ok(-1)
+        });
+
         methods.add_method(
-            "StopGallery",
-            |_, _this, (_ctx, _param1, _param2): (Table, u32, bool)| {
-                tracing::debug!("StopGallery called");
+            "StopGalleryByReason",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("StopGalleryByReason called");
                 Ok(-1)
             },
         );
@@ -1519,6 +2803,19 @@ impl UserData for LuaScriptLibHandle {
             tracing::debug!("StopPlatform called");
             Ok(-1)
         });
+
+        methods.add_method("StopReminder", |_, _this, (_ctx, _param1): (Table, u32)| {
+            tracing::debug!("StopReminder called");
+            Ok(-1)
+        });
+
+        methods.add_method(
+            "SwitchSceneEnvAnimal",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("SwitchSceneEnvAnimal called");
+                Ok(-1)
+            },
+        );
 
         methods.add_method(
             "TowerCountTimeStatus",
@@ -1540,6 +2837,22 @@ impl UserData for LuaScriptLibHandle {
             "TransPlayerToPos",
             |_, _this, (_ctx, _param1): (Table, Table)| {
                 tracing::debug!("TransPlayerToPos called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "TreasureSeelieCollectOrbsNotify",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, u32)| {
+                tracing::debug!("TreasureSeelieCollectOrbsNotify called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "TryFinishLuminanceStoneChallengeStage",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("TryFinishLuminanceStoneChallengeStage called");
                 Ok(-1)
             },
         );
@@ -1607,8 +2920,48 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "UpdatePlayerGalleryScore",
-            |_, _this, (_ctx, _param1, _param2): (Table, u32, Table)| {
+            |_, _this, (_ctx, _param1): (Table, u32)| {
                 tracing::debug!("UpdatePlayerGalleryScore called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "UpdateStakeHomePlayRecord",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("UpdateStakeHomePlayRecord called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "VintageFinishGroupByPresentId",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("VintageFinishGroupByPresentId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "WinterCampGetBattleGroupBundleId",
+            |_, _this, _ctx: Table| {
+                tracing::debug!("WinterCampGetBattleGroupBundleId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "WinterCampGetExploreGroupBundleId",
+            |_, _this, _ctx: Table| {
+                tracing::debug!("WinterCampGetExploreGroupBundleId called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "WinterCampSnowDriftInteract",
+            |_, _this, (_ctx, _param1): (Table, u32)| {
+                tracing::debug!("WinterCampSnowDriftInteract called");
                 Ok(-1)
             },
         );
@@ -1622,6 +2975,14 @@ impl UserData for LuaScriptLibHandle {
             "sendShowCommonTipsToClient",
             |_, _this, (_ctx, _param1, _param2, _param3): (Table, String, String, u32)| {
                 tracing::debug!("sendShowCommonTipsToClient called");
+                Ok(-1)
+            },
+        );
+
+        methods.add_method(
+            "updateBundleMarkShowStateByGroupId",
+            |_, _this, (_ctx, _param1, _param2): (Table, u32, bool)| {
+                tracing::debug!("updateBundleMarkShowStateByGroupId called");
                 Ok(-1)
             },
         );

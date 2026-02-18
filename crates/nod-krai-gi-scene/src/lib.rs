@@ -116,6 +116,7 @@ fn init_scene(
         enter_events.write(BeginEnterSceneEvent {
             uid,
             scene_id: player_scene_bin.my_cur_scene_id,
+            dungeon_id: 0,
             enter_type: EnterType::EnterSelf,
             enter_reason: EnterReason::Login,
             position: player_scene_bin.my_prev_pos.unwrap_or_default().into(),
@@ -215,6 +216,11 @@ fn notify_player_enter_scene(
                     protocol_version,
                     "PlayerEnterSceneNotify.scene_id",
                     event.scene_id,
+                ),
+                dungeon_id: replace_out_u32(
+                    protocol_version,
+                    "PlayerEnterSceneNotify.dungeon_id",
+                    event.dungeon_id,
                 ),
                 enter_scene_token: replace_out_u32(
                     protocol_version,

@@ -3,6 +3,7 @@ use crate::scene::scene_config_template::*;
 use crate::scene::scene_group_template::*;
 use dashmap::DashMap;
 use mlua::{Lua, LuaSerdeExt, Value};
+use rayon::prelude::*;
 use std::{
     collections::HashMap,
     fs,
@@ -20,9 +21,6 @@ pub static SCENE_GROUP_COLLECTION: OnceLock<Arc<DashMap<u32, Option<SceneGroupTe
 
 
 pub fn init_scene_static_templates(root: &str) {
-    let mut config_map = HashMap::<u32, SceneConfigTemplate>::new();
-    let mut block_map = HashMap::<(u32, u32), SceneBlockTemplate>::new();
-
     let root_path = Path::new(root);
 
     let entries = match fs::read_dir(root_path) {
@@ -30,44 +28,47 @@ pub fn init_scene_static_templates(root: &str) {
         Err(_) => return,
     };
 
-    for entry in entries {
-        let entry = match entry {
-            Ok(v) => v,
-            Err(_) => continue,
-        };
-
-        let file_type = match entry.file_type() {
-            Ok(v) => v,
-            Err(_) => continue,
-        };
-
-        if !file_type.is_dir() {
-            continue;
-        }
-
-        let scene_id: u32 = match entry.file_name().to_string_lossy().parse() {
-            Ok(v) => v,
-            Err(_) => continue,
-        };
-
-        let scene_dir = entry.path();
-
-        let config_path = scene_dir.join(format!("scene{}.lua", scene_id));
-        let config = load_scene_config_file(&config_path);
-
-        let mut block_id_list = vec![];
-
-        if let Some(config) = config {
-            block_id_list.extend(config.blocks.clone());
-            config_map.insert(scene_id, config);
-        }
-
-        for block_id in block_id_list {
-            let block_path = scene_dir.join(format!("scene{}_block{}.lua", scene_id, block_id));
-            if let Some(block) = load_scene_block_file(&block_path) {
-                block_map.insert((scene_id, block_id), block);
+    let results: Vec<_> = entries
+        .par_bridge()
+        .filter_map(|entry| {
+            let entry = entry.ok()?;
+            if !entry.file_type().ok()?.is_dir() {
+                return None;
             }
-        }
+
+            let scene_id: u32 = entry.file_name().to_string_lossy().parse().ok()?;
+            let scene_dir = entry.path();
+
+            let config_path = scene_dir.join(format!("scene{}.lua", scene_id));
+            let config = load_scene_config_file(&config_path);
+
+            let mut config_map = HashMap::<u32, SceneConfigTemplate>::new();
+            let mut block_map = HashMap::<(u32, u32), SceneBlockTemplate>::new();
+
+            let mut block_id_list = vec![];
+
+            if let Some(config) = config {
+                block_id_list.extend(config.blocks.clone());
+                config_map.insert(scene_id, config);
+            }
+
+            for block_id in block_id_list {
+                let block_path = scene_dir.join(format!("scene{}_block{}.lua", scene_id, block_id));
+                if let Some(block) = load_scene_block_file(&block_path) {
+                    block_map.insert((scene_id, block_id), block);
+                }
+            }
+
+            Some((config_map, block_map))
+        })
+        .collect();
+
+    let mut config_map = HashMap::<u32, SceneConfigTemplate>::new();
+    let mut block_map = HashMap::<(u32, u32), SceneBlockTemplate>::new();
+
+    for (scene_configs, scene_blocks) in results {
+        config_map.extend(scene_configs);
+        block_map.extend(scene_blocks);
     }
 
     SCENE_CONFIG_COLLECTION.set(Arc::new(config_map)).ok();
