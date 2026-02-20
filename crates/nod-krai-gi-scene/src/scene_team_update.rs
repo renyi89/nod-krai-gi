@@ -99,8 +99,8 @@ pub fn notify_scene_team_update(
                                 entity_id: avatar_data.entity_id.0,
                                 name: String::with_capacity(0),
                                 motion_info: Some(MotionInfo {
-                                    pos: Some(player_scene_bin.my_prev_pos.unwrap_or_default().into()),
-                                    rot: Some(player_scene_bin.my_prev_rot.unwrap_or_default().into()),
+                                    pos: Some(player_scene_bin.my_cur_scene_pos.unwrap_or_default().into()),
+                                    rot: Some(player_scene_bin.my_cur_scene_rot.unwrap_or_default().into()),
                                     speed: Some(Vector::default()),
                                     ..Default::default()
                                 }),

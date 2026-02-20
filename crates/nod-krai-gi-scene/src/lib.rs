@@ -119,7 +119,7 @@ fn init_scene(
             dungeon_id: 0,
             enter_type: EnterType::EnterSelf,
             enter_reason: EnterReason::Login,
-            position: player_scene_bin.my_prev_pos.unwrap_or_default().into(),
+            position: player_scene_bin.my_cur_scene_pos.unwrap_or_default().into(),
         });
     }
 }

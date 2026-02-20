@@ -123,14 +123,16 @@ pub fn on_player_move(
         let uid = ev.0;
         let scene_id = ev.1;
         let pos = Position::from(ev.2);
+        let allow_load = ev.3;
 
         let now = Instant::now();
 
-        let allow = group_load_manager
-            .last_load
-            .get(&uid)
-            .map(|t| now.duration_since(*t) >= group_load_manager.cd)
-            .unwrap_or(true);
+        let allow = allow_load
+            || group_load_manager
+                .last_load
+                .get(&uid)
+                .map(|t| now.duration_since(*t) >= group_load_manager.cd)
+                .unwrap_or(true);
 
         if !allow {
             continue;

@@ -60,7 +60,7 @@ pub fn debug_command_handler(
                     &mut entity_counter,
                     {
                         let y = if let Some(ref player_scene_bin) = player_info.scene_bin {
-                            player_scene_bin.my_prev_pos.unwrap_or_default().y
+                            player_scene_bin.my_cur_scene_pos.unwrap_or_default().y
                         } else {
                             0.0
                         };
@@ -92,7 +92,7 @@ pub fn debug_command_handler(
                     &mut entity_counter,
                     {
                         let y = if let Some(ref player_scene_bin) = player_info.scene_bin {
-                            player_scene_bin.my_prev_pos.unwrap_or_default().y
+                            player_scene_bin.my_cur_scene_pos.unwrap_or_default().y
                         } else {
                             0.0
                         };
@@ -102,6 +102,7 @@ pub fn debug_command_handler(
                     VectorBin::default(),
                     gadget_id,
                     90,
+                    0,
                 ) else {
                     continue;
                 };
@@ -165,11 +166,11 @@ pub fn gm_command_handler(
                                     id,
                                     EnterReason::Gm,
                                     (
-                                        player_scene_bin.my_prev_pos.unwrap_or_default().x
+                                        player_scene_bin.my_cur_scene_pos.unwrap_or_default().x
                                             + x.unwrap_or_default(),
-                                        player_scene_bin.my_prev_pos.unwrap_or_default().y
+                                        player_scene_bin.my_cur_scene_pos.unwrap_or_default().y
                                             + y.unwrap_or_default(),
-                                        player_scene_bin.my_prev_pos.unwrap_or_default().z
+                                        player_scene_bin.my_cur_scene_pos.unwrap_or_default().z
                                             + z.unwrap_or_default(),
                                     ),
                                 ));

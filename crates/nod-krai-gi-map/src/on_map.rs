@@ -17,6 +17,7 @@ use tracing::{debug, instrument};
 pub fn message_on_map(
     mut events: MessageReader<ClientMessageEvent>,
     mut debug_events: MessageWriter<DebugCommandEvent>,
+    mut jump_events: MessageWriter<ScenePlayerJumpEvent>,
     mut jump_point_events: MessageWriter<ScenePlayerJumpByPointEvent>,
     mut enter_dungeon_events: MessageWriter<ScenePlayerEnterDungeonEvent>,
     message_output: Res<MessageOutput>,
@@ -159,6 +160,26 @@ pub fn message_on_map(
                             point_id: request.point_id,
                         },
                     );
+                }
+            }
+            "PlayerQuitDungeonReq" => {
+                let Some(player_info) = players.get(message.sender_uid()) else {
+                    continue;
+                };
+
+                if let Some(ref player_dungeon_bin) = player_info.dungeon_bin {
+                    let Some(quit_pos) = player_dungeon_bin.quit_pos else {
+                        continue;
+                    };
+
+                    jump_events.write(ScenePlayerJumpEvent(
+                        message.sender_uid(),
+                        player_dungeon_bin.quit_scene_id,
+                        EnterReason::DungeonQuit,
+                        (quit_pos.x, quit_pos.y, quit_pos.z),
+                    ));
+
+                    message_output.send_none(message.sender_uid(), "PlayerQuitDungeonRsp");
                 }
             }
             &_ => {}

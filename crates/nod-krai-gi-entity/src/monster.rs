@@ -156,6 +156,18 @@ pub fn spawn_monster_entity(
     }
     fight_properties.apply_base_values();
 
+    let mut title_id = title_id;
+    let mut special_name_id = special_name_id;
+    if title_id == 0 && special_name_id == 0 {
+        match &config.describe {
+            None => {}
+            Some(describe) => {
+                title_id = describe.title_id;
+                special_name_id = describe.special_name_id.unwrap_or(0);
+            }
+        }
+    }
+
     let monster_entity = commands.spawn(MonsterBundle {
         monster_id: MonsterID(monster_id),
         entity_id: to_protocol_entity_id(ProtEntityType::ProtEntityMonster, entity_counter.inc()),

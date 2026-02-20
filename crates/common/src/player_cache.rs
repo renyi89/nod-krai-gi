@@ -22,6 +22,7 @@ pub struct PlayerCache {
     pub profile_frame_id: u32,
     pub cur_player_num_in_world: u32,
     pub online_status: PlayerStatusType,
+    pub scene_level: Arc<DashMap<u32, u32>>,
 }
 
 impl Default for PlayerCache {
@@ -39,6 +40,7 @@ impl Default for PlayerCache {
             profile_frame_id: 0,
             cur_player_num_in_world: 0,
             online_status: PlayerStatusType::PlayerStatusOffline,
+            scene_level: Arc::new(DashMap::new()),
         }
     }
 }
@@ -77,6 +79,17 @@ where
             }
         }
     }
+}
+
+pub fn cache_set_scene_level(uid: u32, scene_id: u32, level: u32) {
+    update_player_cache(uid, |v| {
+        v.scene_level.insert(scene_id, level);
+    });
+}
+
+pub fn cache_get_scene_level(uid: u32, scene_id: u32) -> Option<u32> {
+    get_player_cache(uid)
+        .and_then(|v| v.scene_level.get(&scene_id).map(|v| *v))
 }
 
 pub fn cache_set_is_tp(uid: u32, value: bool) {

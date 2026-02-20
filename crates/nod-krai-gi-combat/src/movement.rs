@@ -65,8 +65,8 @@ pub fn track_player_position(
         };
 
         if let Some(ref mut player_scene_bin) = player_info.scene_bin {
-            player_scene_bin.my_prev_pos = transform.position.into();
-            player_scene_bin.my_prev_rot = transform.rotation.into();
+            player_scene_bin.my_cur_scene_pos = transform.position.into();
+            player_scene_bin.my_cur_scene_rot = transform.rotation.into();
             events.write(PlayerMoveEvent(
                 owner_uid.0,
                 player_scene_bin.my_cur_scene_id,
@@ -75,6 +75,7 @@ pub fn track_player_position(
                     transform.position.y,
                     transform.position.z,
                 ),
+                false
             ));
 
             tracing::trace!(

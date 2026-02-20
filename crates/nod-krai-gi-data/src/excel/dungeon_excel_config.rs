@@ -61,6 +61,7 @@ pub enum SettleShowType {
 pub struct DungeonExcelConfig {
     pub id: u32,
     pub scene_id: u32,
+    pub show_level: u32,
     pub sub_type: DungeonSubType,
     pub play_type: DungeonPlayType,
     pub involve_type: DungeonInvolveType,

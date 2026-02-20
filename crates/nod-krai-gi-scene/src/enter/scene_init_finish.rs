@@ -1,5 +1,6 @@
 use crate::common::PlayerSceneStates;
 use bevy_ecs::prelude::*;
+use nod_krai_gi_event::combat::PlayerMoveEvent;
 use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::get_player_version;
 use nod_krai_gi_message::output::MessageOutput;
@@ -11,6 +12,7 @@ use nod_krai_gi_proto::retcode::Retcode;
 pub fn on_scene_init_finish(
     mut reader: MessageReader<SceneInitFinishEvent>,
     mut players: ResMut<Players>,
+    mut move_events: MessageWriter<PlayerMoveEvent>,
     mut join_team_events: MessageWriter<PlayerJoinTeamEvent>,
 ) {
     for event in reader.read() {
@@ -18,11 +20,26 @@ pub fn on_scene_init_finish(
         let Some(player_info) = players.get_mut(uid) else {
             continue;
         };
+        if player_info.dungeon_bin.is_some() {
+            if let Some(ref player_scene_bin) = player_info.scene_bin {
+                if let Some(ref pos) = player_scene_bin.my_cur_scene_pos {
+                    move_events.write(PlayerMoveEvent(
+                        uid,
+                        player_scene_bin.my_cur_scene_id,
+                        (pos.x, pos.y, pos.z),
+                        true,
+                    ));
+                }
+            }
+        };
         let Some(ref mut player_avatar_bin) = player_info.avatar_bin else {
             continue;
         };
 
-        let Some(team_info) = player_avatar_bin.team_map.get(&player_avatar_bin.cur_team_id) else {
+        let Some(team_info) = player_avatar_bin
+            .team_map
+            .get(&player_avatar_bin.cur_team_id)
+        else {
             tracing::debug!("team_info {} doesn't exist", player_avatar_bin.cur_team_id);
             continue;
         };

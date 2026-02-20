@@ -73,8 +73,8 @@ pub fn create_default_player_information(uid: u32, nick_name: String) -> PlayerD
             cur_scene_owner_uid: uid,
             my_prev_scene_id: 3,
             my_cur_scene_id: 3,
-            my_prev_pos: Some((2336.789, 249.98996, -751.3081).into()),
-            my_prev_rot: Some((0.0, 0.0, 0.0).into()),
+            my_cur_scene_pos: Some((2336.789, 249.98996, -751.3081).into()),
+            my_cur_scene_rot: Some((0.0, 0.0, 0.0).into()),
             ..Default::default()
         }),
         quest_bin: Some(PlayerQuestCompBin {

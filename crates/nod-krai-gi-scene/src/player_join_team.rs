@@ -47,8 +47,8 @@ pub fn player_join_team(
                         .insert(IndexInSceneTeam(idx as u8))
                         .insert(CurrentTeam)
                         .insert(Transform {
-                            position: player_scene_bin.my_prev_pos.unwrap_or_default().into(),
-                            rotation: player_scene_bin.my_prev_rot.unwrap_or_default().into(),
+                            position: player_scene_bin.my_cur_scene_pos.unwrap_or_default().into(),
+                            rotation: player_scene_bin.my_cur_scene_rot.unwrap_or_default().into(),
                         });
 
                     if *to_spawn_guid == event.appear_avatar_guid {
@@ -68,8 +68,8 @@ pub fn player_join_team(
                         &mut commands,
                         &mut entity_counter,
                         avatar_bin,
-                        player_scene_bin.my_prev_pos.unwrap_or_default().into(),
-                        player_scene_bin.my_prev_rot.unwrap_or_default().into(),
+                        player_scene_bin.my_cur_scene_pos.unwrap_or_default().into(),
+                        player_scene_bin.my_cur_scene_rot.unwrap_or_default().into(),
                         uid,
                         peer_mgr.get_peer_id_by_uid(uid),
                         idx as u8,

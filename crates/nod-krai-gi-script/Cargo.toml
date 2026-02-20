@@ -8,12 +8,12 @@ bevy_app.workspace = true
 bevy_ecs.workspace = true
 crossbeam-queue.workspace = true
 tracing.workspace = true
-
-
 mlua.workspace = true
+
+common.workspace = true
 
 nod-krai-gi-event.workspace = true
 nod-krai-gi-entity.workspace = true
 nod-krai-gi-data.workspace = true
-nod-krai-gi-persistence.workspace = true
+nod-krai-gi-scene.workspace = true
 nod-krai-gi-proto.workspace = true

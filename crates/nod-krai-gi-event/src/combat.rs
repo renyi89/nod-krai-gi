@@ -6,4 +6,4 @@ pub struct EntityMoveEvent(pub u32, pub EntityMoveInfo);
 #[derive(Message)]
 pub struct EntityBeingHitEvent(pub u32, pub AttackResult);
 #[derive(Message)]
-pub struct PlayerMoveEvent(pub u32, pub u32, pub (f32, f32, f32));
+pub struct PlayerMoveEvent(pub u32, pub u32, pub (f32, f32, f32),pub bool);

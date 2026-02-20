@@ -367,8 +367,8 @@ message PlayerSceneCompBin {
     WorldBin world = 1;
     uint32 cur_scene_owner_uid = 2;
     uint32 my_prev_scene_id = 3;
-    VectorBin my_prev_pos = 4;
-    VectorBin my_prev_rot = 5;
+    VectorBin my_cur_scene_pos = 4;
+    VectorBin my_cur_scene_rot = 5;
     uint32 my_cur_scene_id = 6;
     repeated uint32 monster_seen_list = 7;
     repeated MapMarkPointBin mark_point_list = 8;

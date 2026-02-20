@@ -73,7 +73,6 @@ mod tests {
 
         let lua = Lua::new();
 
-        // 注入所有 enum
         inject_enum::<EventType>(&lua, "EventType").ok().unwrap();
         inject_enum::<GadgetState>(&lua, "GadgetState")
             .ok()

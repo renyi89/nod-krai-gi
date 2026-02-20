@@ -12914,10 +12914,10 @@ pub struct PlayerSceneCompBin {
     pub my_prev_scene_id: u32,
     #[prost(message, optional, tag = "4")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub my_prev_pos: ::core::option::Option<VectorBin>,
+    pub my_cur_scene_pos: ::core::option::Option<VectorBin>,
     #[prost(message, optional, tag = "5")]
     #[serde(skip_serializing_if = "crate::is_default")]
-    pub my_prev_rot: ::core::option::Option<VectorBin>,
+    pub my_cur_scene_rot: ::core::option::Option<VectorBin>,
     #[prost(uint32, tag = "6")]
     #[serde(skip_serializing_if = "crate::is_default")]
     pub my_cur_scene_id: u32,

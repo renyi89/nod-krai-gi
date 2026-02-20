@@ -41,6 +41,7 @@ pub fn sync_player_data(players: Res<Players>, out: Res<MessageOutput>) {
             PlayerDataNotify {
                 nick_name: player_basic_bin.nickname.clone(),
                 prop_map: int_prop_map! {
+                    PROP_PLAYER_WORLD_LEVEL: 9;
                     PROP_IS_SPRING_AUTO_USE: 1;
                     PROP_SPRING_AUTO_USE_PERCENT: 50;
                     PROP_IS_FLYABLE: 1;

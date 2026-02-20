@@ -1,7 +1,9 @@
 use bevy_ecs::change_detection::ResMut;
 use bevy_ecs::entity::Entity;
 use bevy_ecs::message::MessageReader;
-use bevy_ecs::prelude::{Commands, Query};
+use bevy_ecs::prelude::*;
+use common::player_cache::cache_get_scene_level;
+use nod_krai_gi_data::scene::GadgetState;
 use nod_krai_gi_entity::common::{
     BlockId, ConfigId, EntityCounter, GroupId, ToBeRemovedMarker, Visible,
 };
@@ -9,12 +11,14 @@ use nod_krai_gi_entity::gadget::spawn_gadget_entity;
 use nod_krai_gi_entity::monster::spawn_monster_entity;
 use nod_krai_gi_event::lua::{DespawnGroupEntityEvent, SpawnGroupEntityEvent};
 use nod_krai_gi_proto::server_only::VectorBin;
+use nod_krai_gi_scene::common::WorldOwnerUID;
 use std::sync::Arc;
 
 pub fn spawn_group_entity(
     mut spawn_group_entity_event: MessageReader<SpawnGroupEntityEvent>,
     mut commands: Commands,
     mut entity_counter: ResMut<EntityCounter>,
+    world_owner_uid: Res<WorldOwnerUID>,
 ) {
     let scene_group_collection_clone = Arc::clone(
         nod_krai_gi_data::scene::script_cache::SCENE_GROUP_COLLECTION
@@ -30,6 +34,10 @@ pub fn spawn_group_entity(
             continue;
         };
 
+        let show_level =
+            cache_get_scene_level(world_owner_uid.0, scene_group_template.base_info.scene_id)
+                .unwrap_or(1);
+
         if scene_group_template.init_config.suite < 1
             || scene_group_template.init_config.suite > scene_group_template.suites.len() as u32
         {
@@ -41,6 +49,8 @@ pub fn spawn_group_entity(
 
         for monster in scene_group_template.monsters.iter() {
             if suite.monsters.contains(&monster.config_id) {
+                let mut level = monster.level.unwrap_or(103) + 67;
+                level += show_level - 1;
                 let Some(monster_entity) = spawn_monster_entity(
                     &mut commands,
                     &mut entity_counter,
@@ -55,7 +65,7 @@ pub fn spawn_group_entity(
                         z: monster.rot.z,
                     },
                     monster.monster_id,
-                    monster.level.unwrap_or(90),
+                    level,
                     monster.title_id.unwrap_or(0),
                     monster.special_name_id.unwrap_or(0),
                 ) else {
@@ -86,6 +96,7 @@ pub fn spawn_group_entity(
                     },
                     gadget.gadget_id,
                     gadget.level.unwrap_or(90),
+                    gadget.state.unwrap_or(GadgetState::Default) as u32,
                 ) else {
                     continue;
                 };
