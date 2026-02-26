@@ -9,7 +9,9 @@
       "OSRELWin6.2.0",
       "CNRELWin6.2.0",
       "OSRELWin6.3.0",
-      "CNRELWin6.3.0"
+      "CNRELWin6.3.0",
+      "OSRELWin6.4.0",
+      "CNRELWin6.4.0"
     ],
     "channel_id": 1,
     "allowed_key_id_list": [
