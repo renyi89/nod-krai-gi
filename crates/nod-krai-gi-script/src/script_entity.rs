@@ -26,6 +26,9 @@ pub fn spawn_group_entity(
             .unwrap(),
     );
 
+    let gadther_excel_config_collection_clone =
+        std::sync::Arc::clone(nod_krai_gi_data::excel::gather_excel_config_collection::get());
+
     for event in spawn_group_entity_event.read() {
         let Some(scene_group_template) = scene_group_collection_clone.get(&event.group_id) else {
             continue;
@@ -81,6 +84,17 @@ pub fn spawn_group_entity(
         }
         for gadget in scene_group_template.gadgets.iter() {
             if suite.gadgets.contains(&gadget.config_id) {
+                let mut gadget_id = gadget.gadget_id;
+                let mut is_interactive = false;
+                if gadget_id == 70500000 && gadget.point_type.is_some() {
+                    let Some(gather_config) = gadther_excel_config_collection_clone
+                        .get(&gadget.point_type.unwrap_or_default())
+                    else {
+                        continue;
+                    };
+                    gadget_id = gather_config.gadget_id;
+                    is_interactive = true;
+                }
                 let Some(gadget_entity) = spawn_gadget_entity(
                     &mut commands,
                     &mut entity_counter,
@@ -94,9 +108,10 @@ pub fn spawn_group_entity(
                         y: gadget.rot.y,
                         z: gadget.rot.z,
                     },
-                    gadget.gadget_id,
+                    gadget_id,
                     gadget.level.unwrap_or(90),
                     gadget.state.unwrap_or(GadgetState::Default) as u32,
+                    is_interactive
                 ) else {
                     continue;
                 };

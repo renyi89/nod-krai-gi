@@ -7,6 +7,7 @@ use crate::excel::common::EntityType;
 pub struct GadgetExcelConfig {
     pub id: u32,
     pub r#type: EntityType,
+    pub point_type: Option<u32>,
     pub json_name: InternString,
     pub is_interactive: bool,
     pub tags: Vec<InternString>,

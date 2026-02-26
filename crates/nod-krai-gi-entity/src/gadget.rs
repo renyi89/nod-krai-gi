@@ -12,6 +12,9 @@ use tracing::debug;
 pub struct GadgetID(pub u32);
 
 #[derive(Component)]
+pub struct Interactive(pub bool);
+
+#[derive(Component)]
 pub struct State(pub u32);
 
 #[derive(Bundle)]
@@ -20,6 +23,7 @@ pub struct GadgetBundle {
     pub entity_id: ProtocolEntityID,
     pub owner_entity_id: OwnerProtocolEntityID,
     pub level: Level,
+    pub interactive: Interactive,
     pub state: State,
     pub transform: Transform,
     pub fight_properties: FightProperties,
@@ -36,6 +40,7 @@ pub struct GadgetQueryReadOnly {
     pub entity_id: &'static ProtocolEntityID,
     pub owner_entity_id: &'static OwnerProtocolEntityID,
     pub level: &'static Level,
+    pub interactive: &'static Interactive,
     pub state: &'static State,
     pub transform: &'static Transform,
     pub fight_properties: &'static FightProperties,
@@ -52,73 +57,63 @@ pub fn notify_appear_gadget_entities(
 ) {
     use nod_krai_gi_proto::normal::*;
 
-    let gadget_excel_config_collection_clone =
-        std::sync::Arc::clone(gadget_excel_config_collection::get());
-
     let mut entity_list: Vec<SceneEntityInfo> = vec![];
 
     gadgets
         .iter()
-        .for_each(
-            |(gadget_data, group_id, config_id)| match gadget_excel_config_collection_clone
-                .get(&gadget_data.gadget_id.0)
-            {
-                None => {}
-                Some(gadget_config) => {
-                    entity_list.push(SceneEntityInfo {
-                        entity_type: ProtEntityType::ProtEntityGadget.into(),
-                        entity_id: gadget_data.entity_id.0,
-                        name: String::new(),
-                        motion_info: Some(MotionInfo {
-                            pos: Some(gadget_data.transform.position.into()),
-                            rot: Some(gadget_data.transform.rotation.into()),
-                            speed: Some(Vector::default()),
-                            ..Default::default()
-                        }),
-                        prop_list: vec![int_prop_pair!(PROP_LEVEL, gadget_data.level.0)],
-                        fight_prop_list: gadget_data
-                            .fight_properties
-                            .0
-                            .iter()
-                            .map(|(k, v)| FightPropPair {
-                                prop_type: *k as u32,
-                                prop_value: *v,
-                            })
-                            .collect(),
-                        life_state: *gadget_data.life_state as u32,
-                        animator_para_list: vec![AnimatorParameterValueInfoPair {
-                            name_id: 0,
-                            animator_para: Some(AnimatorParameterValueInfo::default()),
-                        }],
-                        last_move_scene_time_ms: 0,
-                        last_move_reliable_seq: 0,
-                        entity_client_data: Some(EntityClientData::default()),
-                        entity_environment_info_list: Vec::with_capacity(0),
-                        entity_authority_info: Some(EntityAuthorityInfo {
-                            ability_info: Some(AbilitySyncStateInfo::default()),
-                            born_pos: Some(gadget_data.transform.position.into()),
-                            client_extra_info: Some(EntityClientExtraInfo {
-                                skill_anchor_position: Some(Vector::default()),
-                            }),
-                            renderer_changed_info: Some(EntityRendererChangedInfo::default()),
-                            pose_para_list: Vec::with_capacity(0),
-                            ..Default::default()
-                        }),
-                        tag_list: Vec::with_capacity(0),
-                        server_buff_list: Vec::with_capacity(0),
-                        entity: Some(scene_entity_info::Entity::Gadget(SceneGadgetInfo {
-                            gadget_id: gadget_data.gadget_id.0,
-                            is_enable_interact: gadget_config.is_interactive,
-                            gadget_state: gadget_data.state.0,
-                            group_id: group_id.and_then(|t| Some(t.0)).unwrap_or_default(),
-                            config_id: config_id.and_then(|t| Some(t.0)).unwrap_or_default(),
-                            ..Default::default()
-                        })),
-                        ..Default::default()
-                    });
-                }
-            },
-        );
+        .for_each(|(gadget_data, group_id, config_id)| {
+            entity_list.push(SceneEntityInfo {
+                entity_type: ProtEntityType::ProtEntityGadget.into(),
+                entity_id: gadget_data.entity_id.0,
+                name: String::new(),
+                motion_info: Some(MotionInfo {
+                    pos: Some(gadget_data.transform.position.into()),
+                    rot: Some(gadget_data.transform.rotation.into()),
+                    speed: Some(Vector::default()),
+                    ..Default::default()
+                }),
+                prop_list: vec![int_prop_pair!(PROP_LEVEL, gadget_data.level.0)],
+                fight_prop_list: gadget_data
+                    .fight_properties
+                    .0
+                    .iter()
+                    .map(|(k, v)| FightPropPair {
+                        prop_type: *k as u32,
+                        prop_value: *v,
+                    })
+                    .collect(),
+                life_state: *gadget_data.life_state as u32,
+                animator_para_list: vec![AnimatorParameterValueInfoPair {
+                    name_id: 0,
+                    animator_para: Some(AnimatorParameterValueInfo::default()),
+                }],
+                last_move_scene_time_ms: 0,
+                last_move_reliable_seq: 0,
+                entity_client_data: Some(EntityClientData::default()),
+                entity_environment_info_list: Vec::with_capacity(0),
+                entity_authority_info: Some(EntityAuthorityInfo {
+                    ability_info: Some(AbilitySyncStateInfo::default()),
+                    born_pos: Some(gadget_data.transform.position.into()),
+                    client_extra_info: Some(EntityClientExtraInfo {
+                        skill_anchor_position: Some(Vector::default()),
+                    }),
+                    renderer_changed_info: Some(EntityRendererChangedInfo::default()),
+                    pose_para_list: Vec::with_capacity(0),
+                    ..Default::default()
+                }),
+                tag_list: Vec::with_capacity(0),
+                server_buff_list: Vec::with_capacity(0),
+                entity: Some(scene_entity_info::Entity::Gadget(SceneGadgetInfo {
+                    gadget_id: gadget_data.gadget_id.0,
+                    is_enable_interact: gadget_data.interactive.0,
+                    gadget_state: gadget_data.state.0,
+                    group_id: group_id.and_then(|t| Some(t.0)).unwrap_or_default(),
+                    config_id: config_id.and_then(|t| Some(t.0)).unwrap_or_default(),
+                    ..Default::default()
+                })),
+                ..Default::default()
+            });
+        });
     out.send_to_all(
         "SceneEntityAppearNotify",
         SceneEntityAppearNotify {
@@ -143,6 +138,7 @@ pub fn spawn_gadget_entity(
     gadget_id: u32,
     level: u32,
     state: u32,
+    is_interactive: bool,
 ) -> Option<Entity> {
     let gadget_excel_config_collection_clone =
         std::sync::Arc::clone(gadget_excel_config_collection::get());
@@ -168,10 +164,11 @@ pub fn spawn_gadget_entity(
         entity_id: to_protocol_entity_id(ProtEntityType::ProtEntityGadget, entity_counter.inc()),
         owner_entity_id: OwnerProtocolEntityID(None),
         level: Level(level),
+        interactive: Interactive(config.is_interactive || is_interactive),
         state: State(state),
         transform: Transform { position, rotation },
         fight_properties,
-        ability: ability,
+        ability,
         instanced_abilities: InstancedAbilities::default(),
         instanced_modifiers: InstancedModifiers::default(),
         global_ability_values: GlobalAbilityValues::default(),

@@ -12,6 +12,7 @@ pub fn init_player_cache() {
 pub struct PlayerCache {
     pub is_tp: bool,
     pub is_mp: bool,
+    pub is_notify: bool,
     pub is_pause: bool,
     pub client_time: u32,
     pub nick_name: String,
@@ -30,6 +31,7 @@ impl Default for PlayerCache {
         Self {
             is_tp: false,
             is_mp: false,
+            is_notify: false,
             is_pause: false,
             client_time: 0,
             nick_name: String::new(),
@@ -88,8 +90,7 @@ pub fn cache_set_scene_level(uid: u32, scene_id: u32, level: u32) {
 }
 
 pub fn cache_get_scene_level(uid: u32, scene_id: u32) -> Option<u32> {
-    get_player_cache(uid)
-        .and_then(|v| v.scene_level.get(&scene_id).map(|v| *v))
+    get_player_cache(uid).and_then(|v| v.scene_level.get(&scene_id).map(|v| *v))
 }
 
 pub fn cache_set_is_tp(uid: u32, value: bool) {
@@ -106,6 +107,14 @@ pub fn cache_set_is_mp(uid: u32, value: bool) {
 
 pub fn cache_get_is_mp(uid: u32) -> Option<bool> {
     get_player_cache(uid).map(|v| v.is_mp)
+}
+
+pub fn cache_set_is_notify(uid: u32, value: bool) {
+    update_player_cache(uid, |v| v.is_notify = value);
+}
+
+pub fn cache_get_is_notify(uid: u32) -> Option<bool> {
+    get_player_cache(uid).map(|v| v.is_notify)
 }
 
 pub fn cache_set_is_pause(uid: u32, value: bool) {

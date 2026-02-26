@@ -28,6 +28,7 @@ pub struct Monster {
 pub struct Gadget {
     pub config_id: u32,
     pub gadget_id: u32,
+    pub point_type: Option<u32>,
     pub pos: Position,
     pub rot: Position,
     pub level: Option<u32>,

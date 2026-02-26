@@ -103,6 +103,7 @@ pub fn debug_command_handler(
                     gadget_id,
                     90,
                     0,
+                    true,
                 ) else {
                     continue;
                 };
