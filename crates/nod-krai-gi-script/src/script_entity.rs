@@ -5,14 +5,15 @@ use bevy_ecs::prelude::*;
 use common::player_cache::cache_get_scene_level;
 use nod_krai_gi_data::scene::GadgetState;
 use nod_krai_gi_entity::common::{
-    BlockId, ConfigId, EntityCounter, GroupId, ToBeRemovedMarker, Visible,
+    BlockId, ConfigId, EntityCounter, GroupId, ProtocolEntityID, ToBeRemovedMarker, Visible,
 };
 use nod_krai_gi_entity::gadget::spawn_gadget_entity;
 use nod_krai_gi_entity::monster::spawn_monster_entity;
+use nod_krai_gi_entity::EntityDisappearEvent;
 use nod_krai_gi_event::lua::{DespawnGroupEntityEvent, SpawnGroupEntityEvent};
+use nod_krai_gi_proto::normal::VisionType;
 use nod_krai_gi_proto::server_only::VectorBin;
 use nod_krai_gi_scene::common::WorldOwnerUID;
-use std::sync::Arc;
 
 pub fn spawn_group_entity(
     mut spawn_group_entity_event: MessageReader<SpawnGroupEntityEvent>,
@@ -20,13 +21,13 @@ pub fn spawn_group_entity(
     mut entity_counter: ResMut<EntityCounter>,
     world_owner_uid: Res<WorldOwnerUID>,
 ) {
-    let scene_group_collection_clone = Arc::clone(
+    let scene_group_collection_clone = std::sync::Arc::clone(
         nod_krai_gi_data::scene::script_cache::SCENE_GROUP_COLLECTION
             .get()
             .unwrap(),
     );
 
-    let gadther_excel_config_collection_clone =
+    let gather_excel_config_collection_clone =
         std::sync::Arc::clone(nod_krai_gi_data::excel::gather_excel_config_collection::get());
 
     for event in spawn_group_entity_event.read() {
@@ -87,9 +88,13 @@ pub fn spawn_group_entity(
                 let mut gadget_id = gadget.gadget_id;
                 let mut is_interactive = false;
                 if gadget_id == 70500000 && gadget.point_type.is_some() {
-                    let Some(gather_config) = gadther_excel_config_collection_clone
+                    let Some(gather_config) = gather_excel_config_collection_clone
                         .get(&gadget.point_type.unwrap_or_default())
                     else {
+                        tracing::debug!(
+                            "gather config {} doesn't exist",
+                            gadget.point_type.unwrap_or_default()
+                        );
                         continue;
                     };
                     gadget_id = gather_config.gadget_id;
@@ -111,7 +116,7 @@ pub fn spawn_group_entity(
                     gadget_id,
                     gadget.level.unwrap_or(90),
                     gadget.state.unwrap_or(GadgetState::Default) as u32,
-                    is_interactive
+                    is_interactive,
                 ) else {
                     continue;
                 };
@@ -129,13 +134,18 @@ pub fn spawn_group_entity(
 pub fn despawn_group_entity(
     mut commands: Commands,
     mut despawn_group_entity_event: MessageReader<DespawnGroupEntityEvent>,
-    mut entities: Query<(Entity, &GroupId)>,
+    mut entities: Query<(Entity, &ProtocolEntityID, &GroupId)>,
+    mut disappear_events: MessageWriter<EntityDisappearEvent>,
 ) {
     for event in despawn_group_entity_event.read() {
         entities
             .iter_mut()
-            .filter(|(_, group_id)| group_id.0 == event.group_id)
-            .for_each(|(entity, _)| {
+            .filter(|(_, _, group_id)| group_id.0 == event.group_id)
+            .for_each(|(entity, entity_id, _)| {
+                disappear_events.write(EntityDisappearEvent(
+                    entity_id.0,
+                    VisionType::VisionMiss.into(),
+                ));
                 commands.entity(entity).insert(ToBeRemovedMarker);
             });
     }

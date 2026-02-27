@@ -5,7 +5,6 @@ use indexmap::IndexMap;
 use nod_krai_gi_data::{config, excel::avatar_excel_config_collection};
 use nod_krai_gi_proto::normal::{AbilityControlBlock, AbilityEmbryo};
 use std::collections::HashMap;
-use std::sync::{Arc, OnceLock};
 
 #[derive(Component, Default)]
 pub struct Ability {
@@ -17,14 +16,8 @@ pub struct AbilityData {
     pub ability_override_name_hash: u32,
 }
 
-static TEMP_ABILITIES: OnceLock<Arc<HashMap<u32, Vec<u32>>>> = OnceLock::new();
-
-fn get_temp_abilities() -> Arc<HashMap<u32, Vec<u32>>> {
-    if TEMP_ABILITIES.get().is_some() {
-        TEMP_ABILITIES.get().unwrap().clone()
-    } else {
-        // remove
-
+static TEMP_ABILITIES: std::sync::LazyLock<HashMap<u32, Vec<u32>>> =
+    std::sync::LazyLock::new(|| {
         let mut temp_abilities = HashMap::new();
 
         temp_abilities.insert(
@@ -38,11 +31,8 @@ fn get_temp_abilities() -> Arc<HashMap<u32, Vec<u32>>> {
             ],
         );
 
-        let _ = TEMP_ABILITIES.set(Arc::new(temp_abilities));
-
-        TEMP_ABILITIES.get().unwrap().clone()
-    }
-}
+        temp_abilities
+    });
 
 const COMMON_AVATAR_ABILITIES: [&str; 26] = [
     "Absorb_SealEcho_Bullet_01",
@@ -118,14 +108,17 @@ impl Ability {
 
     pub fn new_for_avatar(id: u32, open_configs: Vec<InternString>) -> Self {
         let avatar_excel_config_collection_clone =
-            Arc::clone(avatar_excel_config_collection::get());
+            std::sync::Arc::clone(avatar_excel_config_collection::get());
         let Some(avatar_config) = avatar_excel_config_collection_clone.get(&id) else {
             tracing::debug!("avatar config {} doesn't exist", id);
             return Self {
                 target_ability_map: Default::default(),
             };
         };
-        let avatar_name = avatar_config.icon_name.as_str().replace("UI_AvatarIcon_", "");
+        let avatar_name = avatar_config
+            .icon_name
+            .as_str()
+            .replace("UI_AvatarIcon_", "");
 
         if let Some(config) = config::get_avatar_config(&avatar_name.into()) {
             let mut ability_map: IndexMap<InternString, AbilityData> = IndexMap::new();
@@ -146,7 +139,7 @@ impl Ability {
         } else {
             tracing::warn!("missing ConfigAvatar for {}", avatar_config.icon_name);
             let mut ability_map: IndexMap<InternString, AbilityData> = IndexMap::new();
-            match Arc::clone(&get_temp_abilities()).get(&id) {
+            match TEMP_ABILITIES.get(&id) {
                 None => {}
                 Some(temp_abilities) => {
                     temp_abilities.iter().for_each(|ability| {

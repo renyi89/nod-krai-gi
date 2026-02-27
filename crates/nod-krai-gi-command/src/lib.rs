@@ -96,7 +96,7 @@ pub fn debug_command_handler(
                         } else {
                             0.0
                         };
-                        (position.0, y + 4.0, position.1)
+                        (position.0, y, position.1)
                     }
                     .into(),
                     VectorBin::default(),
