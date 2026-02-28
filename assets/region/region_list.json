@@ -13,7 +13,6 @@
       "OSRELWin6.4.0",
       "CNRELWin6.4.0"
     ],
-    "channel_id": 1,
     "allowed_key_id_list": [
       4,
       5
@@ -21,6 +20,25 @@
     "dispatch_url": "http://127.0.0.1:21000/query_cur_region",
     "gateserver_ip": "127.0.0.1",
     "gateserver_port": 21002,
-    "secret_key_path": "assets/region/client_secret_key.ec2b"
+    "secret_key_path": "assets/region/client_secret_key.ec2b",
+    "hot_fix_data": {
+      "CNRELAndroid6.2.0": {
+        "resource_url": "https://autopatchcn.yuanshen.com/client_game_res/6.2_live",
+        "data_url": "https://autopatchcn.yuanshen.com/client_design_data/6.2_live",
+        "client_data_md5": "{\"remoteName\": \"data_versions\", \"md5\": \"4051e636655f65a45d129011f8db279b\", \"hash\": \"5855f48a905e8d8b\", \"fileSize\": 69260}\r\n{\"remoteName\": \"data_versions_medium\", \"md5\": \"04c09317d49860051111c5aeca1024c7\", \"hash\": \"317e9aa69f84af17\", \"fileSize\": 7004}",
+        "client_silence_data_md5": "{\"remoteName\": \"data_versions\", \"md5\": \"356348c00edb8275096206e7e9f9ba7b\", \"hash\": \"5d3843cb49cebc01\", \"fileSize\": 524}",
+        "client_data_version": 40721709,
+        "client_silence_data_version": 40700176,
+        "client_version_suffix": "d2748666f8",
+        "client_silence_version_suffix": "c040806adc",
+        "res_version_config": {
+          "version": 40662257,
+          "md5": "{\"remoteName\": \"res_versions_external\", \"md5\": \"8c9caa8f959a7f10fc402f9d77e5e14b\", \"hash\": \"07f026a852ae345a\", \"fileSize\": 227832}\r\n{\"remoteName\": \"res_versions_medium\", \"md5\": \"c0d32717c178cb3eecea2fb6e0725f7a\", \"hash\": \"764415dc6f2d6d2b\", \"fileSize\": 18593}\r\n{\"remoteName\": \"res_versions_streaming\", \"md5\": \"7ed3e7011c17813155f26ec9f82285b8\", \"hash\": \"9d6c2abb20f05760\", \"fileSize\": 3421}\r\n{\"remoteName\": \"base_revision\", \"md5\": \"0f279b0d0bd1653f267fd6a3ec468228\", \"hash\": \"cb5e6ed93b8afd6f\", \"fileSize\": 19}\r\n{\"remoteName\": \"patch_node_versions\", \"md5\": \"cdbaf669a0abb8d9b575e9fc3595c881\", \"hash\": \"ebd9f9010304359b\", \"fileSize\": 5032}",
+          "release_total_size": "0",
+          "version_suffix": "89adf92f6f",
+          "branch": "6.2_live"
+        }
+      }
+    }
   }
 ]

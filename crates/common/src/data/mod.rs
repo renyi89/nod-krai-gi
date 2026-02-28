@@ -1,4 +1,5 @@
 use serde::{Deserialize, Deserializer};
+use std::collections::HashMap;
 
 #[derive(Deserialize)]
 pub struct RegionConfig {
@@ -6,12 +7,35 @@ pub struct RegionConfig {
     pub title: String,
     pub r#type: String,
     pub bind_version_list: Box<[String]>,
-    pub channel_id: u16,
     pub allowed_key_id_list: Box<[u32]>,
     pub dispatch_url: String,
     pub gateserver_ip: String,
     pub gateserver_port: u16,
     pub secret_key_path: Option<String>,
+    #[serde(default)]
+    pub hot_fix_data: HashMap<String, HotFixDataEntry>,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct HotFixDataEntry {
+    pub resource_url: String,
+    pub data_url: String,
+    pub client_data_md5: String,
+    pub client_silence_data_md5: String,
+    pub client_data_version: u32,
+    pub client_silence_data_version: u32,
+    pub client_version_suffix: String,
+    pub client_silence_version_suffix: String,
+    pub res_version_config: ResVersionConfig,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct ResVersionConfig {
+    pub version: u32,
+    pub md5: String,
+    pub release_total_size: String,
+    pub version_suffix: String,
+    pub branch: String,
 }
 
 #[derive(Deserialize)]

@@ -1,3 +1,4 @@
+use crate::AppState;
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -8,8 +9,6 @@ use axum::{
 use nod_krai_gi_encryption::rsa::RsaKeyPair;
 use serde::Deserialize;
 use serde_json::json;
-
-use crate::AppState;
 
 pub fn routes() -> Router<&'static AppState> {
     Router::new()
@@ -28,6 +27,7 @@ struct QueryRegionListParam {
     pub binary: u8,
     #[expect(dead_code)]
     pub time: u64,
+    #[expect(dead_code)]
     pub channel_id: u16,
     #[expect(dead_code)]
     pub sub_channel_id: u16,
@@ -215,9 +215,11 @@ where
 {
     fn into_response(self) -> axum::response::Response {
         match self {
-            Self::Plain(proto) => {
-                (StatusCode::OK, base64_simd::STANDARD.encode_to_string(&proto.encode_to_vec())).into_response()
-            }
+            Self::Plain(proto) => (
+                StatusCode::OK,
+                base64_simd::STANDARD.encode_to_string(&proto.encode_to_vec()),
+            )
+                .into_response(),
             Self::Encrypted(proto, keys) => {
                 let plain = proto.encode_to_vec();
                 let content = keys.client_encrypt(&plain);
@@ -265,16 +267,14 @@ async fn query_cur_region(
         );
         return ProtobufData::Plain(QueryCurrRegionHttpRsp {
             retcode: 1,
-            msg: "Not Found version config".to_string(),
+            msg: "Not Found key_id config".to_string(),
             ..Default::default()
         });
     }
 
     let keys = state.key_pair_map.get(&param.key_id).unwrap();
 
-    if region_config.channel_id != param.channel_id
-        || !region_config.bind_version_list.contains(&param.version)
-    {
+    if !region_config.bind_version_list.contains(&param.version) {
         tracing::debug!(
             "Unsupported version (v={}, c={}, s={})",
             &param.version,
@@ -284,6 +284,7 @@ async fn query_cur_region(
         return ProtobufData::Encrypted(
             QueryCurrRegionHttpRsp {
                 retcode: -1,
+                msg: "Not Found version config".to_string(),
                 ..Default::default()
             },
             keys,
@@ -291,6 +292,37 @@ async fn query_cur_region(
     }
 
     tracing::debug!("dispatch seed, client: {}", param.dispatch_seed);
+
+    let mut region_info = RegionInfo {
+        gateserver_ip: region_config.gateserver_ip.clone(),
+        gateserver_port: region_config.gateserver_port as u32,
+        ..Default::default()
+    };
+
+    match region_config.hot_fix_data.get(&param.version) {
+        None => {}
+        Some(hot_fix_data) => {
+            region_info.resource_url = hot_fix_data.resource_url.clone();
+            region_info.data_url = hot_fix_data.data_url.clone();
+            region_info.client_data_md5 = hot_fix_data.client_data_md5.clone();
+            region_info.client_silence_data_md5 = hot_fix_data.client_silence_data_md5.clone();
+            region_info.client_data_version = hot_fix_data.client_data_version.clone();
+            region_info.client_silence_data_version =
+                hot_fix_data.client_silence_data_version.clone();
+            region_info.client_version_suffix = hot_fix_data.client_version_suffix.clone();
+            region_info.client_silence_version_suffix =
+                hot_fix_data.client_silence_version_suffix.clone();
+
+            region_info.res_version_config = Some(ResVersionConfig {
+                version: hot_fix_data.res_version_config.version.clone(),
+                md5: hot_fix_data.res_version_config.md5.clone(),
+                release_total_size: hot_fix_data.res_version_config.release_total_size.clone(),
+                version_suffix: hot_fix_data.res_version_config.version_suffix.clone(),
+                branch: hot_fix_data.res_version_config.branch.clone(),
+                ..Default::default()
+            });
+        }
+    }
 
     ProtobufData::Encrypted(
         QueryCurrRegionHttpRsp {
@@ -300,11 +332,7 @@ async fn query_cur_region(
                 .as_ref()
                 .map(|k| k.to_vec())
                 .unwrap_or_default(),
-            region_info: Some(RegionInfo {
-                gateserver_ip: region_config.gateserver_ip.clone(),
-                gateserver_port: region_config.gateserver_port as u32,
-                ..Default::default()
-            }),
+            region_info: Some(region_info),
             ..Default::default()
         },
         keys,
@@ -332,9 +360,7 @@ async fn query_region_list(
             region_list: state
                 .region_list
                 .iter()
-                .filter(|r| {
-                    r.channel_id == param.channel_id && r.bind_version_list.contains(&param.version)
-                })
+                .filter(|r| r.bind_version_list.contains(&param.version))
                 .map(|r| RegionSimpleInfo {
                     name: r.name.clone(),
                     title: r.title.clone(),
