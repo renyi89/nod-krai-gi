@@ -22,10 +22,9 @@ pub static GAME_SERVER_CONFIG: LazyLock<GameServerConfig> = LazyLock::new(|| {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::excel::common::*;
-    use crate::scene::script_cache::{init_scene_static_templates, load_scene_group};
-    use crate::scene::*;
-    use mlua::Lua;
+    use crate::scene::script_cache::{
+        init_scene_static_templates, load_lua_vm, load_scene_group, SCENE_LUA_VM,
+    };
     use std::fs;
     use std::sync::Arc;
 
@@ -57,6 +56,9 @@ mod tests {
 
     #[test]
     fn test_load_scene_group() {
+        load_lua_vm("../../assets/lua/common");
+        let lua = SCENE_LUA_VM.get().unwrap().clone();
+
         let scene_id = 3;
         let block_id = 1061;
         let group_id = 131061695;
@@ -70,33 +72,6 @@ mod tests {
             println!("load_scene_group failed read scene {}", path);
             return;
         };
-
-        let lua = Lua::new();
-
-        inject_enum::<EventType>(&lua, "EventType").ok().unwrap();
-        inject_enum::<GadgetState>(&lua, "GadgetState")
-            .ok()
-            .unwrap();
-        inject_enum::<RegionShape>(&lua, "RegionShape")
-            .ok()
-            .unwrap();
-        inject_enum::<GroupKillPolicy>(&lua, "GroupKillPolicy")
-            .ok()
-            .unwrap();
-        inject_enum::<SealBattleType>(&lua, "SealBattleType")
-            .ok()
-            .unwrap();
-        inject_enum::<FatherChallengeProperty>(&lua, "FatherChallengeProperty")
-            .ok()
-            .unwrap();
-        inject_enum::<ChallengeEventMarkType>(&lua, "ChallengeEventMarkType")
-            .ok()
-            .unwrap();
-        inject_enum::<EntityType>(&lua, "EntityType").ok().unwrap();
-        inject_enum::<QuestState>(&lua, "QuestState").ok().unwrap();
-        inject_enum::<VisionLevelType>(&lua, "VisionLevelType")
-            .ok()
-            .unwrap();
 
         if let Err(err) = lua
             .load(&code)

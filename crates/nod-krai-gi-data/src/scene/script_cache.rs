@@ -1,8 +1,13 @@
+use crate::excel::common::{EntityType, QuestState, VisionLevelType};
 use crate::scene::scene_block_template::*;
 use crate::scene::scene_config_template::*;
 use crate::scene::scene_group_template::*;
+use crate::scene::{
+    inject_enum, ChallengeEventMarkType, EventType, FatherChallengeProperty, GadgetState,
+    GroupKillPolicy, RegionShape, SealBattleType,
+};
 use dashmap::DashMap;
-use mlua::{Lua, LuaSerdeExt, Value};
+use mlua::{Lua, LuaSerdeExt, Table, Value};
 use rayon::prelude::*;
 use std::{
     collections::HashMap,
@@ -19,6 +24,85 @@ pub static SCENE_BLOCK_COLLECTION: OnceLock<Arc<HashMap<(u32, u32), SceneBlockTe
 pub static SCENE_GROUP_COLLECTION: OnceLock<Arc<DashMap<u32, Option<SceneGroupTemplate>>>> =
     OnceLock::new();
 
+pub static SCENE_LUA_VM: OnceLock<Lua> = OnceLock::new();
+
+pub fn load_lua_vm(root: &str) {
+    let lua = Lua::new();
+
+    // all enum
+    inject_enum::<EventType>(&lua, "EventType").ok().unwrap();
+    inject_enum::<GadgetState>(&lua, "GadgetState")
+        .ok()
+        .unwrap();
+    inject_enum::<RegionShape>(&lua, "RegionShape")
+        .ok()
+        .unwrap();
+    inject_enum::<GroupKillPolicy>(&lua, "GroupKillPolicy")
+        .ok()
+        .unwrap();
+    inject_enum::<SealBattleType>(&lua, "SealBattleType")
+        .ok()
+        .unwrap();
+    inject_enum::<FatherChallengeProperty>(&lua, "FatherChallengeProperty")
+        .ok()
+        .unwrap();
+    inject_enum::<ChallengeEventMarkType>(&lua, "ChallengeEventMarkType")
+        .ok()
+        .unwrap();
+    inject_enum::<EntityType>(&lua, "EntityType").ok().unwrap();
+    inject_enum::<QuestState>(&lua, "QuestState").ok().unwrap();
+    inject_enum::<VisionLevelType>(&lua, "VisionLevelType")
+        .ok()
+        .unwrap();
+
+    let modules = load_lua_directory(root);
+
+    install_memory_require(&lua, modules);
+
+    SCENE_LUA_VM.set(lua).unwrap();
+}
+
+fn load_lua_directory(root: &str) -> HashMap<String, String> {
+    let mut map = HashMap::new();
+    scan_dir(Path::new(root), Path::new(root), &mut map);
+    map
+}
+
+fn scan_dir(root: &Path, path: &Path, map: &mut HashMap<String, String>) {
+    for entry in fs::read_dir(path).unwrap() {
+        let entry = entry.unwrap();
+        let path = entry.path();
+
+        if path.is_dir() {
+            scan_dir(root, &path, map);
+        } else if path.extension().and_then(|s| s.to_str()) == Some("lua") {
+            let content = fs::read_to_string(&path).unwrap();
+
+            let rel = path.strip_prefix(root).unwrap();
+            let module_name = rel
+                .to_str()
+                .unwrap()
+                .trim_end_matches(".lua")
+                .replace("\\", "/");
+
+            map.insert(module_name, content);
+        }
+    }
+}
+
+fn install_memory_require(lua: &Lua, modules: HashMap<String, String>) {
+    let package: Table = lua.globals().get("package").unwrap();
+    let preload: Table = package.get("preload").unwrap();
+
+    modules.into_iter().for_each(|(module_name, code)| {
+        let code = code.replace("ScriptLib.", "ScriptLib:");
+        let loader = lua
+            .create_function(move |lua, _: ()| lua.load(&code).into_function())
+            .unwrap();
+
+        preload.set(module_name, loader).unwrap();
+    });
+}
 
 pub fn init_scene_static_templates(root: &str) {
     let root_path = Path::new(root);

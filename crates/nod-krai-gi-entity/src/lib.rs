@@ -1,10 +1,12 @@
 use avatar::{AvatarAppearanceChangeEvent, AvatarEquipChangeEvent};
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
+use ::common::gm_util::ItemAction;
 use common::{
     EntityById, EntityCounter, FightProperties, LifeState, ProtocolEntityID, ToBeRemovedMarker,
 };
 use nod_krai_gi_data::prop_type::FightPropType;
+use nod_krai_gi_event::command::CommandItemEvent;
 use nod_krai_gi_message::event::ClientMessageEvent;
 use nod_krai_gi_message::output::MessageOutput;
 use std::collections::HashMap;
@@ -188,6 +190,10 @@ fn update_entity_index(
 pub fn handle_entity(
     mut events: MessageReader<ClientMessageEvent>,
     message_output: Res<MessageOutput>,
+    index: Res<EntityById>,
+    mut commands: Commands,
+    mut item_events: MessageWriter<CommandItemEvent>,
+    mut disappear_events: MessageWriter<EntityDisappearEvent>,
 ) {
     for message in events.read() {
         match message.message_name() {
@@ -204,6 +210,40 @@ pub fn handle_entity(
                             ..Default::default()
                         },
                     );
+
+                    let gather_excel_config_collection_clone = std::sync::Arc::clone(
+                        nod_krai_gi_data::excel::gather_excel_config_collection::get(),
+                    );
+
+                    let Some((_, gather_config)) = gather_excel_config_collection_clone
+                        .iter()
+                        .find(|(_, gather_config)| gather_config.gadget_id == req.gadget_id)
+                    else {
+                        continue;
+                    };
+
+                    item_events.write(CommandItemEvent(
+                        message.sender_uid(),
+                        ItemAction::Add {
+                            id: gather_config.item_id,
+                            num: Some(1),
+                            level: Some(1),
+                            main_prop_id: None,
+                            append_prop_id_list: Default::default(),
+                        },
+                    ));
+
+                    disappear_events.write(EntityDisappearEvent(
+                        req.gadget_entity_id,
+                        VisionType::VisionGatherEscape.into(),
+                    ));
+
+                    match index.0.get(&req.gadget_entity_id) {
+                        None => {}
+                        Some(entity) => {
+                            commands.entity(*entity).insert(ToBeRemovedMarker);
+                        }
+                    }
                 }
             }
             &_ => {}

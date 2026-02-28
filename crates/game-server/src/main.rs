@@ -11,7 +11,7 @@ use nod_krai_gi_data::ability::load_ability_configs_from_bin;
 use nod_krai_gi_data::config::load_avatar_talent_configs_from_bin;
 use nod_krai_gi_data::quest::quest_config::load_quest_configs_from_bin;
 use nod_krai_gi_data::scene::scene_point_config::load_scene_point_configs_from_bin;
-use nod_krai_gi_data::scene::script_cache::init_scene_static_templates;
+use nod_krai_gi_data::scene::script_cache::{init_scene_static_templates, load_lua_vm};
 use nod_krai_gi_data::{
     config::load_avatar_configs_from_bin, config::load_gadget_configs_from_bin, excel,
     GAME_SERVER_CONFIG,
@@ -61,6 +61,11 @@ async fn main() -> Result<()> {
     tokio::spawn(async {
         init_scene_static_templates("assets/lua/scene");
         tracing::info!("init_scene_static_templates end");
+    });
+
+    tokio::spawn(async {
+        load_lua_vm("assets/lua/common");
+        tracing::info!("load_lua_vm end");
     });
 
     if GAME_SERVER_CONFIG.plugin.ability {

@@ -11,4 +11,3 @@ common.workspace = true
 
 nod-krai-gi-proto.workspace = true
 nod-krai-gi-data.workspace = true
-nod-krai-gi-entity.workspace = true

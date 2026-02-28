@@ -1,5 +1,3 @@
-use std::process::Command;
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
 pub enum Language {
@@ -106,7 +104,7 @@ impl From<u32> for Language {
 
 #[cfg(target_os = "windows")]
 fn get_locale() -> Option<String> {
-    match Command::new("powershell")
+    match std::process::Command::new("powershell")
         .args(["-command", "(Get-WinSystemLocale).Name"])
         .output()
     {
