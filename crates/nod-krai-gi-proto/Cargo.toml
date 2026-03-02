@@ -21,7 +21,6 @@ num_enum.workspace = true
 hex.workspace = true
 
 notify.workspace = true
-notify-debouncer-mini.workspace = true
 
 dashmap.workspace = true
 

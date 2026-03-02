@@ -5,7 +5,7 @@ use common::{
     EntityById, EntityCounter, FightProperties, LifeState, ProtocolEntityID, ToBeRemovedMarker,
 };
 use nod_krai_gi_data::prop_type::FightPropType;
-use nod_krai_gi_event::entity::{EvtCreateGadgetEvent, EvtDestroyGadgetEvent, GadgetInteractEvent};
+use nod_krai_gi_event::entity::GadgetInteractEvent;
 use nod_krai_gi_message::event::ClientMessageEvent;
 use nod_krai_gi_message::output::MessageOutput;
 use std::collections::HashMap;
@@ -28,8 +28,8 @@ use crate::common::Visible;
 use crate::fight::EntityFightPropChangeReasonNotifyEvent;
 use crate::{avatar::CurrentPlayerAvatarMarker, client_gadget::EntitySystemSet};
 use nod_krai_gi_proto::normal::{
-    EvtCreateGadgetNotify, EvtDestroyGadgetNotify, GadgetInteractReq, GadgetInteractRsp,
-    LifeStateChangeNotify, ProtEntityType, SceneEntityDisappearNotify, VisionType,
+    GadgetInteractReq, GadgetInteractRsp, LifeStateChangeNotify, ProtEntityType,
+    SceneEntityDisappearNotify, VisionType,
 };
 
 pub struct EntityPlugin;
@@ -50,10 +50,9 @@ impl Plugin for EntityPlugin {
             .add_systems(Update, avatar::update_avatar_appearance)
             .add_systems(
                 Update,
-                client_gadget::handle_evt_create_gadget
+                client_gadget::handle_evt_update_gadget
                     .in_set(EntitySystemSet::HandleEvtGadgetUpdate),
             )
-            .add_systems(Update, client_gadget::handle_evt_destroy_gadget)
             .add_systems(
                 PostUpdate,
                 (
@@ -196,25 +195,9 @@ pub fn handle_entity(
     mut events: MessageReader<ClientMessageEvent>,
     message_output: Res<MessageOutput>,
     mut gadget_interact_events: MessageWriter<GadgetInteractEvent>,
-    mut evt_create_gadget_events: MessageWriter<EvtCreateGadgetEvent>,
-    mut evt_destroy_gadget_events: MessageWriter<EvtDestroyGadgetEvent>,
 ) {
     for message in events.read() {
         match message.message_name() {
-            "EvtCreateGadgetNotify" => {
-                if let Some(notify) = message.decode::<EvtCreateGadgetNotify>() {
-                    evt_create_gadget_events.write(EvtCreateGadgetEvent(
-                        notify.config_id,
-                        notify.entity_id,
-                        notify.owner_entity_id,
-                    ));
-                }
-            }
-            "EvtDestroyGadgetNotify" => {
-                if let Some(notify) = message.decode::<EvtDestroyGadgetNotify>() {
-                    evt_destroy_gadget_events.write(EvtDestroyGadgetEvent(notify.entity_id));
-                }
-            }
             "GadgetInteractReq" => {
                 if let Some(req) = message.decode::<GadgetInteractReq>() {
                     message_output.send(

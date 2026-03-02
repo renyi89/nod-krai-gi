@@ -38,8 +38,6 @@ impl Plugin for EventRegistryPlugin {
             .add_message::<ItemDropEvent>()
             //entity
             .add_message::<GadgetInteractEvent>()
-            .add_message::<EvtCreateGadgetEvent>()
-            .add_message::<EvtDestroyGadgetEvent>()
             //lua
             .add_message::<LuaTriggerEvent>()
             .add_message::<SpawnGroupEntityEvent>()

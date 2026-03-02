@@ -1,8 +1,8 @@
-use notify::RecursiveMode;
-use notify_debouncer_mini::new_debouncer;
+use notify::{RecursiveMode, Watcher};
 use serde::{de, Serialize};
+use std::path::PathBuf;
 use std::sync::Arc;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 #[derive(Debug, Clone, Default, serde::Deserialize)]
 #[serde(default)]
@@ -32,66 +32,101 @@ pub fn init() {
     MULTI_VERSION_PROTOCOL
         .set(Arc::new(dashmap::DashMap::new()))
         .expect("TODO: panic message");
-    let (tx, rx) = std::sync::mpsc::channel();
-    let mut debouncer = new_debouncer(Duration::from_millis(500), tx).unwrap();
 
-    let path = std::path::Path::new("./assets/proto/");
-    let mut sub_paths: Vec<String> = Vec::new();
-    for dir in path.read_dir().unwrap() {
-        if let Ok(dir) = dir {
+    let (tx, rx) = std::sync::mpsc::channel();
+    let mut watcher = notify::recommended_watcher(tx).unwrap();
+
+    let root = std::path::Path::new("./assets/proto/");
+
+    for entry in root.read_dir().unwrap() {
+        if let Ok(dir) = entry {
             if dir.file_type().unwrap().is_dir() {
-                tracing::info!("find dir {}", dir.file_name().into_string().unwrap());
-                sub_paths.push(dir.file_name().into_string().unwrap());
-                debouncer
-                    .watcher()
-                    .watch(&*dir.path(), RecursiveMode::Recursive)
+                let name = dir.file_name().into_string().unwrap();
+                tracing::info!("find dir {}", name);
+
+                watcher
+                    .watch(dir.path().as_path(), RecursiveMode::Recursive)
                     .unwrap();
-                update_proto(dir.path().file_name().unwrap().to_str().unwrap());
+
+                update_proto(&name);
             }
         }
     }
 
-    for res in rx {
-        match res {
-            Ok(events) => {
-                let mut path = std::path::PathBuf::new();
-                if !events.is_empty() {
-                    events.iter().for_each(|event| {
-                        if path.file_name().is_none()
-                            || path.file_name().unwrap() != "all.proto"
-                            || event.path.file_name().unwrap() == "all.proto"
-                        {
-                            path = event.path.clone();
-                        }
-                    })
+    let debounce_window = Duration::from_millis(300);
+    let mut pending_path: Option<PathBuf> = None;
+    let mut last_event_time = Instant::now();
+
+    loop {
+        std::thread::sleep(Duration::from_millis(30));
+
+        match rx.try_recv() {
+            Ok(event) => match event {
+                Ok(event) => {
+                    if event.kind.is_modify() && !event.paths.is_empty() {
+                        pending_path = Some(event.paths[0].clone());
+                        last_event_time = Instant::now();
+                    }
                 }
-                if path.is_file() && path.file_name().unwrap() == "all.proto" {
-                    update_proto(
-                        path.parent()
-                            .unwrap()
-                            .file_name()
-                            .unwrap()
-                            .to_str()
-                            .unwrap(),
-                    );
+                Err(_) => {}
+            },
+            Err(_) => {}
+        }
+
+        if let Some(path) = pending_path.clone() {
+            if last_event_time.elapsed() >= debounce_window {
+                if wait_file_ready(&path) {
+                    handle_stable_modify_event(path);
+                } else {
+                    tracing::warn!("file still locked or incomplete: {:?}", path);
                 }
-                if path.is_file() && path.file_name().unwrap() == "protocol.json" {
-                    update_cmd(
-                        path.parent()
-                            .unwrap()
-                            .file_name()
-                            .unwrap()
-                            .to_str()
-                            .unwrap(),
-                    );
-                }
-            }
-            Err(e) => {
-                tracing::error!(error = ?e, "error while watching file");
+
+                pending_path = None;
             }
         }
     }
 }
+
+fn handle_stable_modify_event(path: PathBuf) {
+    if !path.is_file() {
+        return;
+    }
+
+    let file_name = path.file_name().unwrap().to_str().unwrap();
+
+    if file_name == "all.proto" {
+        let dir = path
+            .parent()
+            .unwrap()
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap();
+        update_proto(dir);
+    }
+
+    if file_name == "protocol.json" {
+        let dir = path
+            .parent()
+            .unwrap()
+            .file_name()
+            .unwrap()
+            .to_str()
+            .unwrap();
+        update_cmd(dir);
+    }
+}
+
+fn wait_file_ready(path: &PathBuf) -> bool {
+    for _ in 0..10 {
+        match std::fs::File::open(path) {
+            Ok(_) => return true,
+            Err(_) => std::thread::sleep(Duration::from_millis(30)),
+        }
+    }
+    false
+}
+
 fn update_proto(name: &str) {
     tracing::info!("begin update proto {}", name);
     let proto_file_path = std::path::Path::new("./assets/proto/")
@@ -155,8 +190,7 @@ fn update_proto(name: &str) {
 
             if replace_file_path.exists() {
                 replace_value_map =
-                    serde_json::from_slice(&*std::fs::read(replace_file_path).unwrap())
-                        .unwrap();
+                    serde_json::from_slice(&*std::fs::read(replace_file_path).unwrap()).unwrap();
             };
 
             MULTI_VERSION_PROTOCOL.get().unwrap().insert(
@@ -440,8 +474,8 @@ pub fn replace_out_u32(version: &str, field_name: &str, ov: u32) -> u32 {
                     .wrapping_add(config.n1 as u32)
                     .wrapping_sub(config.n2 as u32)
                     ^ (config.n3 as u32))
-                        .wrapping_add(config.n4 as u32)
-                        .wrapping_sub(config.n5 as u32);
+                    .wrapping_add(config.n4 as u32)
+                    .wrapping_sub(config.n5 as u32);
             }
             tracing::debug!(
                 "replace_out_u32 version:{} field_name:{} value1:{} value2:{}",
@@ -474,8 +508,8 @@ pub fn replace_in_u32(version: &str, field_name: &str, ov: u32) -> u32 {
                     .wrapping_add(config.n5 as u32)
                     .wrapping_sub(config.n4 as u32)
                     ^ (config.n3 as u32))
-                        .wrapping_add(config.n2 as u32)
-                        .wrapping_sub(config.n1 as u32);
+                    .wrapping_add(config.n2 as u32)
+                    .wrapping_sub(config.n1 as u32);
             }
             tracing::debug!(
                 "replace_in_u32 version:{} field_name:{} value1:{} value2:{}",
@@ -488,7 +522,6 @@ pub fn replace_in_u32(version: &str, field_name: &str, ov: u32) -> u32 {
         }
     }
 }
-
 
 pub fn replace_out_i32(version: &str, field_name: &str, ov: i32) -> i32 {
     match MULTI_VERSION_PROTOCOL
@@ -557,7 +590,6 @@ pub fn replace_in_i32(version: &str, field_name: &str, ov: i32) -> i32 {
         }
     }
 }
-
 
 pub fn replace_out_u64(version: &str, field_name: &str, ov: u64) -> u64 {
     match MULTI_VERSION_PROTOCOL
