@@ -94,7 +94,7 @@ byteorder = "1.5.0"
 
 # Util
 paste = "1.0.15"
-rand = "0.8"
+rand = { version = "0.8", features = ["small_rng"] }
 regex = "1.11.1"
 hex = "0.4.3"
 num_enum = "0.7.3"
@@ -103,6 +103,7 @@ indexmap = { version = "2.7.1", features = ["serde"] }
 notify = "8.0.0"
 notify-debouncer-mini = "0.7.0"
 rayon = "1.10.0"
+rstar = "0.12.2"
 
 # Logging
 tracing = { version = "*" }

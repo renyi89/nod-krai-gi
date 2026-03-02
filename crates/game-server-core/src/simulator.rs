@@ -145,7 +145,7 @@ fn simulation_loop(save_data_tx: tokio::sync::mpsc::Sender<(u32, Vec<u8>)>) {
                                                 None => {}
                                                 Some(save_time) => {
                                                     let cur_time = time_util::unix_timestamp();
-                                                    if (cur_time - *save_time) >= 360
+                                                    if (cur_time - *save_time) >= 60
                                                         && world.should_save(uid)
                                                     {
                                                         *save_time = cur_time;

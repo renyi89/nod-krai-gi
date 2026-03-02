@@ -48,7 +48,6 @@ fn load_gadget_configs(gadget_config_dir: ReadDir) -> std::io::Result<()> {
         match serde_json::from_slice(&*json) {
             Ok(config) => {
                 let configs: HashMap<InternString, GadgetConfig> = config;
-                // 将所有解析出的配置添加到全局 map 中
                 for (key, config) in configs {
                     map.insert(key, config);
                 }

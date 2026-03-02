@@ -137,8 +137,13 @@ pub enum ItemAction {
         id: u32,
         num: Option<u32>,
         level: Option<u32>,
+        refinement: Option<u32>,
         main_prop_id: Option<u32>,
         append_prop_id_list: HashMap<u32, u32>,
+    },
+    Drop {
+        id: u32,
+        pos: Option<(f32, f32, f32)>,
     },
 }
 
@@ -240,11 +245,19 @@ pub fn parse_command(input: &str) -> Result<Command, String> {
                     id: map.take("id")?,
                     num: map.take_opt("n"),
                     level: map.take_opt("lv"),
+                    refinement: map.take_opt("r"),
                     main_prop_id: map.take_opt("m"),
                     append_prop_id_list: map.take_map_u32("p")?,
                 }))
             })
         }
+
+        ("item", "drop") => parse_struct(parts, "item drop <id>", |mut map| {
+            Ok(Command::Item(ItemAction::Drop {
+                id: map.take("id")?,
+                pos: None,
+            }))
+        }),
 
         _ => Err(format!("unknown command:{} {}", first, second)),
     }

@@ -11,5 +11,6 @@ indexmap.workspace = true
 rayon.workspace = true
 dashmap.workspace = true
 mlua.workspace = true
+rstar.workspace = true
 
 common.workspace = true

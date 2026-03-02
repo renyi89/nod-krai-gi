@@ -1,6 +1,7 @@
 pub mod ability;
 pub mod combat;
 pub mod command;
+pub mod entity;
 pub mod inventory;
 pub mod lua;
 pub mod luashell;
@@ -12,6 +13,7 @@ pub mod time;
 use crate::ability::*;
 use crate::combat::*;
 use crate::command::*;
+use crate::entity::*;
 use crate::inventory::*;
 use crate::lua::*;
 use crate::luashell::*;
@@ -30,8 +32,14 @@ impl Plugin for EventRegistryPlugin {
             .add_message::<ConsoleChatNotifyEvent>()
             .add_message::<CommandQuestEvent>()
             .add_message::<CommandItemEvent>()
-            //
+            //inventory
             .add_message::<StoreItemChangeEvent>()
+            .add_message::<ItemAddEvent>()
+            .add_message::<ItemDropEvent>()
+            //entity
+            .add_message::<GadgetInteractEvent>()
+            .add_message::<EvtCreateGadgetEvent>()
+            .add_message::<EvtDestroyGadgetEvent>()
             //lua
             .add_message::<LuaTriggerEvent>()
             .add_message::<SpawnGroupEntityEvent>()

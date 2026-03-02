@@ -1,3 +1,4 @@
+pub mod group_spatial_cache;
 pub mod scene_block_template;
 pub mod scene_config_template;
 pub mod scene_group_template;

@@ -145,7 +145,6 @@ impl MonsterExcelConfigKeyed<u32> for MonsterExcelConfig {
         let special_name_configs = MonsterSpecialNameExcelConfig::load(excel_bin_output_path);
         let describe_configs = MonsterDescribeExcelConfig::load(excel_bin_output_path);
 
-        // 然后加载 MonsterExcelConfigData.json
         let json = std::fs::read(&format!(
             "{excel_bin_output_path}/MonsterExcelConfigData.json"
         ))

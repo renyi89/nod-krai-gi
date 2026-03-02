@@ -7,6 +7,7 @@ version.workspace = true
 bevy_app.workspace = true
 bevy_ecs.workspace = true
 tracing.workspace = true
+rand.workspace = true
 
 common.workspace = true
 

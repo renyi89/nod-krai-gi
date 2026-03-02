@@ -104,6 +104,7 @@ pub fn debug_command_handler(
                     90,
                     0,
                     true,
+                    None,
                 ) else {
                     continue;
                 };

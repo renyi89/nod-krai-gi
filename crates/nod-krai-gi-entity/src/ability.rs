@@ -143,7 +143,6 @@ impl Ability {
                 None => {}
                 Some(temp_abilities) => {
                     temp_abilities.iter().for_each(|ability| {
-                        // 这里暂时使用空字符串作为键，因为我们没有实际的能力名称
                         ability_map.insert(
                             ability.to_string().into(),
                             AbilityData {

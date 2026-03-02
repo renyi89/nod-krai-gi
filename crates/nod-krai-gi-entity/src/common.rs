@@ -301,6 +301,8 @@ impl FightProperties {
                 + base_defense * self.get_property(FIGHT_PROP_DEFENSE_PERCENT)
                 + self.get_property(FIGHT_PROP_DEFENSE),
         );
+
+        self.clear_property();
     }
 
     pub fn get_property(&self, ty: FightPropType) -> f32 {
@@ -314,6 +316,10 @@ impl FightProperties {
 
     pub fn flush_property(&mut self) {
         self.1.extend(self.0.keys());
+    }
+
+    pub fn clear_property(&mut self) {
+        self.1.clear();
     }
 
     pub fn change_property(&mut self, ty: FightPropType, delta: f32) {
@@ -438,7 +444,6 @@ pub fn create_fight_props(
         }
     }
 
-    props.apply_base_values();
     props
 }
 
@@ -450,7 +455,6 @@ pub fn create_fight_props_with_equip(
     add_fight_props_from_weapon(&mut props, avatar_bin);
     add_fight_props_from_reliquary(&mut props, avatar_bin);
     props.apply_base_values();
-    props.flush_property();
     props
 }
 

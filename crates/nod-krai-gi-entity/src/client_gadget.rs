@@ -1,7 +1,6 @@
 use crate::common::*;
 use bevy_ecs::{prelude::*, query::QueryData};
-use nod_krai_gi_message::event::ClientMessageEvent;
-use nod_krai_gi_proto::normal::{EvtCreateGadgetNotify, EvtDestroyGadgetNotify};
+use nod_krai_gi_event::entity::{EvtCreateGadgetEvent, EvtDestroyGadgetEvent};
 
 #[derive(SystemSet, Debug, Hash, PartialEq, Eq, Clone)]
 pub enum EntitySystemSet {
@@ -31,45 +30,39 @@ pub struct ClientGadgetQueryReadOnly {
     pub global_ability_values: &'static GlobalAbilityValues,
 }
 
-pub fn handle_evt_update_gadget(
-    index: Res<EntityById>,
-    mut events: MessageReader<ClientMessageEvent>,
+pub fn handle_evt_create_gadget(
+    mut events: MessageReader<EvtCreateGadgetEvent>,
     mut commands: Commands,
 ) {
-    for message in events.read() {
-        match message.message_name() {
-            "EvtCreateGadgetNotify" => {
-                if let Some(notify) = message.decode::<EvtCreateGadgetNotify>() {
-                    let gadget_id = notify.config_id;
+    for EvtCreateGadgetEvent(gadget_id, entity_id, owner_entity_id) in events.read() {
+        tracing::debug!(
+            "spawn ClientGadget gadget_id:{} entity_id:{} owner_entity_id:{}",
+            gadget_id,
+            entity_id,
+            owner_entity_id
+        );
 
-                    tracing::debug!(
-                        "spawn ClientGadget gadget_id:{} entity_id:{} owner_entity_id:{}",
-                        gadget_id,
-                        notify.entity_id,
-                        notify.owner_entity_id
-                    );
+        commands.spawn(ClientGadgetBundle {
+            gadget_id: ClientGadgetID(*gadget_id),
+            entity_id: ProtocolEntityID(*entity_id),
+            owner_entity_id: OwnerProtocolEntityID(Some(*owner_entity_id)),
+            instanced_abilities: InstancedAbilities::default(),
+            instanced_modifiers: InstancedModifiers::default(),
+            global_ability_values: GlobalAbilityValues::default(),
+        });
+    }
+}
 
-                    commands.spawn(ClientGadgetBundle {
-                        gadget_id: ClientGadgetID(gadget_id),
-                        entity_id: ProtocolEntityID(notify.entity_id),
-                        owner_entity_id: OwnerProtocolEntityID(Some(notify.owner_entity_id)),
-                        instanced_abilities: InstancedAbilities::default(),
-                        instanced_modifiers: InstancedModifiers::default(),
-                        global_ability_values: GlobalAbilityValues::default(),
-                    });
-                }
-            }
-            "EvtDestroyGadgetNotify" => {
-                if let Some(notify) = message.decode::<EvtDestroyGadgetNotify>() {
-                    let entity_id = notify.entity_id;
-                    let entity = match index.0.get(&entity_id) {
-                        Some(e) => *e,
-                        None => continue,
-                    };
-                    commands.entity(entity).insert(ToBeRemovedMarker);
-                }
-            }
-            &_ => {}
-        }
+pub fn handle_evt_destroy_gadget(
+    index: Res<EntityById>,
+    mut events: MessageReader<EvtDestroyGadgetEvent>,
+    mut commands: Commands,
+) {
+    for EvtDestroyGadgetEvent(entity_id) in events.read() {
+        let entity = match index.0.get(entity_id) {
+            Some(e) => *e,
+            None => continue,
+        };
+        commands.entity(entity).insert(ToBeRemovedMarker);
     }
 }

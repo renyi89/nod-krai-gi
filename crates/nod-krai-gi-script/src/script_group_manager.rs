@@ -1,7 +1,6 @@
 use crate::script_lib::{BevyScriptLib, ScriptLib};
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::scene::scene_block_template::BlockGroup;
-use nod_krai_gi_data::scene::scene_config_template::{BlockRect, SceneConfigTemplate};
+use nod_krai_gi_data::scene::group_spatial_cache::get_or_init_spatial_cache;
 use nod_krai_gi_data::scene::script_cache::SCENE_GROUP_COLLECTION;
 use nod_krai_gi_data::scene::Position;
 use nod_krai_gi_event::combat::PlayerMoveEvent;
@@ -9,36 +8,6 @@ use std::{
     collections::{HashMap, HashSet},
     time::{Duration, Instant},
 };
-
-struct DistanceSq {
-    load_distance_sq: f32,
-    unload_distance_sq: f32,
-}
-
-impl Default for DistanceSq {
-    fn default() -> Self {
-        Self {
-            load_distance_sq: 80.0 * 80.0,
-            unload_distance_sq: 120.0 * 120.0,
-        }
-    }
-}
-
-static DISTANCE_SQ_MAP: std::sync::LazyLock<HashMap<u32, DistanceSq>> =
-    std::sync::LazyLock::new(|| {
-        let mut m = HashMap::new();
-
-        m.insert(0, DistanceSq::default());
-        m.insert(
-            999999,
-            DistanceSq {
-                load_distance_sq: 720.0 * 720.0,
-                unload_distance_sq: 1080.0 * 1080.0,
-            },
-        );
-
-        m
-    });
 
 #[derive(Resource)]
 pub struct GroupLoadManager {
@@ -59,48 +28,7 @@ impl Default for GroupLoadManager {
     }
 }
 
-fn is_in_block(pos: &Position, rect: &BlockRect) -> bool {
-    pos.x >= rect.min.x && pos.x <= rect.max.x && pos.z >= rect.min.z && pos.z <= rect.max.z
-}
-
-fn get_player_blocks(cfg: &SceneConfigTemplate, pos: &Position) -> Vec<u32> {
-    cfg.blocks
-        .iter()
-        .zip(cfg.block_rects.iter())
-        .filter(|(_, rect)| is_in_block(pos, rect))
-        .map(|(block_id, _)| *block_id)
-        .collect()
-}
-
-fn get_groups_in_blocks(
-    scene_id: u32,
-    blocks: &[u32],
-    group_block_map: &mut HashMap<u32, u32>,
-) -> Vec<BlockGroup> {
-    let scene_block_collection_clone = std::sync::Arc::clone(
-        nod_krai_gi_data::scene::script_cache::SCENE_BLOCK_COLLECTION
-            .get()
-            .unwrap(),
-    );
-
-    let mut groups = Vec::new();
-
-    for block_id in blocks {
-        let Some(block) = scene_block_collection_clone.get(&(scene_id, *block_id)) else {
-            continue;
-        };
-
-        let block = block.clone();
-
-        block.groups.iter().for_each(|group| {
-            group_block_map.insert(group.id, *block_id);
-        });
-        groups.extend(block.groups);
-    }
-    groups
-}
-
-fn get_group_position(group_id: u32) -> (u32, u32, Position) {
+fn get_group_position(group_id: u32) -> (u32, Position) {
     let none_pos = Position {
         x: 0.0,
         y: 0.0,
@@ -115,23 +43,19 @@ fn get_group_position(group_id: u32) -> (u32, u32, Position) {
     );
 
     match scene_group_collection_clone.get(&group_id) {
-        None => (0, 0, none_pos),
+        None => (0, none_pos),
         Some(scene_group_template) => match scene_group_template.value() {
-            None => (0, 0, none_pos),
+            None => (0, none_pos),
             Some(scene_group_template) => {
                 let scene_id = scene_group_template.base_info.scene_id;
                 let block_id = scene_group_template.base_info.block_id;
                 let Some(block) = scene_block_collection_clone.get(&(scene_id, block_id)) else {
-                    return (0, 0, none_pos);
+                    return (0, none_pos);
                 };
                 let Some(block_group) = block.groups.iter().find(|g| g.id == group_id) else {
-                    return (0, 0, none_pos);
+                    return (0, none_pos);
                 };
-                (
-                    scene_id,
-                    block_group.refresh_id.unwrap_or_default(),
-                    block_group.pos.clone(),
-                )
+                (scene_id, block_group.pos.clone())
             }
         },
     }
@@ -153,11 +77,11 @@ pub fn on_player_move(
         let uid = ev.0;
         let scene_id = ev.1;
         let pos = Position::from(ev.2);
-        let allow_load = ev.3;
+        let is_dungeon_load = ev.3;
 
         let now = Instant::now();
 
-        let allow = allow_load
+        let allow = is_dungeon_load
             || group_load_manager
                 .last_load
                 .get(&uid)
@@ -170,33 +94,42 @@ pub fn on_player_move(
 
         group_load_manager.last_load.insert(uid, now);
 
-        let scene_config_collection_clone = std::sync::Arc::clone(
-            nod_krai_gi_data::scene::script_cache::SCENE_CONFIG_COLLECTION
-                .get()
-                .unwrap(),
-        );
-
-        let blocks = {
-            match scene_config_collection_clone.get(&scene_id) {
-                None => vec![],
-                Some(scene_cfg) => get_player_blocks(scene_cfg, &pos),
-            }
+        let position = [pos.x, pos.y, pos.z];
+        let max_squared_radius = if is_dungeon_load {
+            4000.0f32 * 4000.0f32
+        } else {
+            1000.0f32 * 1000.0f32
+        };
+        let nearby_group_ids = if let Some(cache) =
+            get_or_init_spatial_cache(scene_id, "./assets/lua", "./assets/cache")
+        {
+            cache.query_nearby_groups_rtree(position, max_squared_radius)
+        } else {
+            vec![]
         };
 
-        let mut group_block_map = HashMap::new();
-        let now_block_groups = get_groups_in_blocks(scene_id, &blocks, &mut group_block_map);
+        let mut group_block_map: HashMap<u32, (u32, f32)> = HashMap::new();
 
-        let load_target: HashSet<u32> = now_block_groups
+        let spatial_cache = get_or_init_spatial_cache(scene_id, "./assets/lua", "./assets/cache");
+
+        for group_id in &nearby_group_ids {
+            if let Some(cache) = &spatial_cache {
+                if let Some(group_info) = cache.scene_groups.get(group_id) {
+                    group_block_map
+                        .insert(*group_id, (group_info.block_id, group_info.vision_range));
+                }
+            }
+        }
+
+        let load_target: HashSet<u32> = nearby_group_ids
             .iter()
-            .filter(|g| {
-                !group_load_manager.groups.contains(&g.id)
-                    && g.pos.distance_squared(&pos)
-                        < DISTANCE_SQ_MAP
-                            .get(&g.refresh_id.unwrap_or_default())
-                            .unwrap_or(&DistanceSq::default())
-                            .load_distance_sq
+            .filter(|group_id| {
+                if group_load_manager.groups.contains(*group_id) {
+                    return false;
+                }
+                true
             })
-            .map(|g| g.id)
+            .copied()
             .collect();
 
         let mut other_player_groups: HashSet<u32> = HashSet::new();
@@ -216,13 +149,26 @@ pub fn on_player_move(
             .iter()
             .filter(|group_id| {
                 !other_player_groups.contains(*group_id) && {
-                    let (this_scene_id, refresh_id, this_position) = get_group_position(**group_id);
-                    this_scene_id != scene_id
-                        || this_position.distance_squared(&pos)
-                            > DISTANCE_SQ_MAP
-                                .get(&refresh_id)
-                                .unwrap_or(&DistanceSq::default())
-                                .unload_distance_sq
+                    let (this_scene_id, this_position) = get_group_position(**group_id);
+                    if this_scene_id != scene_id {
+                        return true;
+                    }
+
+                    if let Some(cache) = &spatial_cache {
+                        if let Some(group_info) = cache.scene_groups.get(group_id) {
+                            let dx = group_info.center[0] - pos.x;
+                            let dy = group_info.center[1] - pos.y;
+                            let dz = group_info.center[2] - pos.z;
+                            let dist_squared = dx * dx + dy * dy + dz * dz;
+                            let unload_distance = group_info.vision_range + 100.0;
+                            let unload_distance_squared = unload_distance * unload_distance;
+                            return dist_squared > unload_distance_squared;
+                        }
+                    }
+
+                    let default_unload_distance = 180.0f32; // 80 + 100
+                    this_position.distance_squared(&pos)
+                        > default_unload_distance * default_unload_distance
                 }
             })
             .map(|id| *id)
@@ -231,7 +177,7 @@ pub fn on_player_move(
         for group_id in load_target {
             match group_block_map.get(&group_id) {
                 None => {}
-                Some(block_id) => {
+                Some((block_id, _vision_range)) => {
                     tracing::debug!(
                         ">>> Loading scene {} block {} group {} ",
                         scene_id,

@@ -77,23 +77,21 @@ impl PlayerDataBin {
 impl AvatarBin {
     pub fn get_scene_reliquary_info_list(&self) -> Vec<crate::normal::SceneReliquaryInfo> {
         let mut result = vec![];
-        self.equip_map
-            .iter()
-            .for_each(|(_, item)| {
-                let Some(item_bin::Detail::Equip(ref equip)) = item.detail else {
-                    return;
-                };
-                let Some(equip_bin::Detail::Reliquary(ref reliquary)) = equip.detail else {
-                    return;
-                };
+        self.equip_map.iter().for_each(|(_, item)| {
+            let Some(item_bin::Detail::Equip(ref equip)) = item.detail else {
+                return;
+            };
+            let Some(equip_bin::Detail::Reliquary(ref reliquary)) = equip.detail else {
+                return;
+            };
 
-                result.push(crate::normal::SceneReliquaryInfo {
-                    guid: item.guid.clone(),
-                    level: reliquary.level,
-                    item_id: item.item_id,
-                    promote_level: 0,
-                });
+            result.push(crate::normal::SceneReliquaryInfo {
+                guid: item.guid.clone(),
+                level: reliquary.level,
+                item_id: item.item_id,
+                promote_level: 0,
             });
+        });
         result
     }
 }
@@ -150,23 +148,17 @@ impl PlayerItemCompBin {
 impl ItemBin {
     pub fn to_normal_proto(&self) -> Option<crate::normal::Item> {
         match self.detail {
+            Some(item_bin::Detail::Material(ref material)) => Some(crate::normal::Item {
+                item_id: self.item_id,
+                guid: self.guid,
+                detail: Some(crate::normal::item::Detail::Material(
+                    crate::normal::Material {
+                        delete_info: None,
+                        count: material.count,
+                    },
+                )),
+            }),
             Some(item_bin::Detail::Equip(ref equip)) => match equip.detail {
-                Some(equip_bin::Detail::Weapon(ref weapon)) => Some(crate::normal::Item {
-                    item_id: self.item_id,
-                    guid: self.guid,
-                    detail: Some(crate::normal::item::Detail::Equip(crate::normal::Equip {
-                        is_locked: equip.is_locked,
-                        detail: Some(crate::normal::equip::Detail::Weapon(
-                            crate::normal::Weapon {
-                                level: weapon.level,
-                                exp: weapon.exp,
-                                promote_level: weapon.promote_level,
-                                affix_map: weapon.affix_map.clone(),
-                                ..Default::default()
-                            },
-                        )),
-                    })),
-                }),
                 Some(equip_bin::Detail::Reliquary(ref reliquary)) => Some(crate::normal::Item {
                     item_id: self.item_id,
                     guid: self.guid,
@@ -183,18 +175,25 @@ impl ItemBin {
                         )),
                     })),
                 }),
+                Some(equip_bin::Detail::Weapon(ref weapon)) => Some(crate::normal::Item {
+                    item_id: self.item_id,
+                    guid: self.guid,
+                    detail: Some(crate::normal::item::Detail::Equip(crate::normal::Equip {
+                        is_locked: equip.is_locked,
+                        detail: Some(crate::normal::equip::Detail::Weapon(
+                            crate::normal::Weapon {
+                                level: weapon.level,
+                                exp: weapon.exp,
+                                promote_level: weapon.promote_level,
+                                affix_map: weapon.affix_map.clone(),
+                                ..Default::default()
+                            },
+                        )),
+                    })),
+                }),
                 _ => None,
             },
-            Some(item_bin::Detail::Material(ref material)) => Some(crate::normal::Item {
-                item_id: self.item_id,
-                guid: self.guid,
-                detail: Some(crate::normal::item::Detail::Material(
-                    crate::normal::Material {
-                        delete_info: None,
-                        count: material.count,
-                    },
-                )),
-            }),
+
             Some(item_bin::Detail::Furniture(ref furniture)) => Some(crate::normal::Item {
                 item_id: self.item_id,
                 guid: self.guid,

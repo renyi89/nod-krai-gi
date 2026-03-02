@@ -81,7 +81,8 @@ pub fn apply_equip_change_to_avatar_entity(
             continue;
         };
 
-        let fight_props = create_fight_props_with_equip(avatar_bin, avatar_config);
+        let mut fight_props = create_fight_props_with_equip(avatar_bin, avatar_config);
+        fight_props.flush_property();
 
         commands.entity(avatar_entity).insert(fight_props);
 

@@ -117,6 +117,7 @@ pub fn spawn_group_entity(
                     gadget.level.unwrap_or(90),
                     gadget.state.unwrap_or(GadgetState::Default) as u32,
                     is_interactive,
+                    None
                 ) else {
                     continue;
                 };

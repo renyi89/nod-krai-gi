@@ -22,6 +22,7 @@ target
 assets/BinOutput/*
 assets/ExcelBinOutput/*
 assets/lua/*
+assets/cache/*
 crates/muip-server/*
 Cargo.lock
 
