@@ -5,10 +5,11 @@ use nod_krai_gi_data::ability::{get_ability_name_by_hash, AbilityModifierAction}
 use nod_krai_gi_data::dynamic_float::NumberOrInternString;
 use nod_krai_gi_data::prop_type::FightPropType;
 use nod_krai_gi_data::{DynamicFloat, GAME_SERVER_CONFIG};
-use nod_krai_gi_entity::avatar::{AvatarQueryReadOnly, CurrentPlayerAvatarMarker};
-use nod_krai_gi_entity::common::FightProperties;
-use nod_krai_gi_entity::common::InstancedAbility;
-use nod_krai_gi_persistence::Players;
+use nod_krai_gi_entity::avatar::{CurrentPlayerAvatarMarker, CurrentTeam};
+use nod_krai_gi_entity::common::{
+    EntityById, FightProperties, InstancedAbility, OwnerProtocolEntityID, ProtocolEntityID,
+};
+use nod_krai_gi_entity::team::TeamEntityMarker;
 use nod_krai_gi_proto::normal::ability_string::Type;
 use nod_krai_gi_proto::normal::AbilityString;
 
@@ -132,6 +133,13 @@ fn eval_number_or_string(
     match val {
         NumberOrInternString::Number(n) => *n as f32,
         NumberOrInternString::InternString(s) => {
+            let s = if let Some(rest) = s.as_str().strip_prefix('%') {
+                rest
+            } else {
+                s.as_str()
+            };
+            let s: InternString = s.into();
+
             if let Ok(num) = s.as_str().parse::<f32>() {
                 return num;
             }
@@ -147,7 +155,7 @@ fn eval_number_or_string(
                 }
             }
 
-            let result = ability.ability_specials.get(s).copied().unwrap_or(def_val);
+            let result = ability.ability_specials.get(&s).copied().unwrap_or(def_val);
             result
         }
     }
@@ -165,6 +173,13 @@ pub fn eval(
             result
         }
         DynamicFloat::InternString(s) => {
+            let s = if let Some(rest) = s.as_str().strip_prefix('%') {
+                rest
+            } else {
+                s.as_str()
+            };
+            let s: InternString = s.into();
+
             if let Ok(num) = s.as_str().parse::<f32>() {
                 return num;
             }
@@ -180,7 +195,7 @@ pub fn eval(
                 }
             }
 
-            let result = ability.ability_specials.get(s).copied().unwrap_or(def_val);
+            let result = ability.ability_specials.get(&s).copied().unwrap_or(def_val);
             result
         }
         DynamicFloat::Array(arr) => {
@@ -287,137 +302,6 @@ pub fn eval_option(
     }
 }
 
-#[allow(dead_code)]
-pub fn get_affected_entities(
-    target: AbilityTargettingEnum,
-    self_entity: Entity,
-    target_entity: Option<Entity>,
-    avatars: Query<(
-        Entity,
-        AvatarQueryReadOnly,
-        Option<&CurrentPlayerAvatarMarker>,
-    )>,
-    players: &Players,
-    player_uid: u32,
-) -> Vec<Entity> {
-    match target {
-        AbilityTargettingEnum::Self_ => {
-            vec![self_entity]
-        }
-        AbilityTargettingEnum::Caster => {
-            vec![self_entity]
-        }
-        AbilityTargettingEnum::Target => target_entity.into_iter().collect(),
-        AbilityTargettingEnum::SelfAttackTarget => target_entity.into_iter().collect(),
-        AbilityTargettingEnum::Other => target_entity.into_iter().collect(),
-        AbilityTargettingEnum::Applier => {
-            vec![self_entity]
-        }
-        AbilityTargettingEnum::Owner => {
-            vec![self_entity]
-        }
-        AbilityTargettingEnum::CurTeamAvatars => {
-            get_cur_team_avatars(player_uid, &avatars, players)
-        }
-        AbilityTargettingEnum::CurLocalAvatar => {
-            get_cur_local_avatar(player_uid, &avatars, players)
-        }
-        AbilityTargettingEnum::OriginOwner => get_cur_local_avatar(player_uid, &avatars, players),
-        AbilityTargettingEnum::Team => Vec::new(),
-        AbilityTargettingEnum::TargetOwner => Vec::new(),
-        AbilityTargettingEnum::TargetOriginOwner => Vec::new(),
-        AbilityTargettingEnum::AllPlayerAvatars => get_all_player_avatars(&avatars, players),
-        AbilityTargettingEnum::AllTeams => Vec::new(),
-        AbilityTargettingEnum::RemoteTeams => Vec::new(),
-        AbilityTargettingEnum::TargetTeam => Vec::new(),
-        AbilityTargettingEnum::CasterOwner => Vec::new(),
-        AbilityTargettingEnum::CasterOriginOwner => Vec::new(),
-        AbilityTargettingEnum::MPLevel => Vec::new(),
-    }
-}
-
-fn get_cur_team_avatars(
-    player_uid: u32,
-    avatars: &Query<(
-        Entity,
-        AvatarQueryReadOnly,
-        Option<&CurrentPlayerAvatarMarker>,
-    )>,
-    players: &Players,
-) -> Vec<Entity> {
-    let Some(player_info) = players.get(player_uid) else {
-        return vec![];
-    };
-    let Some(ref player_avatar_bin) = player_info.avatar_bin else {
-        return vec![];
-    };
-    avatars
-        .iter()
-        .filter(|(_, data, _)| {
-            data.owner_player_uid.0 == player_uid
-                && player_avatar_bin
-                    .cur_avatar_guid_list
-                    .contains(&data.guid.0)
-        })
-        .map(|(e, _, _)| e)
-        .collect()
-}
-
-fn get_cur_local_avatar(
-    player_uid: u32,
-    avatars: &Query<(
-        Entity,
-        AvatarQueryReadOnly,
-        Option<&CurrentPlayerAvatarMarker>,
-    )>,
-    players: &Players,
-) -> Vec<Entity> {
-    let Some(player_info) = players.get(player_uid) else {
-        return vec![];
-    };
-    let Some(ref player_avatar_bin) = player_info.avatar_bin else {
-        return vec![];
-    };
-    avatars
-        .iter()
-        .filter(|(_, data, is_cur)| {
-            data.owner_player_uid.0 == player_uid
-                && player_avatar_bin
-                    .cur_avatar_guid_list
-                    .contains(&data.guid.0)
-                && is_cur.is_some()
-        })
-        .map(|(e, _, _)| e)
-        .collect()
-}
-
-fn get_all_player_avatars(
-    avatars: &Query<(
-        Entity,
-        AvatarQueryReadOnly,
-        Option<&CurrentPlayerAvatarMarker>,
-    )>,
-    players: &Players,
-) -> Vec<Entity> {
-    let mut all_team_guids = Vec::new();
-
-    for player_uid in players.keys() {
-        let Some(player_info) = players.get(*player_uid) else {
-            return vec![];
-        };
-        let Some(ref player_avatar_bin) = player_info.avatar_bin else {
-            continue;
-        };
-        all_team_guids.extend(player_avatar_bin.cur_avatar_guid_list.iter());
-    }
-
-    avatars
-        .iter()
-        .filter(|(_, data, _)| all_team_guids.contains(&data.guid.0))
-        .map(|(e, _, _)| e)
-        .collect()
-}
-
 pub fn get_ability_name(ability_name: Option<AbilityString>) -> Option<InternString> {
     match ability_name {
         Some(ability_name) => match ability_name.r#type.as_ref() {
@@ -452,6 +336,191 @@ pub fn get_ability_name(ability_name: Option<AbilityString>) -> Option<InternStr
                 tracing::debug!("No ability name provided");
             }
             None
+        }
+    }
+}
+
+pub fn resolve_target_entity(
+    target: AbilityTargettingEnum,
+    ability_entity: Entity,
+    target_entity: Option<Entity>,
+    entity_by_id: &EntityById,
+    entity_query: &Query<(
+        Entity,
+        &ProtocolEntityID,
+        Option<&OwnerProtocolEntityID>,
+        Option<&CurrentPlayerAvatarMarker>,
+        Option<&CurrentTeam>,
+        Option<&TeamEntityMarker>,
+    )>,
+) -> Option<Entity> {
+    match target {
+        AbilityTargettingEnum::Self_ => Some(ability_entity),
+        AbilityTargettingEnum::Caster => Some(ability_entity),
+        AbilityTargettingEnum::Target => target_entity,
+        AbilityTargettingEnum::CurLocalAvatar => {
+            let Some((entity, _, _, _, _, _)) =
+                entity_query
+                    .iter()
+                    .find(|(_, _, _, current_player_avatar_marker, _, _)| {
+                        current_player_avatar_marker.is_some()
+                    })
+            else {
+                return None;
+            };
+            Some(entity)
+        }
+        AbilityTargettingEnum::Team => {
+            let Some((entity, _, _, _, _, _)) = entity_query
+                .iter()
+                .find(|(_, _, _, _, _, team_entity_marker)| team_entity_marker.is_some())
+            else {
+                return None;
+            };
+            Some(entity)
+        }
+        AbilityTargettingEnum::Owner | AbilityTargettingEnum::OriginOwner => {
+            find_top_owner(ability_entity, entity_by_id, entity_query)
+        }
+        AbilityTargettingEnum::TargetOwner | AbilityTargettingEnum::TargetOriginOwner => {
+            if let Some(target) = target_entity {
+                find_top_owner(target, entity_by_id, entity_query)
+            } else {
+                None
+            }
+        }
+        AbilityTargettingEnum::CasterOwner | AbilityTargettingEnum::CasterOriginOwner => {
+            find_top_owner(ability_entity, entity_by_id, entity_query)
+        }
+        _ => target_entity,
+    }
+}
+
+fn find_top_owner(
+    entity: Entity,
+    entity_by_id: &EntityById,
+    entity_query: &Query<(
+        Entity,
+        &ProtocolEntityID,
+        Option<&OwnerProtocolEntityID>,
+        Option<&CurrentPlayerAvatarMarker>,
+        Option<&CurrentTeam>,
+        Option<&TeamEntityMarker>,
+    )>,
+) -> Option<Entity> {
+    let Ok((_, _, owner_entity_id, _, _, _)) = entity_query.get(entity) else {
+        return Some(entity);
+    };
+
+    let Some(owner_entity_id) = owner_entity_id else {
+        return Some(entity);
+    };
+
+    let Some(owner_entity_id) = owner_entity_id.0 else {
+        return Some(entity);
+    };
+
+    let mut current_owner = *entity_by_id.0.get(&owner_entity_id)?;
+
+    for _ in 0..10 {
+        let Ok((_, _, owner_entity_id, _, _, _)) = entity_query.get(current_owner) else {
+            return Some(current_owner);
+        };
+
+        let Some(owner_entity_id) = owner_entity_id else {
+            return Some(current_owner);
+        };
+
+        let Some(owner_entity_id) = owner_entity_id.0 else {
+            return Some(current_owner);
+        };
+
+        let Some(&owner_entity) = entity_by_id.0.get(&owner_entity_id) else {
+            return Some(current_owner);
+        };
+
+        current_owner = owner_entity;
+    }
+
+    None
+}
+
+pub fn resolve_target_entity_by_str(
+    target_str: &str,
+    ability_entity: Entity,
+    target_entity: Option<Entity>,
+    entity_by_id: &EntityById,
+    entity_query: &Query<(
+        Entity,
+        &ProtocolEntityID,
+        Option<&OwnerProtocolEntityID>,
+        Option<&CurrentPlayerAvatarMarker>,
+        Option<&CurrentTeam>,
+        Option<&TeamEntityMarker>,
+    )>,
+) -> Option<Entity> {
+    let target = target_str.into();
+
+    resolve_target_entity(
+        target,
+        ability_entity,
+        target_entity,
+        entity_by_id,
+        entity_query,
+    )
+}
+
+pub fn resolve_target_entities(
+    target: AbilityTargettingEnum,
+    ability_entity: Entity,
+    target_entity: Option<Entity>,
+    entity_by_id: &EntityById,
+    entity_query: &Query<(
+        Entity,
+        &ProtocolEntityID,
+        Option<&OwnerProtocolEntityID>,
+        Option<&CurrentPlayerAvatarMarker>,
+        Option<&CurrentTeam>,
+        Option<&TeamEntityMarker>,
+    )>,
+) -> Vec<Entity> {
+    tracing::debug!("target:{:?}", target);
+
+    match target {
+        AbilityTargettingEnum::CurTeamAvatars => entity_query
+            .iter()
+            .filter(|(_, _, _, _, current_team, _)| current_team.is_some())
+            .map(|(entity, _, _, _, _, _)| entity)
+            .collect(),
+        AbilityTargettingEnum::AllPlayerAvatars => entity_query
+            .iter()
+            .filter(|(_, _, _, _, current_team, _)| current_team.is_some())
+            .map(|(entity, _, _, _, _, _)| entity)
+            .collect(),
+        AbilityTargettingEnum::AllTeams => entity_query
+            .iter()
+            .filter(|(_, _, _, _, _, team_entity_marker)| team_entity_marker.is_some())
+            .map(|(entity, _, _, _, _, _)| entity)
+            .collect(),
+        AbilityTargettingEnum::RemoteTeams => entity_query
+            .iter()
+            .filter(|(_, _, _, _, _, team_entity_marker)| team_entity_marker.is_some())
+            .map(|(entity, _, _, _, _, _)| entity)
+            .collect(),
+        _ => {
+            let single_target = resolve_target_entity(
+                target,
+                ability_entity,
+                target_entity,
+                entity_by_id,
+                entity_query,
+            );
+
+            let Some(single_target) = single_target else {
+                return Vec::new();
+            };
+
+            vec![single_target]
         }
     }
 }

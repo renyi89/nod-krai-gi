@@ -54,6 +54,7 @@ impl InternString {
         self.as_str().is_empty()
     }
 }
+
 impl InternString {
     pub fn as_str(&self) -> &str {
         STRING_POOL.resolve(&self.0)
@@ -75,6 +76,18 @@ impl PartialEq<&str> for InternString {
 impl PartialEq<String> for InternString {
     fn eq(&self, other: &String) -> bool {
         STRING_POOL.resolve(&self.0) == other.as_str()
+    }
+}
+
+impl PartialOrd for InternString {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for InternString {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        STRING_POOL.resolve(&self.0).cmp(STRING_POOL.resolve(&other.0))
     }
 }
 
@@ -116,4 +129,86 @@ pub fn get_string_hash(s: &str) -> u32 {
     s.chars().fold(0, |hash, c| {
         (((c as u64) + 131 * hash as u64) & 0xFFFFFFFF) as u32
     })
+}
+
+pub fn strip_json_comments_bytes(input: &[u8]) -> Vec<u8> {
+    let mut out = Vec::with_capacity(input.len());
+
+    let mut i = 0;
+    let len = input.len();
+
+    let mut in_string = false;
+    let mut in_line_comment = false;
+    let mut in_block_comment = false;
+
+    while i < len {
+        let c = input[i];
+
+        // line comment
+        if in_line_comment {
+            if c == b'\n' {
+                in_line_comment = false;
+                out.push(c);
+            }
+            i += 1;
+            continue;
+        }
+
+        // block comment
+        if in_block_comment {
+            if c == b'*' && i + 1 < len && input[i + 1] == b'/' {
+                in_block_comment = false;
+                i += 2;
+            } else {
+                i += 1;
+            }
+            continue;
+        }
+
+        // inside string
+        if in_string {
+            if c == b'\\' {
+                // escape next char
+                if i + 1 < len {
+                    out.push(c);
+                    out.push(input[i + 1]);
+                    i += 2;
+                    continue;
+                }
+            } else if c == b'"' {
+                in_string = false;
+            }
+            out.push(c);
+            i += 1;
+            continue;
+        }
+
+        // not in string or comment
+        if c == b'"' {
+            in_string = true;
+            out.push(c);
+            i += 1;
+            continue;
+        }
+
+        // detect //
+        if c == b'/' && i + 1 < len && input[i + 1] == b'/' {
+            in_line_comment = true;
+            i += 2;
+            continue;
+        }
+
+        // detect /*
+        if c == b'/' && i + 1 < len && input[i + 1] == b'*' {
+            in_block_comment = true;
+            i += 2;
+            continue;
+        }
+
+        // normal char
+        out.push(c);
+        i += 1;
+    }
+
+    out
 }

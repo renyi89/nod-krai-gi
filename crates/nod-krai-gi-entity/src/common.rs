@@ -1,4 +1,3 @@
-use indexmap::IndexMap;
 use std::collections::{HashMap, HashSet};
 
 use crate::fight_props;
@@ -60,21 +59,28 @@ pub struct FightProperties(pub HashMap<FightPropType, f32>, pub HashSet<FightPro
 pub struct GlobalAbilityValues(pub HashMap<InternString, f32>);
 
 #[derive(Component, Default)]
+pub struct SkillCDMap(pub HashMap<u32, SkillCDInfo>);
+
+#[derive(Clone, Debug, Default)]
+pub struct SkillCDInfo {
+    pub pass_cd_time: u32,
+    pub full_cd_time_list: Vec<u32>,
+    pub max_charge_count: u32,
+}
+
+#[derive(Component, Default)]
 pub struct InstancedAbilities {
     pub list: Vec<InstancedAbility>,
     by_id: HashMap<u32, usize>,
     by_name: HashMap<InternString, usize>,
 }
 
-#[derive(Component, Default)]
-pub struct InstancedModifiers(pub HashMap<u32, AbilityModifierController>);
-
 #[derive(Default, Clone)]
 pub struct InstancedAbility {
     pub instanced_ability_id: Option<u32>,
     pub ability_data: Option<&'static AbilityData>,
-    pub modifiers: IndexMap<InternString, &'static AbilityModifier>,
     pub ability_specials: HashMap<InternString, f32>,
+    pub modifiers: HashMap<InternString, u32>,
 }
 
 impl InstancedAbilities {
@@ -177,6 +183,14 @@ impl InstancedAbilities {
             .get(&instanced_ability_id)
             .map(|&index| (index as u32, &self.list[index]))
     }
+
+    pub fn get_ability_by_index(&self, index: u32) -> Option<&InstancedAbility> {
+        self.list.get(index as usize)
+    }
+
+    pub fn get_ability_by_index_mut(&mut self, index: u32) -> Option<&mut InstancedAbility> {
+        self.list.get_mut(index as usize)
+    }
 }
 
 impl InstancedAbility {
@@ -187,18 +201,111 @@ impl InstancedAbility {
         Self {
             instanced_ability_id,
             ability_data: ability_data,
-            modifiers: IndexMap::new(),
             ability_specials: ability_data
                 .and_then(|ability_data| Some(ability_data.ability_specials.clone()))
                 .unwrap_or_default(),
+            modifiers: HashMap::new(),
         }
     }
 }
 
+#[derive(Component, Default)]
+pub struct InstancedModifiers {
+    pub normal: HashMap<u32, AbilityModifierController>,
+}
+
+impl InstancedModifiers {
+    /// look up a modifier in either sub‑map
+    pub fn get(&self, id: &u32) -> Option<&AbilityModifierController> {
+        self.normal.get(id)
+    }
+
+    pub fn get_by_id(&self, id: u32) -> Option<&AbilityModifierController> {
+        self.get(&id)
+    }
+
+    pub fn get_by_id_mut(&mut self, id: u32) -> Option<&mut AbilityModifierController> {
+        self.normal.get_mut(&id)
+    }
+
+    pub fn insert(&mut self, id: u32, ctrl: AbilityModifierController) {
+        self.normal.insert(id, ctrl);
+    }
+
+    pub fn remove(&mut self, id: &u32) {
+        self.normal.remove(id);
+    }
+
+    pub fn get_modifier_info(
+        &self,
+        instanced_modifier_id: u32,
+        abilities: &InstancedAbilities,
+    ) -> Option<(u32, u32, &AbilityModifierController)> {
+        let ctrl = self.get(&instanced_modifier_id)?;
+
+        let ability_index = ctrl.ability_index?;
+
+        let ability = abilities.get_ability_by_index(ability_index)?;
+
+        if ability.instanced_ability_id.is_none() {
+            tracing::warn!(
+                "[InstancedModifiers::get_modifier_info] Modifier {} has ability_index {} but ability has no instanced_ability_id",
+                instanced_modifier_id, ability_index
+            );
+            return None;
+        }
+
+        Some((ability_index, instanced_modifier_id, ctrl))
+    }
+
+    pub fn get_modifier_by_name(
+        &self,
+        ability_index: u32,
+        modifier_name: &InternString,
+        abilities: &InstancedAbilities,
+    ) -> Option<(u32, &AbilityModifierController)> {
+        let ability = abilities.get_ability_by_index(ability_index)?;
+        let modifier_id = ability.modifiers.get(modifier_name)?;
+        let ctrl = self.get(modifier_id)?;
+        Some((*modifier_id, ctrl))
+    }
+}
+
 pub struct AbilityModifierController {
+    pub instanced_modifier_id: u32,
+    pub name: String,
+    pub property_deltas: HashMap<FightPropType, f32>,
+    pub remaining_time: f32,
+    pub think_interval: Option<f32>,
+    pub next_think_time: f32,
     pub target_entity: Option<Entity>,
     pub ability_index: Option<u32>,
     pub modifier_data: Option<&'static AbilityModifier>,
+}
+
+impl AbilityModifierController {
+    pub fn new(
+        instanced_modifier_id: u32,
+        modifier_name: String,
+        ability_index: u32,
+        target_entity: Option<Entity>,
+    ) -> Self {
+        Self {
+            instanced_modifier_id,
+            name: modifier_name,
+            property_deltas: HashMap::new(),
+            remaining_time: -1.0,
+            think_interval: None,
+            next_think_time: 0.0,
+            target_entity,
+            ability_index: Some(ability_index),
+            modifier_data: None,
+        }
+    }
+
+    pub fn is_active(&self) -> bool {
+        self.remaining_time < 0.0 || self.remaining_time > 0.0
+    }
 }
 
 #[derive(Component, Clone, Copy, PartialEq, Eq)]

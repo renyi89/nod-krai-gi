@@ -1,5 +1,7 @@
+use crate::ability::Ability;
 use crate::common::*;
 use bevy_ecs::{prelude::*, query::QueryData};
+use nod_krai_gi_data::excel::gadget_excel_config_collection;
 use nod_krai_gi_message::event::ClientMessageEvent;
 use nod_krai_gi_proto::normal::{EvtCreateGadgetNotify, EvtDestroyGadgetNotify};
 
@@ -49,11 +51,29 @@ pub fn handle_evt_update_gadget(
                         notify.owner_entity_id
                     );
 
+                    let gadget_excel_config_collection_clone =
+                        std::sync::Arc::clone(gadget_excel_config_collection::get());
+
+                    let Some(config) = gadget_excel_config_collection_clone.get(&gadget_id) else {
+                        tracing::debug!("gadget config for id {gadget_id} not found");
+                        continue;
+                    };
+
+                    let ability = {
+                        if !config.json_name.is_empty() {
+                            Ability::new_for_gadget(&config.json_name)
+                        } else {
+                            Ability::default()
+                        }
+                    };
+
+                    let inst = ability.instantiate();
+
                     commands.spawn(ClientGadgetBundle {
                         gadget_id: ClientGadgetID(gadget_id),
                         entity_id: ProtocolEntityID(notify.entity_id),
                         owner_entity_id: OwnerProtocolEntityID(Some(notify.owner_entity_id)),
-                        instanced_abilities: InstancedAbilities::default(),
+                        instanced_abilities: inst,
                         instanced_modifiers: InstancedModifiers::default(),
                         global_ability_values: GlobalAbilityValues::default(),
                     });

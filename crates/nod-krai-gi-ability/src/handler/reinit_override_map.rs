@@ -16,7 +16,7 @@ pub fn handle_reinit_override_map(
             Some(e) => *e,
             None => {
                 if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!("[ReinitOverrideMap] Entity {} not found", invoke.entity_id);
+                    tracing::debug!("[handle_reinit_override_map] Entity {} not found", invoke.entity_id);
                 }
                 continue;
             }
@@ -24,7 +24,7 @@ pub fn handle_reinit_override_map(
 
         let Some(head) = invoke.head else {
             if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!("[ReinitOverrideMap] AbilityInvokeEntry head is missing");
+                tracing::debug!("[handle_reinit_override_map] AbilityInvokeEntry head is missing");
             }
             continue;
         };
@@ -34,7 +34,7 @@ pub fn handle_reinit_override_map(
         let Ok((mut instanced_abilities, _)) = entities.get_mut(entity) else {
             if GAME_SERVER_CONFIG.plugin.ability_log {
                 tracing::debug!(
-                    "[ReinitOverrideMap] Failed to get entity components for {}",
+                    "[handle_reinit_override_map] Failed to get entity components for {}",
                     invoke.entity_id
                 );
             }
@@ -45,7 +45,7 @@ pub fn handle_reinit_override_map(
             None => {
                 if GAME_SERVER_CONFIG.plugin.ability_log {
                     tracing::debug!(
-                        "[ReinitOverrideMap] Invalid instanced_ability_id: {} for entity {}",
+                        "[handle_reinit_override_map] Invalid instanced_ability_id: {} for entity {}",
                         instanced_ability_id,
                         invoke.entity_id
                     );
@@ -63,7 +63,7 @@ pub fn handle_reinit_override_map(
                     None => {
                         if GAME_SERVER_CONFIG.plugin.ability_log {
                             tracing::debug!(
-                                "[ReinitOverrideMap] Failed to decode AbilityMetaReInitOverrideMap"
+                                "[handle_reinit_override_map] Failed to decode AbilityMetaReInitOverrideMap"
                             );
                         }
                     }
@@ -73,7 +73,7 @@ pub fn handle_reinit_override_map(
                                 None => {
                                     if GAME_SERVER_CONFIG.plugin.ability_log {
                                         tracing::debug!(
-                                            "[ReinitOverrideMap] No key provided for override param"
+                                            "[handle_reinit_override_map] No key provided for override param"
                                         );
                                     }
                                     continue;
@@ -84,7 +84,7 @@ pub fn handle_reinit_override_map(
                                     match instanced_ability.ability_data {
                                         None => {
                                             if GAME_SERVER_CONFIG.plugin.ability_log {
-                                                tracing::debug!("[ReinitOverrideMap] Reinit ability_specials {} = {} None ability on entity {}",
+                                                tracing::debug!("[handle_reinit_override_map] Reinit ability_specials {} = {} None ability on entity {}",
                                                     key,
                                                     value,
                                                     invoke.entity_id
@@ -93,7 +93,7 @@ pub fn handle_reinit_override_map(
                                         }
                                         Some(ability_data) => {
                                             if GAME_SERVER_CONFIG.plugin.ability_log {
-                                                tracing::debug!("[ReinitOverrideMap] Reinit ability_specials {} = {} for ability {} on entity {}",
+                                                tracing::debug!("[handle_reinit_override_map] Reinit ability_specials {} = {} for ability {} on entity {}",
                                                     key,
                                                     value,
                                                     ability_data.ability_name,

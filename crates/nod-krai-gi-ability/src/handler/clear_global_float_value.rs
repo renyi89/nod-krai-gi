@@ -17,7 +17,7 @@ pub fn handle_clear_global_float_value(
             None => {
                 if GAME_SERVER_CONFIG.plugin.ability_log {
                     tracing::debug!(
-                        "[ClearGlobalFloatValue] Entity {} not found",
+                        "[handle_clear_global_float_value] Entity {} not found",
                         invoke.entity_id
                     );
                 }
@@ -28,7 +28,7 @@ pub fn handle_clear_global_float_value(
         let Ok(mut global_ability_values) = entities.get_mut(entity) else {
             if GAME_SERVER_CONFIG.plugin.ability_log {
                 tracing::debug!(
-                    "[ClearGlobalFloatValue] Failed to get GlobalAbilityValues for entity {}",
+                    "[handle_clear_global_float_value] Failed to get GlobalAbilityValues for entity {}",
                     invoke.entity_id
                 );
             }
@@ -43,7 +43,7 @@ pub fn handle_clear_global_float_value(
             None => {
                 if GAME_SERVER_CONFIG.plugin.ability_log {
                     tracing::debug!(
-                        "[ClearGlobalFloatValue] Failed to decode AbilityScalarValueEntry"
+                        "[handle_clear_global_float_value] Failed to decode AbilityScalarValueEntry"
                     );
                 }
             }
@@ -51,7 +51,7 @@ pub fn handle_clear_global_float_value(
                 None => {
                     if GAME_SERVER_CONFIG.plugin.ability_log {
                         tracing::debug!(
-                            "[ClearGlobalFloatValue] No key provided for clear global float value"
+                            "[handle_clear_global_float_value] No key provided for clear global float value"
                         );
                     }
                     continue;
@@ -59,7 +59,7 @@ pub fn handle_clear_global_float_value(
                 Some(key) => {
                     if GAME_SERVER_CONFIG.plugin.ability_log {
                         tracing::debug!(
-                            "[ClearGlobalFloatValue] Cleared global ability value {} for entity {}",
+                            "[handle_clear_global_float_value] Cleared global ability value {} for entity {}",
                             key,
                             invoke.entity_id
                         );

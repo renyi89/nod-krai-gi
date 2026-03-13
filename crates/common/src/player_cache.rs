@@ -15,6 +15,7 @@ pub struct PlayerCache {
     pub is_notify: bool,
     pub is_pause: bool,
     pub client_time: u32,
+    pub client_data_version: u32,
     pub nick_name: String,
     pub player_level: u32,
     pub language: Language,
@@ -34,6 +35,7 @@ impl Default for PlayerCache {
             is_notify: false,
             is_pause: false,
             client_time: 0,
+            client_data_version: 0,
             nick_name: String::new(),
             player_level: 0,
             language: Language::Chs,
@@ -133,6 +135,10 @@ pub fn cache_get_client_time(uid: u32) -> Option<u32> {
     get_player_cache(uid).map(|v| v.client_time)
 }
 
+pub fn cache_set_player_client_data_version(uid: u32, client_data_version: u32) {
+    update_player_cache(uid, |v| v.client_data_version = client_data_version);
+}
+
 pub fn cache_set_player_nick_name(uid: u32, nick: String) {
     update_player_cache(uid, |v| v.nick_name = nick);
 }
@@ -167,6 +173,10 @@ pub fn cache_set_online_status(uid: u32, status: PlayerStatusType) {
 
 pub fn get_player_cache(uid: u32) -> Option<PlayerCache> {
     PLAYER_CACHE.get()?.get(&uid).map(|v| v.clone())
+}
+
+pub fn cache_get_player_client_data_version(uid: u32) -> Option<u32> {
+    get_player_cache(uid).map(|v| v.client_data_version)
 }
 
 pub fn cache_get_player_nick_name(uid: u32) -> Option<String> {

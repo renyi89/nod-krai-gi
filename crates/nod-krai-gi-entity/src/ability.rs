@@ -4,7 +4,8 @@ use common::string_util::InternString;
 use indexmap::IndexMap;
 use nod_krai_gi_data::{config, excel::avatar_excel_config_collection};
 use nod_krai_gi_proto::normal::{AbilityControlBlock, AbilityEmbryo};
-use std::collections::HashMap;
+use crate::common::InstancedAbilities;
+
 
 #[derive(Component, Default)]
 pub struct Ability {
@@ -15,24 +16,6 @@ pub struct AbilityData {
     pub ability_name_hash: u32,
     pub ability_override_name_hash: u32,
 }
-
-static TEMP_ABILITIES: std::sync::LazyLock<HashMap<u32, Vec<u32>>> =
-    std::sync::LazyLock::new(|| {
-        let mut temp_abilities = HashMap::new();
-
-        temp_abilities.insert(
-            //Aino
-            10000121,
-            vec![
-                2948022120, 2261577000, 1899635397, 1433722468, 1928816237, 1167583242, 1541171842,
-                3889765114, 3829597473, 1871806254, 4156234471, 1135998417, 3523369895, 1411398567,
-                3598058965, 66762623, 2970456499, 3659950384, 3149354192, 3355785453, 1097416365,
-                1198047057,
-            ],
-        );
-
-        temp_abilities
-    });
 
 const COMMON_AVATAR_ABILITIES: [&str; 26] = [
     "Absorb_SealEcho_Bullet_01",
@@ -139,20 +122,6 @@ impl Ability {
         } else {
             tracing::warn!("missing ConfigAvatar for {}", avatar_config.icon_name);
             let mut ability_map: IndexMap<InternString, AbilityData> = IndexMap::new();
-            match TEMP_ABILITIES.get(&id) {
-                None => {}
-                Some(temp_abilities) => {
-                    temp_abilities.iter().for_each(|ability| {
-                        ability_map.insert(
-                            ability.to_string().into(),
-                            AbilityData {
-                                ability_name_hash: *ability,
-                                ability_override_name_hash: string_util::get_string_hash("Default"),
-                            },
-                        );
-                    });
-                }
-            }
             Self::add_common_avatar_abilities(&mut ability_map);
             Self::process_open_configs(open_configs, &mut ability_map);
 
@@ -209,6 +178,16 @@ impl Ability {
                 })
                 .collect(),
         }
+    }
+
+    pub fn instantiate(&self) -> InstancedAbilities {
+        let mut inst = InstancedAbilities::new();
+        let mut next_id = 1u32;
+        for name in self.target_ability_map.keys() {
+            let _ = inst.find_or_add_by_ability_name(*name, next_id);
+            next_id += 1;
+        }
+        inst
     }
 }
 

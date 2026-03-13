@@ -206,6 +206,6 @@ pub fn on_player_move(
             script_lib.unload_group(group_id);
         }
 
-        tracing::debug!("now groups {:#?}", group_load_manager.groups)
+        tracing::debug!("now groups {:?}", group_load_manager.groups)
     }
 }

@@ -16,7 +16,7 @@ pub fn handle_global_float_value(
             Some(e) => *e,
             None => {
                 if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!("[GlobalFloatValue] Entity {} not found", invoke.entity_id);
+                    tracing::debug!("[handle_global_float_value] Entity {} not found", invoke.entity_id);
                 }
                 continue;
             }
@@ -25,7 +25,7 @@ pub fn handle_global_float_value(
         let Ok(mut global_ability_values) = entities.get_mut(entity) else {
             if GAME_SERVER_CONFIG.plugin.ability_log {
                 tracing::debug!(
-                    "[GlobalFloatValue] Failed to get GlobalAbilityValues for entity {}",
+                    "[handle_global_float_value] Failed to get GlobalAbilityValues for entity {}",
                     invoke.entity_id
                 );
             }
@@ -39,14 +39,14 @@ pub fn handle_global_float_value(
         ) {
             None => {
                 if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!("[GlobalFloatValue] Failed to decode AbilityScalarValueEntry");
+                    tracing::debug!("[handle_global_float_value] Failed to decode AbilityScalarValueEntry");
                 }
             }
             Some(entry) => match get_ability_name(entry.key) {
                 None => {
                     if GAME_SERVER_CONFIG.plugin.ability_log {
                         tracing::debug!(
-                            "[GlobalFloatValue] No key provided for global float value"
+                            "[handle_global_float_value] No key provided for global float value"
                         );
                     }
                     continue;
@@ -60,7 +60,7 @@ pub fn handle_global_float_value(
 
                     if GAME_SERVER_CONFIG.plugin.ability_log {
                         tracing::debug!(
-                            "[GlobalFloatValue] Setting global ability value {} = {} for entity {}",
+                            "[handle_global_float_value] Setting global ability value {} = {} for entity {}",
                             key,
                             value,
                             invoke.entity_id

@@ -14,6 +14,7 @@ pub struct RegionConfig {
     pub enable_login_pc: bool,
     pub region_list_file: String,
     pub client_custom_config_path: String,
+    pub client_custom_cn_config_path: String,
     pub global_client_secret_key_path: String,
     pub encryption_config_path: String,
     pub cur_region_name: Option<String>,

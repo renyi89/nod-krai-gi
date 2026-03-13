@@ -81,11 +81,13 @@ fn init_scene(
     mut entity_counter: ResMut<EntityCounter>,
     mut enter_events: MessageWriter<BeginEnterSceneEvent>,
 ) {
+    let team_ability = Ability::new_for_team();
+    let instanced = team_ability.instantiate();
     commands.spawn(TeamEntityBundle {
         marker: TeamEntityMarker,
         entity_id: to_protocol_entity_id(ProtEntityType::ProtEntityTeam, entity_counter.inc()),
-        ability: Ability::new_for_team(),
-        instanced_abilities: Default::default(),
+        ability: team_ability,
+        instanced_abilities: instanced,
         instanced_modifiers: Default::default(),
         global_ability_values: Default::default(),
     });

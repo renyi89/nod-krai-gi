@@ -1,4 +1,5 @@
 use crate::AppState;
+use axum::extract::Path;
 use axum::{
     extract::{Query, State},
     http::StatusCode,
@@ -14,6 +15,7 @@ pub fn routes() -> Router<&'static AppState> {
     Router::new()
         .route("/query_region_list", get(query_region_list))
         .route("/query_cur_region", get(query_cur_region))
+        .route("/query_cur_region/{product_name}", get(query_cur_region))
 }
 
 #[derive(Deserialize, Debug, Default)]
@@ -240,6 +242,7 @@ where
 }
 
 async fn query_cur_region(
+    product: Option<Path<String>>,
     Query(param): Query<QueryCurrRegionParam>,
     State(state): State<&'static AppState>,
 ) -> ProtobufData<QueryCurrRegionHttpRsp> {
@@ -254,10 +257,14 @@ async fn query_cur_region(
         });
     };
 
+    let cur_region_name = product.map(|Path(p)| p).unwrap_or_else(|| cur_region_name.clone());
+
+    tracing::debug!("cur_region_name: {}", cur_region_name);
+
     let region_config = state
         .region_list
         .iter()
-        .find(|r| &r.name == cur_region_name)
+        .find(|r| r.name == cur_region_name)
         .unwrap();
 
     if !region_config.allowed_key_id_list.contains(&param.key_id) {
@@ -356,7 +363,13 @@ async fn query_region_list(
         ProtobufData::Plain(QueryRegionListHttpRsp {
             enable_login_pc: state.config.region.enable_login_pc,
             client_secret_key: state.global_secret_key_ec2b.to_vec(),
-            client_custom_config_encrypted: state.client_custom_config_encrypted.to_vec(),
+            client_custom_config_encrypted: {
+                if param.version.contains("OS") {
+                    state.client_custom_config_encrypted.to_vec()
+                } else {
+                    state.client_custom_cn_config_encrypted.to_vec()
+                }
+            },
             region_list: state
                 .region_list
                 .iter()

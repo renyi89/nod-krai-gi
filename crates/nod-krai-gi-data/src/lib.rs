@@ -12,13 +12,16 @@ pub use dynamic_float::DynamicFloat;
 use common::game_server_config::GameServerConfig;
 use common::language::Language;
 use common::TomlConfig;
-use std::sync::LazyLock;
+use std::sync::{LazyLock, OnceLock};
+use common::data::RegionConfig;
 
 pub static GAME_SERVER_CONFIG: LazyLock<GameServerConfig> = LazyLock::new(|| {
     let mut config = GameServerConfig::load_or_create("game-server.toml");
     config.language = Language::from_locale() as u32;
     config
 });
+
+pub static REGION_LIST: OnceLock<Vec<RegionConfig>> = OnceLock::new();
 
 #[cfg(test)]
 mod tests {
@@ -46,11 +49,8 @@ mod tests {
     #[test]
     fn test_load_scene_block() {
         init_scene_static_templates("../../assets/lua/scene/");
-        let scene_block_collection_clone = Arc::clone(
-            scene::script_cache::SCENE_BLOCK_COLLECTION
-                .get()
-                .unwrap(),
-        );
+        let scene_block_collection_clone =
+            Arc::clone(scene::script_cache::SCENE_BLOCK_COLLECTION.get().unwrap());
 
         for key in scene_block_collection_clone.keys() {
             if key.0 == 3 {
@@ -145,7 +145,7 @@ mod tests {
         );
 
         for group_id in &nearby_group_ids[..nearby_group_ids.len().min(5)] {
-            if let Some(group) = cache.scene_groups.get(group_id) { 
+            if let Some(group) = cache.scene_groups.get(group_id) {
                 println!(
                     "  Group {}: center={:?}, range={}",
                     group.group_id, group.center, group.vision_range
@@ -155,14 +155,8 @@ mod tests {
 
         let cache2 = get_or_init_spatial_cache(scene_id, "../../assets/lua", "../../assets/cache/")
             .expect("Failed to load cache from file");
-        assert_eq!(
-            cache.scene_groups.len(),
-            cache2.scene_groups.len()
-        );
-        println!(
-            "Cache reuse verified: {} groups",
-            cache2.scene_groups.len()
-        );
+        assert_eq!(cache.scene_groups.len(), cache2.scene_groups.len());
+        println!("Cache reuse verified: {} groups", cache2.scene_groups.len());
     }
 
     #[test]

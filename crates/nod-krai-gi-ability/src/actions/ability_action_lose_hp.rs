@@ -2,16 +2,19 @@ use crate::util::calc_amount;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::prop_type::FightPropType;
 use nod_krai_gi_data::GAME_SERVER_CONFIG;
-use nod_krai_gi_entity::common::{EntityById, FightProperties, OwnerProtocolEntityID};
+use nod_krai_gi_entity::common::{
+    EntityById, FightProperties, InstancedModifiers, OwnerProtocolEntityID,
+};
 use nod_krai_gi_event::ability::*;
 
 pub fn ability_action_lose_hp_event(
     index: Res<EntityById>,
     mut events: MessageReader<AbilityActionLoseHPEvent>,
     mut fight_props_query: Query<&mut FightProperties>,
-    abilities_query: Query<(
+    entities_query: Query<(
         Option<&OwnerProtocolEntityID>,
         &nod_krai_gi_entity::common::InstancedAbilities,
+        &InstancedModifiers,
     )>,
 ) {
     for AbilityActionLoseHPEvent(
@@ -19,13 +22,14 @@ pub fn ability_action_lose_hp_event(
         ability_entity,
         action,
         _ability_data,
-        target_entity,
+        target_entities,
     ) in events.read()
     {
-        let Ok((owner_protocol_entity_id, abilities)) = abilities_query.get(*ability_entity) else {
+        let Ok((owner_protocol_entity_id, abilities, _)) = entities_query.get(*ability_entity)
+        else {
             if GAME_SERVER_CONFIG.plugin.ability_log {
                 tracing::debug!(
-                    "[AbilityActionLoseHPEvent] Failed to get entity components for {}",
+                    "[ability_action_lose_hp_event] Failed to get entity components for {}",
                     ability_entity
                 );
             }
@@ -34,7 +38,7 @@ pub fn ability_action_lose_hp_event(
         let Some(ability) = abilities.list.get(*ability_index as usize).cloned() else {
             if GAME_SERVER_CONFIG.plugin.ability_log {
                 tracing::debug!(
-                    "[AbilityActionLoseHPEvent] Ability not found for index: {} entity: {}",
+                    "[ability_action_lose_hp_event] Ability not found for index: {} entity: {}",
                     ability_index,
                     ability_entity
                 );
@@ -56,7 +60,7 @@ pub fn ability_action_lose_hp_event(
                     None => {
                         if GAME_SERVER_CONFIG.plugin.ability_log {
                             tracing::debug!(
-                                    "[AbilityActionHealHPEvent] owner_protocol_entity_id.0 {} not found",owner_protocol_entity_id);
+                                    "[AbilityActionLoseHPEvent] owner_protocol_entity_id.0 {} not found",owner_protocol_entity_id);
                         }
                         continue;
                     }
@@ -70,48 +74,59 @@ pub fn ability_action_lose_hp_event(
         match owner_entity {
             None => {
                 if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!("[AbilityActionLoseHPEvent] owner_entity.is_none ");
+                    tracing::debug!("[ability_action_lose_hp_event] owner_entity.is_none ");
                 }
                 continue;
             }
             Some(owner_entity) => {
-                let Ok(caster_props) = fight_props_query.get(owner_entity) else {
-                    if GAME_SERVER_CONFIG.plugin.ability_log {
-                        tracing::debug!("[AbilityActionLoseHPEvent] owner_entity props not found");
+                for target_entity in target_entities {
+                    let mut amount;
+                    {
+                        let Ok(caster_props) = fight_props_query.get(owner_entity) else {
+                            if GAME_SERVER_CONFIG.plugin.ability_log {
+                                tracing::debug!(
+                                    "[ability_action_lose_hp_event] owner_entity props not found"
+                                );
+                            }
+                            continue;
+                        };
+                        let Ok(target_props) = fight_props_query.get(*target_entity) else {
+                            if GAME_SERVER_CONFIG.plugin.ability_log {
+                                tracing::debug!(
+                                    "[ability_action_lose_hp_event] target_entity props not found"
+                                );
+                            }
+                            continue;
+                        };
+
+                        amount = calc_amount(&ability, caster_props, target_props, action);
+
+                        if target_props.get_property(FightPropType::FIGHT_PROP_CUR_HP)
+                            < amount + 0.01
+                            && !action.lethal
+                        {
+                            amount = 0.0;
+                        }
                     }
-                    continue;
-                };
 
-                let Ok(target_props) = fight_props_query.get(*target_entity) else {
                     if GAME_SERVER_CONFIG.plugin.ability_log {
-                        tracing::debug!("[AbilityActionLoseHPEvent] target_entity props not found");
+                        tracing::debug!(
+                            "[ability_action_lose_hp_event] change_cur_hp_value: {}",
+                            -amount
+                        );
                     }
-                    continue;
-                };
 
-                let mut amount = calc_amount(&ability, caster_props, target_props, action);
+                    let Ok(mut target_props) = fight_props_query.get_mut(*target_entity) else {
+                        if GAME_SERVER_CONFIG.plugin.ability_log {
+                            tracing::debug!(
+                                "[ability_action_lose_hp_event] target_entity props not found"
+                            );
+                        }
+                        continue;
+                    };
 
-                if target_props.get_property(FightPropType::FIGHT_PROP_CUR_HP) < amount + 0.01
-                    && !action.lethal
-                {
-                    amount = 0.0;
+                    target_props.change_cur_hp(-amount);
                 }
-
-                let Ok(mut target_props) = fight_props_query.get_mut(*target_entity) else {
-                    if GAME_SERVER_CONFIG.plugin.ability_log {
-                        tracing::debug!("[AbilityActionLoseHPEvent] target_entity props not found");
-                    }
-                    continue;
-                };
-
-                if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!(
-                        "[AbilityActionLoseHPEvent] change_cur_hp_value: {}",
-                        -amount
-                    );
-                }
-
-                target_props.change_cur_hp(-amount);
             }
         }
     }

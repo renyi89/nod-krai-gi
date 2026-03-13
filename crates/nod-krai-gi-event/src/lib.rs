@@ -38,6 +38,7 @@ impl Plugin for EventRegistryPlugin {
             .add_message::<ItemDropEvent>()
             //entity
             .add_message::<GadgetInteractEvent>()
+            .add_message::<EntityStateChangeEvent>()
             //lua
             .add_message::<LuaTriggerEvent>()
             .add_message::<SpawnGroupEntityEvent>()
@@ -63,6 +64,7 @@ impl Plugin for EventRegistryPlugin {
             //combat
             .add_message::<EntityMoveEvent>()
             .add_message::<EntityBeingHitEvent>()
+            .add_message::<PlayerMoveEvent>()
             //ability
             .add_message::<AddNewAbilityEvent>()
             .add_message::<ModifierChangeEvent>()
@@ -80,6 +82,18 @@ impl Plugin for EventRegistryPlugin {
             .add_message::<AbilityActionSetOverrideMapValueEvent>()
             .add_message::<AbilityActionSetRandomOverrideMapValueEvent>()
             .add_message::<AbilityActionAddHPDebtsEvent>()
-            .add_message::<AbilityActionReduceHPDebtsEvent>();
+            .add_message::<AbilityActionReduceHPDebtsEvent>()
+            .add_message::<AbilityActionModifyAvatarSkillCDEvent>()
+            .add_message::<AbilityActionAvatarSkillStartEvent>()
+            .add_message::<AbilityActionSetGlobalValueEvent>()
+            .add_message::<AbilityActionAddGlobalValueEvent>()
+            .add_message::<AbilityActionApplyModifierEvent>()
+            .add_message::<AbilityActionRemoveModifierEvent>()
+            .add_message::<AbilityActionCopyGlobalValueEvent>()
+            .add_message::<AbilityActionClearGlobalValueEvent>()
+            .add_message::<AbilityActionAttachModifierEvent>()
+            .add_message::<AbilityActionRemoveUniqueModifierEvent>()
+            .add_message::<AbilityActionTriggerAbilityEvent>()
+            .add_message::<AbilityActionKillSelfEvent>();
     }
 }

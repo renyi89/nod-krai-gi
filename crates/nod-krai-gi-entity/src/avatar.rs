@@ -111,6 +111,7 @@ pub struct AvatarBundle {
     pub instanced_abilities: InstancedAbilities,
     pub instanced_modifiers: InstancedModifiers,
     pub global_ability_values: GlobalAbilityValues,
+    pub skill_cd_map: SkillCDMap,
     pub life_state: LifeState,
     pub born_time: BornTime,
     pub index_in_scene_team: IndexInSceneTeam,
@@ -138,6 +139,7 @@ pub struct AvatarQueryReadOnly {
     pub instanced_abilities: &'static InstancedAbilities,
     pub instanced_modifiers: &'static InstancedModifiers,
     pub global_ability_values: &'static GlobalAbilityValues,
+    pub skill_cd_map: &'static SkillCDMap,
     pub life_state: &'static LifeState,
     pub born_time: &'static BornTime,
     pub index_in_scene_team: &'static IndexInSceneTeam,
@@ -628,6 +630,10 @@ pub fn spawn_avatar_entity(
 
     let fight_properties = create_fight_props_with_equip(avatar_bin, avatar_config);
 
+    // build ability component first so we can create instances
+    let ability_comp = Ability::new_for_avatar(avatar_bin.avatar_id, open_configs);
+    let instanced = ability_comp.instantiate();
+
     let avatar_entity = commands.spawn(AvatarBundle {
         avatar_id: AvatarID(avatar_bin.avatar_id),
         entity_id: to_protocol_entity_id(ProtEntityType::ProtEntityAvatar, entity_counter.inc()),
@@ -639,9 +645,10 @@ pub fn spawn_avatar_entity(
         break_level: AvatarPromoteLevel(avatar_bin.promote_level),
         owner_player_uid: OwnerPlayerUID(uid),
         fight_properties,
-        instanced_abilities: InstancedAbilities::default(),
+        instanced_abilities: instanced,
         instanced_modifiers: InstancedModifiers::default(),
         global_ability_values: GlobalAbilityValues::default(),
+        skill_cd_map: SkillCDMap::default(),
         life_state: LifeState::Alive,
         equipment_weapon: EquipmentWeapon {
             weapon: weapon_entity,
@@ -655,7 +662,7 @@ pub fn spawn_avatar_entity(
             position: position,
             rotation: rotation,
         },
-        ability: Ability::new_for_avatar(avatar_bin.avatar_id, open_configs),
+        ability: ability_comp,
         born_time: BornTime(avatar_bin.born_time),
         index_in_scene_team: IndexInSceneTeam(idx as u8),
         inherent_proud_skill_list: InherentProudSkillList(

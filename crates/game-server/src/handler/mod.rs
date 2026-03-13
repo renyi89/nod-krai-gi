@@ -7,6 +7,7 @@ use std::sync::{Arc, OnceLock};
 use crate::handler::gm_util::execute_gm_cmd;
 use crate::{net::Connection, util, AppState};
 use anyhow::Result;
+use common::player_cache::{cache_set_client_time, cache_set_player_client_data_version};
 use nod_krai_gi_encryption::xor::MhyXorpad;
 use nod_krai_gi_message::output::ClientOutput;
 use nod_krai_gi_proto::normal::{
@@ -19,7 +20,6 @@ use nod_krai_gi_proto::{
     Protobuf,
 };
 use tokio::sync::mpsc;
-use common::player_cache::cache_set_client_time;
 
 enum InputItem {
     NewConnection(Connection),
@@ -258,9 +258,16 @@ async fn handle_packet(
                     >(version, "PlayerLoginReq", body)
                     {
                         None => {}
-                        Some(_request) => {
+                        Some(request) => {
                             let user_id = *session.player_uid.get().unwrap();
                             let user_session_id = session.connection.conv;
+                            if request.client_version.contains("_") {
+                                cache_set_player_client_data_version(
+                                    user_id,
+                                    request.client_data_version,
+                                );
+                            }
+
                             tracing::debug!(
                                 "received player login request, session id: {}, player uid: {}",
                                 user_session_id,

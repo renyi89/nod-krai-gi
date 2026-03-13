@@ -28,8 +28,8 @@ use crate::common::Visible;
 use crate::fight::EntityFightPropChangeReasonNotifyEvent;
 use crate::{avatar::CurrentPlayerAvatarMarker, client_gadget::EntitySystemSet};
 use nod_krai_gi_proto::normal::{
-    GadgetInteractReq, GadgetInteractRsp,
-    LifeStateChangeNotify, ProtEntityType, SceneEntityDisappearNotify, VisionType,
+    GadgetInteractReq, GadgetInteractRsp, LifeStateChangeNotify, ProtEntityType,
+    SceneEntityDisappearNotify, SceneEntityDrownReq, VisionType,
 };
 
 pub struct EntityPlugin;
@@ -192,9 +192,11 @@ fn update_entity_index(
 }
 
 pub fn handle_entity(
+    index: Res<EntityById>,
     mut events: MessageReader<ClientMessageEvent>,
     message_output: Res<MessageOutput>,
     mut gadget_interact_events: MessageWriter<GadgetInteractEvent>,
+    mut update_separate_property_entity_events: MessageWriter<EntityPropertySeparateUpdateEvent>,
 ) {
     for message in events.read() {
         match message.message_name() {
@@ -217,6 +219,22 @@ pub fn handle_entity(
                         req.gadget_id,
                         req.gadget_entity_id,
                     ));
+                }
+            }
+            "SceneEntityDrownReq" => {
+                if let Some(req) = message.decode::<SceneEntityDrownReq>() {
+                    match index.0.get(&req.entity_id) {
+                        None => {}
+                        Some(entity) => {
+                            update_separate_property_entity_events.write(
+                                EntityPropertySeparateUpdateEvent(
+                                    *entity,
+                                    FightPropType::FIGHT_PROP_CUR_HP,
+                                    -100000000.0,
+                                ),
+                            );
+                        }
+                    }
                 }
             }
             &_ => {}

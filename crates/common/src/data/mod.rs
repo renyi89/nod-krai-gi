@@ -1,7 +1,7 @@
 use serde::{Deserialize, Deserializer};
 use std::collections::HashMap;
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct RegionConfig {
     pub name: String,
     pub title: String,

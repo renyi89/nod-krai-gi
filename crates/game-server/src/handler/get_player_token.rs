@@ -1,14 +1,13 @@
+use super::Session;
 use crate::AppState;
+use common::language::Language;
 use common::player_cache::{
     cache_set_language, cache_set_online_status, is_player_online, PlayerStatusType,
 };
-use common::language::Language;
 use nod_krai_gi_encryption::xor::{MhyXorpad, XorpadGenerationMethod};
 use nod_krai_gi_proto::normal::{GetPlayerTokenReq, GetPlayerTokenRsp};
 use nod_krai_gi_proto::retcode::Retcode;
 use rand::RngCore;
-
-use super::Session;
 
 pub fn process_message(
     state: &AppState,

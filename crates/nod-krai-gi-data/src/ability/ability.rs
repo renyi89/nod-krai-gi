@@ -10,14 +10,14 @@ use std::sync::Mutex;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct AbilityConfigWrapper {
-    #[serde(rename = "Default")]
+    #[serde(alias = "Default")]
     pub default: AbilityData,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AbilityData {
-    #[serde(rename = "$type")]
+    #[serde(alias = "$type")]
     #[serde(default)]
     pub type_name: InternString,
     pub ability_name: InternString,
@@ -114,34 +114,34 @@ pub struct AbilityModifier {
     pub element_durability: Option<DynamicFloat>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct AbilityModifierAction {
-    #[serde(rename = "$type")]
+    #[serde(alias = "$type")]
     #[serde(default)]
     pub type_name: InternString,
     #[serde(default)]
     pub target: AbilityTargettingEnum,
     pub amount: Option<DynamicFloat>,
-    #[serde(rename = "amountByCasterAttackRatio")]
+    #[serde(alias = "amountByCasterAttackRatio")]
     #[serde(default)]
     pub amount_by_caster_attack_ratio: Option<DynamicFloat>,
-    #[serde(rename = "amountByCasterCurrentHPRatio")]
+    #[serde(alias = "amountByCasterCurrentHPRatio")]
     #[serde(default)]
     pub amount_by_caster_current_hp_ratio: Option<DynamicFloat>,
-    #[serde(rename = "amountByCasterMaxHPRatio")]
+    #[serde(alias = "amountByCasterMaxHPRatio")]
     #[serde(default)]
     pub amount_by_caster_max_hp_ratio: Option<DynamicFloat>,
-    #[serde(rename = "amountByGetDamage")]
+    #[serde(alias = "amountByGetDamage")]
     #[serde(default)]
     pub amount_by_get_damage: Option<DynamicFloat>,
-    #[serde(rename = "amountByTargetCurrentHPRatio")]
+    #[serde(alias = "amountByTargetCurrentHPRatio")]
     #[serde(default)]
     pub amount_by_target_current_hp_ratio: Option<DynamicFloat>,
-    #[serde(rename = "amountByTargetMaxHPRatio")]
+    #[serde(alias = "amountByTargetMaxHPRatio")]
     #[serde(default)]
     pub amount_by_target_max_hp_ratio: Option<DynamicFloat>,
-    #[serde(rename = "limboByTargetMaxHPRatio")]
+    #[serde(alias = "limboByTargetMaxHPRatio")]
     #[serde(default)]
     pub limbo_by_target_max_hp_ratio: Option<DynamicFloat>,
     pub heal_ratio: Option<DynamicFloat>,
@@ -150,7 +150,7 @@ pub struct AbilityModifierAction {
     pub ignore_ability_property: bool,
     #[serde(default)]
     pub modifier_name: InternString,
-    #[serde(rename = "enableLockHP")]
+    #[serde(alias = "enableLockHP")]
     #[serde(default)]
     pub enable_lock_hp: bool,
     #[serde(default)]
@@ -233,7 +233,7 @@ pub struct AbilityModifierAction {
     pub value: Option<DynamicFloat>,
     #[serde(default)]
     pub type_field: InternString,
-    #[serde(rename = "healLimitedByCasterMaxHPRatio")]
+    #[serde(alias = "healLimitedByCasterMaxHPRatio")]
     #[serde(default)]
     pub heal_limited_by_caster_max_hp_ratio: Option<DynamicFloat>,
     #[serde(default)]
@@ -248,18 +248,42 @@ pub struct AbilityModifierAction {
     pub other_targets: Option<Box<AbilityModifierAction>>,
     #[serde(default)]
     pub call_param_list: Vec<u32>,
+    #[serde(default)]
+    pub duration_ratio: f32,
+    #[serde(default)]
+    pub element_type: InternString,
+    #[serde(default)]
+    pub skill_slot: Vec<u32>,
+    #[serde(default)]
+    pub cd_delta: Option<DynamicFloat>,
+    #[serde(default)]
+    pub cd_ratio: Option<DynamicFloat>,
+    #[serde(default)]
+    pub is_add: bool,
+    #[serde(default)]
+    pub ban_drop: bool,
+    #[serde(default, alias = "banHPPercentageDrop")]
+    pub ban_hppercentage_drop: bool,
+    #[serde(default)]
+    pub kill_self_type: InternString,
+    #[serde(default)]
+    pub is_from_owner: bool,
+    #[serde(default)]
+    pub duration: Option<DynamicFloat>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AbilityMixinData {
-    #[serde(rename = "$type")]
+    #[serde(alias = "$type")]
     #[serde(default)]
     pub type_name: InternString,
     #[serde(default)]
     pub modifier_name: serde_json::Value,
     #[serde(default)]
     pub state_ids: Vec<InternString>,
+    #[serde(default, alias = "stateID")]
+    pub state_id: InternString,
     #[serde(default)]
     pub global_value_key: InternString,
     #[serde(default)]
@@ -270,23 +294,31 @@ pub struct AbilityMixinData {
     pub ratio: Option<DynamicFloat>,
     #[serde(default)]
     pub default_global_value_on_create: Option<DynamicFloat>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "deserialize_string_or_vec")]
     pub modifier_name_steps: Vec<InternString>,
+    #[serde(default)]
+    pub normalize_start: f32,
+    #[serde(default)]
+    pub normalize_end: f32,
+    #[serde(default)]
+    pub value_steps: Vec<DynamicFloat>,
+    #[serde(default)]
+    pub remove_applied_modifier: bool,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AbilityModifierProperty {
-    #[serde(rename = "Actor_HpThresholdRatio")]
+    #[serde(alias = "Actor_HpThresholdRatio")]
     #[serde(default)]
     pub actor_hp_threshold_ratio: Option<DynamicFloat>,
-    #[serde(rename = "Actor_MaxHPRatio")]
+    #[serde(alias = "Actor_MaxHPRatio")]
     #[serde(default)]
     pub actor_max_hp_ratio: Option<DynamicFloat>,
-    #[serde(rename = "Actor_AttackSRatio")]
+    #[serde(alias = "Actor_AttackSRatio")]
     #[serde(default)]
     pub actor_attack_s_ratio: Option<DynamicFloat>,
-    #[serde(rename = "Actor_HealedAddDelta")]
+    #[serde(alias = "Actor_HealedAddDelta")]
     #[serde(default)]
     pub actor_healed_add_delta: Option<DynamicFloat>,
 }
@@ -336,6 +368,34 @@ pub enum AbilityTargettingEnum {
     MPLevel = 19,
 }
 
+impl From<&str> for AbilityTargettingEnum {
+    fn from(value: &str) -> Self {
+        match value {
+            "Self" => AbilityTargettingEnum::Self_,
+            "Caster" => AbilityTargettingEnum::Caster,
+            "Target" => AbilityTargettingEnum::Target,
+            "SelfAttackTarget" => AbilityTargettingEnum::SelfAttackTarget,
+            "Other" => AbilityTargettingEnum::Other,
+            "Applier" => AbilityTargettingEnum::Applier,
+            "Owner" => AbilityTargettingEnum::Owner,
+            "CurTeamAvatars" => AbilityTargettingEnum::CurTeamAvatars,
+            "CurLocalAvatar" => AbilityTargettingEnum::CurLocalAvatar,
+            "OriginOwner" => AbilityTargettingEnum::OriginOwner,
+            "Team" => AbilityTargettingEnum::Team,
+            "TargetOwner" => AbilityTargettingEnum::TargetOwner,
+            "TargetOriginOwner" => AbilityTargettingEnum::TargetOriginOwner,
+            "AllPlayerAvatars" => AbilityTargettingEnum::AllPlayerAvatars,
+            "AllTeams" => AbilityTargettingEnum::AllTeams,
+            "RemoteTeams" => AbilityTargettingEnum::RemoteTeams,
+            "TargetTeam" => AbilityTargettingEnum::TargetTeam,
+            "CasterOwner" => AbilityTargettingEnum::CasterOwner,
+            "CasterOriginOwner" => AbilityTargettingEnum::CasterOriginOwner,
+            "MPLevel" => AbilityTargettingEnum::MPLevel,
+            _ => AbilityTargettingEnum::Self_,
+        }
+    }
+}
+
 use common::string_util::InternString;
 use serde::Deserializer;
 use serde_json::Value;
@@ -352,7 +412,14 @@ where
         v.modifier_name = k.clone();
     }
 
-    Ok(map)
+    let mut entries: Vec<_> = map.into_iter().collect();
+    entries.sort_by(|a, b| a.0.cmp(&b.0));
+    let mut sorted_map = IndexMap::new();
+    for (k, v) in entries {
+        sorted_map.insert(k, v);
+    }
+
+    Ok(sorted_map)
 }
 
 pub fn skip_strings_in_vec<'de, T, D>(deserializer: D) -> Result<Vec<T>, D::Error>
@@ -379,6 +446,24 @@ where
         _ => Ok(vec![]),
     }
 }
+
+fn deserialize_string_or_vec<'de, D>(deserializer: D) -> Result<Vec<InternString>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum StringOrVec {
+        One(InternString),
+        Many(Vec<InternString>),
+    }
+
+    match StringOrVec::deserialize(deserializer)? {
+        StringOrVec::One(s) => Ok(vec![s]),
+        StringOrVec::Many(v) => Ok(v),
+    }
+}
+
 static ABILITY_DATA_MAP: std::sync::OnceLock<HashMap<InternString, AbilityData>> =
     std::sync::OnceLock::new();
 
@@ -410,15 +495,19 @@ fn load_ability_configs_recursive(
     json_files.par_iter().for_each(|path| {
         if let Ok(json) = std::fs::read(path) {
             let path_str = path.to_string_lossy().to_string();
-            if let Ok(wrappers) = serde_json::from_slice::<Vec<AbilityConfigWrapper>>(&*json) {
-                let mut map_guard = map.lock().unwrap();
-                for wrapper in wrappers {
-                    let ability_name = wrapper.default.ability_name.clone();
-                    let ability_data = wrapper.default;
-                    map_guard.insert(ability_name, ability_data);
+            let json = common::string_util::strip_json_comments_bytes(&*json);
+            match serde_json::from_slice::<Vec<AbilityConfigWrapper>>(&*json) {
+                Ok(wrappers) => {
+                    let mut map_guard = map.lock().unwrap();
+                    for wrapper in wrappers {
+                        let ability_name = wrapper.default.ability_name.clone();
+                        let ability_data = wrapper.default;
+                        map_guard.insert(ability_name, ability_data);
+                    }
                 }
-            } else {
-                eprintln!("Failed to parse {}", path_str);
+                Err(error) => {
+                    eprintln!("Failed to parse {} {}", path_str, error);
+                }
             }
         }
     });

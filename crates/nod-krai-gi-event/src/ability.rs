@@ -49,7 +49,7 @@ pub struct AbilityActionHealHPEvent(
     pub Entity,
     pub AbilityModifierAction,
     pub Vec<u8>,
-    pub Entity,
+    pub Vec<Entity>,
 );
 
 #[derive(Message)]
@@ -58,7 +58,7 @@ pub struct AbilityActionLoseHPEvent(
     pub Entity,
     pub AbilityModifierAction,
     pub Vec<u8>,
-    pub Entity,
+    pub Vec<Entity>,
 );
 
 #[derive(Message)]
@@ -76,7 +76,7 @@ pub struct AbilityActionGetHPPaidDebtsEvent(
     pub Entity,
     pub AbilityModifierAction,
     pub Vec<u8>,
-    pub Entity,
+    pub Vec<Entity>,
 );
 
 #[derive(Message)]
@@ -103,7 +103,7 @@ pub struct AbilityActionAddHPDebtsEvent(
     pub Entity,
     pub AbilityModifierAction,
     pub Vec<u8>,
-    pub Entity,
+    pub Vec<Entity>,
 );
 
 #[derive(Message)]
@@ -112,5 +112,116 @@ pub struct AbilityActionReduceHPDebtsEvent(
     pub Entity,
     pub AbilityModifierAction,
     pub Vec<u8>,
+    pub Vec<Entity>,
+);
+
+#[derive(Message)]
+pub struct AbilityActionModifyAvatarSkillCDEvent(
+    pub u32,
+    pub Entity,
+    pub AbilityModifierAction,
+    pub Vec<u8>,
+    pub Vec<Entity>,
+);
+
+#[derive(Message)]
+pub struct AbilityActionSetGlobalValueEvent(
+    pub u32,
+    pub Entity,
+    pub AbilityModifierAction,
+    pub Vec<u8>,
     pub Entity,
 );
+
+#[derive(Message)]
+pub struct AbilityActionAddGlobalValueEvent(
+    pub u32,
+    pub Entity,
+    pub AbilityModifierAction,
+    pub Vec<u8>,
+    pub Entity,
+);
+
+#[derive(Message)]
+pub struct AbilityActionApplyModifierEvent(
+    pub u32,
+    pub Entity,
+    pub AbilityModifierAction,
+    pub Vec<u8>,
+    pub Entity,
+);
+
+#[derive(Message)]
+pub struct AbilityActionRemoveModifierEvent(
+    pub u32,
+    pub Entity,
+    pub AbilityModifierAction,
+    pub Vec<u8>,
+    pub Entity,
+);
+
+#[derive(Message)]
+pub struct AbilityActionCopyGlobalValueEvent(
+    pub u32,
+    pub Entity,
+    pub AbilityModifierAction,
+    pub Vec<u8>,
+    pub Entity,
+);
+
+#[derive(Message)]
+pub struct AbilityActionClearGlobalValueEvent(
+    pub u32,
+    pub Entity,
+    pub AbilityModifierAction,
+    pub Vec<u8>,
+    pub Entity,
+);
+
+#[derive(Message)]
+pub struct AbilityActionAttachModifierEvent(
+    pub u32,
+    pub Entity,
+    pub AbilityModifierAction,
+    pub Vec<u8>,
+    pub Entity,
+);
+
+#[derive(Message)]
+pub struct AbilityActionRemoveUniqueModifierEvent(
+    pub u32,
+    pub Entity,
+    pub AbilityModifierAction,
+    pub Vec<u8>,
+    pub Entity,
+);
+
+#[derive(Message)]
+pub struct AbilityActionTriggerAbilityEvent(
+    pub u32,
+    pub Entity,
+    pub AbilityModifierAction,
+    pub Vec<u8>,
+    pub Entity,
+);
+
+#[derive(Message)]
+pub struct AbilityActionKillSelfEvent(
+    pub u32,
+    pub Entity,
+    pub AbilityModifierAction,
+    pub Vec<u8>,
+    pub Vec<Entity>,
+);
+
+#[derive(Message)]
+pub struct AbilityActionAvatarSkillStartEvent(
+    pub u32,
+    pub Entity,
+    pub AbilityModifierAction,
+    pub Vec<u8>,
+    pub Vec<Entity>,
+);
+
+#[derive(Message)]
+pub struct AttackLandedEvent(pub Entity, pub Entity); // attacker, target

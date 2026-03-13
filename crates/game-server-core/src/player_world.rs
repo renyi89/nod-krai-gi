@@ -2,12 +2,13 @@ use std::collections::HashMap;
 
 use crate::player_data_sync::PlayerDataSyncPlugin;
 use bevy_app::prelude::*;
+use common::player_cache::cache_get_player_client_data_version;
 use nod_krai_gi_ability::AbilityPlugin;
 use nod_krai_gi_avatar::AvatarPlugin;
 use nod_krai_gi_banner::BannerPlugin;
 use nod_krai_gi_combat::CombatPlugin;
 use nod_krai_gi_command::CommandPlugin;
-use nod_krai_gi_data::GAME_SERVER_CONFIG;
+use nod_krai_gi_data::{GAME_SERVER_CONFIG, REGION_LIST};
 use nod_krai_gi_entity::EntityPlugin;
 use nod_krai_gi_environment::EnvironmentPlugin;
 use nod_krai_gi_event::EventRegistryPlugin;
@@ -21,6 +22,7 @@ use nod_krai_gi_message::{
 };
 use nod_krai_gi_pathfinding::PathfindingPlugin;
 use nod_krai_gi_persistence::Players;
+use nod_krai_gi_proto::normal::{PlayerLoginRsp, ResVersionConfig};
 use nod_krai_gi_proto::server_only::PlayerDataBin;
 use nod_krai_gi_proto::Protobuf;
 use nod_krai_gi_quest::QuestPlugin;
@@ -88,12 +90,62 @@ impl PlayerWorld {
 
         let binding = get_player_version!(&uid);
         let version = binding.as_str();
+        let client_data_version = cache_get_player_client_data_version(uid).unwrap_or_default();
 
-        output.push_none(
-            nod_krai_gi_proto::packet_head::PacketHead::default(),
-            version,
-            "PlayerLoginRsp",
-        );
+        let mut cur_hot_fix_data = None;
+
+        REGION_LIST.get().unwrap().iter().for_each(|region| {
+            region
+                .hot_fix_data
+                .iter()
+                .for_each(|(_, hot_fix_data)| {
+                    if hot_fix_data.client_data_version == client_data_version {
+                        cur_hot_fix_data = Some(hot_fix_data.clone());
+                    }
+                })
+        });
+
+        match cur_hot_fix_data {
+            None => {
+                output.push_none(
+                    nod_krai_gi_proto::packet_head::PacketHead::default(),
+                    version,
+                    "PlayerLoginRsp",
+                );
+            }
+            Some(cur_hot_fix_data) => {
+                output.push(
+                    nod_krai_gi_proto::packet_head::PacketHead::default(),
+                    version,
+                    "PlayerLoginRsp",
+                    PlayerLoginRsp {
+                        client_md5: cur_hot_fix_data.client_data_md5.clone(),
+                        client_silence_md5: cur_hot_fix_data.client_silence_data_md5.clone(),
+                        client_data_version: cur_hot_fix_data.client_data_version.clone(),
+                        client_silence_data_version: cur_hot_fix_data
+                            .client_silence_data_version
+                            .clone(),
+                        client_version_suffix: cur_hot_fix_data.client_version_suffix.clone(),
+                        client_silence_version_suffix: cur_hot_fix_data
+                            .client_silence_version_suffix
+                            .clone(),
+
+                        res_version_config: Some(ResVersionConfig {
+                            version: cur_hot_fix_data.res_version_config.version.clone(),
+                            md5: cur_hot_fix_data.res_version_config.md5.clone(),
+                            release_total_size: cur_hot_fix_data
+                                .res_version_config
+                                .release_total_size
+                                .clone(),
+                            version_suffix: cur_hot_fix_data.res_version_config.version_suffix.clone(),
+                            branch: cur_hot_fix_data.res_version_config.branch.clone(),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    },
+                );
+            }
+        }
 
         tracing::debug!("created world for player: {uid}");
 

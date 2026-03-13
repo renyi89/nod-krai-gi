@@ -21,6 +21,7 @@ struct AppState {
     pub key_pair_map: HashMap<u32, RsaKeyPair>,
     pub global_secret_key_ec2b: Box<[u8]>,
     pub client_custom_config_encrypted: Box<[u8]>,
+    pub client_custom_cn_config_encrypted: Box<[u8]>,
     pub cur_region_secret_key_ec2b: Option<Box<[u8]>>,
 }
 
@@ -60,6 +61,18 @@ async fn main() -> Result<()> {
             )
         })?;
 
+    let client_custom_cn_config_encrypted = fs::read(&CONFIG.region.client_custom_cn_config_path)
+        .map(|mut c| {
+            global_xorpad.xor(&mut c);
+            c.into_boxed_slice()
+        })
+        .map_err(|err| {
+            anyhow!(
+                "failed to read client_custom_config from {}, error: {err}",
+                &CONFIG.region.client_custom_cn_config_path
+            )
+        })?;
+
     let region_list: Vec<RegionConfig> =
         serde_json::from_str(&fs::read_to_string(&CONFIG.region.region_list_file)?)?;
 
@@ -96,6 +109,7 @@ async fn main() -> Result<()> {
         region_list,
         global_secret_key_ec2b: global_ec2b,
         client_custom_config_encrypted,
+        client_custom_cn_config_encrypted,
         cur_region_secret_key_ec2b,
         key_pair_map,
     });

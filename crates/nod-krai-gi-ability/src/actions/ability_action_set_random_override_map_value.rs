@@ -1,11 +1,12 @@
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::GAME_SERVER_CONFIG;
+use nod_krai_gi_entity::common::InstancedAbilities;
 use nod_krai_gi_event::ability::*;
 use rand::Rng;
 
 pub fn ability_action_set_random_override_map_value_event(
     mut events: MessageReader<AbilityActionSetRandomOverrideMapValueEvent>,
-    mut abilities_query: Query<&mut nod_krai_gi_entity::common::InstancedAbilities>,
+    mut abilities_query: Query<&mut InstancedAbilities>,
 ) {
     for AbilityActionSetRandomOverrideMapValueEvent(
         ability_index,
@@ -16,41 +17,44 @@ pub fn ability_action_set_random_override_map_value_event(
     ) in events.read()
     {
         let override_map_key = action.override_map_key;
+        let value_range_min = action.value_range_min;
+        let value_range_max = action.value_range_max;
 
         if override_map_key.is_empty() {
             if GAME_SERVER_CONFIG.plugin.ability_log {
                 tracing::debug!(
-                    "[AbilityActionSetRandomOverrideMapValueEvent] Missing override_map_key"
+                    "[ability_action_set_random_override_map_value_event] Missing override_map_key"
                 );
             }
             continue;
         }
 
-        // Get abilities from ability entity (ability_index only applies to ability_entity)
         let Ok(mut abilities) = abilities_query.get_mut(*ability_entity) else {
             if GAME_SERVER_CONFIG.plugin.ability_log {
                 tracing::debug!(
-                    "[AbilityActionSetRandomOverrideMapValueEvent] Failed to get abilities for entity {}",
+                    "[ability_action_set_random_override_map_value_event] Failed to get abilities for entity {}",
                     ability_entity
                 );
             }
             continue;
         };
 
-        // Generate random value
         let mut rng = rand::thread_rng();
-        let random_value = rng.gen_range(0.0..1.0);
+        let random_value = if value_range_min < value_range_max {
+            rng.gen_range(value_range_min..value_range_max)
+        } else {
+            rng.gen_range(0.0..1.0)
+        };
 
-        // Set random value to override map
         if let Some(ability) = abilities.list.get_mut(*ability_index as usize) {
-            ability
-                .ability_specials
-                .insert(override_map_key, random_value);
+            ability.ability_specials.insert(override_map_key, random_value);
             if GAME_SERVER_CONFIG.plugin.ability_log {
                 tracing::debug!(
-                    "[AbilityActionSetRandomOverrideMapValueEvent] Setting random override map value {} to {}",
+                    "[ability_action_set_random_override_map_value_event] Setting random override map key {} to value {} (range: {} - {})",
                     override_map_key,
-                    random_value
+                    random_value,
+                    value_range_min,
+                    value_range_max
                 );
             }
         }

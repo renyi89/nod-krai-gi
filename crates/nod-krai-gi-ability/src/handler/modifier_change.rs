@@ -1,17 +1,24 @@
 use bevy_ecs::prelude::*;
+use nod_krai_gi_data::ability::AbilityModifier;
+use nod_krai_gi_data::prop_type::FightPropType;
 use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_entity::common::{
-    AbilityModifierController, EntityById, InstancedAbilities, InstancedModifiers,
+    AbilityModifierController, EntityById, FightProperties, InstancedAbilities, InstancedAbility,
+    InstancedModifiers,
 };
 use nod_krai_gi_proto::normal::{AbilityMetaModifierChange, ModifierAction};
 
-use crate::util::get_ability_name;
+use crate::util::{eval, get_ability_name};
 use nod_krai_gi_event::ability::*;
 
 pub fn handle_modifier_change(
     index: Res<EntityById>,
     mut events: MessageReader<ModifierChangeEvent>,
-    mut entities: Query<(&mut InstancedAbilities, &mut InstancedModifiers)>,
+    mut entities: Query<(
+        &mut InstancedAbilities,
+        &mut InstancedModifiers,
+        Option<&mut FightProperties>,
+    )>,
 ) {
     for ModifierChangeEvent(invoke, version) in events.read() {
         let entity = match index.0.get(&invoke.entity_id) {
@@ -70,7 +77,7 @@ pub fn handle_modifier_change(
 
                                 if target_id != 0 {
                                     if let Some(target_entity) = index.0.get(&target_id) {
-                                        if let Ok((mut target_abilities, _)) =
+                                        if let Ok((mut target_abilities, _, _)) =
                                             entities.get_mut(*target_entity)
                                         {
                                             if instanced_ability_data.is_none() {
@@ -137,6 +144,7 @@ pub fn handle_modifier_change(
                                 let Ok((
                                     mut this_instanced_abilities,
                                     mut this_instanced_modifiers,
+                                    mut fight_properties,
                                 )) = entities.get_mut(entity)
                                 else {
                                     if GAME_SERVER_CONFIG.plugin.ability_log {
@@ -219,7 +227,7 @@ pub fn handle_modifier_change(
                                 };
 
                                 let is_replacing = this_instanced_modifiers
-                                    .0
+                                    .normal
                                     .contains_key(&instanced_modifier_id);
 
                                 if GAME_SERVER_CONFIG.plugin.ability_log {
@@ -244,19 +252,36 @@ pub fn handle_modifier_change(
                                     }
                                 }
 
-                                let modifier_controller = AbilityModifierController {
-                                    target_entity: target_entity_ref,
-                                    ability_index,
-                                    modifier_data: Some(modifier_data),
-                                };
+                                let modifier_controller = AbilityModifierController::new(
+                                    instanced_modifier_id,
+                                    modifier_data.modifier_name.to_string(),
+                                    ability_index.unwrap(),
+                                    target_entity_ref,
+                                );
 
                                 this_instanced_modifiers
-                                    .0
                                     .insert(instanced_modifier_id, modifier_controller);
+
+                                if let Some(ability) = ability_index.and_then(|idx| {
+                                    this_instanced_abilities.list.get_mut(idx as usize)
+                                }) {
+                                    ability
+                                        .modifiers
+                                        .insert(modifier_data.modifier_name, instanced_modifier_id);
+
+                                    apply_modifier_properties(
+                                        modifier_data,
+                                        ability,
+                                        fight_properties.as_deref_mut(),
+                                    );
+                                }
                             }
                             ModifierAction::Removed => {
-                                let Ok((_, mut this_instanced_modifiers)) =
-                                    entities.get_mut(entity)
+                                let Ok((
+                                    mut this_instanced_abilities,
+                                    mut this_instanced_modifiers,
+                                    mut fight_properties,
+                                )) = entities.get_mut(entity)
                                 else {
                                     if GAME_SERVER_CONFIG.plugin.ability_log {
                                         tracing::debug!(
@@ -274,11 +299,92 @@ pub fn handle_modifier_change(
                                     );
                                 }
 
-                                this_instanced_modifiers.0.remove(&instanced_modifier_id);
+                                if let Some(modifier_controller) =
+                                    this_instanced_modifiers.get(&instanced_modifier_id)
+                                {
+                                    if let Some(modifier_data) = &modifier_controller.modifier_data
+                                    {
+                                        if let Some(ability) =
+                                            modifier_controller.ability_index.and_then(|idx| {
+                                                this_instanced_abilities.list.get_mut(idx as usize)
+                                            })
+                                        {
+                                            remove_modifier_properties(
+                                                modifier_data,
+                                                ability,
+                                                fight_properties.as_deref_mut(),
+                                            );
+
+                                            ability.modifiers.remove(&modifier_data.modifier_name);
+                                        }
+                                    }
+                                }
+
+                                this_instanced_modifiers.remove(&instanced_modifier_id);
                             }
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+fn apply_modifier_properties(
+    modifier: &AbilityModifier,
+    ability: &InstancedAbility,
+    fight_properties: Option<&mut FightProperties>,
+) {
+    if let Some(fight_properties) = fight_properties {
+        if let Some(properties) = &modifier.properties {
+            if let Some(max_hp_ratio) = &properties.actor_max_hp_ratio {
+                let value = eval(ability, Some(fight_properties), max_hp_ratio, 0.0);
+                fight_properties.change_property(FightPropType::FIGHT_PROP_HP_PERCENT, value);
+            }
+
+            if let Some(attack_s_ratio) = &properties.actor_attack_s_ratio {
+                let value = eval(ability, Some(fight_properties), attack_s_ratio, 0.0);
+                fight_properties.change_property(FightPropType::FIGHT_PROP_ATTACK_PERCENT, value);
+            }
+
+            if let Some(healed_add_delta) = &properties.actor_healed_add_delta {
+                let value = eval(ability, Some(fight_properties), healed_add_delta, 0.0);
+                fight_properties.change_property(FightPropType::FIGHT_PROP_HEALED_ADD, value);
+            }
+
+            if modifier.bonus_critical > 0.0 {
+                fight_properties
+                    .change_property(FightPropType::FIGHT_PROP_CRITICAL, modifier.bonus_critical);
+            }
+        }
+    }
+}
+
+fn remove_modifier_properties(
+    modifier: &AbilityModifier,
+    ability: &InstancedAbility,
+    fight_properties: Option<&mut FightProperties>,
+) {
+    if let Some(fight_properties) = fight_properties {
+        if let Some(properties) = &modifier.properties {
+            if let Some(max_hp_ratio) = &properties.actor_max_hp_ratio {
+                let value = -eval(ability, Some(fight_properties), max_hp_ratio, 0.0);
+                fight_properties.change_property(FightPropType::FIGHT_PROP_HP_PERCENT, value);
+            }
+
+            if let Some(attack_s_ratio) = &properties.actor_attack_s_ratio {
+                let value = -eval(ability, Some(fight_properties), attack_s_ratio, 0.0);
+                fight_properties.change_property(FightPropType::FIGHT_PROP_ATTACK_PERCENT, value);
+            }
+
+            if let Some(healed_add_delta) = &properties.actor_healed_add_delta {
+                let value = -eval(ability, Some(fight_properties), healed_add_delta, 0.0);
+                fight_properties.change_property(FightPropType::FIGHT_PROP_HEALED_ADD, value);
+            }
+
+            if modifier.bonus_critical > 0.0 {
+                fight_properties
+                    .change_property(FightPropType::FIGHT_PROP_CRITICAL, -modifier.bonus_critical);
             }
         }
     }

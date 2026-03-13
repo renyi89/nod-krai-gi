@@ -210,6 +210,8 @@ pub fn spawn_gadget_entity(
         }
     };
 
+    let inst = ability.instantiate();
+
     let gadget_entity = commands.spawn(GadgetBundle {
         gadget_id: GadgetID(gadget_id),
         entity_id: to_protocol_entity_id(ProtEntityType::ProtEntityGadget, entity_counter.inc()),
@@ -223,7 +225,7 @@ pub fn spawn_gadget_entity(
         transform: Transform { position, rotation },
         fight_properties,
         ability,
-        instanced_abilities: InstancedAbilities::default(),
+        instanced_abilities: inst,
         instanced_modifiers: InstancedModifiers::default(),
         global_ability_values: GlobalAbilityValues::default(),
         life_state: LifeState::Alive,

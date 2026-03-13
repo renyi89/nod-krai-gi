@@ -99,11 +99,12 @@ pub fn change_avatar(
                     let Some(player_info) = players.get_mut(message.sender_uid()) else {
                         continue;
                     };
-                    let avatar_guid_list = if let Some(ref player_avatar_bin) = player_info.avatar_bin {
-                        player_avatar_bin.cur_avatar_guid_list.clone()
-                    } else {
-                        continue;
-                    };
+                    let avatar_guid_list =
+                        if let Some(ref player_avatar_bin) = player_info.avatar_bin {
+                            player_avatar_bin.cur_avatar_guid_list.clone()
+                        } else {
+                            continue;
+                        };
 
                     let mut all_dead = true;
                     let mut first_alive_avatar_guid = None;
@@ -124,7 +125,11 @@ pub fn change_avatar(
                         }
                     }
 
-                    if let (Some(guid), Some(entity), Some(transform)) = (first_alive_avatar_guid, first_alive_avatar_entity, first_alive_avatar_transform) {
+                    if let (Some(guid), Some(entity), Some(transform)) = (
+                        first_alive_avatar_guid,
+                        first_alive_avatar_entity,
+                        first_alive_avatar_transform,
+                    ) {
                         if let Some(ref mut player_avatar_bin) = player_info.avatar_bin {
                             player_avatar_bin.cur_avatar_guid = guid;
                         }
@@ -155,9 +160,7 @@ pub fn change_avatar(
                         for (avatar_entity, fight_props, _, avatar_data, _) in
                             avatars.iter().filter(|(_, _, _, a, _)| {
                                 a.owner_player_uid.0 == message.sender_uid()
-                                    && player_avatar_bin
-                                        .cur_avatar_guid_list
-                                        .contains(&a.guid.0)
+                                    && player_avatar_bin.cur_avatar_guid_list.contains(&a.guid.0)
                             })
                         {
                             let max_hp = fight_props.get_property(FightPropType::FIGHT_PROP_MAX_HP);
@@ -382,7 +385,7 @@ pub fn notify_avatar_team_update(
         let Some(ref player_avatar_bin) = player_info.avatar_bin else {
             continue;
         };
-        
+
         out.send(
             event.uid,
             "AvatarTeamUpdateNotify",

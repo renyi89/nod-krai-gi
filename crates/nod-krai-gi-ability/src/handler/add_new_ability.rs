@@ -14,7 +14,7 @@ pub fn handle_add_new_ability(
             Some(e) => *e,
             None => {
                 if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!("[AddNewAbility] Entity {} not found", invoke.entity_id);
+                    tracing::debug!("[handle_add_new_ability] Entity {} not found", invoke.entity_id);
                 }
                 continue;
             }
@@ -26,7 +26,7 @@ pub fn handle_add_new_ability(
         {
             None => {
                 if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!("[AddNewAbility] Failed to decode AbilityMetaAddAbility");
+                    tracing::debug!("[handle_add_new_ability] Failed to decode AbilityMetaAddAbility");
                 }
             }
             Some(add_ability) => match entities.get_mut(entity) {
@@ -45,7 +45,7 @@ pub fn handle_add_new_ability(
                                     Some(_) => {
                                         if GAME_SERVER_CONFIG.plugin.ability_log {
                                             tracing::debug!(
-                                                "[AddNewAbility] change ability.instanced_ability_id: {} ability_override",
+                                                "[handle_add_new_ability] change ability.instanced_ability_id: {} ability_override",
                                                 ability.instanced_ability_id
                                             );
                                         }
@@ -57,7 +57,7 @@ pub fn handle_add_new_ability(
 
                         if GAME_SERVER_CONFIG.plugin.ability_log {
                             tracing::debug!(
-                                "[AddNewAbility] instanced_ability_id: {} ability_name: {} invoke.entity_id: {}",
+                                "[handle_add_new_ability] instanced_ability_id: {} ability_name: {} invoke.entity_id: {}",
                                 ability.instanced_ability_id,
                                 ability_name,
                                 invoke.entity_id
@@ -72,7 +72,7 @@ pub fn handle_add_new_ability(
                             None => {
                                 if GAME_SERVER_CONFIG.plugin.ability_log {
                                     tracing::debug!(
-                                        "[AddNewAbility] add_with_instanced_ability_id fail {}",
+                                        "[handle_add_new_ability] add_with_instanced_ability_id fail {}",
                                         ability_name
                                     );
                                 }
