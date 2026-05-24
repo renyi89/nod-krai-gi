@@ -8,7 +8,7 @@
 
 `nod-krai-gi` is forked from the [mavuika-rs](https://git.xeondev.com/mavuika-rs/mavuika-rs) project. Experimental implementation only.
 
- game version >= 6.1.0
+ base game version : 6.6.0,Generate handbook using test_gen_handbook
 
 ## Feature Implementation/Differences
 - `sdk-server`: Removed from the project, using hoyo-sdk (added dispatch redirection, because http was removed from the patch, only proxy can be used), set http_addr = "127.0.0.1:21000"

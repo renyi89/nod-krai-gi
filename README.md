@@ -8,8 +8,7 @@
 
 `nod-krai-gi` 分叉自 [mavuika-rs](https://git.xeondev.com/mavuika-rs/mavuika-rs) 项目。仅实验性实现。
 
- game version >= 6.1.0
-
+ base game version : 6.6.0,使用test_gen_handbook 生成手册
 
 ## 功能实现/差异
 - `sdk-server`: 从项目中删除，使用hoyo-sdk(添加dispatch的重定向，因为从补丁中移除了http，只能使用代理),设置 http_addr = "127.0.0.1:21000"
