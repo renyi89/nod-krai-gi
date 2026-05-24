@@ -4,17 +4,19 @@ use std::collections::HashMap;
 #[serde(rename_all = "camelCase")]
 pub struct OpenStateConfig {
     pub id: u32,
+    #[serde(default)]
     pub default_state: bool,
-    pub allow_client_open: bool,
     pub cond: Vec<OpenStateCond>,
-    pub system_open_ui_id: u32,
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct OpenStateCond {
+    #[serde(default)]
     pub cond_type: OpenStateCondType,
+    #[serde(default)]
     pub param: u32,
+    #[serde(default)]
     pub param_2: u32,
 }
 
@@ -54,13 +56,9 @@ impl OpenStateConfigKeyed<u32> for OpenStateConfig {
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, OpenStateConfig> {
         let json =
-            std::fs::read(&format!("{excel_bin_output_path}/OpenStateConfigData.json"))
-                .unwrap();
+            std::fs::read(&format!("{excel_bin_output_path}/OpenStateConfigData.json")).unwrap();
         let list: Vec<OpenStateConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

@@ -24,7 +24,7 @@ members = [
     "crates/game-server",
     "crates/game-server-core",
     "crates/nod-krai-gi-persistence",
-    "crates/nod-krai-gi-time",
+    "crates/nod-krai-gi-misc",
     "crates/nod-krai-gi-map",
     "crates/nod-krai-gi-command",
     "crates/nod-krai-gi-combat",
@@ -128,7 +128,7 @@ nod-krai-gi-ability = { path = "crates/nod-krai-gi-ability" }
 nod-krai-gi-social = { path = "crates/nod-krai-gi-social" }
 nod-krai-gi-quest = { path = "crates/nod-krai-gi-quest" }
 nod-krai-gi-script = { path = "crates/nod-krai-gi-script" }
-nod-krai-gi-time = { path = "crates/nod-krai-gi-time" }
+nod-krai-gi-misc = { path = "crates/nod-krai-gi-misc" }
 nod-krai-gi-map = { path = "crates/nod-krai-gi-map" }
 nod-krai-gi-inventory = { path = "crates/nod-krai-gi-inventory" }
 nod-krai-gi-command = { path = "crates/nod-krai-gi-command" }

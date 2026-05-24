@@ -1,11 +1,12 @@
 use super::common::{PropGrowCurve, VisionLevelType};
-use common::string_util::InternString;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct HpDropConfig {
+    #[serde(default)]
     pub drop_id: u32,
+    #[serde(default)]
     pub hp_percent: f32,
 }
 
@@ -52,32 +53,39 @@ pub struct MonsterSpecialNameExcelConfig {
 #[serde(rename_all = "camelCase")]
 pub struct MonsterExcelConfig {
     pub id: u32,
-    pub describe_id: u32,
-    pub describe: Option<MonsterDescribeExcelConfig>,
     pub r#type: MonsterType,
-    pub server_script: InternString,
-    pub combat_config_hash: u64,
+    #[serde(default)]
+    pub describe_id: u32,
+    #[serde(default)]
+    pub describe: Option<MonsterDescribeExcelConfig>,
+    #[serde(default)]
     pub affix: Vec<u32>,
-    pub ai: InternString,
+    #[serde(default)]
     pub equips: Vec<u32>,
-    pub hp_drops: Vec<HpDropConfig>,
+    #[serde(default)]
     pub kill_drop_id: u32,
+    #[serde(default)]
+    pub hp_drops: Vec<HpDropConfig>,
+    #[serde(default)]
     pub vision_level: VisionLevelType,
-    pub is_invisible_reset: bool,
-    pub exclude_weathers: InternString,
     #[serde(default)]
     pub feature_tag_group_id: u32,
-    pub skin: InternString,
+    #[serde(default)]
     pub hp_base: f32,
+    #[serde(default)]
     pub attack_base: f32,
+    #[serde(default)]
     pub defense_base: f32,
+    #[serde(default)]
     pub critical: f32,
+    #[serde(default)]
     pub critical_hurt: f32,
-    pub prop_grow_curves: Vec<PropGrowCurve>,
+    #[serde(default)]
     pub element_mastery: f32,
     #[serde(alias = "campID")]
     #[serde(default)]
     pub camp_id: u32,
+    pub prop_grow_curves: Vec<PropGrowCurve>,
 }
 
 pub trait MonsterDescribeExcelConfigKeyed<K> {
@@ -97,10 +105,7 @@ impl MonsterDescribeExcelConfigKeyed<u32> for MonsterDescribeExcelConfig {
         ))
         .unwrap();
         let list: Vec<MonsterDescribeExcelConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .into_iter()
-            .map(|item| (item.key().clone(), item))
-            .collect();
+        let data = list.into_iter().map(|item| (item.key(), item)).collect();
         data
     }
 }
@@ -122,10 +127,7 @@ impl MonsterSpecialNameExcelConfigKeyed<u32> for MonsterSpecialNameExcelConfig {
         ))
         .unwrap();
         let list: Vec<MonsterSpecialNameExcelConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .into_iter()
-            .map(|item| (item.key().clone(), item))
-            .collect();
+        let data = list.into_iter().map(|item| (item.key(), item)).collect();
         data
     }
 }
@@ -160,7 +162,7 @@ impl MonsterExcelConfigKeyed<u32> for MonsterExcelConfig {
                         .and_then(|s| Some(s.special_name_id));
                     item.describe = Some(describe);
                 }
-                (item.key().clone(), item)
+                (item.key(), item)
             })
             .collect();
         data

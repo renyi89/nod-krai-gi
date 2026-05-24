@@ -1,9 +1,6 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::excel::{
-    SceneTagConfig, SceneTagConfigKeyed, BIG_WORLD_MAP_LAYER_CONFIG,
-    BIG_WORLD_MAP_LAYER_FLOOR_CONFIG, BIG_WORLD_MAP_LAYER_GROUP_CONFIG,
-};
+use nod_krai_gi_data::excel::{SceneTagConfig, SceneTagConfigKeyed};
 use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
 use nod_krai_gi_persistence::Players;
@@ -28,11 +25,8 @@ fn data_request_processor(
 ) {
     use nod_krai_gi_proto::normal::*;
 
-    let scene_point_config_collection_clone = Arc::clone(
-        nod_krai_gi_data::scene::scene_point_config::SCENE_POINT_CONFIG_COLLECTION
-            .get()
-            .unwrap(),
-    );
+    let scene_point_config_collection_clone =
+        nod_krai_gi_data::scene::scene_point_config::get_scene_point_config_collection();
 
     let daily_dungeon_config_collection_clone =
         Arc::clone(nod_krai_gi_data::excel::daily_dungeon_config_collection::get());
@@ -197,20 +191,17 @@ pub fn sync_scene_info_list_on_scene_init(
                         is_locked: false,
                         scene_id: 3,
                         map_layer_info: Some(MapLayerInfo {
-                            unlocked_map_layer_floor_id_list: Arc::clone(
-                                BIG_WORLD_MAP_LAYER_FLOOR_CONFIG.get().unwrap(),
-                            )
-                            .to_vec(),
-                            unlocked_map_layer_group_id_list: Arc::clone(
-                                BIG_WORLD_MAP_LAYER_GROUP_CONFIG.get().unwrap(),
-                            )
-                            .to_vec(),
-                            unlocked_map_layer_id_list: Arc::clone(
-                                BIG_WORLD_MAP_LAYER_CONFIG.get().unwrap(),
-                            )
-                            .to_vec(),
+                            unlocked_map_layer_floor_id_list:
+                                nod_krai_gi_data::excel::get_map_layer_floor_config_collection()
+                                    .to_vec(),
+                            unlocked_layer_group_list:
+                                nod_krai_gi_data::excel::get_map_layer_group_config_collection()
+                                    .to_vec(),
+                            unlocked_map_layer_id_list:
+                                nod_krai_gi_data::excel::get_map_layer_config_collection().to_vec(),
                         }),
                         scene_tag_id_list,
+                        ..Default::default()
                     });
                 } else if *scene_id == 101 {
                     info_list.push(PlayerWorldSceneInfo {
@@ -221,12 +212,13 @@ pub fn sync_scene_info_list_on_scene_init(
                                 1018000101, 1018000102, 1018000103, 1018000106, 1018000107,
                                 1018000108, 1018000109, 1018000110, 1018000111, 1018000112,
                             ],
-                            unlocked_map_layer_group_id_list: vec![10180001],
+                            unlocked_layer_group_list: vec![10180001],
                             unlocked_map_layer_floor_id_list: vec![
                                 1018000101, 1018000102, 1018000110, 1018000111, 1018000112,
                             ],
                         }),
                         scene_tag_id_list,
+                        ..Default::default()
                     });
                 } else if *scene_id == 103 {
                     info_list.push(PlayerWorldSceneInfo {
@@ -237,13 +229,14 @@ pub fn sync_scene_info_list_on_scene_init(
                                 101, 102, 103, 201, 301, 302, 401, 501, 502, 503, 601, 602, 603,
                                 604, 605, 606, 608, 609, 610, 611, 612, 613, 702, 901, 902,
                             ],
-                            unlocked_map_layer_group_id_list: vec![1, 2, 3, 6, 9],
+                            unlocked_layer_group_list: vec![1, 2, 3, 6, 9],
                             unlocked_map_layer_floor_id_list: vec![
                                 101, 102, 103, 201, 301, 302, 401, 501, 502, 503, 602, 605, 608,
                                 610, 702, 901, 902,
                             ],
                         }),
                         scene_tag_id_list,
+                        ..Default::default()
                     });
                 } else {
                     info_list.push(PlayerWorldSceneInfo {
@@ -251,6 +244,7 @@ pub fn sync_scene_info_list_on_scene_init(
                         scene_id: *scene_id,
                         map_layer_info: None,
                         scene_tag_id_list,
+                        ..Default::default()
                     });
                 }
             }
@@ -274,11 +268,8 @@ pub fn sync_group_unlimit_point_list_on_post_enter_scene(
     players: Res<Players>,
     out: Res<MessageOutput>,
 ) {
-    let scene_point_config_collection_clone = Arc::clone(
-        nod_krai_gi_data::scene::scene_point_config::SCENE_POINT_CONFIG_COLLECTION
-            .get()
-            .unwrap(),
-    );
+    let scene_point_config_collection_clone =
+        nod_krai_gi_data::scene::scene_point_config::get_scene_point_config_collection();
 
     for PostEnterSceneEvent(uid) in reader.read() {
         let Some(player_info) = players.get(*uid) else {

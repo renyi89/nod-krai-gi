@@ -27,10 +27,10 @@ fn send_shell_payload(
         settings.startup_payloads.iter().for_each(|data| {
             message_output.send_to_all(
                 "PlayerNormalLuaShellNotify",
-                Some(PlayerNormalLuaShellNotify {
+                PlayerNormalLuaShellNotify {
                     payload: data.to_vec(),
                     ..Default::default()
-                }),
+                },
             )
         });
     }

@@ -16,6 +16,7 @@ use nod_krai_gi_data::excel::{
     avatar_excel_config_collection, avatar_talent_excel_config_collection,
     proud_skill_excel_config_collection, weapon_excel_config_collection,
 };
+use nod_krai_gi_event::avatar::{AvatarAppearanceChange, AvatarAppearanceChangeEvent};
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::{
@@ -35,25 +36,6 @@ pub struct AvatarAppearance {
     pub flycloak_id: u32,
     pub costume_id: u32,
     pub trace_effect_id: u32,
-}
-
-#[derive(Message)]
-pub struct AvatarEquipChangeEvent {
-    pub player_uid: u32,
-    pub avatar_guid: u64,
-    pub equip_type: EquipType,
-}
-
-pub enum AvatarAppearanceChange {
-    Costume(u32),
-    TraceEffect(u32),
-}
-
-#[derive(Message)]
-pub struct AvatarAppearanceChangeEvent {
-    pub player_uid: u32,
-    pub avatar_guid: u64,
-    pub change: AvatarAppearanceChange,
 }
 
 #[derive(Component)]
@@ -627,7 +609,11 @@ pub fn spawn_avatar_entity(
 
     let avatar_entity = commands.spawn(AvatarBundle {
         avatar_id: AvatarID(avatar_bin.avatar_id),
-        entity_id: to_protocol_entity_id(protocol_version.as_str(),ProtEntityType::ProtEntityAvatar, entity_counter.inc()),
+        entity_id: to_protocol_entity_id(
+            protocol_version.as_str(),
+            ProtEntityType::ProtEntityAvatar,
+            entity_counter.inc(),
+        ),
         guid: Guid(avatar_bin.guid),
         control_peer: ControlPeer(peer_id),
         skill_depot: SkillDepot(avatar_bin.skill_depot_id),

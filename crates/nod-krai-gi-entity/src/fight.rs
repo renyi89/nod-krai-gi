@@ -1,12 +1,12 @@
 use crate::common::{FightProperties, Guid, ProtocolEntityID};
 use bevy_ecs::change_detection::Res;
-use bevy_ecs::message::{Message, MessageReader};
+use bevy_ecs::message::MessageReader;
 use bevy_ecs::prelude::{Changed, Query};
+use nod_krai_gi_event::entity::{ChangeReason, EntityFightPropChangeReasonNotifyEvent};
 use nod_krai_gi_event::scene::WorldVersionConfig;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_proto::normal::{
-    AvatarFightPropUpdateNotify, ChangeEnergyReason, ChangeHpDebtsReason, ChangeHpReason,
-    EntityFightPropChangeReasonNotify, EntityFightPropUpdateNotify, PropChangeReason,
+    AvatarFightPropUpdateNotify, EntityFightPropChangeReasonNotify, EntityFightPropUpdateNotify,
     ProtEntityType,
 };
 
@@ -18,7 +18,6 @@ pub fn notify_fight_properties_to_clients(
     message_output: Res<MessageOutput>,
     world_version_config: Res<WorldVersionConfig>,
 ) {
-
     for (mut properties, entity_id, guid) in changed_properties.iter_mut() {
         if properties.1.is_empty() {
             continue;
@@ -32,7 +31,9 @@ pub fn notify_fight_properties_to_clients(
 
         properties.1.clear();
 
-        if entity_id.entity_type(world_version_config.protocol_version.as_str()) == ProtEntityType::ProtEntityAvatar {
+        if entity_id.entity_type(world_version_config.protocol_version.as_str())
+            == ProtEntityType::ProtEntityAvatar
+        {
             message_output.send_to_all(
                 "AvatarFightPropUpdateNotify",
                 AvatarFightPropUpdateNotify {
@@ -50,21 +51,6 @@ pub fn notify_fight_properties_to_clients(
             );
         }
     }
-}
-
-pub enum ChangeReason {
-    ChangeHpReason(ChangeHpReason),
-    ChangeHpDebtsReason(ChangeHpDebtsReason),
-    ChangeEnergyReason(ChangeEnergyReason),
-}
-#[derive(Message)]
-pub struct EntityFightPropChangeReasonNotifyEvent {
-    pub entity_id: u32,
-    pub prop_type: nod_krai_gi_data::prop_type::FightPropType,
-    pub value: f32,
-    pub param_list: Option<Vec<u32>>,
-    pub reason: PropChangeReason,
-    pub change_reason: ChangeReason,
 }
 
 pub fn notify_fight_properties_change_reason_to_clients(

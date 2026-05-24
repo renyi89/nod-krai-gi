@@ -4,9 +4,7 @@ use std::sync::{Arc, OnceLock};
 pub static GROUP_ENTITY_STATE_CACHE: OnceLock<Arc<GroupEntityStateCache>> = OnceLock::new();
 
 pub fn get_group_entity_state_cache() -> Arc<GroupEntityStateCache> {
-    Arc::clone(
-        GROUP_ENTITY_STATE_CACHE.get_or_init(|| Arc::new(GroupEntityStateCache::new())),
-    )
+    Arc::clone(GROUP_ENTITY_STATE_CACHE.get_or_init(|| Arc::new(GroupEntityStateCache::new())))
 }
 
 pub struct GroupEntityStateCache {
@@ -50,7 +48,10 @@ impl GroupEntityStateCache {
         }
     }
 
-    fn get_or_create_user_cache(&self, uid: u32) -> dashmap::mapref::one::Ref<'_, u32, UserGroupStateCache> {
+    fn get_or_create_user_cache(
+        &self,
+        uid: u32,
+    ) -> dashmap::mapref::one::Ref<'_, u32, UserGroupStateCache> {
         self.user_caches.entry(uid).or_default();
         self.user_caches.get(&uid).unwrap()
     }
@@ -147,7 +148,13 @@ impl GroupEntityStateCache {
         }
     }
 
-    pub fn on_gadget_state_update(&self, uid: u32, group_id: u32, config_id: u32, gadget_state: u32) {
+    pub fn on_gadget_state_update(
+        &self,
+        uid: u32,
+        group_id: u32,
+        config_id: u32,
+        gadget_state: u32,
+    ) {
         if let Some(user_cache) = self.user_caches.get(&uid) {
             if let Some(group_state) = user_cache.group_states.get(&group_id) {
                 if let Some(mut state) = group_state.gadgets.get_mut(&config_id) {
@@ -157,13 +164,23 @@ impl GroupEntityStateCache {
         }
     }
 
-    pub fn get_monster_state(&self, uid: u32, group_id: u32, config_id: u32) -> Option<MonsterEntityState> {
+    pub fn get_monster_state(
+        &self,
+        uid: u32,
+        group_id: u32,
+        config_id: u32,
+    ) -> Option<MonsterEntityState> {
         let user_cache = self.user_caches.get(&uid)?;
         let group_state = user_cache.group_states.get(&group_id)?;
         group_state.monsters.get(&config_id).map(|m| m.clone())
     }
 
-    pub fn get_gadget_state(&self, uid: u32, group_id: u32, config_id: u32) -> Option<GadgetEntityState> {
+    pub fn get_gadget_state(
+        &self,
+        uid: u32,
+        group_id: u32,
+        config_id: u32,
+    ) -> Option<GadgetEntityState> {
         let user_cache = self.user_caches.get(&uid)?;
         let group_state = user_cache.group_states.get(&group_id)?;
         group_state.gadgets.get(&config_id).map(|g| g.clone())
@@ -172,7 +189,8 @@ impl GroupEntityStateCache {
     pub fn get_alive_monster_count(&self, uid: u32, group_id: u32) -> u32 {
         if let Some(user_cache) = self.user_caches.get(&uid) {
             if let Some(group_state) = user_cache.group_states.get(&group_id) {
-                return group_state.monsters
+                return group_state
+                    .monsters
                     .iter()
                     .filter(|m| m.life_state == 1)
                     .count() as u32;

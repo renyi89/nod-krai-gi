@@ -31,7 +31,7 @@ use nod_krai_gi_quest::QuestPlugin;
 use nod_krai_gi_scene::ScenePlugin;
 use nod_krai_gi_script::ScriptPlugin;
 use nod_krai_gi_social::SocialPlugin;
-use nod_krai_gi_time::TimePlugin;
+use nod_krai_gi_misc::MiscPlugin;
 
 pub struct PlayerWorld(App);
 
@@ -75,7 +75,7 @@ impl PlayerWorld {
             .add_plugins(EnvironmentPlugin)
             .add_plugins(PathfindingPlugin)
             .add_plugins(CombatPlugin)
-            .add_plugins(TimePlugin)
+            .add_plugins(MiscPlugin)
             .add_plugins(CommandPlugin)
             .add_plugins(MapPlugin)
             .add_plugins(LuaShellPlugin)

@@ -5,9 +5,11 @@ use std::collections::HashMap;
 #[serde(rename_all = "camelCase")]
 pub struct ReliquaryLevelExcelConfig {
     pub add_props: Vec<AddProp>,
-
+    #[serde(default)]
     pub rank: u32,
+    #[serde(default)]
     pub level: u32,
+    #[serde(default)]
     pub exp: u32,
 }
 
@@ -30,7 +32,8 @@ impl ReliquaryLevelExcelConfigKeyed<u32> for ReliquaryLevelExcelConfig {
         let list: Vec<ReliquaryLevelExcelConfig> = serde_json::from_slice(&*json).unwrap();
         let data = list
             .iter()
-            .map(|item| (item.key().clone(), item.clone()))
+            .filter(|item| item.rank != 0)
+            .map(|item| (item.key(), item.clone()))
             .collect();
         data
     }

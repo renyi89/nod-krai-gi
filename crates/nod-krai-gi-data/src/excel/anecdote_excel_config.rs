@@ -4,6 +4,7 @@ use std::collections::HashMap;
 #[serde(rename_all = "camelCase")]
 pub struct AnecdoteExcelConfig {
     pub anecdote_id: u32,
+    #[serde(alias = "anecdoteQuestId")]
     pub parent_quest_id_list: Vec<u32>,
 }
 
@@ -19,15 +20,12 @@ impl AnecdoteExcelConfigKeyed<u32> for AnecdoteExcelConfig {
     }
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, AnecdoteExcelConfig> {
-        let json =  std::fs::read(&format!(
+        let json = std::fs::read(&format!(
             "{excel_bin_output_path}/AnecdoteExcelConfigData.json"
         ))
         .unwrap();
         let list: Vec<AnecdoteExcelConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

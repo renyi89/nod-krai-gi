@@ -11,9 +11,9 @@ use nod_krai_gi_proto::normal::{
     PlayerGameTimeNotify, PlayerSetPauseReq, PlayerSetPauseRsp, PlayerTimeNotify, ServerTimeNotify,
 };
 use nod_krai_gi_proto::retcode::Retcode;
-pub struct TimePlugin;
+pub struct MiscPlugin;
 
-impl Plugin for TimePlugin {
+impl Plugin for MiscPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(SceneTime::default())
             .add_systems(Startup, init_scene_time)

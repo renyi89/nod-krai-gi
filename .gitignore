@@ -27,5 +27,7 @@ assets/custom/*
 assets/cache/*
 crates/muip-server/*
 Cargo.lock
+handbook/*
 
 *.sqlite
+*.md

@@ -1,4 +1,3 @@
-use avatar::{AvatarAppearanceChangeEvent, AvatarEquipChangeEvent};
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
 use common::{
@@ -6,11 +5,15 @@ use common::{
 };
 use nod_krai_gi_data::custom::{resolve_drop, CombinedDrop};
 use nod_krai_gi_data::prop_type::FightPropType;
+use nod_krai_gi_data::quest::quest_config::QuestContent;
 use nod_krai_gi_data::scene::{EventType, LuaEvt};
-use nod_krai_gi_event::entity::GadgetInteractEvent;
-use nod_krai_gi_event::entity::SetWorktopOptionsEvent;
+use nod_krai_gi_event::entity::{
+    EntityDisappearEvent, EntityPropertySeparateUpdateEvent, EntityPropertyUpdateEvent,
+    GadgetInteractEvent, SetWorktopOptionsEvent,
+};
 use nod_krai_gi_event::inventory::ItemDropEvent;
 use nod_krai_gi_event::lua::{LuaTriggerEvent, MonsterKillEvent};
+use nod_krai_gi_event::quest::QuestContentProgressEvent;
 use nod_krai_gi_event::scene::{WorldOwnerUID, WorldVersionConfig};
 use nod_krai_gi_message::event::ClientMessageEvent;
 use nod_krai_gi_message::output::MessageOutput;
@@ -32,7 +35,6 @@ pub mod weapon;
 
 use crate::avatar::CurrentPlayerAvatarMarker;
 use crate::common::{ChestDropId, ConfigId, DropTag, GroupId, Level, Visible};
-use crate::fight::EntityFightPropChangeReasonNotifyEvent;
 use crate::gadget::GadgetID;
 use crate::monster::MonsterID;
 use crate::transform::Transform;
@@ -55,11 +57,6 @@ impl Plugin for EntityPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(EntityCounter::default())
             .insert_resource(EntityById::default())
-            .add_message::<EntityPropertySeparateUpdateEvent>()
-            .add_message::<EntityDisappearEvent>()
-            .add_message::<AvatarEquipChangeEvent>()
-            .add_message::<AvatarAppearanceChangeEvent>()
-            .add_message::<EntityFightPropChangeReasonNotifyEvent>()
             .add_message::<SetWorktopOptionsEvent>()
             .add_systems(
                 PreUpdate,
@@ -70,6 +67,7 @@ impl Plugin for EntityPlugin {
                 PreUpdate,
                 client_gadget::handle_evt_update_gadget.in_set(EntitySystemSet::HandleEntitySpawn),
             )
+            .add_systems(Update, update_property_entity)
             .add_systems(Update, update_separate_property_entity)
             .add_systems(Update, gadget::handle_gadget_interact)
             .add_systems(Update, gadget::handle_set_worktop_options)
@@ -107,11 +105,19 @@ impl Plugin for EntityPlugin {
     }
 }
 
-#[derive(Message)]
-pub struct EntityPropertySeparateUpdateEvent(pub Entity, pub FightPropType, pub f32);
-
-#[derive(Message)]
-pub struct EntityDisappearEvent(pub u32, pub VisionType);
+fn update_property_entity(
+    mut events: MessageReader<EntityPropertyUpdateEvent>,
+    mut entities: Query<&mut FightProperties>,
+) {
+    for event in events.read() {
+        match entities.get_mut(event.0) {
+            Ok(mut fight_props) => {
+                fight_props.set_property(event.1, event.2);
+            }
+            Err(_) => {}
+        }
+    }
+}
 
 fn update_separate_property_entity(
     mut events: MessageReader<EntityPropertySeparateUpdateEvent>,
@@ -150,6 +156,7 @@ fn update_entity_life_state(
     mut disappear_events: MessageWriter<EntityDisappearEvent>,
     mut lua_trigger_events: MessageWriter<LuaTriggerEvent>,
     mut monster_kill_events: MessageWriter<MonsterKillEvent>,
+    mut quest_content_events: MessageWriter<QuestContentProgressEvent>,
     message_output: Res<MessageOutput>,
     world_owner_uid: Res<WorldOwnerUID>,
     world_version_config: Res<WorldVersionConfig>,
@@ -258,11 +265,11 @@ fn update_entity_life_state(
             if *life_state != LifeState::Dead {
                 message_output.send_to_all(
                     "LifeStateChangeNotify",
-                    Some(LifeStateChangeNotify {
+                    LifeStateChangeNotify {
                         entity_id: id.0,
                         life_state: LifeState::Dead as u32,
                         ..Default::default()
-                    }),
+                    },
                 )
             }
             *life_state = LifeState::Dead;
@@ -270,11 +277,11 @@ fn update_entity_life_state(
             if *life_state != LifeState::Alive {
                 message_output.send_to_all(
                     "LifeStateChangeNotify",
-                    Some(LifeStateChangeNotify {
+                    LifeStateChangeNotify {
                         entity_id: id.0,
                         life_state: LifeState::Alive as u32,
                         ..Default::default()
-                    }),
+                    },
                 )
             }
             *life_state = LifeState::Alive;
@@ -308,6 +315,23 @@ fn update_entity_life_state(
                         group_id: group_id.0,
                         config_id: config_id.0,
                         monster_id: monster_id.map(|m| m.0).unwrap_or(0),
+                    });
+
+                    quest_content_events.write(QuestContentProgressEvent {
+                        player_uid: world_owner_uid.0,
+                        content_type: QuestContent::KillMonster,
+                        param: monster_id.map(|m| m.0).unwrap_or(0),
+                        param2: 0,
+                        param3: 0,
+                        add_progress: 1,
+                    });
+                    quest_content_events.write(QuestContentProgressEvent {
+                        player_uid: world_owner_uid.0,
+                        content_type: QuestContent::MonsterDie,
+                        param: monster_id.map(|m| m.0).unwrap_or(0),
+                        param2: 0,
+                        param3: 0,
+                        add_progress: 1,
                     });
                 }
             } else if gadget_id.is_some() {
@@ -351,11 +375,11 @@ fn notify_disappear_entities(
     for (disappear_type, ids) in grouped {
         message_output.send_to_all(
             "SceneEntityDisappearNotify",
-            Some(SceneEntityDisappearNotify {
+            SceneEntityDisappearNotify {
                 disappear_type: disappear_type.into(),
                 param: 0,
                 entity_list: ids,
-            }),
+            },
         );
     }
 }

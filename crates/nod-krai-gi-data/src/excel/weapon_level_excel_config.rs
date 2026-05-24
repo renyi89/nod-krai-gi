@@ -24,10 +24,7 @@ impl WeaponLevelExcelConfigKeyed<u32> for WeaponLevelExcelConfig {
         ))
         .unwrap();
         let list: Vec<WeaponLevelExcelConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

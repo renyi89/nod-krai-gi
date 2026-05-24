@@ -141,7 +141,7 @@ fn combat_invocation_processor(
                             "CombatInvocationsNotify",
                             CombatInvocationsNotify {
                                 invoke_list: invoke_list_to_all,
-                                combat_unk_seq: next_seq(),
+                                client_sequence_id: next_seq(),
                             },
                         );
                     }
@@ -152,7 +152,7 @@ fn combat_invocation_processor(
                             "CombatInvocationsNotify",
                             CombatInvocationsNotify {
                                 invoke_list: invoke_list_to_ohers,
-                                combat_unk_seq: next_seq(),
+                                client_sequence_id: next_seq(),
                             },
                         );
                     }
@@ -163,7 +163,7 @@ fn combat_invocation_processor(
                             "CombatInvocationsNotify",
                             CombatInvocationsNotify {
                                 invoke_list: invoke_list_to_host,
-                                combat_unk_seq: next_seq(),
+                                client_sequence_id: next_seq(),
                             },
                         );
                     }

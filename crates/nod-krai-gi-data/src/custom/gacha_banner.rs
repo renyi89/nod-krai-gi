@@ -50,10 +50,7 @@ impl GachaBannersKeyed<u32> for GachaBanner {
     fn load(custom_output_path: &str) -> HashMap<u32, GachaBanner> {
         let json = std::fs::read(&format!("{custom_output_path}/GachaBanners.json")).unwrap();
         let list: Vec<GachaBanner> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

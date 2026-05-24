@@ -13,7 +13,11 @@
       "OSRELWin6.4.0",
       "CNRELWin6.4.0",
       "OSRELWin6.5.0",
-      "CNRELWin6.5.0"
+      "CNRELWin6.5.0",
+      "OSRELWin6.6.0",
+      "CNRELWin6.6.0",
+      "OSRELWin6.7.0",
+      "CNRELWin6.7.0"
     ],
     "allowed_key_id_list": [4, 5],
     "dispatch_url": "http://127.0.0.1:21001/query_cur_region",

@@ -25,15 +25,12 @@ impl DailyDungeonConfigKeyed<u32> for DailyDungeonConfig {
     }
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, DailyDungeonConfig> {
-        let json =  std::fs::read(&format!(
+        let json = std::fs::read(&format!(
             "{excel_bin_output_path}/DailyDungeonConfigData.json"
         ))
         .unwrap();
         let list: Vec<DailyDungeonConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

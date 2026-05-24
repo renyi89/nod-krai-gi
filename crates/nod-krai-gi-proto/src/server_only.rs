@@ -143,6 +143,43 @@ impl PlayerItemCompBin {
             .into_iter()
             .flatten()
     }
+
+    pub fn add_or_update_material(
+        &mut self,
+        guid: u64,
+        item_id: u32,
+        item_type: u32,
+        num: i32,
+    ) -> (u64, i32) {
+        let existing_guid = self.has_material(item_id);
+        if let Some(material_guid) = existing_guid {
+            let mut total_count = 0;
+            if let Some(ref mut material_bin) = self.get_mut_item(&material_guid) {
+                if let Some(item_bin::Detail::Material(ref mut detail)) =
+                    material_bin.detail
+                {
+                    detail.count += num as u32;
+                    total_count = detail.count;
+                }
+            }
+            (material_guid, total_count as i32)
+        } else {
+            self.add_item(
+                guid,
+                ItemBin {
+                    item_type,
+                    item_id,
+                    guid,
+                    owner_guid: 0,
+                    detail: Some(item_bin::Detail::Material(MaterialBin {
+                        count: num as u32,
+                        delete_bin: None,
+                    })),
+                },
+            );
+            (guid, num)
+        }
+    }
 }
 
 impl ItemBin {
@@ -204,6 +241,81 @@ impl ItemBin {
                 )),
             }),
             _ => None,
+        }
+    }
+}
+
+//quest
+
+impl QuestBin {
+    pub fn to_normal_proto(&self) -> crate::normal::Quest {
+        crate::normal::Quest {
+            quest_id: self.quest_id,
+            parent_quest_id: self.parent_quest_id,
+            state: self.state,
+            start_time: self.start_time,
+            accept_time: self.accept_time,
+            start_game_time: self.start_game_time,
+            finish_progress_list: self.finish_progress_list.clone(),
+            fail_progress_list: self.fail_progress_list.clone(),
+            ..Default::default()
+        }
+    }
+}
+
+impl ParentQuestBin {
+    pub fn to_normal_proto(&self) -> crate::normal::ParentQuest {
+        let child_quest_list = self
+            .child_quest_state_list
+            .iter()
+            .map(|pair| crate::normal::ChildQuest {
+                quest_id: pair.key,
+                state: pair.value,
+                ..Default::default()
+            })
+            .collect();
+
+        let random_info = if self.is_random {
+            Some(crate::normal::ParentQuestRandomInfo {
+                entrance_id: self
+                    .random_info
+                    .as_ref()
+                    .map(|r| r.entrance_id)
+                    .unwrap_or(0),
+                template_id: self
+                    .random_info
+                    .as_ref()
+                    .map(|r| r.template_id)
+                    .unwrap_or(0),
+                factor_list: self
+                    .random_info
+                    .as_ref()
+                    .map(|r| r.factor_list.clone())
+                    .unwrap_or_default(),
+            })
+        } else {
+            None
+        };
+
+        let time_var_map = self
+            .time_var_list
+            .iter()
+            .map(|pair| (pair.key, pair.value))
+            .collect();
+
+        crate::normal::ParentQuest {
+            parent_quest_id: self.parent_quest_id,
+            parent_quest_state: self.state,
+            is_random: self.is_random,
+            random_info,
+            child_quest_list,
+            quest_var: self.quest_var.clone(),
+            quest_var_seq: 0,
+            is_finished: self.state == 1,
+            accept_time: self.accept_time,
+            time_var_map,
+            video_key: 0,
+            ..Default::default()
         }
     }
 }

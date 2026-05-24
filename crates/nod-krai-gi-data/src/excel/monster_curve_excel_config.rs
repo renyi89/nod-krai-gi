@@ -20,15 +20,12 @@ impl MonsterCurveExcelConfigKeyed<u32> for MonsterCurveExcelConfig {
     }
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, MonsterCurveExcelConfig> {
-        let json =  std::fs::read(&format!(
+        let json = std::fs::read(&format!(
             "{excel_bin_output_path}/MonsterCurveExcelConfigData.json"
         ))
         .unwrap();
         let list: Vec<MonsterCurveExcelConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

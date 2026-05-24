@@ -61,23 +61,39 @@ pub enum SettleShowType {
 pub struct DungeonExcelConfig {
     pub id: u32,
     pub scene_id: u32,
+    #[serde(default)]
     pub show_level: u32,
-    pub sub_type: DungeonSubType,
-    pub play_type: DungeonPlayType,
-    pub involve_type: DungeonInvolveType,
+    #[serde(default)]
     pub limit_level: u32,
+    #[serde(default)]
+    pub sub_type: DungeonSubType,
+    #[serde(default)]
+    pub play_type: DungeonPlayType,
+    #[serde(default)]
+    pub involve_type: DungeonInvolveType,
+    #[serde(default)]
     pub pass_cond: u32,
+    #[serde(default)]
     pub pass_jump_dungeon: u32,
+    #[serde(default)]
     pub revive_max_count: u32,
+    #[serde(default)]
     pub settle_countdown_time: u32,
+    #[serde(default)]
     pub fail_settle_countdown_time: u32,
+    #[serde(default)]
     pub quit_settle_countdown_time: u32,
+    #[serde(default)]
     pub settle_shows: Vec<SettleShowType>,
+    #[serde(default)]
     #[serde(alias = "passRewardPreviewID")]
     pub pass_reward_preview_id: u32,
+    #[serde(default)]
     #[serde(alias = "statueCostID")]
     pub statue_cost_id: u32,
+    #[serde(default)]
     pub statue_cost_count: u32,
+    #[serde(default)]
     pub statue_drop: u32,
 }
 
@@ -93,15 +109,12 @@ impl DungeonExcelConfigKeyed<u32> for DungeonExcelConfig {
     }
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, DungeonExcelConfig> {
-        let json =  std::fs::read(&format!(
+        let json = std::fs::read(&format!(
             "{excel_bin_output_path}/DungeonExcelConfigData.json"
         ))
         .unwrap();
         let list: Vec<DungeonExcelConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

@@ -1,6 +1,6 @@
 use super::common::{PropGrowCurve, WeaponType};
-use std::collections::HashMap;
 use common::string_util::InternString;
+use std::collections::HashMap;
 
 #[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum AvatarUseType {
@@ -63,26 +63,17 @@ pub enum AvatarIdentityType {
 #[serde(rename_all = "camelCase")]
 pub struct AvatarExcelConfig {
     pub id: u32,
-    pub use_type: AvatarUseType,
+    pub use_type: Option<AvatarUseType>,
     pub body_type: AvatarBodyType,
     pub icon_name: InternString,
-    pub quality_type: QualityType,
-    pub charge_efficiency: f32,
-    pub combat_config_hash: u64,
-    pub is_range_attack: bool,
     pub initial_weapon: u32,
     pub weapon_type: WeaponType,
-    pub image_name: InternString,
-    pub gacha_card_name_hash: u64,
-    pub gacha_image_name_hash: u64,
-    pub coop_pic_name_hash: u64,
     pub skill_depot_id: u32,
-    pub stamina_recover_speed: f32,
-    pub cand_skill_depot_ids: Vec<u32>,
-    pub avatar_identity_type: AvatarIdentityType,
     pub avatar_promote_id: u32,
-    pub avatar_promote_reward_level_list: Vec<u32>,
+    #[serde(default)]
     pub avatar_promote_reward_id_list: Vec<u32>,
+    #[serde(default)]
+    pub avatar_promote_reward_level_list: Vec<u32>,
     #[serde(default)]
     pub feature_tag_group_id: u32,
     pub hp_base: f32,
@@ -90,8 +81,9 @@ pub struct AvatarExcelConfig {
     pub defense_base: f32,
     pub critical: f32,
     pub critical_hurt: f32,
-    pub prop_grow_curves: Vec<PropGrowCurve>,
+    #[serde(default)]
     pub element_mastery: f32,
+    pub prop_grow_curves: Vec<PropGrowCurve>,
     pub desc_text_map_hash: u64,
     pub name_text_map_hash: u64,
 }
@@ -108,28 +100,12 @@ impl AvatarExcelConfigKeyed<u32> for AvatarExcelConfig {
     }
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, AvatarExcelConfig> {
-        let json =  std::fs::read(&format!(
+        let json = std::fs::read(&format!(
             "{excel_bin_output_path}/AvatarExcelConfigData.json"
         ))
         .unwrap();
         let list: Vec<AvatarExcelConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .filter(|(key, value)| {
-                if *key < 10000002
-                    || *key >= 11000000
-                    || (*key <= 10000910 && *key >= 10000900)
-                    || *key == 10000075
-                {
-                    return false;
-                } else if value.initial_weapon == 10009 {
-                    return false;
-                }else {
-                    return true;
-                }
-            })
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

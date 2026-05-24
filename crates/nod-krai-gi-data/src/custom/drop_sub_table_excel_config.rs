@@ -54,10 +54,7 @@ impl DropSubTableExcelConfigKeyed<u32> for DropSubTableExcelConfig {
         ))
         .unwrap();
         let list: Vec<DropSubTableExcelConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

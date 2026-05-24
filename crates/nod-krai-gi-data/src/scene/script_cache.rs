@@ -25,6 +25,15 @@ pub static SCENE_BLOCK_COLLECTION: OnceLock<Arc<HashMap<(u32, u32), SceneBlockTe
 pub static SCENE_GROUP_COLLECTION: OnceLock<Arc<DashMap<u32, Option<SceneGroupTemplate>>>> =
     OnceLock::new();
 
+/// 安全获取场景配置集合
+/// 如果配置未初始化，返回空 Arc
+pub fn get_scene_config_collection() -> Arc<HashMap<u32, SceneConfigTemplate>> {
+    SCENE_CONFIG_COLLECTION
+        .get()
+        .cloned()
+        .unwrap_or_else(|| Arc::new(HashMap::new()))
+}
+
 pub static SCENE_LUA_VM: OnceLock<Lua> = OnceLock::new();
 
 pub fn load_lua_vm(root: &str) {

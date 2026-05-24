@@ -1,3 +1,4 @@
+use crate::Protobuf;
 use notify::{RecursiveMode, Watcher};
 use serde::{de, Serialize};
 use std::path::PathBuf;
@@ -384,49 +385,53 @@ pub fn encode_to_vec_by_name_version<T>(
     value: &T,
 ) -> Option<Vec<u8>>
 where
-    T: ?Sized + Serialize,
+    T: Sized + Serialize + Protobuf,
 {
-    match MULTI_VERSION_PROTOCOL.get().unwrap().get(version) {
-        None => {
-            tracing::warn!("version not found for {}", version);
-            None
-        }
-        Some(data) => {
-            match data
-                .file_descriptor
-                .message_by_package_relative_name(message_name)
-            {
-                None => {
-                    tracing::error!(
-                        "failed to find file_descriptor version:{} message_name:{}",
-                        version,
-                        message_name,
-                    );
-                    None
-                }
-                Some(message) => {
-                    let json_str = serde_json::to_string(&value).unwrap().clone();
-                    match protobuf_json_mapping::parse_dyn_from_str_with_options(
-                        &message,
-                        json_str.clone().as_str(),
-                        &protobuf_json_mapping::ParseOptions {
-                            ignore_unknown_fields: true,
-                            ..Default::default()
-                        },
-                    ) {
-                        Ok(parse_result) => {
-                            let body = parse_result.write_to_bytes_dyn().unwrap();
-                            Some(body)
-                        }
-                        Err(error) => {
-                            tracing::error!(
+    if version == "base" {
+        Some(value.encode_to_vec())
+    } else {
+        match MULTI_VERSION_PROTOCOL.get().unwrap().get(version) {
+            None => {
+                tracing::warn!("version not found for {}", version);
+                None
+            }
+            Some(data) => {
+                match data
+                    .file_descriptor
+                    .message_by_package_relative_name(message_name)
+                {
+                    None => {
+                        tracing::error!(
+                            "failed to find file_descriptor version:{} message_name:{}",
+                            version,
+                            message_name,
+                        );
+                        None
+                    }
+                    Some(message) => {
+                        let json_str = serde_json::to_string(&value).unwrap().clone();
+                        match protobuf_json_mapping::parse_dyn_from_str_with_options(
+                            &message,
+                            json_str.clone().as_str(),
+                            &protobuf_json_mapping::ParseOptions {
+                                ignore_unknown_fields: true,
+                                ..Default::default()
+                            },
+                        ) {
+                            Ok(parse_result) => {
+                                let body = parse_result.write_to_bytes_dyn().unwrap();
+                                Some(body)
+                            }
+                            Err(error) => {
+                                tracing::error!(
                                 "failed to write json version:{} message_name:{} error:{} json:{}",
                                 version,
                                 message_name,
                                 error,
                                 json_str.as_str()
                             );
-                            None
+                                None
+                            }
                         }
                     }
                 }
@@ -435,7 +440,7 @@ where
     }
 }
 
-pub fn decode_from_vec_by_name_version<T: Sized + Serialize + Default>(
+pub fn decode_from_vec_by_name_version<T: Default + Serialize + Protobuf>(
     version: &str,
     message_name: &str,
     body: &[u8],
@@ -443,60 +448,67 @@ pub fn decode_from_vec_by_name_version<T: Sized + Serialize + Default>(
 where
     T: for<'a> de::Deserialize<'a>,
 {
-    match MULTI_VERSION_PROTOCOL.get().unwrap().get(version) {
-        None => {
-            tracing::warn!("version not found for {}", version);
-            None
+    if version == "base" {
+        match T::decode(body) {
+            Ok(value) => Some(value),
+            Err(_) => None,
         }
-        Some(data) => {
-            match data
-                .file_descriptor
-                .message_by_package_relative_name(message_name)
-            {
-                None => {
-                    tracing::error!(
-                        "failed to find file_descriptor version:{} message_name:{}",
-                        version,
-                        message_name,
-                    );
-                    None
-                }
-                Some(message) => {
-                    let mut data = message.new_instance();
+    } else {
+        match MULTI_VERSION_PROTOCOL.get().unwrap().get(version) {
+            None => {
+                tracing::warn!("version not found for {}", version);
+                None
+            }
+            Some(data) => {
+                match data
+                    .file_descriptor
+                    .message_by_package_relative_name(message_name)
+                {
+                    None => {
+                        tracing::error!(
+                            "failed to find file_descriptor version:{} message_name:{}",
+                            version,
+                            message_name,
+                        );
+                        None
+                    }
+                    Some(message) => {
+                        let mut data = message.new_instance();
 
-                    match data.merge_from_bytes_dyn(body) {
-                        Ok(_) => {}
-                        Err(error) => {
-                            tracing::error!(
+                        match data.merge_from_bytes_dyn(body) {
+                            Ok(_) => {}
+                            Err(error) => {
+                                tracing::error!(
                         "failed to merge_from_bytes_dyn version:{} message_name:{} error:{}",
                         version,
                         message_name,
                         error,
                     );
-                            return None;
+                                return None;
+                            }
                         }
-                    }
 
-                    match serde_json::from_str(
-                        &*protobuf_json_mapping::print_to_string_with_options(
-                            data.as_ref(),
-                            &protobuf_json_mapping::PrintOptions {
-                                proto_field_name: true,
-                                enum_values_int: true,
-                                ..Default::default()
-                            },
-                        )
-                        .unwrap(),
-                    ) {
-                        Ok(value) => Some(value),
-                        Err(error) => {
-                            tracing::error!(
-                                "failed to parse json version:{} message_name:{}error:{}",
-                                version,
-                                message_name,
-                                error,
-                            );
-                            None
+                        match serde_json::from_str(
+                            &*protobuf_json_mapping::print_to_string_with_options(
+                                data.as_ref(),
+                                &protobuf_json_mapping::PrintOptions {
+                                    proto_field_name: true,
+                                    enum_values_int: true,
+                                    ..Default::default()
+                                },
+                            )
+                            .unwrap(),
+                        ) {
+                            Ok(value) => Some(value),
+                            Err(error) => {
+                                tracing::error!(
+                                    "failed to parse json version:{} message_name:{}error:{}",
+                                    version,
+                                    message_name,
+                                    error,
+                                );
+                                None
+                            }
                         }
                     }
                 }

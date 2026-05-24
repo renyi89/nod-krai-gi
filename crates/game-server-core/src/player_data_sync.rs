@@ -287,13 +287,13 @@ pub fn sync_quest_list(players: Res<Players>, message_output: Res<MessageOutput>
                 quest_list: quest_bin
                     .quest_map
                     .iter()
-                    .map(|(sub_quest_id, quest_item)| Quest {
-                        quest_id: *sub_quest_id,
+                    .map(|(_sub_quest_id, quest_item)| Quest {
+                        quest_id: quest_item.quest_id,
                         parent_quest_id: quest_item.parent_quest_id,
                         state: quest_item.state,
                         start_time: quest_item.start_time,
                         accept_time: quest_item.accept_time,
-                        start_game_time: 438,
+                        start_game_time: quest_item.start_game_time,
                         finish_progress_list: quest_item.finish_progress_list.clone(),
                         fail_progress_list: quest_item.fail_progress_list.clone(),
                         ..Default::default()
@@ -301,5 +301,41 @@ pub fn sync_quest_list(players: Res<Players>, message_output: Res<MessageOutput>
                     .collect(),
             },
         );
+
+        if let Some(ref parent_quest_bin) = player_quest_bin.parent_quest_bin {
+            let parent_quest_list: Vec<ParentQuest> = parent_quest_bin
+                .parent_quest_map
+                .iter()
+                .filter(|(_, pq)| pq.state > 0)
+                .map(|(_, pq)| pq.to_normal_proto())
+                .collect();
+
+            if !parent_quest_list.is_empty() {
+                message_output.send(
+                    *uid,
+                    "FinishedParentQuestNotify",
+                    FinishedParentQuestNotify {
+                        parent_quest_list,
+                    },
+                );
+            }
+        }
+
+        if !player_quest_bin.quest_global_var_list.is_empty() {
+            message_output.send(
+                *uid,
+                "QuestGlobalVarNotify",
+                QuestGlobalVarNotify {
+                    var_list: player_quest_bin
+                        .quest_global_var_list
+                        .iter()
+                        .map(|v| QuestGlobalVar {
+                            key: v.key,
+                            value: v.value,
+                        })
+                        .collect(),
+                },
+            );
+        }
     }
 }

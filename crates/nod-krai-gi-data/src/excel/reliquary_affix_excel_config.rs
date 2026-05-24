@@ -1,14 +1,18 @@
+use crate::prop_type::FightPropType;
 use serde::Deserialize;
 use std::collections::HashMap;
-use crate::prop_type::FightPropType;
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ReliquaryAffixExcelConfig {
-    pub depot_id: u32,
-    pub group_id: u32,
     pub id: u32,
+    #[serde(default)]
+    pub depot_id: u32,
+    #[serde(default)]
+    pub group_id: u32,
+    #[serde(default)]
     pub prop_type: FightPropType,
+    #[serde(default)]
     pub prop_value: f32,
 }
 
@@ -29,10 +33,7 @@ impl crate::excel::ReliquaryAffixExcelConfigKeyed<u32> for ReliquaryAffixExcelCo
         ))
         .unwrap();
         let list: Vec<ReliquaryAffixExcelConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

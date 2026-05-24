@@ -1,5 +1,5 @@
 use bevy_ecs::message::Message;
-use common::gm_util::{ItemAction, QuestAction};
+use common::gm_util::Command;
 
 #[derive(Message)]
 pub struct DebugCommandEvent {
@@ -30,7 +30,4 @@ pub struct ConsoleChatReqEvent(pub u32, pub String);
 pub struct ConsoleChatNotifyEvent(pub u32, pub String);
 
 #[derive(Message)]
-pub struct CommandQuestEvent(pub u32, pub QuestAction);
-
-#[derive(Message)]
-pub struct CommandItemEvent(pub u32, pub ItemAction);
+pub struct GmCommandEvent(pub u32, pub Command);

@@ -18,6 +18,7 @@ pub struct SpawnGroupEntityEvent {
     pub scene_id: u32,
     pub block_id: u32,
     pub group_id: u32,
+    pub refresh_suite_id: u32,
 }
 
 #[derive(Message)]

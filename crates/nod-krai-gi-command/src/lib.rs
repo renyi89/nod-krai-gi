@@ -1,7 +1,6 @@
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
-use common::gm_util::{parse_command, TpAction};
-use common::gm_util::{Command, GachaAction};
+use common::gm_util::{parse_command, Command, GachaAction, TpAction};
 use common::player_cache::cache_get_is_tp;
 use common::time_util::unix_timestamp;
 use nod_krai_gi_entity::common::{EntityCounter, Visible};
@@ -11,10 +10,9 @@ use nod_krai_gi_event::command::*;
 use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
-use nod_krai_gi_proto::normal::{ChatInfo, PrivateChatNotify};
+use nod_krai_gi_proto::normal::{ChatInfo, PrivateChatNotify, SceneAreaWeatherNotify};
 use nod_krai_gi_proto::server_only::{GachaBin, VectorBin};
 use rand::RngCore;
-use tracing::{debug, instrument};
 
 pub struct CommandPlugin;
 
@@ -26,7 +24,6 @@ impl Plugin for CommandPlugin {
     }
 }
 
-#[instrument(skip_all)]
 pub fn debug_command_handler(
     mut events: MessageReader<DebugCommandEvent>,
     mut commands: Commands,
@@ -36,9 +33,10 @@ pub fn debug_command_handler(
     world_version_config: Res<WorldVersionConfig>,
 ) {
     for command in events.read() {
-        debug!(
+        tracing::debug!(
             "executor_uid: {}, kind: {:?}",
-            command.executor_uid, command.kind
+            command.executor_uid,
+            command.kind
         );
 
         let Some(player_info) = players.get(command.executor_uid) else {
@@ -50,7 +48,6 @@ pub fn debug_command_handler(
                 monster_id,
                 position,
             } => {
-                // spawn random slime if not specified
                 let monster_id = monster_id.unwrap_or_else(|| {
                     [20010101, 20010302, 20010502, 20010803, 20011002]
                         [rand::thread_rng().next_u32() as usize % 5]
@@ -85,7 +82,6 @@ pub fn debug_command_handler(
                 gadget_id,
                 position,
             } => {
-                // spawn random slime if not specified
                 let gadget_id = gadget_id.unwrap_or_else(|| {
                     [70801015, 70801016, 70801017, 70801018, 70801019, 70801020]
                         [rand::thread_rng().next_u32() as usize % 5]
@@ -133,15 +129,14 @@ pub fn debug_command_handler(
     }
 }
 
-#[instrument(skip_all)]
 pub fn gm_command_handler(
     mut events: MessageReader<ConsoleChatReqEvent>,
     mut players: ResMut<Players>,
     mut gm_notify_events: MessageWriter<ConsoleChatNotifyEvent>,
-    mut tp_events: MessageWriter<ScenePlayerJumpEvent>,
-    mut quest_events: MessageWriter<CommandQuestEvent>,
-    mut item_events: MessageWriter<CommandItemEvent>,
+    mut gm_command_events: MessageWriter<GmCommandEvent>,
     message_output: Res<MessageOutput>,
+    mut tp_events: MessageWriter<ScenePlayerJumpEvent>,
+    mut enter_dungeon_events: MessageWriter<ScenePlayerEnterDungeonEvent>,
 ) {
     for ConsoleChatReqEvent(player_uid, console_content) in events.read() {
         let Some(player_info) = players.get_mut(*player_uid) else {
@@ -153,14 +148,57 @@ pub fn gm_command_handler(
         let result = parse_command(console_content);
         match result {
             Ok(gm) => {
-                debug!("gm_command_handler result: {:?}", gm);
-                match gm {
-                    Command::Avatar(_) => {}
+                tracing::debug!("gm_command_handler result: {:?}", gm);
+                match &gm {
+                    Command::Weather(id) => {
+                        message_output.send(
+                            *player_uid,
+                            "SceneAreaWeatherNotify",
+                            SceneAreaWeatherNotify {
+                                weather_area_id: *id,
+                                ..Default::default()
+                            },
+                        );
+                        gm_notify_events.write(ConsoleChatNotifyEvent(
+                            *player_uid,
+                            format!("set weather to {}", id),
+                        ));
+                    }
+                    Command::Climate(id) => {
+                        message_output.send(
+                            *player_uid,
+                            "SceneAreaWeatherNotify",
+                            SceneAreaWeatherNotify {
+                                climate_type: *id,
+                                ..Default::default()
+                            },
+                        );
+                        gm_notify_events.write(ConsoleChatNotifyEvent(
+                            *player_uid,
+                            format!("set climate to {}", id),
+                        ));
+                    }
+                    Command::Gacha(action) => match action {
+                        GachaAction::Add { id } => {
+                            if let Some(ref mut player_gacha_bin) = player_info.gacha_bin {
+                                player_gacha_bin.gacha_map.insert(*id, GachaBin::default());
+                            } else {
+                                tracing::debug!("gacha_bin is None");
+                            }
+                        }
+                        GachaAction::Clear { .. } => {
+                            if let Some(ref mut player_gacha_bin) = player_info.gacha_bin {
+                                player_gacha_bin.gacha_map.clear();
+                            } else {
+                                tracing::debug!("gacha_bin is None");
+                            }
+                        }
+                    },
                     Command::Tp(action) => match action {
                         TpAction::A { id, x, y, z } => {
                             tp_events.write(ScenePlayerJumpEvent(
                                 *player_uid,
-                                id,
+                                *id,
                                 EnterReason::Gm,
                                 (
                                     x.unwrap_or_default(),
@@ -173,7 +211,7 @@ pub fn gm_command_handler(
                             if let Some(ref player_scene_bin) = player_info.scene_bin {
                                 tp_events.write(ScenePlayerJumpEvent(
                                     *player_uid,
-                                    id,
+                                    *id,
                                     EnterReason::Gm,
                                     (
                                         player_scene_bin.my_cur_scene_pos.unwrap_or_default().x
@@ -187,33 +225,37 @@ pub fn gm_command_handler(
                             }
                         }
                     },
-                    Command::Quest(action) => {
-                        quest_events.write(CommandQuestEvent(*player_uid, action));
-                    }
-                    Command::Item(action) => {
-                        item_events.write(CommandItemEvent(*player_uid, action));
-                    }
-                    Command::Gacha(action) => match action {
-                        GachaAction::Add { id } => {
-                            let Some(ref mut player_gacha_bin) = player_info.gacha_bin else {
-                                debug!("gacha_bin is None");
-                                continue;
-                            };
-
-                            player_gacha_bin.gacha_map.insert(id, GachaBin::default());
+                    Command::Dun(dungeon_id) => match dungeon_id {
+                        Some(id) => {
+                            enter_dungeon_events
+                                .write(ScenePlayerEnterDungeonEvent(*player_uid, *id));
+                            gm_notify_events.write(ConsoleChatNotifyEvent(
+                                *player_uid,
+                                format!("entering dungeon {}", id),
+                            ));
                         }
-                        GachaAction::Clear { .. } => {
-                            let Some(ref mut player_gacha_bin) = player_info.gacha_bin else {
-                                debug!("gacha_bin is None");
-                                continue;
-                            };
-
-                            player_gacha_bin.gacha_map.clear();
+                        None => {
+                            gm_notify_events.write(ConsoleChatNotifyEvent(
+                                *player_uid,
+                                "exit dungeon (notify only)".to_string(),
+                            ));
                         }
                     },
-                    Command::Prop(_, _) => {}
-                    Command::Dun(_) => {}
-                    Command::Pos => {}
+                    Command::Pos => {
+                        if let Some(ref scene_bin) = player_info.scene_bin {
+                            let pos = scene_bin.my_cur_scene_pos.unwrap_or_default();
+                            let rot = scene_bin.my_cur_scene_rot.unwrap_or_default();
+                            gm_notify_events.write(ConsoleChatNotifyEvent(
+                                *player_uid,
+                                format!(
+                                    "pos: ({:.2}, {:.2}, {:.2}) rot: ({:.2}, {:.2}, {:.2}) scene_id: {}",
+                                    pos.x, pos.y, pos.z,
+                                    rot.x, rot.y, rot.z,
+                                    scene_bin.my_cur_scene_id
+                                ),
+                            ));
+                        }
+                    }
                     Command::SendPacket(key) => match key.as_str() {
                         "cmd_id_list" => {
                             match common::string_util::read_utf8_no_bom(
@@ -222,25 +264,17 @@ pub fn gm_command_handler(
                                 Ok(content) => match serde_json::from_str(&*content) {
                                     Ok(value) => {
                                         let value: serde_json::Value = value;
-                                        match value.get("cmd_id_list") {
-                                            None => {}
-                                            Some(cmd_id_list) => match cmd_id_list.as_array() {
-                                                None => {}
-                                                Some(cmd_id_list) => {
-                                                    for cmd_id in cmd_id_list {
-                                                        match cmd_id.as_u64() {
-                                                            None => {}
-                                                            Some(cmd_id) => {
-                                                                message_output
-                                                                    .send_none_with_cmd_id(
-                                                                        *player_uid,
-                                                                        cmd_id as u16,
-                                                                    );
-                                                            }
-                                                        }
+                                        if let Some(cmd_id_list) = value.get("cmd_id_list") {
+                                            if let Some(arr) = cmd_id_list.as_array() {
+                                                for cmd_id in arr {
+                                                    if let Some(cmd_id) = cmd_id.as_u64() {
+                                                        message_output.send_none_with_cmd_id(
+                                                            *player_uid,
+                                                            cmd_id as u16,
+                                                        );
                                                     }
                                                 }
-                                            },
+                                            }
                                         }
                                     }
                                     Err(_) => {}
@@ -250,6 +284,9 @@ pub fn gm_command_handler(
                         }
                         _ => {}
                     },
+                    _ => {
+                        gm_command_events.write(GmCommandEvent(*player_uid, gm));
+                    }
                 }
             }
             Err(error) => {

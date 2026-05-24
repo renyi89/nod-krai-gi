@@ -200,7 +200,9 @@ pub enum ItemUseOp {
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ItemUse {
+    #[serde(default)]
     pub use_op: ItemUseOp,
+    #[serde(default)]
     pub use_param: Vec<InternString>,
 }
 
@@ -209,15 +211,23 @@ pub struct ItemUse {
 pub struct MaterialExcelConfig {
     pub id: u32,
     pub item_type: ItemType,
+    #[serde(default)]
     pub material_type: MaterialType,
 
+    #[serde(default)]
     pub item_use: Vec<ItemUse>,
+    #[serde(default)]
     pub max_use_count: u32,
+    #[serde(default)]
     pub use_on_gain: bool,
+    #[serde(default)]
     pub use_target: ItemUseTarget,
 
+    #[serde(default)]
     pub rank: u32,
+    #[serde(default)]
     pub rank_level: u32,
+    #[serde(default)]
     pub gadget_id: u32,
     pub desc_text_map_hash: u64,
     pub name_text_map_hash: u64,
@@ -240,10 +250,7 @@ impl MaterialExcelConfigKeyed<u32> for MaterialExcelConfig {
         ))
         .unwrap();
         let list: Vec<MaterialExcelConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

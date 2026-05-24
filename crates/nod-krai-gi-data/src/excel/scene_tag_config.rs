@@ -27,24 +27,15 @@ impl SceneTagConfigKeyed<u32> for SceneTagConfig {
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, SceneTagConfig> {
         let json =
-            std::fs::read(&format!("{excel_bin_output_path}/SceneTagConfigData.json"))
-                .unwrap();
+            std::fs::read(&format!("{excel_bin_output_path}/SceneTagConfigData.json")).unwrap();
         let list: Vec<SceneTagConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 
     fn get_scene_tag_entries() -> &'static Arc<HashMap<u32, Vec<SceneTagConfig>>> {
-        if SCENE_TAG_ENTRIES
-            .get()
-            .is_some()
-        {
-            SCENE_TAG_ENTRIES
-                .get()
-                .unwrap()
+        if SCENE_TAG_ENTRIES.get().is_some() {
+            SCENE_TAG_ENTRIES.get().unwrap()
         } else {
             let scene_tag_config_collection_clone =
                 std::sync::Arc::clone(excel::scene_tag_config_collection::get());
@@ -61,11 +52,8 @@ impl SceneTagConfigKeyed<u32> for SceneTagConfig {
                 }
             }
 
-            let _ =
-                SCENE_TAG_ENTRIES.set(Arc::new(scene_tag_entries));
-            SCENE_TAG_ENTRIES
-                .get()
-                .unwrap()
+            let _ = SCENE_TAG_ENTRIES.set(Arc::new(scene_tag_entries));
+            SCENE_TAG_ENTRIES.get().unwrap()
         }
     }
 }

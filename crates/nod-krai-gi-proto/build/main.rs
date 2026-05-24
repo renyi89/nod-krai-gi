@@ -46,7 +46,7 @@ fn process_proto_dir(dir: &str, includes: &[&str], target: &str) {
     let mut output1 = String::new();
     let lines: Vec<&str> = content.lines().collect();
     for (i, line) in lines.iter().enumerate() {
-        if line.trim_start().starts_with("#[prost(bytes = \"vec\"") {
+        if line.trim_start().starts_with("#[prost(bytes = \"vec\"") && !line.contains("repeated") {
             output1.push_str("    #[serde(with=\"crate::base64\")]\n");
         }
         if line.trim_start().starts_with("#[prost(uint64, tag") {

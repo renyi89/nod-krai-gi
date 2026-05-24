@@ -3,7 +3,6 @@ use nod_krai_gi_data::excel::{
     avatar_costume_excel_config_collection, avatar_flycloak_excel_config_collection,
     avatar_trace_effect_excel_config_collection,
 };
-use nod_krai_gi_entity::avatar::{AvatarAppearanceChange, AvatarAppearanceChangeEvent};
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::{
@@ -14,6 +13,7 @@ use nod_krai_gi_proto::normal::{
 use nod_krai_gi_proto::retcode::Retcode;
 use nod_krai_gi_proto::server_only::PlayerDataBin;
 use tracing::{debug, instrument, warn};
+use nod_krai_gi_event::avatar::{AvatarAppearanceChange, AvatarAppearanceChangeEvent};
 
 #[instrument(skip_all)]
 pub fn handle_appearance_change_request(

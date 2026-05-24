@@ -396,10 +396,10 @@ impl From<&str> for AbilityTargettingEnum {
     }
 }
 
+use crate::excel::common::ElementType;
 use common::string_util::InternString;
 use serde::Deserializer;
 use serde_json::Value;
-use crate::excel::common::ElementType;
 
 fn deserialize_modifiers<'de, D>(
     deserializer: D,

@@ -108,7 +108,6 @@ pub enum ChallengeType {
     ChallengeOthers = 50,
 }
 
-
 #[derive(Debug, Default, Copy, Clone, serde::Deserialize, PartialEq, Eq)]
 pub enum ChallengeRecordType {
     #[default]
@@ -193,6 +192,7 @@ pub enum SubChallengeSortType {
 #[serde(rename_all = "camelCase")]
 pub struct DungeonChallengeConfig {
     pub id: u32,
+    #[serde(default)]
     pub challenge_type: ChallengeType,
     #[serde(default)]
     pub activity_skill_id: u32,
@@ -254,6 +254,9 @@ impl DungeonChallengeConfigKeyed<u32> for DungeonChallengeConfig {
         ))
         .unwrap();
         let list: Vec<DungeonChallengeConfig> = serde_json::from_slice(&*json).unwrap();
-        list.iter().map(|item| (item.key(), item.clone())).collect()
+        list.iter()
+            .filter(|item| item.challenge_type != ChallengeType::ChallengeNone)
+            .map(|item| (item.key(), item.clone()))
+            .collect()
     }
 }

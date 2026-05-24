@@ -252,24 +252,32 @@ pub fn handle_modifier_change(
                                     }
                                 }
 
-                                let modifier_controller = InstancedModifier::new(
-                                    instanced_modifier_id,
-                                    modifier_data.modifier_name,
-                                    ability_index.unwrap(),
-                                    target_entity_ref,
-                                );
+                                match ability_index {
+                                    None => {
+                                        continue;
+                                    }
+                                    Some(ability_index) => {
+                                        let modifier_controller = InstancedModifier::new(
+                                            instanced_modifier_id,
+                                            modifier_data.modifier_name,
+                                            ability_index,
+                                            target_entity_ref,
+                                        );
 
-                                this_instanced_modifiers
-                                    .insert(instanced_modifier_id, modifier_controller);
+                                        this_instanced_modifiers
+                                            .insert(instanced_modifier_id, modifier_controller);
 
-                                if let Some(ability) = ability_index.and_then(|idx| {
-                                    this_instanced_abilities.list.get_mut(idx as usize)
-                                }) {
-                                    apply_modifier_properties(
-                                        modifier_data,
-                                        ability,
-                                        fight_properties.as_deref_mut(),
-                                    );
+                                        if let Some(ability) = this_instanced_abilities
+                                            .list
+                                            .get_mut(ability_index as usize)
+                                        {
+                                            apply_modifier_properties(
+                                                modifier_data,
+                                                ability,
+                                                fight_properties.as_deref_mut(),
+                                            );
+                                        }
+                                    }
                                 }
                             }
                             ModifierAction::Removed => {

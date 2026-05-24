@@ -1,17 +1,11 @@
+use crate::excel::common::IdCountConfig;
 use std::collections::HashMap;
-
-#[derive(Debug, Clone, serde::Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct GatherItem {
-    pub count: u32,
-    pub id: u32,
-}
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct EnvAnimalGatherExcelConfig {
     pub animal_id: u32,
-    pub gather_item_list: Vec<GatherItem>,
+    pub gather_item_list: Vec<IdCountConfig>,
 }
 
 pub trait EnvAnimalGatherExcelConfigKeyed<K> {
@@ -31,10 +25,7 @@ impl EnvAnimalGatherExcelConfigKeyed<u32> for EnvAnimalGatherExcelConfig {
         ))
         .unwrap();
         let list: Vec<EnvAnimalGatherExcelConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

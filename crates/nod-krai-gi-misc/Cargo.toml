@@ -1,5 +1,5 @@
 [package]
-name = "nod-krai-gi-time"
+name = "nod-krai-gi-misc"
 edition = "2021"
 version.workspace = true
 

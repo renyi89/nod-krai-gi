@@ -1,7 +1,7 @@
+use crate::prop_type::FightPropType;
+use common::string_util::InternString;
 use serde::Deserialize;
 use std::collections::HashMap;
-use common::string_util::InternString;
-use crate::prop_type::FightPropType;
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -29,10 +29,7 @@ impl crate::excel::ReliquaryMainPropExcelConfigKeyed<u32> for ReliquaryMainPropE
         ))
         .unwrap();
         let list: Vec<ReliquaryMainPropExcelConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

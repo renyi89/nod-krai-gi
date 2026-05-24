@@ -8,6 +8,8 @@ bevy_app.workspace = true
 bevy_ecs.workspace = true
 tracing.workspace = true
 
+common.workspace = true
+
 nod-krai-gi-data.workspace = true
 nod-krai-gi-entity.workspace = true
 nod-krai-gi-event.workspace = true

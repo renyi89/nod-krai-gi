@@ -5,17 +5,20 @@ use bevy_ecs::prelude::*;
 use common::player_cache::cache_get_scene_level;
 use nod_krai_gi_data::scene::group_entity_state_cache::get_group_entity_state_cache;
 use nod_krai_gi_data::scene::{EventType, GadgetState, LuaEvt};
-use nod_krai_gi_entity::EntityDisappearEvent;
 use nod_krai_gi_entity::common::{
     BlockId, ConfigId, EntityCounter, GroupId, ProtocolEntityID, ToBeRemovedMarker, Visible,
 };
 use nod_krai_gi_entity::gadget::spawn_gadget_entity;
 use nod_krai_gi_entity::monster::spawn_monster_entity;
+use nod_krai_gi_event::entity::EntityDisappearEvent;
 use nod_krai_gi_event::lua::{
     DespawnGroupEntityEvent, DespawnSuiteEntitiesEvent, LuaTriggerEvent, RefreshGroupEntityEvent,
     SpawnGroupEntityEvent, SpawnSuiteEntitiesEvent,
 };
 use nod_krai_gi_event::scene::{WorldOwnerUID, WorldVersionConfig};
+
+use crate::script_load::GroupLoadState;
+use crate::SceneGroupRegistry;
 use nod_krai_gi_proto::normal::scene_gadget_info::Content;
 use nod_krai_gi_proto::normal::{GatherGadgetInfo, VisionType};
 use nod_krai_gi_proto::server_only::VectorBin;
@@ -248,6 +251,7 @@ pub fn spawn_group_entity(
     world_owner_uid: Res<WorldOwnerUID>,
     world_version_config: Res<WorldVersionConfig>,
     mut lua_trigger_events: MessageWriter<LuaTriggerEvent>,
+    mut registry: NonSendMut<SceneGroupRegistry>,
 ) {
     let scene_group_collection_clone = std::sync::Arc::clone(
         nod_krai_gi_data::scene::script_cache::SCENE_GROUP_COLLECTION
@@ -259,11 +263,32 @@ pub fn spawn_group_entity(
         std::sync::Arc::clone(nod_krai_gi_data::excel::gather_excel_config_collection::get());
 
     for event in spawn_group_entity_event.read() {
+        // Handle suite refresh for quest RefreshGroupSuite exec
+        if event.refresh_suite_id != 0 {
+            if let Some(GroupLoadState::Loaded(rt)) = registry.groups.get_mut(&event.group_id) {
+                rt.active_suites = vec![event.refresh_suite_id];
+                rt.recompute_active_triggers();
+                let initial_vars: std::collections::HashMap<String, i32> = rt
+                    .data
+                    .variables
+                    .iter()
+                    .map(|v| (v.name.clone(), v.value))
+                    .collect();
+                rt.variables = initial_vars;
+            }
+        }
+
         let Some(scene_group_template) = scene_group_collection_clone.get(&event.group_id) else {
             continue;
         };
         let Some(scene_group_template) = scene_group_template.value() else {
             continue;
+        };
+
+        let block_id = if event.block_id != 0 {
+            event.block_id
+        } else {
+            scene_group_template.base_info.block_id
         };
 
         let show_level =
@@ -305,7 +330,7 @@ pub fn spawn_group_entity(
                 };
                 commands
                     .entity(monster_entity)
-                    .insert(BlockId(event.block_id))
+                    .insert(BlockId(block_id))
                     .insert(GroupId(event.group_id))
                     .insert(ConfigId(monster.config_id))
                     .insert(Visible);
@@ -380,7 +405,7 @@ pub fn spawn_group_entity(
                 };
                 commands
                     .entity(gadget_entity)
-                    .insert(BlockId(event.block_id))
+                    .insert(BlockId(block_id))
                     .insert(GroupId(event.group_id))
                     .insert(ConfigId(gadget.config_id))
                     .insert(Visible);

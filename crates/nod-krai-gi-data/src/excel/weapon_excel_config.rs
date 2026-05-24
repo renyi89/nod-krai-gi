@@ -1,13 +1,16 @@
 use super::common::{ItemType, MaterialType, WeaponType};
 use crate::prop_type::FightPropType;
-use std::collections::HashMap;
 use common::string_util::InternString;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WeaponProperty {
+    #[serde(default)]
     pub prop_type: FightPropType,
+    #[serde(default)]
     pub init_value: f32,
+    #[serde(default)]
     pub r#type: InternString,
 }
 
@@ -17,20 +20,20 @@ pub struct WeaponExcelConfig {
     pub id: u32,
     pub item_type: ItemType,
     pub weapon_type: WeaponType,
+    #[serde(default)]
     pub material_type: MaterialType,
-    
+
     pub weapon_base_exp: u32,
     pub skill_affix: Vec<u32>,
-    pub awaken_material: u32,
     pub weapon_prop: Vec<WeaponProperty>,
-    pub awaken_texture: InternString,
-    pub awaken_light_map_texture: InternString,
-    pub awaken_icon: InternString,
-    pub un_rotate: bool,
     pub weapon_promote_id: u32,
-    pub story_id: u32,
+    #[serde(default)]
+    pub awaken_material: u32,
+    #[serde(default)]
     pub awaken_costs: Vec<u32>,
+    #[serde(default)]
     pub destroy_return_material: Vec<u32>,
+    #[serde(default)]
     pub destroy_return_material_count: Vec<u32>,
 
     pub rank: u32,
@@ -52,18 +55,12 @@ impl WeaponExcelConfigKeyed<u32> for WeaponExcelConfig {
     }
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, WeaponExcelConfig> {
-        let json =  std::fs::read(&format!(
+        let json = std::fs::read(&format!(
             "{excel_bin_output_path}/WeaponExcelConfigData.json"
         ))
         .unwrap();
         let list: Vec<WeaponExcelConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .filter(|(_, value)| {
-                value.story_id != 0
-            })
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

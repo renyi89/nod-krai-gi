@@ -20,15 +20,12 @@ impl AvatarCurveExcelConfigKeyed<u32> for AvatarCurveExcelConfig {
     }
 
     fn load(excel_bin_output_path: &str) -> HashMap<u32, AvatarCurveExcelConfig> {
-        let json =  std::fs::read(&format!(
+        let json = std::fs::read(&format!(
             "{excel_bin_output_path}/AvatarCurveExcelConfigData.json"
         ))
         .unwrap();
         let list: Vec<AvatarCurveExcelConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

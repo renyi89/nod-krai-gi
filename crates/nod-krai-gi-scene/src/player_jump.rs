@@ -1,13 +1,15 @@
 use bevy_ecs::prelude::*;
 use common::player_cache::cache_set_scene_level;
+use nod_krai_gi_data::quest::quest_config::QuestContent;
 use nod_krai_gi_entity::avatar::{AvatarQueryReadOnly, CurrentPlayerAvatarMarker};
 use nod_krai_gi_entity::common::Visible;
 use nod_krai_gi_entity::transform::Transform;
-use nod_krai_gi_entity::EntityDisappearEvent;
 use nod_krai_gi_event::scene::*;
+use nod_krai_gi_event::quest::QuestContentProgressEvent;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::VisionType;
 use nod_krai_gi_proto::server_only::{PlayerDungeonCompBin, VectorBin};
+use nod_krai_gi_event::entity::EntityDisappearEvent;
 use std::sync::Arc;
 
 pub fn player_jump(
@@ -29,9 +31,12 @@ pub fn player_jump(
             continue;
         };
 
-        let mut enter_type = nod_krai_gi_proto::normal::EnterType::EnterJump;
+        let enter_type;
         if *scene_id == player_scene_bin.my_cur_scene_id {
             enter_type = nod_krai_gi_proto::normal::EnterType::EnterGoto;
+        } else {
+            player_info.dungeon_bin = None;
+            enter_type = nod_krai_gi_proto::normal::EnterType::EnterJump;
         }
 
         let destination = VectorBin::from((destination.0, destination.1, destination.2));
@@ -88,11 +93,8 @@ pub fn player_jump_by_point(
     mut players: ResMut<Players>,
     mut enter_events: MessageWriter<BeginEnterSceneEvent>,
 ) {
-    let scene_point_config_collection_clone = Arc::clone(
-        nod_krai_gi_data::scene::scene_point_config::SCENE_POINT_CONFIG_COLLECTION
-            .get()
-            .unwrap(),
-    );
+    let scene_point_config_collection_clone =
+        nod_krai_gi_data::scene::scene_point_config::get_scene_point_config_collection();
     for ScenePlayerJumpByPointEvent(uid, scene_id, point_id) in events.read() {
         match scene_point_config_collection_clone.get(&scene_id) {
             None => {}
@@ -154,16 +156,13 @@ pub fn player_enter_dungeon(
     mut events: MessageReader<ScenePlayerEnterDungeonEvent>,
     mut players: ResMut<Players>,
     mut enter_events: MessageWriter<BeginEnterSceneEvent>,
+    mut quest_content_events: MessageWriter<QuestContentProgressEvent>,
     world_owner_uid: Res<WorldOwnerUID>,
 ) {
     let dungeon_excel_config_collection_clone =
         Arc::clone(nod_krai_gi_data::excel::dungeon_excel_config_collection::get());
 
-    let scene_config_collection_clone = Arc::clone(
-        nod_krai_gi_data::scene::script_cache::SCENE_CONFIG_COLLECTION
-            .get()
-            .unwrap(),
-    );
+    let scene_config_collection_clone = nod_krai_gi_data::scene::script_cache::get_scene_config_collection();
 
     for ScenePlayerEnterDungeonEvent(uid, dungeon_id) in events.read() {
         match dungeon_excel_config_collection_clone.get(&dungeon_id) {
@@ -220,6 +219,14 @@ pub fn player_enter_dungeon(
                     enter_type: nod_krai_gi_proto::normal::EnterType::EnterDungeon,
                     enter_reason: EnterReason::DungeonEnter,
                     position: destination,
+                });
+                quest_content_events.write(QuestContentProgressEvent {
+                    player_uid: *uid,
+                    content_type: QuestContent::EnterDungeon,
+                    param: *dungeon_id,
+                    param2: 0,
+                    param3: 0,
+                    add_progress: 1,
                 });
             }
         }

@@ -1,3 +1,4 @@
+use crate::item::pick_new_affix_id;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::excel::common::{EquipType, ItemType};
 use nod_krai_gi_data::excel::{
@@ -6,7 +7,7 @@ use nod_krai_gi_data::excel::{
     weapon_excel_config_collection, weapon_level_excel_config_collection,
 };
 use nod_krai_gi_data::prop_type::FightPropType;
-use nod_krai_gi_entity::avatar::AvatarEquipChangeEvent;
+use nod_krai_gi_event::avatar::AvatarEquipChangeEvent;
 use nod_krai_gi_event::inventory::StoreItemChangeEvent;
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
 use nod_krai_gi_persistence::Players;
@@ -16,10 +17,7 @@ use nod_krai_gi_proto::normal::{
 };
 use nod_krai_gi_proto::retcode::Retcode;
 use nod_krai_gi_proto::server_only::{equip_bin, item_bin, PlayerItemCompBin};
-use rand::prelude::SliceRandom;
-use rand::rngs::SmallRng;
-use rand::SeedableRng;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use tracing::{debug, instrument, warn};
 
 #[instrument(skip_all)]
@@ -279,7 +277,6 @@ pub fn change_avatar_equip(
                     };
 
                     let rank_level = reliquary_config.rank_level;
-                    let append_prop_depot_id = reliquary_config.append_prop_depot_id;
                     let add_prop_levels = &reliquary_config.add_prop_levels;
                     let max_level = reliquary_config.max_level;
 
@@ -316,7 +313,14 @@ pub fn change_avatar_equip(
                     }
 
                     for item_param in &request.item_param_list {
-                        total_exp += item_param.count * 100;
+                        let mut ra = 1000000;
+                        if item_param.item_id == 105002 {
+                            ra = 2500;
+                        }
+                        if item_param.item_id == 105003 {
+                            ra = 10000;
+                        }
+                        total_exp += item_param.count * ra;
                         let consumed =
                             consume_material(player_item_bin, item_param.item_id, item_param.count);
                         for (guid, delta) in consumed {
@@ -344,6 +348,8 @@ pub fn change_avatar_equip(
                     debug!("reliquary.exp += {}", total_exp);
                     reliquary.exp += total_exp;
 
+                    let mut prop_type_set: HashSet<FightPropType> = HashSet::new();
+
                     while reliquary.level < max_level {
                         let level_key = (rank_level << 8) + reliquary.level;
                         let Some(level_config) = level_config_map.get(&level_key) else {
@@ -358,14 +364,16 @@ pub fn change_avatar_equip(
 
                         if add_prop_levels.contains(&(reliquary.level + 1)) {
                             let main_prop_type = get_main_prop_type(reliquary.main_prop_id);
-                            let new_affix_id = generate_append_prop_id(
-                                append_prop_depot_id,
-                                main_prop_type,
-                                &reliquary.append_prop_id_list,
-                            );
-                            if let Some(affix_id) = new_affix_id {
-                                reliquary.append_prop_id_list.push(affix_id);
-                            }
+                            prop_type_set.insert(main_prop_type);
+                            let append_prop_type_list: Vec<FightPropType> = reliquary
+                                .append_prop_id_list
+                                .iter()
+                                .map(|append_prop_id| get_append_prop_type(*append_prop_id))
+                                .collect();
+
+                            let new_affix_id =
+                                pick_new_affix_id(main_prop_type, append_prop_type_list);
+                            reliquary.append_prop_id_list.push(new_affix_id);
                         }
 
                         reliquary.level += 1;
@@ -501,7 +509,17 @@ pub fn change_avatar_equip(
                     }
 
                     for item_param in &request.item_param_list {
-                        total_exp += item_param.count * 100;
+                        let mut ra = 1000000;
+                        if item_param.item_id == 104011 {
+                            ra = 400;
+                        }
+                        if item_param.item_id == 104012 {
+                            ra = 2000;
+                        }
+                        if item_param.item_id == 104013 {
+                            ra = 10000;
+                        }
+                        total_exp += item_param.count * ra;
                         let consumed =
                             consume_material(player_item_bin, item_param.item_id, item_param.count);
                         for (guid, delta) in consumed {
@@ -525,7 +543,8 @@ pub fn change_avatar_equip(
 
                     debug!("weapon.exp += {}", total_exp);
                     weapon.exp += total_exp;
-                    let max_level = crate::item::get_max_level_by_promote_level(weapon.promote_level);
+                    let max_level =
+                        crate::item::get_max_level_by_promote_level(weapon.promote_level);
 
                     while weapon.level < max_level {
                         let exp_needed = get_weapon_exp_for_level(weapon.level, rank_level);
@@ -603,9 +622,7 @@ fn consume_material(
         if item.item_id != item_id {
             continue;
         }
-        if let Some(nod_krai_gi_proto::server_only::item_bin::Detail::Material(ref mat)) =
-            item.detail
-        {
+        if let Some(item_bin::Detail::Material(ref mat)) = item.detail {
             if mat.count <= remaining {
                 remaining -= mat.count;
                 to_remove.push(guid);
@@ -620,9 +637,7 @@ fn consume_material(
 
     if let Some((guid, new_count)) = partial_guid {
         if let Some(ref mut mat_item) = item_bin.get_mut_item(&guid) {
-            if let Some(nod_krai_gi_proto::server_only::item_bin::Detail::Material(ref mut m)) =
-                mat_item.detail
-            {
+            if let Some(item_bin::Detail::Material(ref mut m)) = mat_item.detail {
                 m.count = new_count;
             }
         }
@@ -636,58 +651,21 @@ fn consume_material(
 }
 
 fn get_main_prop_type(main_prop_id: u32) -> FightPropType {
-    let main_prop_map = std::sync::Arc::clone(reliquary_main_prop_excel_config_collection::get());
-    main_prop_map
+    let reliquary_main_prop_excel_config_collection_clone =
+        std::sync::Arc::clone(reliquary_main_prop_excel_config_collection::get());
+    reliquary_main_prop_excel_config_collection_clone
         .get(&main_prop_id)
         .map(|cfg| cfg.prop_type)
         .unwrap_or_default()
 }
 
-fn generate_append_prop_id(
-    depot_id: u32,
-    main_prop_type: FightPropType,
-    existing_affix_ids: &[u32],
-) -> Option<u32> {
-    let affix_map = std::sync::Arc::clone(reliquary_affix_excel_config_collection::get());
-    let mut rng = SmallRng::from_entropy();
-
-    let depot_affixes: Vec<_> = affix_map
-        .values()
-        .filter(|cfg| cfg.depot_id == depot_id && cfg.prop_type != main_prop_type)
-        .collect();
-
-    if depot_affixes.is_empty() {
-        return None;
-    }
-
-    let existing_group_ids: std::collections::HashSet<u32> = existing_affix_ids
-        .iter()
-        .filter_map(|id| affix_map.get(id).map(|cfg| cfg.group_id))
-        .collect();
-
-    if existing_affix_ids.len() > 3 {
-        let upgrade_candidates: Vec<_> = depot_affixes
-            .iter()
-            .filter(|cfg| existing_group_ids.contains(&cfg.group_id))
-            .collect();
-
-        if upgrade_candidates.is_empty() {
-            return None;
-        }
-
-        upgrade_candidates.choose(&mut rng).map(|cfg| cfg.id)
-    } else {
-        let new_candidates: Vec<_> = depot_affixes
-            .iter()
-            .filter(|cfg| !existing_group_ids.contains(&cfg.group_id))
-            .collect();
-
-        if new_candidates.is_empty() {
-            return None;
-        }
-
-        new_candidates.choose(&mut rng).map(|cfg| cfg.id)
-    }
+fn get_append_prop_type(append_prop_id: u32) -> FightPropType {
+    let reliquary_affix_excel_config_collection_clone =
+        std::sync::Arc::clone(reliquary_affix_excel_config_collection::get());
+    reliquary_affix_excel_config_collection_clone
+        .get(&append_prop_id)
+        .map(|cfg| cfg.prop_type)
+        .unwrap_or_default()
 }
 
 fn get_weapon_exp_for_level(level: u32, rank_level: u32) -> u32 {

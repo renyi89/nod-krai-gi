@@ -15,7 +15,7 @@ fn load_relic_talent_configs(talent_config_dir: ReadDir) -> std::io::Result<()> 
     let mut map = HashMap::new();
     for entry in talent_config_dir {
         let entry = entry?;
-        let json =  std::fs::read(entry.path())?;
+        let json = std::fs::read(entry.path())?;
         let config: TalentConfig = serde_json::from_slice(&*json)?;
         map.extend(config.talents);
     }

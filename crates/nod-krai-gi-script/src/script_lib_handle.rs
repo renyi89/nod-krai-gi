@@ -251,9 +251,15 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "AddQuestProgress",
-            |_, _this, (_ctx, _quest_param): (Table, String)| {
-                tracing::debug!("AddQuestProgress called");
-                Ok(-1)
+            |_, this, (ctx, quest_param): (Table, String)| {
+                let group_id: u32 = ctx.get("group_id").unwrap_or(0);
+                tracing::debug!(
+                    "[ScriptLib] AddQuestProgress group={} param={}",
+                    group_id,
+                    quest_param
+                );
+                this.script_lib.add_quest_progress(group_id, &quest_param);
+                Ok(0)
             },
         );
 
@@ -376,19 +382,10 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "AutoMonsterTide",
-            |_,
-             _this,
-             (
-                _ctx,
-                _tide_index,
-                _group_id,
-                _param_table,
-                _total_monster_count,
-                _min_monster_count,
-                _max_monster_count,
-            ): (Table, u32, u32, Table, u32, u32, u32)| {
-                tracing::debug!("AutoMonsterTide called");
-                Ok(-1)
+            |_, this, (_ctx, source_id, group_id, orders_table, tide_count, scene_limit, _param6): (Table, u32, u32, Table, u32, u32, u32)| {
+                let orders: Vec<u32> = orders_table.sequence_values::<u32>().filter_map(|v| v.ok()).collect();
+                this.script_lib.auto_monster_tide(group_id, source_id, orders, tide_count, scene_limit);
+                Ok(0)
             },
         );
 
@@ -429,20 +426,22 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "CancelGroupTimerEvent",
-            |_, _this, (_ctx, _group_id, _name): (Table, u32, String)| {
-                tracing::debug!("CancelGroupTimerEvent called");
-                Ok(-1)
+            |_, this, (_ctx, group_id, source): (Table, u32, String)| {
+                this.script_lib.cancel_group_timer_event(group_id, &source);
+                Ok(0)
             },
         );
 
-        methods.add_method("CauseDungeonFail", |_, _this, _ctx: Table| {
-            tracing::debug!("CauseDungeonFail called");
-            Ok(-1)
+        methods.add_method("CauseDungeonFail", |_, this, _ctx: Table| {
+            tracing::debug!("[ScriptLib] CauseDungeonFail");
+            this.script_lib.cause_dungeon_result(false);
+            Ok(0)
         });
 
-        methods.add_method("CauseDungeonSuccess", |_, _this, _ctx: Table| {
-            tracing::debug!("CauseDungeonSuccess called");
-            Ok(-1)
+        methods.add_method("CauseDungeonSuccess", |_, this, _ctx: Table| {
+            tracing::debug!("[ScriptLib] CauseDungeonSuccess");
+            this.script_lib.cause_dungeon_result(true);
+            Ok(0)
         });
 
         methods.add_method(
@@ -455,9 +454,12 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "ChangeGroupGadget",
-            |_, _this, (_ctx, _param_table): (Table, Table)| {
-                tracing::debug!("ChangeGroupGadget called");
-                Ok(-1)
+            |_, this, (_ctx, param_table): (Table, Table)| {
+                let config_id: u32 = param_table.get("config_id").unwrap_or(0);
+                let state: u32 = param_table.get("state").unwrap_or(0);
+                let group_id: u32 = _ctx.get("group_id").unwrap_or(0);
+                this.script_lib.set_group_gadget_state_by_config_id(group_id, config_id, state);
+                Ok(0)
             },
         );
 
@@ -492,7 +494,7 @@ impl UserData for LuaScriptLibHandle {
             |_, this, (_ctx, name, delta, group_id): (Table, String, i32, u32)| {
                 let result = this
                     .script_lib
-                    .change_group_variable_value(group_id, &name, delta);
+                    .change_group_variable_value_by_group(group_id, &name, delta);
                 tracing::debug!(
                     "ChangeGroupVariableValue group_id={} name={} delta={} -> {}",
                     group_id,
@@ -708,9 +710,18 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "CreateGadget",
-            |_, _this, (_ctx, _config_table): (Table, Table)| {
-                tracing::debug!("CreateGadget called");
-                Ok(-1)
+            |_, this, (ctx, config_table): (Table, Table)| {
+                let group_id: u32 = ctx.get("group_id").unwrap_or(0);
+                let config_id: u32 = config_table.get("config_id").unwrap_or(0);
+                tracing::debug!(
+                    "[ScriptLib] CreateGadget group={} config={}",
+                    group_id,
+                    config_id
+                );
+                if config_id != 0 {
+                    this.script_lib.create_gadget(group_id, config_id);
+                }
+                Ok(0)
             },
         );
 
@@ -765,9 +776,9 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "CreateGroupTimerEvent",
-            |_, _this, (_ctx, _param1, _param2, _param3): (Table, u32, String, f32)| {
-                tracing::debug!("CreateGroupTimerEvent called");
-                Ok(-1)
+            |_, this, (_ctx, group_id, source, time): (Table, u32, String, f64)| {
+                this.script_lib.create_group_timer_event(group_id, &source, time);
+                Ok(0)
             },
         );
 
@@ -781,9 +792,18 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "CreateMonster",
-            |_, _this, (_ctx, _config_table): (Table, Table)| {
-                tracing::debug!("CreateMonster called");
-                Ok(-1)
+            |_, this, (ctx, config_table): (Table, Table)| {
+                let group_id: u32 = ctx.get("group_id").unwrap_or(0);
+                let config_id: u32 = config_table.get("config_id").unwrap_or(0);
+                let delay_time: u32 = config_table.get("delay_time").unwrap_or(0);
+                tracing::debug!(
+                    "[ScriptLib] CreateMonster group={} config={} delay={}",
+                    group_id,
+                    config_id,
+                    delay_time
+                );
+                this.script_lib.create_monster(group_id, config_id);
+                Ok(0)
             },
         );
 
@@ -984,9 +1004,9 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
-        methods.add_method("EndAllTimeAxis", |_, _this, _ctx: Table| {
-            tracing::debug!("EndAllTimeAxis called");
-            Ok(-1)
+        methods.add_method("EndAllTimeAxis", |_, this, _ctx: Table| {
+            this.script_lib.end_all_time_axis();
+            Ok(0)
         });
 
         methods.add_method(
@@ -1029,9 +1049,9 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
-        methods.add_method("EndTimeAxis", |_, _this, (_ctx, _key): (Table, String)| {
-            tracing::debug!("EndTimeAxis called");
-            Ok(-1)
+        methods.add_method("EndTimeAxis", |_, this, (_ctx, key): (Table, String)| {
+            this.script_lib.end_time_axis(&key);
+            Ok(0)
         });
 
         methods.add_method(
@@ -1677,8 +1697,10 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method("GetGameHour", |_, _this, _ctx: Table| {
-            tracing::debug!("GetGameHour called");
-            Ok(0)
+            // Return game time hour (0-23)
+            let hours = (common::time_util::unix_timestamp() / 1000 % (24 * 60 * 60) / (60 * 60)) as i32;
+            tracing::debug!("[ScriptLib] GetGameHour = {}", hours);
+            Ok(hours)
         });
 
         methods.add_method("GetGameTimePassed", |_, _this, _ctx: Table| {
@@ -1770,9 +1792,8 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "GetGroupSuite",
-            |_, _this, (_ctx, _group_id): (Table, u32)| {
-                tracing::debug!("GetGroupSuite called");
-                Ok(-1)
+            |_, this, (_ctx, group_id): (Table, u32)| {
+                Ok(this.script_lib.get_group_suite(group_id))
             },
         );
 
@@ -2074,8 +2095,10 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "GetQuestState",
-            |_, _this, (_ctx, _entity_id, _quest_id): (Table, u32, u32)| {
-                tracing::debug!("GetQuestState called");
+            |_, _this, (_ctx, _entity_id, quest_id): (Table, u32, u32)| {
+                tracing::debug!("[ScriptLib] GetQuestState quest={}", quest_id);
+                // 0=None, 1=Unstarted, 2=Unfinished, 3=Finished, 4=Failed
+                // Without player access, return default
                 Ok(0)
             },
         );
@@ -2207,8 +2230,9 @@ impl UserData for LuaScriptLibHandle {
         });
 
         methods.add_method("GetServerTime", |_, _this, _ctx: Table| {
-            tracing::debug!("GetServerTime called");
-            Ok(0)
+            let time = common::time_util::unix_timestamp() as i64;
+            tracing::debug!("[ScriptLib] GetServerTime = {}", time);
+            Ok(time)
         });
 
         methods.add_method(
@@ -2220,8 +2244,15 @@ impl UserData for LuaScriptLibHandle {
         );
 
         methods.add_method("GetServerTimeByWeek", |_, _this, _ctx: Table| {
-            tracing::debug!("GetServerTimeByWeek called");
-            Ok(-1)
+            use std::time::{SystemTime, UNIX_EPOCH};
+            let secs = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs();
+            // Days since Thursday 1970-01-01 (weekday 4), mod 7 to get 1=Mon..7=Sun
+            let day_of_week = ((secs / 86400 + 3) % 7 + 1) as i64;
+            tracing::debug!("[ScriptLib] GetServerTimeByWeek = {}", day_of_week);
+            Ok(day_of_week)
         });
 
         methods.add_method(
@@ -2311,9 +2342,9 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "GoToGroupSuite",
-            |_, _this, (_ctx, _group_id, _suite_index): (Table, u32, u32)| {
-                tracing::debug!("GoToGroupSuite called");
-                Ok(-1)
+            |_, this, (_ctx, group_id, suite_index): (Table, u32, u32)| {
+                this.script_lib.go_to_group_suite(group_id, suite_index);
+                Ok(0)
             },
         );
 
@@ -2365,9 +2396,10 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "InitTimeAxis",
-            |_, _this, (_ctx, _key, _timer_list, _is_loop): (Table, String, Table, bool)| {
-                tracing::debug!("InitTimeAxis called");
-                Ok(-1)
+            |_, this, (_ctx, key, delays_table, should_loop): (Table, String, Table, bool)| {
+                let delays: Vec<f64> = delays_table.sequence_values::<f64>().filter_map(|v| v.ok()).collect();
+                this.script_lib.init_time_axis(&key, delays, should_loop);
+                Ok(0)
             },
         );
 
@@ -2514,9 +2546,16 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "KillEntityByConfigId",
-            |_, _this, (_ctx, _param_table): (Table, Table)| {
-                tracing::debug!("KillEntityByConfigId called");
-                Ok(-1)
+            |_, this, (ctx, param_table): (Table, Table)| {
+                let group_id: u32 = ctx.get("group_id").unwrap_or(0);
+                let config_id: u32 = param_table.get("config_id").unwrap_or(0);
+                tracing::debug!(
+                    "[ScriptLib] KillEntityByConfigId group={} config={}",
+                    group_id,
+                    config_id
+                );
+                this.script_lib.kill_entity_by_config_id(group_id, config_id);
+                Ok(0)
             },
         );
 
@@ -2538,9 +2577,11 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "KillGroupEntity",
-            |_, _this, (_ctx, _param_table): (Table, Table)| {
-                tracing::debug!("KillGroupEntity called");
-                Ok(-1)
+            |_, this, (_ctx, param_table): (Table, Table)| {
+                let group_id: u32 = param_table.get("group_id").unwrap_or(0);
+                let kill_policy: u32 = param_table.get("kill_policy").unwrap_or(0);
+                this.script_lib.kill_group_entity(group_id, kill_policy);
+                Ok(0)
             },
         );
 
@@ -2560,9 +2601,10 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
-        methods.add_method("LockForce", |_, _this, (_ctx, _force_id): (Table, u32)| {
-            tracing::debug!("LockForce called");
-            Ok(-1)
+        methods.add_method("LockForce", |_, this, (_ctx, force_id): (Table, u32)| {
+            tracing::debug!("[ScriptLib] LockForce {}", force_id);
+            this.script_lib.lock_force(force_id);
+            Ok(0)
         });
 
         methods.add_method(
@@ -2703,9 +2745,10 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "PlayCutScene",
-            |_, _this, (_ctx, _cutscene_id, _wait_time): (Table, u32, u32)| {
-                tracing::debug!("PlayCutScene called");
-                Ok(-1)
+            |_, this, (_ctx, cutscene_id, _wait_time): (Table, u32, u32)| {
+                tracing::debug!("[ScriptLib] PlayCutScene id={}", cutscene_id);
+                this.script_lib.play_cut_scene(cutscene_id);
+                Ok(0)
             },
         );
 
@@ -2904,9 +2947,22 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "ScenePlaySound",
-            |_, _this, (_ctx, _param_table): (Table, Table)| {
-                tracing::debug!("ScenePlaySound called");
-                Ok(-1)
+            |_, this, (ctx, sound_info): (Table, Table)| {
+                let group_id: u32 = ctx.get("group_id").unwrap_or(0);
+                let sound_name: String = sound_info.get("sound_name").unwrap_or_default();
+                let play_pos: Option<Table> = sound_info.get("play_pos").ok();
+                let play_type: u32 = sound_info.get("play_type").unwrap_or(0);
+                let pos = if let Some(t) = play_pos {
+                    (t.get("x").unwrap_or(0.0f32), t.get("y").unwrap_or(0.0), t.get("z").unwrap_or(0.0))
+                } else {
+                    (0.0, 0.0, 0.0)
+                };
+                tracing::debug!(
+                    "[ScriptLib] ScenePlaySound group={} name={} type={}",
+                    group_id, sound_name, play_type
+                );
+                this.script_lib.scene_play_sound(&sound_name, pos, play_type);
+                Ok(0)
             },
         );
 
@@ -2976,9 +3032,14 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "SetEntityServerGlobalValueByConfigId",
-            |_, _this, (_ctx, _config_id, _key, _value): (Table, u32, String, f32)| {
-                tracing::debug!("SetEntityServerGlobalValueByConfigId called");
-                Ok(-1)
+            |_, this, (ctx, config_id, key, value): (Table, u32, String, f32)| {
+                let group_id: u32 = ctx.get("group_id").unwrap_or(0);
+                tracing::debug!(
+                    "[ScriptLib] SetEntityServerGlobalValueByConfigId group={} config={} key={} val={}",
+                    group_id, config_id, key, value
+                );
+                this.script_lib.set_entity_server_global_value(group_id, config_id, &key, value as u32);
+                Ok(0)
             },
         );
 
@@ -3021,9 +3082,9 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "SetGadgetEnableInteract",
-            |_, _this, (_ctx, _group_id, _config_id, _enable_interact): (Table, u32, u32, bool)| {
-                tracing::debug!("SetGadgetEnableInteract called");
-                Ok(-1)
+            |_, this, (_ctx, group_id, config_id, enable): (Table, u32, u32, bool)| {
+                this.script_lib.set_gadget_enable_interact(group_id, config_id, enable);
+                Ok(0)
             },
         );
 
@@ -3134,16 +3195,8 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "SetGroupGadgetStateByConfigId",
-            |_, this, (ctx, group_id, config_id, state): (Table, u32, u32, u32)| {
-                let uid: u32 = ctx.get("uid").unwrap_or(0);
-                this.script_lib
-                    .set_gadget_state_by_config_id(uid, group_id, config_id, state);
-                tracing::debug!(
-                    "[ScriptLib] SetGroupGadgetStateByConfigId group={} config={} state={}",
-                    group_id,
-                    config_id,
-                    state
-                );
+            |_, this, (_ctx, group_id, config_id, gadget_state): (Table, u32, u32, u32)| {
+                this.script_lib.set_group_gadget_state_by_config_id(group_id, config_id, gadget_state);
                 Ok(0)
             },
         );
@@ -3200,10 +3253,10 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "SetGroupVariableValueByGroup",
-            |_, _this, (_ctx, name, value, group_id): (Table, String, i32, u32)| {
-                let result = _this
+            |_, this, (_ctx, name, value, group_id): (Table, String, i32, u32)| {
+                let result = this
                     .script_lib
-                    .set_group_variable_value(group_id, &name, value);
+                    .set_group_variable_value_by_group(group_id, &name, value);
                 tracing::debug!(
                     "SetGroupVariableValueByGroup group_id={} name={} value={} -> {}",
                     group_id,
@@ -3225,9 +3278,10 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "SetIsAllowUseSkill",
-            |_, _this, (_ctx, _is_allow_use_skill): (Table, u32)| {
-                tracing::debug!("SetIsAllowUseSkill called");
-                Ok(-1)
+            |_, this, (_ctx, can_use): (Table, u32)| {
+                tracing::debug!("[ScriptLib] SetIsAllowUseSkill canUse={}", can_use);
+                this.script_lib.set_is_allow_use_skill(can_use == 1);
+                Ok(0)
             },
         );
 
@@ -3314,9 +3368,14 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "SetPlatformRouteId",
-            |_, _this, (_ctx, _config_id, _route_id): (Table, u32, u32)| {
-                tracing::debug!("SetPlatformRouteId called");
-                Ok(-1)
+            |_, this, (ctx, config_id, route_id): (Table, u32, u32)| {
+                let group_id: u32 = ctx.get("group_id").unwrap_or(0);
+                tracing::debug!(
+                    "[ScriptLib] SetPlatformRouteId group={} config={} route={}",
+                    group_id, config_id, route_id
+                );
+                this.script_lib.set_platform_route_id(group_id, config_id, route_id);
+                Ok(0)
             },
         );
 
@@ -3494,9 +3553,13 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "SetWeatherAreaState",
-            |_, _this, (_ctx, _height_area_id, _open_weather): (Table, u32, u32)| {
-                tracing::debug!("SetWeatherAreaState called");
-                Ok(-1)
+            |_, this, (_ctx, height_area_id, open_weather): (Table, u32, u32)| {
+                tracing::debug!(
+                    "[ScriptLib] SetWeatherAreaState area={} climate={}",
+                    height_area_id, open_weather
+                );
+                this.script_lib.set_weather_area_state(height_area_id, open_weather);
+                Ok(0)
             },
         );
 
@@ -3540,9 +3603,10 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "ShowClientGuide",
-            |_, _this, (_ctx, _guide_name): (Table, String)| {
-                tracing::debug!("ShowClientGuide called");
-                Ok(-1)
+            |_, this, (_ctx, guide_name): (Table, String)| {
+                tracing::debug!("[ScriptLib] ShowClientGuide name={}", guide_name);
+                this.script_lib.show_client_guide(&guide_name);
+                Ok(0)
             },
         );
 
@@ -3564,9 +3628,10 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "ShowReminder",
-            |_, _this, (_ctx, _reminder_id): (Table, u32)| {
-                tracing::debug!("ShowReminder called");
-                Ok(-1)
+            |_, this, (_ctx, reminder_id): (Table, u32)| {
+                tracing::debug!("[ScriptLib] ShowReminder id={}", reminder_id);
+                this.script_lib.show_reminder(reminder_id);
+                Ok(0)
             },
         );
 
@@ -3641,9 +3706,11 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "StartPlatform",
-            |_, _this, (_ctx, _config_id): (Table, u32)| {
-                tracing::debug!("StartPlatform called");
-                Ok(-1)
+            |_, this, (ctx, config_id): (Table, u32)| {
+                let group_id: u32 = ctx.get("group_id").unwrap_or(0);
+                tracing::debug!("[ScriptLib] StartPlatform group={} config={}", group_id, config_id);
+                this.script_lib.start_platform(group_id, config_id);
+                Ok(0)
             },
         );
 
@@ -3719,9 +3786,11 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "StopPlatform",
-            |_, _this, (_ctx, _config_id): (Table, u32)| {
-                tracing::debug!("StopPlatform called");
-                Ok(-1)
+            |_, this, (ctx, config_id): (Table, u32)| {
+                let group_id: u32 = ctx.get("group_id").unwrap_or(0);
+                tracing::debug!("[ScriptLib] StopPlatform group={} config={}", group_id, config_id);
+                this.script_lib.stop_platform(group_id, config_id);
+                Ok(0)
             },
         );
 
@@ -3759,9 +3828,18 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "TransPlayerToPos",
-            |_, _this, (_ctx, _param_table): (Table, Table)| {
-                tracing::debug!("TransPlayerToPos called");
-                Ok(-1)
+            |_, this, (_ctx, param_table): (Table, Table)| {
+                let uid_list: Vec<u32> = param_table.get("uid_list").unwrap_or_default();
+                let pos_table: Option<Table> = param_table.get("pos").ok();
+                let pos = match pos_table {
+                    Some(t) => (t.get("x").unwrap_or(0.0), t.get("y").unwrap_or(0.0), t.get("z").unwrap_or(0.0)),
+                    None => (0.0, 0.0, 0.0),
+                };
+                let rot = (0.0f32, 0.0, 0.0);
+                let scene_id: u32 = param_table.get("scene_id").unwrap_or(0);
+                let radius: f32 = param_table.get("radius").unwrap_or(0.0);
+                this.script_lib.trans_player_to_pos(uid_list, pos, rot, scene_id, radius);
+                Ok(0)
             },
         );
 
@@ -3831,9 +3909,10 @@ impl UserData for LuaScriptLibHandle {
 
         methods.add_method(
             "UnlockForce",
-            |_, _this, (_ctx, _force_id): (Table, u32)| {
-                tracing::debug!("UnlockForce called");
-                Ok(-1)
+            |_, this, (_ctx, force_id): (Table, u32)| {
+                tracing::debug!("[ScriptLib] UnlockForce {}", force_id);
+                this.script_lib.unlock_force(force_id);
+                Ok(0)
             },
         );
 
@@ -4012,16 +4091,18 @@ impl UserData for LuaScriptLibHandle {
             },
         );
 
-        methods.add_method("sendCloseCommonTipsToClient", |_, _this, _ctx: Table| {
-            tracing::debug!("sendCloseCommonTipsToClient called");
-            Ok(-1)
+        methods.add_method("sendCloseCommonTipsToClient", |_, this, _ctx: Table| {
+            tracing::debug!("[ScriptLib] sendCloseCommonTipsToClient");
+            this.script_lib.close_common_tips();
+            Ok(0)
         });
 
         methods.add_method(
             "sendShowCommonTipsToClient",
-            |_, _this, (_ctx, _title, _content, _close_time): (Table, String, String, u32)| {
-                tracing::debug!("sendShowCommonTipsToClient called");
-                Ok(-1)
+            |_, this, (_ctx, title, content, close_time): (Table, String, String, u32)| {
+                tracing::debug!("[ScriptLib] sendShowCommonTipsToClient title={}", title);
+                this.script_lib.show_common_tips(&title, &content, close_time);
+                Ok(0)
             },
         );
 

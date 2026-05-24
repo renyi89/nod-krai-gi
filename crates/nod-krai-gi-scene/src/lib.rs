@@ -16,7 +16,6 @@ use nod_krai_gi_entity::{
     play_team::{PlayTeamEntityBundle, PlayTeamEntityMarker},
     team::{TeamEntityBundle, TeamEntityMarker},
     util::to_protocol_entity_id,
-    EntityDisappearEvent,
 };
 use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::output::MessageOutput;
@@ -24,6 +23,7 @@ use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::dy_parser::{replace_out_u32, replace_out_u64};
 use nod_krai_gi_proto::normal::{EnterType, ProtEntityType, VisionType};
 use std::sync::Arc;
+use nod_krai_gi_event::entity::EntityDisappearEvent;
 
 mod avatar;
 mod enter;

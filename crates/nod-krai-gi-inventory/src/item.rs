@@ -1,7 +1,7 @@
 use bevy_ecs::change_detection::{Res, ResMut};
 use bevy_ecs::message::{MessageReader, MessageWriter};
 use bevy_ecs::prelude::Commands;
-use common::gm_util::ItemAction;
+use common::gm_util::{Command, ItemAction};
 use nod_krai_gi_data::excel::common::ItemType;
 use nod_krai_gi_data::excel::{
     material_excel_config_collection, reliquary_affix_excel_config_collection,
@@ -10,31 +10,37 @@ use nod_krai_gi_data::excel::{
     weapon_level_excel_config_collection, ReliquaryAffixExcelConfig,
 };
 use nod_krai_gi_data::prop_type::FightPropType;
+use nod_krai_gi_data::quest::quest_config::{QuestCond, QuestContent};
 use nod_krai_gi_entity::common::{EntityCounter, Visible};
 use nod_krai_gi_entity::gadget::spawn_gadget_entity;
-use nod_krai_gi_event::command::{CommandItemEvent, ConsoleChatNotifyEvent};
+use nod_krai_gi_event::command::{ConsoleChatNotifyEvent, GmCommandEvent};
 use nod_krai_gi_event::inventory::{ItemAddEvent, ItemDropEvent, StoreItemChangeEvent};
+use nod_krai_gi_event::quest::{QuestAcceptCondEvent, QuestContentProgressEvent};
 use nod_krai_gi_event::scene::{WorldOwnerUID, WorldVersionConfig};
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::{
     equip, item, scene_gadget_info, Equip, Item, ItemAddHintNotify, ItemHint, Material, Reliquary,
-    StoreItemChangeNotify, StoreItemDelNotify, StoreType, TrifleGadget, Weapon,
+    StoreItemChangeNotify, StoreItemDelNotify, StoreType, TrifleGadgetInfo, Weapon,
 };
 use nod_krai_gi_proto::server_only::{
-    equip_bin, item_bin, EquipBin, ItemBin, MaterialBin, ReliquaryBin, VectorBin, WeaponBin,
+    equip_bin, item_bin, EquipBin, ItemBin, ReliquaryBin, VectorBin, WeaponBin,
 };
 use rand::prelude::IteratorRandom;
+use rand::prelude::SliceRandom;
 use rand::rngs::SmallRng;
 use rand::{Rng, SeedableRng};
 use std::collections::HashMap;
 
 pub fn item_command_handler(
-    mut events: MessageReader<CommandItemEvent>,
+    mut events: MessageReader<GmCommandEvent>,
     mut item_add_events: MessageWriter<ItemAddEvent>,
     mut item_drop_events: MessageWriter<ItemDropEvent>,
 ) {
-    for CommandItemEvent(player_uid, action) in events.read() {
+    for GmCommandEvent(player_uid, command) in events.read() {
+        let Command::Item(action) = command else {
+            continue;
+        };
         match action {
             ItemAction::Add {
                 id,
@@ -59,6 +65,7 @@ pub fn item_command_handler(
             ItemAction::Drop { id } => {
                 item_drop_events.write(ItemDropEvent(*player_uid, None, vec![(*id, 1)]));
             }
+            _ => {}
         }
     }
 }
@@ -67,6 +74,8 @@ pub fn item_add_handler(
     mut events: MessageReader<ItemAddEvent>,
     mut gm_notify_events: MessageWriter<ConsoleChatNotifyEvent>,
     mut store_item_change_events: MessageWriter<StoreItemChangeEvent>,
+    mut quest_content_events: MessageWriter<QuestContentProgressEvent>,
+    mut quest_accept_events: MessageWriter<QuestAcceptCondEvent>,
     mut players: ResMut<Players>,
 ) {
     let mut rng = SmallRng::from_entropy();
@@ -130,36 +139,13 @@ pub fn item_add_handler(
                     if material_config.use_on_gain {
                         continue;
                     }
-                    let guid = player_item_bin.has_material(*item_id);
-                    if guid.is_none() {
-                        player_item_bin.add_item(
-                            new_guid,
-                            ItemBin {
-                                item_type: item_type as u32,
-                                item_id: *item_id,
-                                guid: new_guid,
-                                owner_guid: 0,
-                                detail: Some(item_bin::Detail::Material(MaterialBin {
-                                    count: num.unwrap_or(1),
-                                    delete_bin: None,
-                                })),
-                            },
-                        );
-                        change_map.insert(new_guid, num.unwrap_or(1) as i32);
-                    } else {
-                        let material_guid = guid.unwrap();
-                        let Some(ref mut material_bin) =
-                            player_item_bin.get_mut_item(&material_guid)
-                        else {
-                            continue;
-                        };
-                        let Some(item_bin::Detail::Material(ref mut detail)) = material_bin.detail
-                        else {
-                            continue;
-                        };
-                        detail.count += num.unwrap_or(1);
-                        change_map.insert(material_guid, num.unwrap_or(1) as i32);
-                    }
+                    let (material_guid, change_num) = player_item_bin.add_or_update_material(
+                        new_guid,
+                        *item_id,
+                        item_type as u32,
+                        num.unwrap_or(1) as i32,
+                    );
+                    change_map.insert(material_guid, change_num);
                 }
                 ItemType::RELIQUARY => {
                     let final_key = match main_prop_id {
@@ -288,6 +274,30 @@ pub fn item_add_handler(
         }
 
         store_item_change_events.write(StoreItemChangeEvent(*player_uid, change_map));
+
+        for (item_id, _, _, _, _, _) in item_list.iter() {
+            quest_content_events.write(QuestContentProgressEvent {
+                player_uid: *player_uid,
+                content_type: QuestContent::ObtainItem,
+                param: *item_id,
+                param2: 0,
+                param3: 0,
+                add_progress: 1,
+            });
+            quest_content_events.write(QuestContentProgressEvent {
+                player_uid: *player_uid,
+                content_type: QuestContent::ObtainVariousItem,
+                param: *item_id,
+                param2: 0,
+                param3: 0,
+                add_progress: 1,
+            });
+            quest_accept_events.write(QuestAcceptCondEvent {
+                player_uid: *player_uid,
+                cond_type: QuestCond::PackHaveItem,
+                param: *item_id,
+            });
+        }
     }
 }
 
@@ -435,7 +445,7 @@ pub fn item_drop_handler(
                         gadget_id,
                         1,
                         true,
-                        Some(scene_gadget_info::Content::TrifleGadget(TrifleGadget {
+                        Some(scene_gadget_info::Content::TrifleGadget(TrifleGadgetInfo {
                             item: Some(item),
                             ..Default::default()
                         })),
@@ -588,30 +598,66 @@ pub fn pick_four_affix_ids(
     main_prop_type: FightPropType,
     rng: &mut SmallRng,
 ) -> Vec<u32> {
-    let mut buckets: HashMap<FightPropType, u32> = HashMap::new();
-    let mut counts: HashMap<FightPropType, usize> = HashMap::new();
+    // 1. 按 prop_type 分桶
+    let mut buckets: HashMap<FightPropType, Vec<u32>> = HashMap::new();
 
     for (id, cfg) in map.iter() {
-        if cfg.prop_type == main_prop_type {
-            continue;
-        }
-
-        let pt = cfg.prop_type;
-
-        let counter = counts.entry(pt).or_insert(0);
-        *counter += 1;
-
-        if rng.gen_ratio(1, *counter as u32) {
-            buckets.insert(pt, *id);
+        if cfg.prop_type != main_prop_type {
+            buckets.entry(cfg.prop_type).or_default().push(*id);
         }
     }
 
-    buckets
-        .values()
-        .choose_multiple(rng, 4)
-        .into_iter()
-        .cloned()
-        .collect()
+    // 2. 每个 prop_type 等概率：先随机从每个桶中抽 1 个
+    let mut picked_per_type: Vec<u32> = Vec::new();
+    for (_pt, ids) in buckets.into_iter() {
+        if let Some(chosen) = ids.choose(rng) {
+            picked_per_type.push(*chosen);
+        }
+    }
+
+    // 3. 从所有 prop_type 中随机抽 4 个
+    picked_per_type.choose_multiple(rng, 4).cloned().collect()
+}
+
+pub fn pick_new_affix_id(
+    main_prop_type: FightPropType,
+    mut prop_type_list: Vec<FightPropType>,
+) -> u32 {
+    let reliquary_affix_excel_config_collection_clone =
+        std::sync::Arc::clone(reliquary_affix_excel_config_collection::get());
+    let mut rng = SmallRng::from_entropy();
+    // 1. 收集所有 prop_type → ids
+    let mut buckets: HashMap<FightPropType, Vec<u32>> = HashMap::new();
+    for (id, cfg) in reliquary_affix_excel_config_collection_clone.iter() {
+        if cfg.prop_type != main_prop_type {
+            buckets.entry(cfg.prop_type).or_default().push(*id);
+        }
+    }
+
+    // 2. 如果 prop_type_list < 4，则补齐
+    if prop_type_list.len() < 4 {
+        // 所有可选 prop_type
+        let mut all_types: Vec<FightPropType> = buckets.keys().cloned().collect();
+
+        // 去掉已有的
+        all_types.retain(|pt| !prop_type_list.contains(pt));
+
+        // 随机补齐到 5
+        let need = 4 - prop_type_list.len();
+        let extra = all_types
+            .choose_multiple(&mut rng, need)
+            .cloned()
+            .collect::<Vec<_>>();
+
+        prop_type_list.extend(extra);
+    }
+
+    // 3. 从最终的 prop_type_list 中随机选一个 prop_type
+    let chosen_pt = prop_type_list.choose(&mut rng).cloned().unwrap();
+
+    // 4. 在该 prop_type 的桶中随机选一个 affix id
+    let ids = buckets.get(&chosen_pt).expect("prop_type must exist");
+    *ids.choose(&mut rng).unwrap()
 }
 
 pub fn random_offset_vec3((x, y, z): (f32, f32, f32), rng: &mut SmallRng) -> (f32, f32, f32) {

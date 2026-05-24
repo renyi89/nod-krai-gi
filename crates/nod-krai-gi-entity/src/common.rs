@@ -502,7 +502,7 @@ pub fn create_fight_props(
         std::sync::Arc::clone(avatar_promote_excel_config_collection::get());
 
     if let Some(promote_config) = avatar_promote_excel_config_collection_clone
-        .get(&(config.avatar_promote_id << 8 + break_level))
+        .get(&((config.avatar_promote_id << 8) + break_level))
     {
         if promote_config.promote_level == break_level {
             for add_prop in promote_config.add_props.iter() {
@@ -626,11 +626,11 @@ pub fn add_fight_props_from_reliquary(props: &mut FightProperties, avatar_bin: &
         };
 
         let Some(reliquary_level_config) = reliquary_level_excel_config_collection_clone
-            .get(&(reliquary_config.rank << 8 + reliquary.level))
+            .get(&((reliquary_config.rank_level << 8) + reliquary.level))
         else {
             tracing::debug!(
                 "reliquary level config {} {} doesn't exist",
-                reliquary_config.rank,
+                reliquary_config.rank_level,
                 reliquary.level
             );
             break;

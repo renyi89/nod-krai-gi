@@ -3,14 +3,15 @@ use std::collections::HashMap;
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct GatherExcelConfig {
-    pub area_id: u32,
-    pub extra_item_id_vec: Vec<u32>,
-    pub gadget_id: u32,
-    pub init_disable_interact: bool,
-    pub is_forbid_guest: bool,
-    pub item_id: u32,
     pub point_type: u32,
+    pub gadget_id: u32,
+    pub item_id: u32,
+    #[serde(default)]
     pub refresh_id: u32,
+    #[serde(default)]
+    pub extra_item_id_vec: Vec<u32>,
+    #[serde(default)]
+    pub is_forbid_guest: bool,
 }
 
 pub trait GatherExcelConfigKeyed<K> {
@@ -30,10 +31,7 @@ impl GatherExcelConfigKeyed<u32> for GatherExcelConfig {
         ))
         .unwrap();
         let list: Vec<GatherExcelConfig> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

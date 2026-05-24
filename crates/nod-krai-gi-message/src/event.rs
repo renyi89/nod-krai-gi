@@ -2,6 +2,7 @@ use crate::get_player_version;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_proto::packet_head::PacketHead;
 use serde::{de, Serialize};
+use nod_krai_gi_proto::Protobuf;
 
 #[derive(Message)]
 pub struct ClientMessageEvent(PacketHead, u16, Box<[u8]>, String);
@@ -35,7 +36,7 @@ impl ClientMessageEvent {
         get_player_version!(&self.0.user_id)
     }
 
-    pub fn decode<T: Sized + Serialize + Default>(&self) -> Option<T>
+    pub fn decode<T: Default + Serialize + Protobuf>(&self) -> Option<T>
     where
         T: for<'a> de::Deserialize<'a>,
     {

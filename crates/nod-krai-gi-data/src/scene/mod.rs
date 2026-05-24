@@ -663,4 +663,152 @@ pub enum ScriptCommand {
         challenge_index: u32,
         progress: u32,
     },
+    AddQuestProgress {
+        group_id: u32,
+        quest_param: String,
+    },
+    CreateGadget {
+        group_id: u32,
+        config_id: u32,
+    },
+    CreateMonster {
+        group_id: u32,
+        config_id: u32,
+    },
+    KillEntityByConfigId {
+        group_id: u32,
+        config_id: u32,
+    },
+    SetIsAllowUseSkill {
+        allow: bool,
+    },
+    ShowReminder {
+        reminder_id: u32,
+    },
+    PlayCutScene {
+        cutscene_id: u32,
+    },
+    NotifyGroupLua {
+        group_id: u32,
+        event_type: u32,
+        param1: u32,
+        param2: u32,
+        param3: u32,
+    },
+    CauseDungeonResult {
+        is_success: bool,
+    },
+    MovePlayerToPos {
+        uid: u32,
+        pos: (f32, f32, f32),
+        rot: (f32, f32, f32),
+        scene_id: u32,
+    },
+    ScenePlaySound {
+        sound_name: String,
+        pos: (f32, f32, f32),
+        play_type: u32,
+    },
+    SetWeatherAreaState {
+        area_id: u32,
+        climate_type: u32,
+    },
+    SetPlatformRouteId {
+        group_id: u32,
+        config_id: u32,
+        route_id: u32,
+    },
+    StartPlatform {
+        group_id: u32,
+        config_id: u32,
+    },
+    StopPlatform {
+        group_id: u32,
+        config_id: u32,
+    },
+    SetEntityServerGlobalValue {
+        group_id: u32,
+        config_id: u32,
+        sgv_name: String,
+        value: u32,
+    },
+    UnlockForce {
+        force_id: u32,
+    },
+    LockForce {
+        force_id: u32,
+    },
+    ShowClientGuide {
+        guide_name: String,
+    },
+    ShowCommonTips {
+        title: String,
+        content: String,
+        close_time: u32,
+    },
+    CloseCommonTips,
+    SendServerMessageByLuaKey {
+        key: String,
+        params: Vec<u32>,
+    },
+    KillGroupEntity {
+        group_id: u32,
+        kill_policy: u32,
+    },
+    GoToGroupSuite {
+        group_id: u32,
+        suite_id: u32,
+    },
+    SetGroupVariableValueByGroup {
+        group_id: u32,
+        name: String,
+        value: i32,
+    },
+    ChangeGroupVariableValueByGroup {
+        group_id: u32,
+        name: String,
+        delta: i32,
+    },
+    CreateGroupTimerEvent {
+        group_id: u32,
+        source: String,
+        time: f64,
+    },
+    CancelGroupTimerEvent {
+        group_id: u32,
+        source: String,
+    },
+    InitTimeAxis {
+        identifier: String,
+        delays: Vec<f64>,
+        should_loop: bool,
+    },
+    EndTimeAxis {
+        identifier: String,
+    },
+    EndAllTimeAxis,
+    TransPlayerToPos {
+        uid_list: Vec<u32>,
+        pos: (f32, f32, f32),
+        rot: (f32, f32, f32),
+        scene_id: u32,
+        radius: f32,
+    },
+    SetGroupGadgetStateByConfigId {
+        group_id: u32,
+        config_id: u32,
+        state: u32,
+    },
+    SetGadgetEnableInteract {
+        group_id: u32,
+        config_id: u32,
+        enable: bool,
+    },
+    AutoMonsterTide {
+        group_id: u32,
+        source_id: u32,
+        orders_config_id: Vec<u32>,
+        tide_count: u32,
+        scene_limit: u32,
+    },
 }

@@ -1,10 +1,10 @@
 use crate::scene::Position;
 use common::string_util::InternString;
+use rayon::prelude::*;
 use std::collections::HashMap;
 use std::fs;
 use std::str::FromStr;
 use std::sync::Arc;
-use rayon::prelude::*;
 
 pub static SCENE_POINT_CONFIG_COLLECTION: std::sync::OnceLock<Arc<HashMap<u32, ScenePointConfig>>> =
     std::sync::OnceLock::new();
@@ -12,6 +12,24 @@ pub static SCENE_POINT_CONFIG_COLLECTION: std::sync::OnceLock<Arc<HashMap<u32, S
 pub static SCENE_POINT_ENTRY_MAP_COLLECTION: std::sync::OnceLock<
     Arc<HashMap<u32, ScenePointData>>,
 > = std::sync::OnceLock::new();
+
+/// 安全获取场景点配置集合
+/// 如果配置未初始化，返回空 Arc
+pub fn get_scene_point_config_collection() -> Arc<HashMap<u32, ScenePointConfig>> {
+    SCENE_POINT_CONFIG_COLLECTION
+        .get()
+        .cloned()
+        .unwrap_or_else(|| Arc::new(HashMap::new()))
+}
+
+/// 安全获取场景点入口映射集合
+/// 如果配置未初始化，返回空 Arc
+pub fn get_scene_point_entry_map_collection() -> Arc<HashMap<u32, ScenePointData>> {
+    SCENE_POINT_ENTRY_MAP_COLLECTION
+        .get()
+        .cloned()
+        .unwrap_or_else(|| Arc::new(HashMap::new()))
+}
 
 #[derive(Debug, Clone, Default, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -56,7 +74,7 @@ pub fn load_scene_point_configs_from_bin(bin_output_path: &str) {
                 match u32::from_str(file_name.as_str()) {
                     Ok(scene_id) => {
                         let json = std::fs::read(entry.path()).unwrap();
-                        let result: serde_json::Result<ScenePointConfig> = 
+                        let result: serde_json::Result<ScenePointConfig> =
                             serde_json::from_slice(&*json);
                         match result {
                             Ok(config) => {
@@ -88,14 +106,14 @@ pub fn load_scene_point_configs_from_bin(bin_output_path: &str) {
         })
         .collect();
 
-    let (data, entry_map): (HashMap<u32, ScenePointConfig>, HashMap<u32, ScenePointData>) = 
+    let (data, entry_map): (HashMap<u32, ScenePointConfig>, HashMap<u32, ScenePointData>) =
         processed_entries.into_iter().fold(
             (HashMap::new(), HashMap::new()),
             |(mut acc_data, mut acc_entry_map), (local_data, local_entry_map)| {
                 acc_data.extend(local_data);
                 acc_entry_map.extend(local_entry_map);
                 (acc_data, acc_entry_map)
-            }
+            },
         );
 
     let _ = SCENE_POINT_CONFIG_COLLECTION.set(Arc::new(data));

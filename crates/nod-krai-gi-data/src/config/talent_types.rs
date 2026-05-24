@@ -1,6 +1,6 @@
 use crate::dynamic_float::any_to_float;
-use std::collections::HashMap;
 use common::string_util::InternString;
+use std::collections::HashMap;
 
 #[derive(Debug, serde::Deserialize)]
 pub struct TalentConfig {

@@ -1,4 +1,5 @@
 pub mod ability;
+pub mod avatar;
 pub mod combat;
 pub mod command;
 pub mod entity;
@@ -11,6 +12,7 @@ pub mod social;
 pub mod time;
 
 use crate::ability::*;
+use crate::avatar::*;
 use crate::combat::*;
 use crate::command::*;
 use crate::entity::*;
@@ -26,17 +28,23 @@ pub struct EventRegistryPlugin;
 impl Plugin for EventRegistryPlugin {
     fn build(&self, app: &mut App) {
         app
+            //avatar
+            .add_message::<AvatarEquipChangeEvent>()
+            .add_message::<AvatarAppearanceChangeEvent>()
             //command
             .add_message::<DebugCommandEvent>()
             .add_message::<ConsoleChatReqEvent>()
             .add_message::<ConsoleChatNotifyEvent>()
-            .add_message::<CommandQuestEvent>()
-            .add_message::<CommandItemEvent>()
+            .add_message::<GmCommandEvent>()
             //inventory
             .add_message::<StoreItemChangeEvent>()
             .add_message::<ItemAddEvent>()
             .add_message::<ItemDropEvent>()
             //entity
+            .add_message::<EntityPropertyUpdateEvent>()
+            .add_message::<EntityPropertySeparateUpdateEvent>()
+            .add_message::<EntityDisappearEvent>()
+            .add_message::<EntityFightPropChangeReasonNotifyEvent>()
             .add_message::<GadgetInteractEvent>()
             .add_message::<GadgetStateChangeEvent>()
             //lua
@@ -54,12 +62,15 @@ impl Plugin for EventRegistryPlugin {
             .add_message::<ChallengeProgressEvent>()
             .add_message::<MonsterKillEvent>()
             //quest
-            .add_message::<QuestBeginEvent>()
+            .add_message::<QuestAcceptCondEvent>()
+            .add_message::<QuestAcceptEvent>()
             .add_message::<QuestFinishEvent>()
-            .add_message::<QuestListUpdateEvent>()
+            .add_message::<QuestFailEvent>()
+            .add_message::<QuestContentProgressEvent>()
+            .add_message::<QuestExecEvent>()
             //scene
             .insert_resource(WorldOwnerUID(0))
-            .insert_resource(WorldVersionConfig{
+            .insert_resource(WorldVersionConfig {
                 protocol_version: "unknown version".to_string(),
                 ty_value: 24,
             })

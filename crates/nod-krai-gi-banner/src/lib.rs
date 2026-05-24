@@ -141,7 +141,7 @@ fn on_banner_notify(
                                                 1
                                             }
                                         },
-                                        new_bool: false,
+                                        ..Default::default()
                                     })
                                 }
                             }

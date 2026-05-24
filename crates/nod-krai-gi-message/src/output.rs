@@ -5,6 +5,7 @@ use bevy_ecs::prelude::Resource;
 use common::logging::TRACE_LOG_PACKET;
 use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_proto::packet_head::PacketHead;
+use nod_krai_gi_proto::Protobuf;
 use serde::Serialize;
 use tokio::sync::mpsc;
 
@@ -21,7 +22,7 @@ impl MessageOutput {
 
     pub fn send<T>(&self, player_uid: u32, message_name: &str, message: T)
     where
-        T: Sized + Serialize,
+        T: Sized + Serialize + Protobuf,
     {
         if let Some(out) = self.0.get(&player_uid) {
             let version = get_player_version!(&player_uid);
@@ -51,7 +52,7 @@ impl MessageOutput {
 
     pub fn send_to_all<T>(&self, message_name: &str, message: T)
     where
-        T: Sized + Serialize + Clone,
+        T: Sized + Serialize + Protobuf + Clone,
     {
         for (player_uid, out) in &self.0 {
             let version = get_player_version!(player_uid);
@@ -75,7 +76,7 @@ impl MessageOutput {
 
     pub fn send_to_others<T>(&self, host_player_uid: u32, message_name: &str, message: T)
     where
-        T: Sized + Serialize + Clone,
+        T: Sized + Serialize + Protobuf + Clone,
     {
         for (player_uid, out) in &self.0 {
             if *player_uid == host_player_uid {
@@ -111,7 +112,7 @@ impl ClientOutput {
 
     pub fn push<T>(&self, head: PacketHead, version: &str, message_name: &str, message: T)
     where
-        T: Sized + Serialize,
+        T: Sized + Serialize + Protobuf,
     {
         match nod_krai_gi_proto::dy_parser::get_cmd_id_by_name_version(version, message_name) {
             None => {

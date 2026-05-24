@@ -19,15 +19,10 @@ impl QuestEncryptionKeyKeyed<u32> for QuestEncryptionKey {
     }
 
     fn load(custom_output_path: &str) -> HashMap<u32, QuestEncryptionKey> {
-        let json = std::fs::read(&format!(
-            "{custom_output_path}/QuestEncryptionKeys.json"
-        ))
-        .unwrap();
+        let json =
+            std::fs::read(&format!("{custom_output_path}/QuestEncryptionKeys.json")).unwrap();
         let list: Vec<QuestEncryptionKey> = serde_json::from_slice(&*json).unwrap();
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
         data
     }
 }

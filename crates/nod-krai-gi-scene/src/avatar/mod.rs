@@ -1,12 +1,9 @@
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::prop_type::FightPropType;
+use nod_krai_gi_entity::avatar::{AvatarQueryReadOnly, CurrentPlayerAvatarMarker};
 use nod_krai_gi_entity::avatar::{CurrentTeam, ReplaceCurrentPlayerAvatarMarker};
 use nod_krai_gi_entity::common::{FightProperties, LifeState, Visible};
 use nod_krai_gi_entity::transform::Transform;
-use nod_krai_gi_entity::{
-    avatar::{AvatarQueryReadOnly, CurrentPlayerAvatarMarker},
-    EntityDisappearEvent, EntityPropertySeparateUpdateEvent,
-};
 use nod_krai_gi_event::scene::*;
 use nod_krai_gi_message::{event::ClientMessageEvent, output::MessageOutput};
 use nod_krai_gi_persistence::Players;
@@ -20,6 +17,7 @@ use nod_krai_gi_proto::normal::{
 use nod_krai_gi_proto::retcode::Retcode;
 use std::collections::HashSet;
 use tracing::{debug, instrument};
+use nod_krai_gi_event::entity::{EntityDisappearEvent, EntityPropertySeparateUpdateEvent};
 
 pub fn change_avatar(
     mut client_messages: MessageReader<ClientMessageEvent>,

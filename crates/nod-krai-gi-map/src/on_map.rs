@@ -1,5 +1,4 @@
 use bevy_ecs::prelude::*;
-use std::sync::Arc;
 
 use nod_krai_gi_event::command::*;
 use nod_krai_gi_event::scene::*;
@@ -8,8 +7,8 @@ use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
 use nod_krai_gi_proto::normal::{
     mark_map_req::Operation, MapMarkPointType, MarkMapReq, PersonalSceneJumpReq,
-    PersonalSceneJumpRsp, PlayerEnterDungeonReq, PlayerEnterDungeonRsp, SceneTransToPointReq,
-    SceneTransToPointRsp, Vector,
+    PersonalSceneJumpRsp, PlayerEnterDungeonReq, PlayerEnterDungeonRsp, PlayerQuitDungeonReq,
+    SceneTransToPointReq, SceneTransToPointRsp, Vector,
 };
 use tracing::{debug, instrument};
 
@@ -115,11 +114,8 @@ pub fn message_on_map(
                     let Some(ref player_scene_bin) = player_info.scene_bin else {
                         continue;
                     };
-                    let scene_point_entry_map_collection_clone = Arc::clone(
-                        nod_krai_gi_data::scene::scene_point_config::SCENE_POINT_ENTRY_MAP_COLLECTION
-                            .get()
-                            .unwrap(),
-                    );
+                    let scene_point_entry_map_collection_clone =
+                        nod_krai_gi_data::scene::scene_point_config::get_scene_point_entry_map_collection();
                     let Some(scene_point_data) = scene_point_entry_map_collection_clone
                         .get(&((player_scene_bin.my_cur_scene_id << 16) + request.point_id))
                     else {
@@ -163,23 +159,27 @@ pub fn message_on_map(
                 }
             }
             "PlayerQuitDungeonReq" => {
-                let Some(player_info) = players.get(message.sender_uid()) else {
-                    continue;
-                };
-
-                if let Some(ref player_dungeon_bin) = player_info.dungeon_bin {
-                    let Some(quit_pos) = player_dungeon_bin.quit_pos else {
+                if let Some(request) = message.decode::<PlayerQuitDungeonReq>() {
+                    let Some(player_info) = players.get(message.sender_uid()) else {
                         continue;
                     };
 
-                    jump_events.write(ScenePlayerJumpEvent(
-                        message.sender_uid(),
-                        player_dungeon_bin.quit_scene_id,
-                        EnterReason::DungeonQuit,
-                        (quit_pos.x, quit_pos.y, quit_pos.z),
-                    ));
+                    if let Some(ref player_dungeon_bin) = player_info.dungeon_bin {
+                        let Some(quit_pos) = player_dungeon_bin.quit_pos else {
+                            continue;
+                        };
 
-                    message_output.send_none(message.sender_uid(), "PlayerQuitDungeonRsp");
+                        if request.is_quit_immediately {
+                            jump_events.write(ScenePlayerJumpEvent(
+                                message.sender_uid(),
+                                player_dungeon_bin.quit_scene_id,
+                                EnterReason::DungeonQuit,
+                                (quit_pos.x, quit_pos.y, quit_pos.z),
+                            ));
+                        }
+
+                        message_output.send_none(message.sender_uid(), "PlayerQuitDungeonRsp");
+                    }
                 }
             }
             &_ => {}

@@ -1,16 +1,17 @@
 use crate::excel;
+use common::string_util::InternString;
 use std::collections::HashMap;
 use std::sync::Arc;
-use common::string_util::InternString;
 
-static FETTER_DATA_ENTRIES: std::sync::OnceLock<
-    Arc<HashMap<u32, Vec<FetterDataConfig>>>,
-> = std::sync::OnceLock::new();
+static FETTER_DATA_ENTRIES: std::sync::OnceLock<Arc<HashMap<u32, Vec<FetterDataConfig>>>> =
+    std::sync::OnceLock::new();
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct OpenCondData {
+    #[serde(default)]
     pub cond_type: InternString,
+    #[serde(default)]
     pub param_list: Vec<u32>,
 }
 
@@ -19,6 +20,7 @@ pub struct OpenCondData {
 pub struct FetterDataConfig {
     pub avatar_id: u32,
     pub fetter_id: u32,
+    #[serde(default)]
     pub open_conds: Vec<OpenCondData>,
 }
 
@@ -45,15 +47,12 @@ impl FetterDataConfigKeyed<u32> for FetterDataConfig {
             "PhotographExpressionExcelConfigData.json",
             "PhotographPosenameExcelConfigData.json",
         ] {
-            let json =  std::fs::read(&format!("{excel_bin_output_path}/{file}")).unwrap();
+            let json = std::fs::read(&format!("{excel_bin_output_path}/{file}")).unwrap();
             let mut sub_list: Vec<FetterDataConfig> = serde_json::from_slice(&*json).unwrap();
             list.append(&mut sub_list);
         }
 
-        let data = list
-            .iter()
-            .map(|item| (item.key().clone(), item.clone()))
-            .collect();
+        let data = list.iter().map(|item| (item.key(), item.clone())).collect();
 
         data
     }

@@ -133,9 +133,9 @@ pub fn scene_init_finish_send_rsp(
             let language = cache_get_language(uid).unwrap_or(Language::Chs);
             let msg;
             if language == Language::Chs || language == Language::Cht {
-                msg = String::from_utf8(MSG_CHS.to_vec()).unwrap();
+                msg = String::from_utf8(MSG_CHS.to_vec()).unwrap_or_default();
             } else {
-                msg = String::from_utf8(MSG_EN.to_vec()).unwrap();
+                msg = String::from_utf8(MSG_EN.to_vec()).unwrap_or_default();
             }
             message_output.send(
                 uid,

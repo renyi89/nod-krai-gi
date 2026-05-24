@@ -293,6 +293,8 @@ lua_enum! {
         Nearby = 4,
         alias("VISION_LEVEL_SUPER_NEARBY")
         SuperNearby = 5,
+        alias("VISION_LEVEL_HALF_REMOTE")
+        HalfRemote = 6,
     }
 }
 
@@ -492,14 +494,18 @@ pub enum GrowCurveArith {
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct IdCountConfig {
+    #[serde(default)]
     pub id: u32,
+    #[serde(default)]
     pub count: u32,
 }
 
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PropGrowCurve {
+    #[serde(default)]
     pub r#type: FightPropType,
+    #[serde(default)]
     pub grow_curve: InternString,
 }
 
@@ -508,6 +514,7 @@ pub struct PropGrowCurve {
 pub struct GrowCurveInfo {
     pub r#type: InternString,
     pub arith: GrowCurveArith,
+    #[serde(default)]
     pub value: f32,
 }
 
@@ -527,6 +534,8 @@ impl GrowCurveInfo {
 #[derive(Debug, Clone, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AddProp {
+    #[serde(default)]
     pub prop_type: FightPropType,
+    #[serde(default)]
     pub value: f32,
 }

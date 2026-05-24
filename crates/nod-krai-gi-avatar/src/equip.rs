@@ -4,7 +4,6 @@ use nod_krai_gi_data::excel::{avatar_excel_config_collection, weapon_excel_confi
 use nod_krai_gi_entity::avatar::{spawn_avatar_entity, EquipmentWeapon};
 use nod_krai_gi_entity::gadget::GadgetID;
 use nod_krai_gi_entity::{
-    avatar::AvatarEquipChangeEvent,
     common::{
         create_fight_props_with_equip, EntityCounter, Guid, Level, OwnerPlayerUID,
         ToBeRemovedMarker,
@@ -12,6 +11,7 @@ use nod_krai_gi_entity::{
     util::to_protocol_entity_id,
     weapon::{AffixMap, WeaponBundle, WeaponID, WeaponPromoteLevel},
 };
+use nod_krai_gi_event::avatar::AvatarEquipChangeEvent;
 use nod_krai_gi_event::scene::WorldVersionConfig;
 use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_persistence::Players;
