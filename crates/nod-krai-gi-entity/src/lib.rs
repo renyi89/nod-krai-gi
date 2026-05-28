@@ -86,6 +86,7 @@ impl Plugin for EntityPlugin {
                 (
                     update_entity_life_state,
                     notify_disappear_entities,
+                    despawn_monster_equipment,
                     remove_marked_entities,
                     avatar::notify_avatar_appearance_change,
                     avatar::notify_appear_avatar_entities
@@ -381,6 +382,17 @@ fn notify_disappear_entities(
                 entity_list: ids,
             },
         );
+    }
+}
+
+fn despawn_monster_equipment(
+    mut commands: Commands,
+    monsters: Query<&monster::MonsterEquipment, With<ToBeRemovedMarker>>,
+) {
+    for equipment in monsters.iter() {
+        for entity in &equipment.0 {
+            commands.entity(*entity).insert(ToBeRemovedMarker);
+        }
     }
 }
 

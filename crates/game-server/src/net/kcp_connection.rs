@@ -1,8 +1,8 @@
+use crate::handler::PacketHandler;
 use common::time_util;
 use kcp::Kcp;
 use std::{net::SocketAddr, sync::Arc, task};
 use tokio::{io::AsyncWrite, net::UdpSocket, sync::mpsc};
-use crate::handler::PacketHandler;
 
 struct UdpOutput {
     peer_addr: SocketAddr,
@@ -54,13 +54,13 @@ async fn kcp_loop(
                     handler.enqueue(kcp.conv(), recv_buf[..len].into());
                 }
             }
-            NetEvent::Send(buf) => {
-                kcp.send(&buf).unwrap();
-                kcp.async_flush().await.unwrap();
-            }
-            NetEvent::Close() => {
-                handler.remove_connection(kcp.conv())
-            }
+            NetEvent::Send(buf) => match kcp.send(&buf) {
+                Ok(_) => {
+                    kcp.async_flush().await.unwrap();
+                }
+                Err(_) => {}
+            },
+            NetEvent::Close() => handler.remove_connection(kcp.conv()),
         }
     }
 }

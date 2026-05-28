@@ -1,6 +1,5 @@
 use crate::util::resolve_target_entity_by_str;
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_entity::avatar::{CurrentPlayerAvatarMarker, CurrentTeam};
 use nod_krai_gi_entity::common::{
     EntityById, GlobalAbilityValues, InstancedAbilities, OwnerProtocolEntityID,
@@ -34,13 +33,11 @@ pub fn ability_action_copy_global_value_event(
         };
 
         let Some(_ability) = ability else {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!(
-                    "[ability_action_copy_global_value_event] Ability not found for index: {} entity: {}",
-                    ability_index,
-                    ability_entity
-                );
-            }
+            tracing::debug!(target: "ability",
+                "[ability_action_copy_global_value_event] Ability not found for index: {} entity: {}",
+                ability_index,
+                ability_entity
+            );
             continue;
         };
 
@@ -66,22 +63,18 @@ pub fn ability_action_copy_global_value_event(
         );
 
         let Some(source_entity) = source_entity else {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!(
-                    "[ability_action_copy_global_value_event] Failed to resolve source entity for src_target: {}",
-                    src_target
-                );
-            }
+            tracing::debug!(target: "ability",
+                "[ability_action_copy_global_value_event] Failed to resolve source entity for src_target: {}",
+                src_target
+            );
             continue;
         };
 
         let Some(dest_entity) = dest_entity else {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!(
-                    "[ability_action_copy_global_value_event] Failed to resolve dest entity for dst_target: {}",
-                    dst_target
-                );
-            }
+            tracing::debug!(target: "ability",
+                "[ability_action_copy_global_value_event] Failed to resolve dest entity for dst_target: {}",
+                dst_target
+            );
             continue;
         };
 
@@ -106,17 +99,15 @@ pub fn ability_action_copy_global_value_event(
             global_values.0.insert(dst_key.into(), final_value);
         }
 
-        if GAME_SERVER_CONFIG.plugin.ability_log {
-            tracing::debug!(
-                "[ability_action_copy_global_value_event] Copy global value: src_key={}, dst_key={}, src_target={}, dst_target={}, src_value={}, is_add={}, final_value={}",
-                src_key,
-                dst_key,
-                src_target,
-                dst_target,
-                src_value,
-                is_add,
-                final_value
-            );
-        }
+        tracing::debug!(target: "ability",
+            "[ability_action_copy_global_value_event] Copy global value: src_key={}, dst_key={}, src_target={}, dst_target={}, src_value={}, is_add={}, final_value={}",
+            src_key,
+            dst_key,
+            src_target,
+            dst_target,
+            src_value,
+            is_add,
+            final_value
+        );
     }
 }

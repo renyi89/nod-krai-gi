@@ -49,6 +49,7 @@ struct AppState {
 #[tokio::main]
 async fn main() -> Result<()> {
     logging::init();
+    logging::set_ability_log(GAME_SERVER_CONFIG.plugin.ability_log);
 
     tokio::spawn(async move {
         nod_krai_gi_proto::dy_parser::init();

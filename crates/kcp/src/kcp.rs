@@ -510,7 +510,7 @@ impl<Output> Kcp<Output> {
         };
 
         if count >= KCP_WND_RCV as usize {
-            tracing::debug!("send bufsize={} mss={} too large", buf.len(), self.mss);
+            tracing::error!("send bufsize={} mss={} too large", buf.len(), self.mss);
             return Err(Error::UserBufTooBig);
         }
 

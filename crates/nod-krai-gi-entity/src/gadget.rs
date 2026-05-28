@@ -73,7 +73,7 @@ pub struct GadgetQueryReadOnly {
 
 pub fn notify_appear_gadget_entities(
     gadgets: Query<(GadgetQueryReadOnly, Option<&GroupId>, Option<&ConfigId>), Added<Visible>>,
-    out: Res<MessageOutput>,
+    message_output: Res<MessageOutput>,
 ) {
     use nod_krai_gi_proto::normal::*;
 
@@ -168,7 +168,7 @@ pub fn notify_appear_gadget_entities(
                 ..Default::default()
             });
         });
-    out.send_to_all(
+    message_output.send_to_all(
         "SceneEntityAppearNotify",
         SceneEntityAppearNotify {
             appear_type: VisionType::VisionBorn.into(),

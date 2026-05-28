@@ -1,5 +1,4 @@
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_entity::common::{EntityById, GlobalAbilityValues};
 use nod_krai_gi_proto::normal::AbilityScalarValueEntry;
 
@@ -15,20 +14,16 @@ pub fn handle_global_float_value(
         let entity = match index.0.get(&invoke.entity_id) {
             Some(e) => *e,
             None => {
-                if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!("[handle_global_float_value] Entity {} not found", invoke.entity_id);
-                }
+                tracing::debug!(target: "ability", "[handle_global_float_value] Entity {} not found", invoke.entity_id);
                 continue;
             }
         };
 
         let Ok(mut global_ability_values) = entities.get_mut(entity) else {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!(
-                    "[handle_global_float_value] Failed to get GlobalAbilityValues for entity {}",
-                    invoke.entity_id
-                );
-            }
+            tracing::debug!(target: "ability",
+                "[handle_global_float_value] Failed to get GlobalAbilityValues for entity {}",
+                invoke.entity_id
+            );
             continue;
         };
 
@@ -38,17 +33,13 @@ pub fn handle_global_float_value(
             &invoke.ability_data,
         ) {
             None => {
-                if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!("[handle_global_float_value] Failed to decode AbilityScalarValueEntry");
-                }
+                tracing::debug!(target: "ability", "[handle_global_float_value] Failed to decode AbilityScalarValueEntry");
             }
             Some(entry) => match get_ability_name(entry.key) {
                 None => {
-                    if GAME_SERVER_CONFIG.plugin.ability_log {
-                        tracing::debug!(
-                            "[handle_global_float_value] No key provided for global float value"
-                        );
-                    }
+                    tracing::debug!(target: "ability",
+                        "[handle_global_float_value] No key provided for global float value"
+                    );
                     continue;
                 }
                 Some(key) => {
@@ -58,14 +49,12 @@ pub fn handle_global_float_value(
 
                     let value = entry.float_value;
 
-                    if GAME_SERVER_CONFIG.plugin.ability_log {
-                        tracing::debug!(
-                            "[handle_global_float_value] Setting global ability value {} = {} for entity {}",
-                            key,
-                            value,
-                            invoke.entity_id
-                        );
-                    }
+                    tracing::debug!(target: "ability",
+                        "[handle_global_float_value] Setting global ability value {} = {} for entity {}",
+                        key,
+                        value,
+                        invoke.entity_id
+                    );
 
                     global_ability_values.0.insert(key, value);
                 }

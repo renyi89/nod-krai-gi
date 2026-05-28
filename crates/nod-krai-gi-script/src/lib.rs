@@ -28,11 +28,16 @@ use crate::script_load::{GroupLoadState, SceneGroupRuntime};
 use crate::script_lua_vm::LuaRuntime;
 use bevy_app::prelude::*;
 use bevy_ecs::prelude::*;
+use common::player_cache::cache_get_scene_level;
 use crossbeam_queue::SegQueue;
 use mlua::Function;
-use nod_krai_gi_data::scene::{EventType, LuaEvt, ScriptCommand};
-use nod_krai_gi_entity::common::{ConfigId, GroupId, ProtocolEntityID};
-use nod_krai_gi_entity::gadget::State;
+use nod_krai_gi_data::scene::group_entity_state_cache::get_group_entity_state_cache;
+use nod_krai_gi_data::scene::{EventType, GadgetState, LuaEvt, ScriptCommand};
+use nod_krai_gi_entity::common::{
+    BlockId, ConfigId, EntityCounter, GroupId, ProtocolEntityID, Visible,
+};
+use nod_krai_gi_entity::gadget::{spawn_gadget_entity, State};
+use nod_krai_gi_entity::monster::spawn_monster_entity;
 use nod_krai_gi_event::entity::{GadgetStateChangeEvent, SetWorktopOptionsEvent};
 use nod_krai_gi_event::lua::{
     ChallengeFinishEvent, ChallengeProgressEvent, ChallengeStartEvent, DespawnGroupEntityEvent,
@@ -41,8 +46,11 @@ use nod_krai_gi_event::lua::{
     SpawnSuiteEntitiesEvent,
 };
 use nod_krai_gi_event::quest::QuestContentProgressEvent;
-use nod_krai_gi_message::output::MessageOutput;
 use nod_krai_gi_event::scene::{WorldOwnerUID, WorldVersionConfig};
+use nod_krai_gi_message::output::MessageOutput;
+use nod_krai_gi_proto::normal::scene_gadget_info::Content;
+use nod_krai_gi_proto::normal::GatherGadgetInfo;
+use nod_krai_gi_proto::server_only::VectorBin;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -61,7 +69,12 @@ pub struct SceneGroupRegistry {
 
 impl Plugin for ScriptPlugin {
     fn build(&self, app: &mut App) {
-        let protocol_version = app.world_mut().get_resource::<WorldVersionConfig>().unwrap().protocol_version.clone();
+        let protocol_version = app
+            .world_mut()
+            .get_resource::<WorldVersionConfig>()
+            .unwrap()
+            .protocol_version
+            .clone();
 
         let queue = Arc::new(SegQueue::new());
         let variable_store = Arc::new(GroupVariableStore::new());
@@ -83,6 +96,8 @@ impl Plugin for ScriptPlugin {
             .insert_resource(ChallengeTimer::default())
             .add_systems(Update, script_command_system)
             .add_systems(Update, handle_script_command_group_event)
+            .add_systems(Update, handle_script_command_entity_event)
+            .add_systems(Update, handle_script_command_notify_event)
             .add_systems(Update, handle_script_command_challenge_event)
             .add_systems(Update, handle_script_command_quest_event)
             .add_systems(Update, lua_trigger_event_system)
@@ -117,6 +132,534 @@ fn script_command_system(
     }
 }
 
+pub fn handle_script_command_entity_event(
+    mut ev_reader: MessageReader<ScriptCommandEvent>,
+    mut commands: Commands,
+    mut entity_counter: ResMut<EntityCounter>,
+    world_owner_uid: Res<WorldOwnerUID>,
+    world_version_config: Res<WorldVersionConfig>,
+    mut lua_trigger_events: MessageWriter<LuaTriggerEvent>,
+    registry: NonSendMut<SceneGroupRegistry>,
+) {
+    let scene_group_collection = std::sync::Arc::clone(
+        nod_krai_gi_data::scene::script_cache::SCENE_GROUP_COLLECTION
+            .get()
+            .unwrap(),
+    );
+
+    let gather_excel_config_collection =
+        std::sync::Arc::clone(nod_krai_gi_data::excel::gather_excel_config_collection::get());
+
+    for event in ev_reader.read() {
+        match &event.command {
+            ScriptCommand::CreateGadget {
+                group_id,
+                config_id,
+            } => {
+                tracing::debug!(
+                    "[Script] [CreateGadget] group={} config={}",
+                    group_id,
+                    config_id
+                );
+
+                let Some(GroupLoadState::Loaded(rt)) = registry.groups.get(group_id) else {
+                    continue;
+                };
+                let block_id = rt.data.base_info.block_id;
+
+                let Some(scene_group_template) = scene_group_collection.get(group_id) else {
+                    continue;
+                };
+                let Some(scene_group_template) = scene_group_template.value() else {
+                    continue;
+                };
+
+                let Some(gadget) = scene_group_template
+                    .gadgets
+                    .iter()
+                    .find(|g| g.config_id == *config_id)
+                else {
+                    continue;
+                };
+
+                let mut gadget_id = gadget.gadget_id;
+                let mut is_interactive = false;
+                let mut gadget_content = None;
+                if gadget_id == 70500000 && gadget.point_type.is_some() {
+                    let Some(gather_config) =
+                        gather_excel_config_collection.get(&gadget.point_type.unwrap_or_default())
+                    else {
+                        tracing::debug!(
+                            "gather config {} doesn't exist",
+                            gadget.point_type.unwrap_or_default()
+                        );
+                        continue;
+                    };
+                    gadget_id = gather_config.gadget_id;
+                    is_interactive = true;
+                    gadget_content = Some(Content::GatherGadget(GatherGadgetInfo {
+                        is_forbid_guest: gather_config.is_forbid_guest,
+                        item_id: gather_config.item_id,
+                    }));
+                }
+
+                let Some((entity_id, gadget_entity, cur_hp, max_hp)) = spawn_gadget_entity(
+                    world_version_config.protocol_version.clone(),
+                    &mut commands,
+                    &mut entity_counter,
+                    VectorBin {
+                        x: gadget.pos.x,
+                        y: gadget.pos.y,
+                        z: gadget.pos.z,
+                    },
+                    VectorBin {
+                        x: gadget.rot.x,
+                        y: gadget.rot.y,
+                        z: gadget.rot.z,
+                    },
+                    gadget_id,
+                    gadget.level.unwrap_or(90),
+                    gadget.is_enable_interact.unwrap_or(is_interactive),
+                    gadget_content,
+                    gadget.drop_tag.clone(),
+                    gadget.chest_drop_id.unwrap_or(0),
+                    gadget.state.unwrap_or(GadgetState::Default) as u32,
+                ) else {
+                    continue;
+                };
+
+                commands
+                    .entity(gadget_entity)
+                    .insert(BlockId(block_id))
+                    .insert(GroupId(*group_id))
+                    .insert(ConfigId(gadget.config_id))
+                    .insert(Visible);
+
+                get_group_entity_state_cache().on_gadget_spawn(
+                    world_owner_uid.0,
+                    *group_id,
+                    gadget.config_id,
+                    entity_id,
+                    cur_hp,
+                    max_hp,
+                    gadget.state.unwrap_or(GadgetState::Default) as u32,
+                );
+
+                lua_trigger_events.write(LuaTriggerEvent {
+                    group_id: *group_id,
+                    event_type: EventType::EventGadgetCreate,
+                    evt: LuaEvt {
+                        param1: gadget.config_id,
+                        param2: gadget.config_id,
+                        param3: 0,
+                        source_eid: entity_id,
+                        target_eid: entity_id,
+                    },
+                });
+
+                tracing::debug!(
+                    "[CreateGadget] spawned group_id {} config_id {} entity_id {}",
+                    group_id,
+                    gadget.config_id,
+                    entity_id
+                );
+            }
+
+            ScriptCommand::CreateMonster {
+                group_id,
+                config_id,
+            } => {
+                tracing::debug!(
+                    "[Script] [CreateMonster] group={} config={}",
+                    group_id,
+                    config_id
+                );
+
+                let Some(GroupLoadState::Loaded(rt)) = registry.groups.get(group_id) else {
+                    continue;
+                };
+                let block_id = rt.data.base_info.block_id;
+
+                let Some(scene_group_template) = scene_group_collection.get(group_id) else {
+                    continue;
+                };
+                let Some(scene_group_template) = scene_group_template.value() else {
+                    continue;
+                };
+
+                let Some(monster) = scene_group_template
+                    .monsters
+                    .iter()
+                    .find(|m| m.config_id == *config_id)
+                else {
+                    continue;
+                };
+
+                let show_level = cache_get_scene_level(
+                    world_owner_uid.0,
+                    scene_group_template.base_info.scene_id,
+                )
+                .unwrap_or(1);
+
+                let mut level = monster.level.unwrap_or(103) + 67;
+                level += show_level - 1;
+
+                let Some((entity_id, monster_entity, cur_hp, max_hp)) = spawn_monster_entity(
+                    world_version_config.protocol_version.clone(),
+                    &mut commands,
+                    &mut entity_counter,
+                    VectorBin {
+                        x: monster.pos.x,
+                        y: monster.pos.y,
+                        z: monster.pos.z,
+                    },
+                    VectorBin {
+                        x: monster.rot.x,
+                        y: monster.rot.y,
+                        z: monster.rot.z,
+                    },
+                    monster.monster_id,
+                    level,
+                    monster.pose_id.unwrap_or(0),
+                    monster.title_id.unwrap_or(0),
+                    monster.special_name_id.unwrap_or(0),
+                    monster.drop_tag.clone(),
+                    monster.chest_drop_id.unwrap_or(0),
+                ) else {
+                    continue;
+                };
+
+                commands
+                    .entity(monster_entity)
+                    .insert(BlockId(block_id))
+                    .insert(GroupId(*group_id))
+                    .insert(ConfigId(monster.config_id))
+                    .insert(Visible);
+
+                get_group_entity_state_cache().on_monster_spawn(
+                    world_owner_uid.0,
+                    *group_id,
+                    monster.config_id,
+                    entity_id,
+                    cur_hp,
+                    max_hp,
+                );
+
+                lua_trigger_events.write(LuaTriggerEvent {
+                    group_id: *group_id,
+                    event_type: EventType::EventAnyMonsterLive,
+                    evt: LuaEvt {
+                        param1: monster.config_id,
+                        param2: monster.config_id,
+                        param3: 0,
+                        source_eid: entity_id,
+                        target_eid: entity_id,
+                    },
+                });
+
+                tracing::debug!(
+                    "[CreateMonster] spawned group_id {} config_id {} entity_id {}",
+                    group_id,
+                    monster.config_id,
+                    entity_id
+                );
+            }
+
+            ScriptCommand::KillEntityByConfigId {
+                group_id,
+                config_id,
+            } => {
+                tracing::debug!(
+                    "[Script] [KillEntityByConfigId] group={} config={}",
+                    group_id,
+                    config_id
+                );
+            }
+
+            ScriptCommand::KillGroupEntity {
+                group_id,
+                kill_policy,
+            } => {
+                tracing::debug!(
+                    "[Script] [KillGroupEntity] group={} policy={}",
+                    group_id,
+                    kill_policy
+                );
+                // KillPolicy: 0=none, 1=all, 2=monster, 3=gadget
+            }
+
+            ScriptCommand::AutoMonsterTide {
+                group_id,
+                source_id,
+                orders_config_id: _,
+                tide_count,
+                scene_limit,
+            } => {
+                tracing::debug!(
+                    "[Script] [AutoMonsterTide] group={} source={} tide={} limit={}",
+                    group_id,
+                    source_id,
+                    tide_count,
+                    scene_limit
+                );
+            }
+
+            ScriptCommand::SetEntityServerGlobalValue {
+                group_id,
+                config_id,
+                sgv_name,
+                value,
+            } => {
+                tracing::debug!(
+                    "[Script] [SetEntityServerGlobalValue] group={} config={} key={} val={}",
+                    group_id,
+                    config_id,
+                    sgv_name,
+                    value
+                );
+            }
+
+            _ => {}
+        }
+    }
+}
+
+pub fn handle_script_command_notify_event(
+    mut ev_reader: MessageReader<ScriptCommandEvent>,
+    mut lua_trigger_events: MessageWriter<LuaTriggerEvent>,
+    message_output: Res<MessageOutput>,
+    world_owner_uid: Res<WorldOwnerUID>,
+) {
+    for event in ev_reader.read() {
+        match &event.command {
+            ScriptCommand::SetIsAllowUseSkill { allow } => {
+                tracing::debug!("[Script] [SetIsAllowUseSkill] allow={}", allow);
+                message_output.send(
+                    world_owner_uid.0,
+                    "CanUseSkillNotify",
+                    nod_krai_gi_proto::normal::CanUseSkillNotify {
+                        is_can_use_skill: *allow,
+                    },
+                );
+            }
+
+            ScriptCommand::ShowReminder { reminder_id } => {
+                tracing::debug!("[Script] [ShowReminder] id={}", reminder_id);
+                message_output.send(
+                    world_owner_uid.0,
+                    "DungeonShowReminderNotify",
+                    nod_krai_gi_proto::normal::DungeonShowReminderNotify {
+                        reminder_id: *reminder_id,
+                    },
+                );
+            }
+
+            ScriptCommand::ShowClientGuide { guide_name } => {
+                tracing::debug!("[Script] [ShowClientGuide] name={}", guide_name);
+                message_output.send(
+                    world_owner_uid.0,
+                    "ShowClientGuideNotify",
+                    nod_krai_gi_proto::normal::ShowClientGuideNotify {
+                        guide_name: guide_name.clone(),
+                    },
+                );
+            }
+
+            ScriptCommand::ShowCommonTips {
+                title,
+                content,
+                close_time,
+            } => {
+                tracing::debug!(
+                    "[Script] [ShowCommonTips] title={} close_time={}",
+                    title,
+                    close_time
+                );
+                message_output.send(
+                    world_owner_uid.0,
+                    "ShowCommonTipsNotify",
+                    nod_krai_gi_proto::normal::ShowCommonTipsNotify {
+                        title: title.clone(),
+                        content: content.clone(),
+                        close_time: *close_time,
+                    },
+                );
+            }
+
+            ScriptCommand::CloseCommonTips => {
+                tracing::debug!("[Script] [CloseCommonTips]");
+            }
+
+            ScriptCommand::SendServerMessageByLuaKey { key, params: _ } => {
+                tracing::debug!("[Script] [SendServerMessageByLuaKey] key={}", key);
+            }
+
+            ScriptCommand::CauseDungeonResult { is_success } => {
+                tracing::debug!("[Script] [CauseDungeonResult] success={}", is_success);
+                let result_param = if *is_success { 1 } else { 0 };
+                lua_trigger_events.write(LuaTriggerEvent {
+                    group_id: 0,
+                    event_type: EventType::EventDungeonSettle,
+                    evt: LuaEvt {
+                        param1: result_param,
+                        ..Default::default()
+                    },
+                });
+            }
+
+            ScriptCommand::PlayCutScene { cutscene_id } => {
+                tracing::debug!("[Script] [PlayCutScene] id={}", cutscene_id);
+            }
+
+            ScriptCommand::ScenePlaySound {
+                sound_name,
+                pos,
+                play_type,
+            } => {
+                tracing::debug!(
+                    "[Script] [ScenePlaySound] name={} pos=({},{},{}) type={}",
+                    sound_name,
+                    pos.0,
+                    pos.1,
+                    pos.2,
+                    play_type
+                );
+            }
+
+            ScriptCommand::SetWeatherAreaState {
+                area_id,
+                climate_type,
+            } => {
+                tracing::debug!(
+                    "[Script] [SetWeatherAreaState] area={} climate={}",
+                    area_id,
+                    climate_type
+                );
+            }
+
+            ScriptCommand::MovePlayerToPos {
+                uid,
+                pos,
+                rot: _,
+                scene_id,
+            } => {
+                tracing::debug!(
+                    "[Script] [MovePlayerToPos] uid={} pos=({},{},{}) scene={}",
+                    uid,
+                    pos.0,
+                    pos.1,
+                    pos.2,
+                    scene_id
+                );
+            }
+
+            ScriptCommand::TransPlayerToPos {
+                uid_list,
+                pos,
+                rot: _,
+                scene_id,
+                radius: _,
+            } => {
+                tracing::debug!(
+                    "[Script] [TransPlayerToPos] uids={:?} pos=({},{},{}) scene={}",
+                    uid_list,
+                    pos.0,
+                    pos.1,
+                    pos.2,
+                    scene_id
+                );
+            }
+
+            ScriptCommand::SetPlatformRouteId {
+                group_id,
+                config_id,
+                route_id,
+            } => {
+                tracing::debug!(
+                    "[Script] [SetPlatformRouteId] group={} config={} route={}",
+                    group_id,
+                    config_id,
+                    route_id
+                );
+            }
+
+            ScriptCommand::StartPlatform {
+                group_id,
+                config_id,
+            } => {
+                tracing::debug!(
+                    "[Script] [StartPlatform] group={} config={}",
+                    group_id,
+                    config_id
+                );
+            }
+
+            ScriptCommand::StopPlatform {
+                group_id,
+                config_id,
+            } => {
+                tracing::debug!(
+                    "[Script] [StopPlatform] group={} config={}",
+                    group_id,
+                    config_id
+                );
+            }
+
+            ScriptCommand::UnlockForce { force_id } => {
+                tracing::debug!("[Script] [UnlockForce] force={}", force_id);
+            }
+
+            ScriptCommand::LockForce { force_id } => {
+                tracing::debug!("[Script] [LockForce] force={}", force_id);
+            }
+
+            ScriptCommand::CreateGroupTimerEvent {
+                group_id,
+                source,
+                time,
+            } => {
+                tracing::debug!(
+                    "[Script] [CreateGroupTimerEvent] group={} source={} time={}",
+                    group_id,
+                    source,
+                    time
+                );
+            }
+
+            ScriptCommand::CancelGroupTimerEvent { group_id, source } => {
+                tracing::debug!(
+                    "[Script] [CancelGroupTimerEvent] group={} source={}",
+                    group_id,
+                    source
+                );
+            }
+
+            ScriptCommand::InitTimeAxis {
+                identifier,
+                delays,
+                should_loop,
+            } => {
+                tracing::debug!(
+                    "[Script] [InitTimeAxis] id={} delays={:?} loop={}",
+                    identifier,
+                    delays,
+                    should_loop
+                );
+            }
+
+            ScriptCommand::EndTimeAxis { identifier } => {
+                tracing::debug!("[Script] [EndTimeAxis] id={}", identifier);
+            }
+
+            ScriptCommand::EndAllTimeAxis => {
+                tracing::debug!("[Script] [EndAllTimeAxis]");
+            }
+
+            _ => {}
+        }
+    }
+}
+
 fn handle_script_command_group_event(
     mut ev_reader: MessageReader<ScriptCommandEvent>,
     mut registry: NonSendMut<SceneGroupRegistry>,
@@ -130,10 +673,6 @@ fn handle_script_command_group_event(
     mut refresh_group_entity_event: MessageWriter<RefreshGroupEntityEvent>,
     mut challenge_manager: ResMut<ChallengeManager>,
     mut challenge_finish_events: MessageWriter<ChallengeFinishEvent>,
-    mut gadget_state_change_events: MessageWriter<GadgetStateChangeEvent>,
-    entities: Query<(Entity, &ProtocolEntityID, &GroupId, &ConfigId, &State)>,
-    message_output: Res<MessageOutput>,
-    world_owner_uid: Res<WorldOwnerUID>,
 ) {
     for event in ev_reader.read() {
         match &event.command {
@@ -309,41 +848,16 @@ fn handle_script_command_group_event(
                 }
             }
 
-            ScriptCommand::CreateGadget { group_id, config_id } => {
+            ScriptCommand::GoToGroupSuite { group_id, suite_id } => {
                 tracing::debug!(
-                    "[Script] [CreateGadget] group={} config={}",
+                    "[Script] [GoToGroupSuite] group={} suite={}",
                     group_id,
-                    config_id
+                    suite_id
                 );
                 if let Some(GroupLoadState::Loaded(rt)) = registry.groups.get_mut(group_id) {
-                    if rt.data.gadgets.iter().any(|g| g.config_id == *config_id) {
-                        spawn_group_entity_event.write(SpawnGroupEntityEvent {
-                            scene_id: rt.data.base_info.scene_id,
-                            block_id: rt.data.base_info.block_id,
-                            group_id: *group_id,
-                            refresh_suite_id: 0,
-                        });
-                    }
+                    rt.active_suites = vec![*suite_id];
+                    rt.recompute_active_triggers();
                 }
-            }
-
-            ScriptCommand::CreateMonster { group_id, config_id } => {
-                tracing::debug!(
-                    "[Script] [CreateMonster] group={} config={}",
-                    group_id,
-                    config_id
-                );
-                if let Some(GroupLoadState::Loaded(_rt)) = registry.groups.get(group_id) {
-                    tracing::debug!("[Script] [CreateMonster] dispatched for group {}", group_id);
-                }
-            }
-
-            ScriptCommand::KillEntityByConfigId { group_id, config_id } => {
-                tracing::debug!(
-                    "[Script] [KillEntityByConfigId] group={} config={}",
-                    group_id,
-                    config_id
-                );
             }
 
             ScriptCommand::NotifyGroupLua {
@@ -374,208 +888,11 @@ fn handle_script_command_group_event(
                 });
             }
 
-            ScriptCommand::SetIsAllowUseSkill { allow } => {
-                tracing::debug!("[Script] [SetIsAllowUseSkill] allow={}", allow);
-                message_output.send(
-                    world_owner_uid.0,
-                    "CanUseSkillNotify",
-                    nod_krai_gi_proto::normal::CanUseSkillNotify {
-                        is_can_use_skill: *allow,
-                    },
-                );
-            }
-
-            ScriptCommand::ShowReminder { reminder_id } => {
-                tracing::debug!("[Script] [ShowReminder] id={}", reminder_id);
-                message_output.send(
-                    world_owner_uid.0,
-                    "DungeonShowReminderNotify",
-                    nod_krai_gi_proto::normal::DungeonShowReminderNotify {
-                        reminder_id: *reminder_id,
-                    },
-                );
-            }
-
-            ScriptCommand::PlayCutScene { cutscene_id } => {
-                tracing::debug!("[Script] [PlayCutScene] id={}", cutscene_id);
-            }
-
-            ScriptCommand::CauseDungeonResult { is_success } => {
-                tracing::debug!("[Script] [CauseDungeonResult] success={}", is_success);
-                let result_param = if *is_success { 1 } else { 0 };
-                lua_trigger_events.write(LuaTriggerEvent {
-                    group_id: 0,
-                    event_type: EventType::EventDungeonSettle,
-                    evt: LuaEvt {
-                        param1: result_param,
-                        ..Default::default()
-                    },
-                });
-            }
-
-            ScriptCommand::ScenePlaySound {
-                sound_name,
-                pos,
-                play_type,
-            } => {
-                tracing::debug!(
-                    "[Script] [ScenePlaySound] name={} pos=({},{},{}) type={}",
-                    sound_name,
-                    pos.0,
-                    pos.1,
-                    pos.2,
-                    play_type
-                );
-            }
-
-            ScriptCommand::SetWeatherAreaState {
-                area_id,
-                climate_type,
-            } => {
-                tracing::debug!(
-                    "[Script] [SetWeatherAreaState] area={} climate={}",
-                    area_id,
-                    climate_type
-                );
-            }
-
-            ScriptCommand::SetPlatformRouteId {
+            ScriptCommand::SetGroupVariableValueByGroup {
                 group_id,
-                config_id,
-                route_id,
-            } => {
-                tracing::debug!(
-                    "[Script] [SetPlatformRouteId] group={} config={} route={}",
-                    group_id,
-                    config_id,
-                    route_id
-                );
-            }
-
-            ScriptCommand::StartPlatform {
-                group_id,
-                config_id,
-            } => {
-                tracing::debug!(
-                    "[Script] [StartPlatform] group={} config={}",
-                    group_id,
-                    config_id
-                );
-            }
-
-            ScriptCommand::StopPlatform {
-                group_id,
-                config_id,
-            } => {
-                tracing::debug!(
-                    "[Script] [StopPlatform] group={} config={}",
-                    group_id,
-                    config_id
-                );
-            }
-
-            ScriptCommand::UnlockForce { force_id } => {
-                tracing::debug!("[Script] [UnlockForce] force={}", force_id);
-            }
-
-            ScriptCommand::LockForce { force_id } => {
-                tracing::debug!("[Script] [LockForce] force={}", force_id);
-            }
-
-            ScriptCommand::ShowClientGuide { guide_name } => {
-                tracing::debug!("[Script] [ShowClientGuide] name={}", guide_name);
-                message_output.send(
-                    world_owner_uid.0,
-                    "ShowClientGuideNotify",
-                    nod_krai_gi_proto::normal::ShowClientGuideNotify {
-                        guide_name: guide_name.clone(),
-                    },
-                );
-            }
-
-            ScriptCommand::ShowCommonTips {
-                title,
-                content,
-                close_time,
-            } => {
-                tracing::debug!(
-                    "[Script] [ShowCommonTips] title={} close_time={}",
-                    title,
-                    close_time
-                );
-                message_output.send(
-                    world_owner_uid.0,
-                    "ShowCommonTipsNotify",
-                    nod_krai_gi_proto::normal::ShowCommonTipsNotify {
-                        title: title.clone(),
-                        content: content.clone(),
-                        close_time: *close_time,
-                    },
-                );
-            }
-
-            ScriptCommand::CloseCommonTips => {
-                tracing::debug!("[Script] [CloseCommonTips]");
-            }
-
-            ScriptCommand::MovePlayerToPos {
-                uid,
-                pos,
-                rot: _,
-                scene_id,
-            } => {
-                tracing::debug!(
-                    "[Script] [MovePlayerToPos] uid={} pos=({},{},{}) scene={}",
-                    uid,
-                    pos.0,
-                    pos.1,
-                    pos.2,
-                    scene_id
-                );
-            }
-
-            ScriptCommand::SetEntityServerGlobalValue {
-                group_id,
-                config_id,
-                sgv_name,
+                name,
                 value,
             } => {
-                tracing::debug!(
-                    "[Script] [SetEntityServerGlobalValue] group={} config={} key={} val={}",
-                    group_id,
-                    config_id,
-                    sgv_name,
-                    value
-                );
-            }
-
-            ScriptCommand::SendServerMessageByLuaKey { key, params: _ } => {
-                tracing::debug!("[Script] [SendServerMessageByLuaKey] key={}", key);
-            }
-
-            ScriptCommand::KillGroupEntity { group_id, kill_policy } => {
-                tracing::debug!(
-                    "[Script] [KillGroupEntity] group={} policy={}",
-                    group_id,
-                    kill_policy
-                );
-                // KillPolicy: 0=none, 1=all, 2=monster, 3=gadget
-                let _ = variable_store;
-            }
-
-            ScriptCommand::GoToGroupSuite { group_id, suite_id } => {
-                tracing::debug!(
-                    "[Script] [GoToGroupSuite] group={} suite={}",
-                    group_id,
-                    suite_id
-                );
-                if let Some(GroupLoadState::Loaded(rt)) = registry.groups.get_mut(group_id) {
-                    rt.active_suites = vec![*suite_id];
-                    rt.recompute_active_triggers();
-                }
-            }
-
-            ScriptCommand::SetGroupVariableValueByGroup { group_id, name, value } => {
                 tracing::debug!(
                     "[Script] [SetGroupVariableValueByGroup] group={} name={} val={}",
                     group_id,
@@ -585,7 +902,11 @@ fn handle_script_command_group_event(
                 variable_store.0.set_variable(*group_id, name, *value);
             }
 
-            ScriptCommand::ChangeGroupVariableValueByGroup { group_id, name, delta } => {
+            ScriptCommand::ChangeGroupVariableValueByGroup {
+                group_id,
+                name,
+                delta,
+            } => {
                 tracing::debug!(
                     "[Script] [ChangeGroupVariableValueByGroup] group={} name={} delta={}",
                     group_id,
@@ -595,102 +916,8 @@ fn handle_script_command_group_event(
                 variable_store.0.change_variable(*group_id, name, *delta);
             }
 
-            ScriptCommand::CreateGroupTimerEvent { group_id, source, time } => {
-                tracing::debug!(
-                    "[Script] [CreateGroupTimerEvent] group={} source={} time={}",
-                    group_id,
-                    source,
-                    time
-                );
-            }
-
-            ScriptCommand::CancelGroupTimerEvent { group_id, source } => {
-                tracing::debug!(
-                    "[Script] [CancelGroupTimerEvent] group={} source={}",
-                    group_id,
-                    source
-                );
-            }
-
-            ScriptCommand::InitTimeAxis { identifier, delays, should_loop } => {
-                tracing::debug!(
-                    "[Script] [InitTimeAxis] id={} delays={:?} loop={}",
-                    identifier,
-                    delays,
-                    should_loop
-                );
-            }
-
-            ScriptCommand::EndTimeAxis { identifier } => {
-                tracing::debug!("[Script] [EndTimeAxis] id={}", identifier);
-            }
-
-            ScriptCommand::EndAllTimeAxis => {
-                tracing::debug!("[Script] [EndAllTimeAxis]");
-            }
-
-            ScriptCommand::TransPlayerToPos { uid_list, pos, rot: _, scene_id, radius: _, } => {
-                tracing::debug!(
-                    "[Script] [TransPlayerToPos] uids={:?} pos=({},{},{}) scene={}",
-                    uid_list,
-                    pos.0, pos.1, pos.2,
-                    scene_id
-                );
-            }
-
-            ScriptCommand::SetGroupGadgetStateByConfigId { group_id, config_id, state } => {
-                tracing::debug!(
-                    "[Script] [SetGroupGadgetStateByConfigId] group={} config={} state={}",
-                    group_id,
-                    config_id,
-                    state
-                );
-                entities
-                    .iter()
-                    .filter(|(_, _, e_group_id, e_config_id, _)| {
-                        e_group_id.0 == *group_id && e_config_id.0 == *config_id
-                    })
-                    .for_each(|(entity, entity_id, _, _, gadget_state)| {
-                        gadget_state_change_events.write(GadgetStateChangeEvent {
-                            entity,
-                            state_id: *state,
-                            previous_state_id: Some(gadget_state.0),
-                        });
-                        lua_trigger_events.write(LuaTriggerEvent {
-                            group_id: *group_id,
-                            event_type: EventType::EventGadgetStateChange,
-                            evt: LuaEvt {
-                                param1: *state,
-                                param2: *config_id,
-                                param3: gadget_state.0,
-                                source_eid: entity_id.0,
-                                target_eid: entity_id.0,
-                            },
-                        });
-                    });
-            }
-
-            ScriptCommand::SetGadgetEnableInteract { group_id, config_id, enable } => {
-                tracing::debug!(
-                    "[Script] [SetGadgetEnableInteract] group={} config={} enable={}",
-                    group_id,
-                    config_id,
-                    enable
-                );
-            }
-
-            ScriptCommand::AutoMonsterTide { group_id, source_id, orders_config_id: _, tide_count, scene_limit } => {
-                tracing::debug!(
-                    "[Script] [AutoMonsterTide] group={} source={} tide={} limit={}",
-                    group_id,
-                    source_id,
-                    tide_count,
-                    scene_limit
-                );
-            }
-
             _ => {}
-        };
+        }
     }
 }
 
@@ -1111,6 +1338,55 @@ fn set_gadget_state_event(
                             },
                         });
                     });
+            }
+
+            ScriptCommand::SetGroupGadgetStateByConfigId {
+                group_id,
+                config_id,
+                state,
+            } => {
+                tracing::debug!(
+                    "[Script] [SetGroupGadgetStateByConfigId] group={} config={} state={}",
+                    group_id,
+                    config_id,
+                    state
+                );
+                entities
+                    .iter()
+                    .filter(|(_, _, e_group_id, e_config_id, _)| {
+                        e_group_id.0 == *group_id && e_config_id.0 == *config_id
+                    })
+                    .for_each(|(entity, entity_id, _, _, gadget_state)| {
+                        gadget_state_change_events.write(GadgetStateChangeEvent {
+                            entity,
+                            state_id: *state,
+                            previous_state_id: Some(gadget_state.0),
+                        });
+                        lua_trigger_events.write(LuaTriggerEvent {
+                            group_id: *group_id,
+                            event_type: EventType::EventGadgetStateChange,
+                            evt: LuaEvt {
+                                param1: *state,
+                                param2: *config_id,
+                                param3: gadget_state.0,
+                                source_eid: entity_id.0,
+                                target_eid: entity_id.0,
+                            },
+                        });
+                    });
+            }
+
+            ScriptCommand::SetGadgetEnableInteract {
+                group_id,
+                config_id,
+                enable,
+            } => {
+                tracing::debug!(
+                    "[Script] [SetGadgetEnableInteract] group={} config={} enable={}",
+                    group_id,
+                    config_id,
+                    enable
+                );
             }
             _ => {}
         };

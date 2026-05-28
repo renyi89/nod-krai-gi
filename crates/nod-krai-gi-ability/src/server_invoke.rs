@@ -3,7 +3,6 @@ use crate::enums::{
 };
 use bevy_ecs::prelude::*;
 use common::string_util::InternString;
-use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_entity::common::{
     EntityById, InstancedAbilities, InstancedAbility, InstancedModifiers, ProtocolEntityID,
 };
@@ -19,12 +18,10 @@ pub fn server_invoke(
 ) {
     for ServerInvokeEvent(invoke) in events.read() {
         if index.0.get(&invoke.entity_id).is_none() {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!(
-                    "AbilityInvokeEvent invoke.entity_id {} not found",
-                    invoke.entity_id
-                );
-            }
+            tracing::debug!(target: "ability",
+                "AbilityInvokeEvent invoke.entity_id {} not found",
+                invoke.entity_id
+            );
             continue;
         }
 
@@ -32,19 +29,15 @@ pub fn server_invoke(
             continue;
         };
 
-        if GAME_SERVER_CONFIG.plugin.ability_log {
-            tracing::debug!("\n[server_invoke] invoke: {:?}\n", invoke);
-        }
+        tracing::debug!(target: "ability", "[server_invoke] invoke: {:?}", invoke);
 
         let entity = match index.0.get(&invoke.entity_id) {
             Some(e) => *e,
             None => {
-                if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!(
-                        "[server_invoke] Entity not found by server invoke: {}",
-                        invoke.entity_id
-                    );
-                }
+                tracing::debug!(target: "ability",
+                    "[server_invoke] Entity not found by server invoke: {}",
+                    invoke.entity_id
+                );
                 continue;
             }
         };
@@ -73,23 +66,19 @@ pub fn server_invoke(
                                     {
                                         ability = Some((ability_idx, entity_to_get, item.clone()));
                                     } else {
-                                        if GAME_SERVER_CONFIG.plugin.ability_log {
-                                            tracing::warn!(
-                                                "[server_invoke] Modifier ID mismatch: expected {} found {} in ability {}",
-                                                head.instanced_modifier_id,
-                                                instanced_modifier.instanced_modifier_id,
-                                                ability_idx
-                                            );
-                                        }
-                                    }
-                                } else {
-                                    if GAME_SERVER_CONFIG.plugin.ability_log {
-                                        tracing::warn!(
-                                            "[server_invoke] Modifier {} not found in ability {}'s owned modifiers",
-                                            modifier.name,
+                                        tracing::warn!(target: "ability",
+                                            "[server_invoke] Modifier ID mismatch: expected {} found {} in ability {}",
+                                            head.instanced_modifier_id,
+                                            instanced_modifier.instanced_modifier_id,
                                             ability_idx
                                         );
                                     }
+                                } else {
+                                    tracing::warn!(target: "ability",
+                                        "[server_invoke] Modifier {} not found in ability {}'s owned modifiers",
+                                        modifier.name,
+                                        ability_idx
+                                    );
                                 }
                             }
                         }
@@ -115,33 +104,27 @@ pub fn server_invoke(
         {
             Some(data) => data,
             None => {
-                if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!(
-                                    "[server_invoke] Ability not found: instanced_ability_id: {} instanced_modifier_id: {} invoke.entity_id: {}",
-                                    head.instanced_ability_id,
-                                    head.instanced_modifier_id,
-                                    invoke.entity_id
-                                );
-                }
+                tracing::debug!(target: "ability",
+                    "[server_invoke] Ability not found: instanced_ability_id: {} instanced_modifier_id: {} invoke.entity_id: {}",
+                    head.instanced_ability_id,
+                    head.instanced_modifier_id,
+                    invoke.entity_id
+                );
                 continue;
             }
         };
 
-        if GAME_SERVER_CONFIG.plugin.ability_log {
-            tracing::debug!(
-                "[server_invoke] ability_name: {}",
-                ability_data.ability_name
-            );
-        }
+        tracing::debug!(target: "ability",
+            "[server_invoke] ability_name: {}",
+            ability_data.ability_name
+        );
 
         let local_id_info = parse_local_id(head.local_id);
-        if GAME_SERVER_CONFIG.plugin.ability_log {
-            tracing::debug!(
-                "[server_invoke] AbilityInvokeEvent local_id {} local_id_info {:?}",
-                head.local_id,
-                local_id_info
-            );
-        }
+        tracing::debug!(target: "ability",
+            "[server_invoke] AbilityInvokeEvent local_id {} local_id_info {:?}",
+            head.local_id,
+            local_id_info
+        );
 
         match local_id_info.type_tag {
             ConfigAbilitySubContainerType::Action => {
@@ -162,12 +145,10 @@ pub fn server_invoke(
                     Ok(AbilityConfigIdxEnum::OnVehicleIn) => &ability_data.on_vehicle_in,
                     Ok(AbilityConfigIdxEnum::OnVehicleOut) => &ability_data.on_vehicle_out,
                     Ok(AbilityConfigIdxEnum::Unknown(_)) | Err(_) => {
-                        if GAME_SERVER_CONFIG.plugin.ability_log {
-                            tracing::debug!(
-                                "[server_invoke] Unknown config_idx {} for Action",
-                                local_id_info.config_idx
-                            );
-                        }
+                        tracing::debug!(target: "ability",
+                            "[server_invoke] Unknown config_idx {} for Action",
+                            local_id_info.config_idx
+                        );
                         continue;
                     }
                 };
@@ -198,14 +179,12 @@ pub fn server_invoke(
                 let action_idx = local_id_info.action_idx as usize;
                 if !collect_actions.is_empty() && action_idx <= collect_actions.len() {
                     let action = collect_actions[action_idx - 1];
-                    if GAME_SERVER_CONFIG.plugin.ability_log {
-                        tracing::debug!(
-                                        "[server_invoke] Found Action: config_idx={}, action_idx={}, action_type={}",
-                                        local_id_info.config_idx,
-                                        local_id_info.action_idx,
-                                        action.type_name
-                                    );
-                    }
+                    tracing::debug!(target: "ability",
+                        "[server_invoke] Found Action: config_idx={}, action_idx={}, action_type={}",
+                        local_id_info.config_idx,
+                        local_id_info.action_idx,
+                        action.type_name
+                    );
                     if let Some((ability_index, ability_entity, _)) = ability {
                         execute_action_events.write(ExecuteActionEvent(
                             ability_index,
@@ -216,14 +195,12 @@ pub fn server_invoke(
                         ));
                     }
                 } else {
-                    if GAME_SERVER_CONFIG.plugin.ability_log {
-                        tracing::debug!(
-                                        "[server_invoke] Action index {} out of bounds for config_idx {} collect_actions len {}",
-                                        action_idx,
-                                        local_id_info.config_idx,
-                                        collect_actions.len()
-                                    );
-                    }
+                    tracing::debug!(target: "ability",
+                        "[server_invoke] Action index {} out of bounds for config_idx {} collect_actions len {}",
+                        action_idx,
+                        local_id_info.config_idx,
+                        collect_actions.len()
+                    );
                 }
             }
             ConfigAbilitySubContainerType::Mixin => {
@@ -235,14 +212,12 @@ pub fn server_invoke(
                     }
                 }
                 if let Some(mixin) = found_mixin {
-                    if GAME_SERVER_CONFIG.plugin.ability_log {
-                        tracing::debug!(
-                            "[server_invoke] Found Mixin: mixin_idx={}, mixin_type={}, config_idx={}",
-                            local_id_info.mixin_idx,
-                            mixin.type_name,
-                            local_id_info.config_idx
-                        );
-                    }
+                    tracing::debug!(target: "ability",
+                        "[server_invoke] Found Mixin: mixin_idx={}, mixin_type={}, config_idx={}",
+                        local_id_info.mixin_idx,
+                        mixin.type_name,
+                        local_id_info.config_idx
+                    );
                     if let Some((ability_index, ability_entity, _)) = ability {
                         execute_mixin_events.write(ExecuteMixinEvent(
                             ability_index,
@@ -253,14 +228,12 @@ pub fn server_invoke(
                         ));
                     }
                 } else {
-                    if GAME_SERVER_CONFIG.plugin.ability_log {
-                        tracing::debug!(
-                            "[server_invoke] Mixin index {} not found for config_idx {} mixins len {}",
-                            local_id_info.mixin_idx,
-                            local_id_info.config_idx,
-                            ability_data.ability_mixins.len()
-                        );
-                    }
+                    tracing::debug!(target: "ability",
+                        "[server_invoke] Mixin index {} not found for config_idx {} mixins len {}",
+                        local_id_info.mixin_idx,
+                        local_id_info.config_idx,
+                        ability_data.ability_mixins.len()
+                    );
                 }
             }
             ConfigAbilitySubContainerType::ModifierAction => {
@@ -310,12 +283,10 @@ pub fn server_invoke(
                                 &modifier.on_being_healed
                             }
                             Ok(AbilityModifierConfigIdxEnum::Unknown(_)) | Err(_) => {
-                                if GAME_SERVER_CONFIG.plugin.ability_log {
-                                    tracing::debug!(
-                                        "[server_invoke] Unknown config_idx {} for ModifierAction",
-                                        local_id_info.config_idx
-                                    );
-                                }
+                                tracing::debug!(target: "ability",
+                                    "[server_invoke] Unknown config_idx {} for ModifierAction",
+                                    local_id_info.config_idx
+                                );
                                 continue;
                             }
                         };
@@ -346,16 +317,14 @@ pub fn server_invoke(
                     let action_idx = local_id_info.action_idx as usize;
                     if !collect_actions.is_empty() && action_idx <= collect_actions.len() {
                         let action = collect_actions[action_idx - 1];
-                        if GAME_SERVER_CONFIG.plugin.ability_log {
-                            tracing::debug!(
-                                            "[server_invoke] Found ModifierAction: modifier_idx={}, modifier_name={}, config_idx={}, action_idx={}, action_type={}",
-                                            local_id_info.modifier_idx,
-                                            modifier.modifier_name,
-                                            local_id_info.config_idx,
-                                            local_id_info.action_idx,
-                                            action.type_name
-                                        );
-                        }
+                        tracing::debug!(target: "ability",
+                            "[server_invoke] Found ModifierAction: modifier_idx={}, modifier_name={}, config_idx={}, action_idx={}, action_type={}",
+                            local_id_info.modifier_idx,
+                            modifier.modifier_name,
+                            local_id_info.config_idx,
+                            local_id_info.action_idx,
+                            action.type_name
+                        );
                         if let Some((ability_index, ability_entity, _)) = ability {
                             execute_action_events.write(ExecuteActionEvent(
                                 ability_index,
@@ -366,25 +335,21 @@ pub fn server_invoke(
                             ));
                         }
                     } else {
-                        if GAME_SERVER_CONFIG.plugin.ability_log {
-                            tracing::debug!(
-                                            "[server_invoke] Action index {} out of bounds for modifier {} config_idx {} collect_actions len {}",
-                                            action_idx,
-                                            modifier.modifier_name,
-                                            local_id_info.config_idx,
-                                            collect_actions.len()
-                                        );
-                        }
+                        tracing::debug!(target: "ability",
+                            "[server_invoke] Action index {} out of bounds for modifier {} config_idx {} collect_actions len {}",
+                            action_idx,
+                            modifier.modifier_name,
+                            local_id_info.config_idx,
+                            collect_actions.len()
+                        );
                     }
                 } else {
-                    if GAME_SERVER_CONFIG.plugin.ability_log {
-                        tracing::debug!(
-                                        "[server_invoke] Modifier index {} out of bounds for config_idx {} modifiers count {}",
-                                        modifier_idx,
-                                        local_id_info.config_idx,
-                                        ability_data.modifiers.len()
-                                    );
-                    }
+                    tracing::debug!(target: "ability",
+                        "[server_invoke] Modifier index {} out of bounds for config_idx {} modifiers count {}",
+                        modifier_idx,
+                        local_id_info.config_idx,
+                        ability_data.modifiers.len()
+                    );
                 }
             }
             ConfigAbilitySubContainerType::ModifierMixin => {
@@ -399,16 +364,14 @@ pub fn server_invoke(
 
                     if mixin_idx < modifier.modifier_mixins.len() {
                         let mixin = &modifier.modifier_mixins[mixin_idx];
-                        if GAME_SERVER_CONFIG.plugin.ability_log {
-                            tracing::debug!(
-                                "[server_invoke] Found ModifierMixin: modifier_idx={}, modifier_name={}, mixin_idx={}, mixin_type={}, config_idx={}",
-                                local_id_info.modifier_idx,
-                                modifier.modifier_name,
-                                local_id_info.mixin_idx,
-                                mixin.type_name,
-                                local_id_info.config_idx
-                            );
-                        }
+                        tracing::debug!(target: "ability",
+                            "[server_invoke] Found ModifierMixin: modifier_idx={}, modifier_name={}, mixin_idx={}, mixin_type={}, config_idx={}",
+                            local_id_info.modifier_idx,
+                            modifier.modifier_name,
+                            local_id_info.mixin_idx,
+                            mixin.type_name,
+                            local_id_info.config_idx
+                        );
                         if let Some((ability_index, ability_entity, _)) = ability {
                             execute_mixin_events.write(ExecuteMixinEvent(
                                 ability_index,
@@ -419,25 +382,21 @@ pub fn server_invoke(
                             ));
                         }
                     } else {
-                        if GAME_SERVER_CONFIG.plugin.ability_log {
-                            tracing::debug!(
-                                "[server_invoke] Mixin index {} out of bounds for modifier {} config_idx {} mixins len {}",
-                                mixin_idx,
-                                modifier.modifier_name,
-                                local_id_info.config_idx,
-                                modifier.modifier_mixins.len()
-                            );
-                        }
-                    }
-                } else {
-                    if GAME_SERVER_CONFIG.plugin.ability_log {
-                        tracing::debug!(
-                            "[server_invoke] Modifier index {} out of bounds for config_idx {} modifiers count {}",
-                            modifier_idx,
+                        tracing::debug!(target: "ability",
+                            "[server_invoke] Mixin index {} out of bounds for modifier {} config_idx {} mixins len {}",
+                            mixin_idx,
+                            modifier.modifier_name,
                             local_id_info.config_idx,
-                            ability_data.modifiers.len()
+                            modifier.modifier_mixins.len()
                         );
                     }
+                } else {
+                    tracing::debug!(target: "ability",
+                        "[server_invoke] Modifier index {} out of bounds for config_idx {} modifiers count {}",
+                        modifier_idx,
+                        local_id_info.config_idx,
+                        ability_data.modifiers.len()
+                    );
                 }
             }
         }
@@ -517,9 +476,7 @@ fn parse_local_id(id: i32) -> LocalIdInfo {
         }
 
         _ => {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::error!("[parse_local_id] Invalid type tag {}", type_tag);
-            }
+            tracing::error!("[parse_local_id] Invalid type tag {}", type_tag);
             LocalIdInfo {
                 type_tag: ConfigAbilitySubContainerType::Action,
                 action_idx: 0,

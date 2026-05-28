@@ -1,5 +1,4 @@
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_entity::common::{GlobalAbilityValues, InstancedAbilities};
 use nod_krai_gi_event::ability::ExecuteActionEvent;
 
@@ -21,13 +20,11 @@ pub fn ability_action_add_global_value_event(
             Err(_) => None,
         };
         let Some(ability) = ability else {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!(
-                    "[ability_action_add_global_value_event] Ability not found for index: {} entity: {}",
-                    ability_index,
-                    ability_entity
-                );
-            }
+            tracing::debug!(target: "ability",
+                "[ability_action_add_global_value_event] Ability not found for index: {} entity: {}",
+                ability_index,
+                ability_entity
+            );
             continue;
         };
 
@@ -40,16 +37,14 @@ pub fn ability_action_add_global_value_event(
 
         let target_entity = target_entity.unwrap_or(*ability_entity);
 
-        if GAME_SERVER_CONFIG.plugin.ability_log {
-            tracing::debug!(
-                "[ability_action_add_global_value_event] Add global value: key={}, value={}, use_limit_range={}, max_value={}, min_value={}",
-                key,
-                value,
-                use_limit_range,
-                max_value,
-                min_value
-            );
-        }
+        tracing::debug!(target: "ability",
+            "[ability_action_add_global_value_event] Add global value: key={}, value={}, use_limit_range={}, max_value={}, min_value={}",
+            key,
+            value,
+            use_limit_range,
+            max_value,
+            min_value
+        );
 
         if let Ok(mut global_values) = global_values_query.get_mut(target_entity) {
             let current_value = global_values.0.get(&key.into()).copied().unwrap_or(0.0);

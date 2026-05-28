@@ -42,11 +42,11 @@ pub fn notify_scene_team_update(
                     .iter()
                     .sort::<&IndexInSceneTeam>()
                     .filter_map(|(avatar_data, _, is_cur)| {
-                        let Ok(weapon_data) = weapon_query.get(avatar_data.equipment_weapon.weapon)
+                        let Ok(weapon_data) = weapon_query.get(avatar_data.avatar_equipment_weapon.0)
                         else {
                             tracing::debug!(
                                 "weapon data {} doesn't exist",
-                                avatar_data.equipment_weapon.weapon
+                                avatar_data.avatar_equipment_weapon.0
                             );
                             return None;
                         };

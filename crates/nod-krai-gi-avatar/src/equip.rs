@@ -1,7 +1,7 @@
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::excel::common::EquipType;
 use nod_krai_gi_data::excel::{avatar_excel_config_collection, weapon_excel_config_collection};
-use nod_krai_gi_entity::avatar::{spawn_avatar_entity, EquipmentWeapon};
+use nod_krai_gi_entity::avatar::{spawn_avatar_entity, AvatarEquipmentWeapon};
 use nod_krai_gi_entity::gadget::GadgetID;
 use nod_krai_gi_entity::{
     common::{
@@ -24,7 +24,7 @@ use nod_krai_gi_proto::server_only::{equip_bin, item_bin, VectorBin};
 pub fn apply_equip_change_to_avatar_entity(
     mut events: MessageReader<AvatarEquipChangeEvent>,
     mut commands: Commands,
-    mut avatars: Query<(Entity, &Guid, &OwnerPlayerUID, &EquipmentWeapon)>,
+    mut avatars: Query<(Entity, &Guid, &OwnerPlayerUID, &AvatarEquipmentWeapon)>,
     mut entity_counter: ResMut<EntityCounter>,
     players: Res<Players>,
     message_output: Res<MessageOutput>,
@@ -61,7 +61,7 @@ pub fn apply_equip_change_to_avatar_entity(
         });
 
         let (avatar_entity, weapon_entity) = if let Some((entity, _, _, equipment_weapon)) = found {
-            (entity, equipment_weapon.weapon)
+            (entity, equipment_weapon.0)
         } else {
             let Some((entity, weapon_entity)) = spawn_avatar_entity(
                 world_version_config.protocol_version.clone(),
@@ -175,9 +175,7 @@ pub fn apply_equip_change_to_avatar_entity(
                     })
                     .id();
 
-                commands.entity(avatar_entity).insert(EquipmentWeapon {
-                    weapon: weapon_entity,
-                });
+                commands.entity(avatar_entity).insert(AvatarEquipmentWeapon(weapon_entity));
 
                 message_output.send_to_all(
                     "AvatarEquipChangeNotify",

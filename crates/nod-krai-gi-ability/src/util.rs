@@ -4,7 +4,7 @@ use nod_krai_gi_data::ability::AbilityTargettingEnum;
 use nod_krai_gi_data::ability::{get_ability_name_by_hash, AbilityModifierAction};
 use nod_krai_gi_data::dynamic_float::NumberOrInternString;
 use nod_krai_gi_data::prop_type::FightPropType;
-use nod_krai_gi_data::{DynamicFloat, GAME_SERVER_CONFIG};
+use nod_krai_gi_data::DynamicFloat;
 use nod_krai_gi_entity::avatar::{CurrentPlayerAvatarMarker, CurrentTeam};
 use nod_krai_gi_entity::common::{
     EntityById, FightProperties, InstancedAbility, OwnerProtocolEntityID,
@@ -199,9 +199,7 @@ pub fn eval(
             result
         }
         DynamicFloat::Array(arr) => {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!("eval Array: {:?}", arr);
-            }
+            tracing::debug!(target: "ability", "eval Array: {:?}", arr);
             let input = arr.clone();
             // Preprocess array to convert all elements to numbers or operators
             let mut preprocessed = Vec::new();
@@ -225,9 +223,7 @@ pub fn eval(
                     }
                 }
             }
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!("eval Array: {:?}", preprocessed);
-            }
+            tracing::debug!(target: "ability", "eval Array: {:?}", preprocessed);
             let result = calc(&mut preprocessed);
             result
         }
@@ -309,32 +305,24 @@ pub fn get_ability_name(ability_name: Option<AbilityString>) -> Option<InternStr
                 if s.is_interned() {
                     Some(s.clone().into())
                 } else {
-                    if GAME_SERVER_CONFIG.plugin.ability_log {
-                        tracing::debug!("ability:{} is not interned", s);
-                    }
+                    tracing::debug!(target: "ability", "ability:{} is not interned", s);
                     None
                 }
             }
             Some(Type::Hash(hash)) => match get_ability_name_by_hash(*hash) {
                 Some(name) => Some(name),
                 None => {
-                    if GAME_SERVER_CONFIG.plugin.ability_log {
-                        tracing::debug!("No ability found for hash {}", hash);
-                    }
+                    tracing::debug!(target: "ability", "No ability found for hash {}", hash);
                     None
                 }
             },
             None => {
-                if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!("No ability name or hash provided");
-                }
+                tracing::debug!(target: "ability", "No ability name or hash provided");
                 None
             }
         },
         None => {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!("No ability name provided");
-            }
+            tracing::debug!(target: "ability", "No ability name provided");
             None
         }
     }
@@ -458,11 +446,5 @@ pub fn resolve_target_entity_by_str(
 ) -> Option<Entity> {
     let target = target_str.into();
 
-    resolve_target_entity(
-        target,
-        ability_entity,
-        target_entity,
-        index,
-        entity_query,
-    )
+    resolve_target_entity(target, ability_entity, target_entity, index, entity_query)
 }

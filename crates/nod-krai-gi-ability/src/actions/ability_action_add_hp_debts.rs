@@ -1,7 +1,6 @@
 use crate::util::eval_option;
 use bevy_ecs::prelude::*;
 use nod_krai_gi_data::prop_type::FightPropType;
-use nod_krai_gi_data::GAME_SERVER_CONFIG;
 
 use nod_krai_gi_entity::common::ProtocolEntityID;
 use nod_krai_gi_event::ability::ExecuteActionEvent;
@@ -28,46 +27,38 @@ pub fn ability_action_add_hp_debts_event(
 
         let Ok((target_entity_id, mut fight_props)) = fight_props_query.get_mut(target_entity)
         else {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!(
-                        "[ability_action_add_hp_debts_event] Failed to get fight properties for entity {}",
-                        target_entity
-                    );
-            }
+            tracing::debug!(target: "ability",
+                "[ability_action_add_hp_debts_event] Failed to get fight properties for entity {}",
+                target_entity
+            );
             continue;
         };
 
         let Ok(abilities) = abilities_query.get(*ability_entity) else {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!(
-                    "[ability_action_add_hp_debts_event] Failed to get abilities for entity {}",
-                    ability_entity
-                );
-            }
+            tracing::debug!(target: "ability",
+                "[ability_action_add_hp_debts_event] Failed to get abilities for entity {}",
+                ability_entity
+            );
             continue;
         };
 
         let ability = match abilities.list.get(*ability_index as usize) {
             Some(ability) => ability,
             None => {
-                if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!(
-                            "[ability_action_add_hp_debts_event] Failed to get ability at index {} for entity {}",
-                            ability_index,
-                            ability_entity
-                        );
-                }
+                tracing::debug!(target: "ability",
+                    "[ability_action_add_hp_debts_event] Failed to get ability at index {} for entity {}",
+                    ability_index,
+                    ability_entity
+                );
                 continue;
             }
         };
 
         let debt = eval_option(ability, Some(&fight_props), &action.value, 0.0);
-        if GAME_SERVER_CONFIG.plugin.ability_log {
-            tracing::debug!(
-                "[ability_action_add_hp_debts_event] Calculated debt: {}",
-                debt
-            );
-        }
+        tracing::debug!(target: "ability",
+            "[ability_action_add_hp_debts_event] Calculated debt: {}",
+            debt
+        );
 
         let cur_debt = fight_props.get_property(FightPropType::FIGHT_PROP_CUR_HP_DEBTS);
         let mut new_debt = cur_debt + debt;
@@ -79,9 +70,7 @@ pub fn ability_action_add_hp_debts_event(
         let max_hp = fight_props.get_property(FightPropType::FIGHT_PROP_MAX_HP);
         let max_debt_limit = 2.0 * max_hp;
         if new_debt > max_debt_limit {
-            tracing::warn!(
-                "[ability_action_add_hp_debts_event] HP debt surpassed its limit, setting to max"
-            );
+            tracing::warn!(target: "ability","[ability_action_add_hp_debts_event] HP debt surpassed its limit, setting to max");
             new_debt = max_debt_limit;
         }
 
@@ -103,13 +92,11 @@ pub fn ability_action_add_hp_debts_event(
                 }
             },
         });
-        if GAME_SERVER_CONFIG.plugin.ability_log {
-            tracing::debug!(
-                "[ability_action_add_hp_debts_event] Updated HP debts from {} to {} for entity {}",
-                cur_debt,
-                new_debt,
-                target_entity
-            );
-        }
+        tracing::debug!(target: "ability",
+            "[ability_action_add_hp_debts_event] Updated HP debts from {} to {} for entity {}",
+            cur_debt,
+            new_debt,
+            target_entity
+        );
     }
 }

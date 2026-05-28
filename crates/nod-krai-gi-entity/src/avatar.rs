@@ -27,9 +27,7 @@ use nod_krai_gi_proto::server_only::{
 };
 
 #[derive(Component)]
-pub struct EquipmentWeapon {
-    pub weapon: Entity,
-}
+pub struct AvatarEquipmentWeapon(pub Entity);
 
 #[derive(Component)]
 pub struct AvatarAppearance {
@@ -88,7 +86,7 @@ pub struct AvatarBundle {
     pub control_peer: ControlPeer,
     pub skill_depot: SkillDepot,
     pub talent_id_list: TalentIdList,
-    pub equipment_weapon: EquipmentWeapon,
+    pub avatar_equipment_weapon: AvatarEquipmentWeapon,
     pub appearance: AvatarAppearance,
     pub transform: Transform,
     pub owner_player_uid: OwnerPlayerUID,
@@ -116,7 +114,7 @@ pub struct AvatarQueryReadOnly {
     pub control_peer: &'static ControlPeer,
     pub skill_depot: &'static SkillDepot,
     pub talent_id_list: &'static TalentIdList,
-    pub equipment_weapon: &'static EquipmentWeapon,
+    pub avatar_equipment_weapon: &'static AvatarEquipmentWeapon,
     pub appearance: &'static AvatarAppearance,
     pub transform: &'static Transform,
     pub owner_player_uid: &'static OwnerPlayerUID,
@@ -173,10 +171,10 @@ pub fn notify_avatar_appearance_change(
             .iter()
             .find(|avatar_data| avatar_data.guid.0 == event.avatar_guid)
         {
-            let Ok(weapon_data) = weapon_query.get(avatar_data.equipment_weapon.weapon) else {
+            let Ok(weapon_data) = weapon_query.get(avatar_data.avatar_equipment_weapon.0) else {
                 tracing::debug!(
                     "weapon data {} doesn't exist",
-                    avatar_data.equipment_weapon.weapon
+                    avatar_data.avatar_equipment_weapon.0
                 );
                 continue;
             };
@@ -263,7 +261,7 @@ pub fn notify_appear_avatar_entities(
             return;
         };
 
-        let Ok(weapon_data) = weapons.get(avatar_data.equipment_weapon.weapon) else {
+        let Ok(weapon_data) = weapons.get(avatar_data.avatar_equipment_weapon.0) else {
             return;
         };
 
@@ -312,7 +310,7 @@ pub fn notify_appear_replace_avatar_entities(
             return;
         };
 
-        let Ok(weapon_data) = weapons.get(avatar_data.equipment_weapon.weapon) else {
+        let Ok(weapon_data) = weapons.get(avatar_data.avatar_equipment_weapon.0) else {
             return;
         };
 
@@ -341,16 +339,14 @@ pub fn run_if_avatar_entities_appeared(
 
 fn build_fake_avatar_entity_info(
     avatar_bin: &AvatarBin,
-    weapon: &ItemBin,
+    weapon_item_bin: &ItemBin,
 ) -> Option<SceneEntityInfo> {
     use nod_krai_gi_proto::normal::*;
 
-    let weapon_id = weapon.item_id;
-
-    let Some(item_bin::Detail::Equip(ref equip)) = weapon.detail else {
+    let Some(item_bin::Detail::Equip(ref equip_bin)) = weapon_item_bin.detail else {
         return None;
     };
-    let Some(equip_bin::Detail::Weapon(ref weapon)) = equip.detail else {
+    let Some(equip_bin::Detail::Weapon(ref weapon_bin)) = equip_bin.detail else {
         return None;
     };
 
@@ -359,18 +355,13 @@ fn build_fake_avatar_entity_info(
         promote_level,
         affix_map,
         ..
-    } = weapon;
+    } = weapon_bin;
 
     let Some(skill_depot) = avatar_bin.depot_map.get(&avatar_bin.skill_depot_id) else {
         tracing::debug!(
             "skill_depot bin {} doesn't exist",
             avatar_bin.skill_depot_id
         );
-        return None;
-    };
-
-    let Some(weapon_item_bin) = avatar_bin.equip_map.get(&(EquipType::Weapon as u32)) else {
-        tracing::debug!("weapon doesn't exist {}", avatar_bin.guid);
         return None;
     };
 
@@ -390,7 +381,7 @@ fn build_fake_avatar_entity_info(
             talent_id_list: skill_depot.talent_id_list.clone(),
             weapon: Some(SceneWeaponInfo {
                 guid: weapon_item_bin.guid,
-                item_id: weapon_id,
+                item_id: weapon_item_bin.item_id,
                 level: *level,
                 promote_level: *promote_level,
                 affix_map: affix_map.clone(),
@@ -627,9 +618,7 @@ pub fn spawn_avatar_entity(
         instanced_modifiers: InstancedModifiers::default(),
         global_ability_values: GlobalAbilityValues::default(),
         life_state: LifeState::Alive,
-        equipment_weapon: EquipmentWeapon {
-            weapon: weapon_entity,
-        },
+        avatar_equipment_weapon: AvatarEquipmentWeapon(weapon_entity),
         appearance: AvatarAppearance {
             flycloak_id: avatar_bin.wearing_flycloak_id,
             costume_id: avatar_bin.costume_id,

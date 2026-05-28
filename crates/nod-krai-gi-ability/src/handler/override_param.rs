@@ -1,5 +1,4 @@
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_entity::common::{EntityById, InstancedAbilities, ProtocolEntityID};
 use nod_krai_gi_proto::normal::AbilityScalarValueEntry;
 
@@ -15,41 +14,33 @@ pub fn handle_override_param(
         let entity = match index.0.get(&invoke.entity_id) {
             Some(e) => *e,
             None => {
-                if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!("[handle_override_param] Entity {} not found", invoke.entity_id);
-                }
+                tracing::debug!(target: "ability", "[handle_override_param] Entity {} not found", invoke.entity_id);
                 continue;
             }
         };
 
         let Some(head) = invoke.head else {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!("[handle_override_param] AbilityInvokeEntry head is missing");
-            }
+            tracing::debug!(target: "ability", "[handle_override_param] AbilityInvokeEntry head is missing");
             continue;
         };
 
         let instanced_ability_id = head.instanced_ability_id;
 
         let Ok((mut instanced_abilities, _)) = entities.get_mut(entity) else {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!(
-                    "[handle_override_param] Failed to get entity components for {}",
-                    invoke.entity_id
-                );
-            }
+            tracing::debug!(target: "ability",
+                "[handle_override_param] Failed to get entity components for {}",
+                invoke.entity_id
+            );
             continue;
         };
 
         match instanced_abilities.find_by_instanced_ability_id_mut(instanced_ability_id) {
             None => {
-                if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!(
-                        "[handle_override_param] Invalid instanced_ability_id: {} for entity {}",
-                        instanced_ability_id,
-                        invoke.entity_id
-                    );
-                }
+                tracing::debug!(target: "ability",
+                    "[handle_override_param] Invalid instanced_ability_id: {} for entity {}",
+                    instanced_ability_id,
+                    invoke.entity_id
+                );
                 continue;
             }
             Some((_index, instanced_ability)) => {
@@ -58,19 +49,15 @@ pub fn handle_override_param(
                 >(version, "AbilityScalarValueEntry", &invoke.ability_data)
                 {
                     None => {
-                        if GAME_SERVER_CONFIG.plugin.ability_log {
-                            tracing::debug!(
-                                "[handle_override_param] Failed to decode AbilityScalarValueEntry"
-                            );
-                        }
+                        tracing::debug!(target: "ability",
+                            "[handle_override_param] Failed to decode AbilityScalarValueEntry"
+                        );
                     }
                     Some(entry) => match get_ability_name(entry.key) {
                         None => {
-                            if GAME_SERVER_CONFIG.plugin.ability_log {
-                                tracing::debug!(
-                                    "[handle_override_param] No key provided for override param"
-                                );
-                            }
+                            tracing::debug!(target: "ability",
+                                "[handle_override_param] No key provided for override param"
+                            );
                             continue;
                         }
                         Some(key) => {
@@ -78,25 +65,21 @@ pub fn handle_override_param(
 
                             match instanced_ability.ability_data {
                                 None => {
-                                    if GAME_SERVER_CONFIG.plugin.ability_log {
-                                        tracing::debug!(
-                                            "[handle_override_param] Setting ability_specials {} = {} None ability on entity {}",
-                                            key,
-                                            value,
-                                            invoke.entity_id
-                                        );
-                                    }
+                                    tracing::debug!(target: "ability",
+                                        "[handle_override_param] Setting ability_specials {} = {} None ability on entity {}",
+                                        key,
+                                        value,
+                                        invoke.entity_id
+                                    );
                                 }
                                 Some(ability_data) => {
-                                    if GAME_SERVER_CONFIG.plugin.ability_log {
-                                        tracing::debug!(
-                                            "[handle_override_param] Setting ability_specials {} = {} for ability {} on entity {}",
-                                            key,
-                                            value,
-                                            ability_data.ability_name,
-                                            invoke.entity_id
-                                        );
-                                    }
+                                    tracing::debug!(target: "ability",
+                                        "[handle_override_param] Setting ability_specials {} = {} for ability {} on entity {}",
+                                        key,
+                                        value,
+                                        ability_data.ability_name,
+                                        invoke.entity_id
+                                    );
                                 }
                             }
 

@@ -99,7 +99,7 @@ pub fn sync_enter_info(
                     .iter()
                     .filter(|(data, _)| data.owner_player_uid.0 == uid)
                     .filter_map(|(avatar_data, _)| {
-                        match weapons.get(avatar_data.equipment_weapon.weapon) {
+                        match weapons.get(avatar_data.avatar_equipment_weapon.0) {
                             Ok(weapon_data) => {
                                 Some(nod_krai_gi_proto::normal::AvatarEnterSceneInfo {
                                     avatar_guid: avatar_data.guid.0,

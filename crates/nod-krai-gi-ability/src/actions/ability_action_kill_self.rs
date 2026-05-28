@@ -1,5 +1,4 @@
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::GAME_SERVER_CONFIG;
 
 use nod_krai_gi_entity::common::FightProperties;
 use nod_krai_gi_event::ability::ExecuteActionEvent;
@@ -18,9 +17,7 @@ pub fn ability_action_kill_self_event(
         let target_entity = target_entity.unwrap_or(*ability_entity);
 
         let Ok(mut target_props) = fight_props_query.get_mut(target_entity) else {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!("[ability_action_kill_self_event] target_entity props not found");
-            }
+            tracing::debug!(target: "ability", "[ability_action_kill_self_event] target_entity props not found");
             continue;
         };
 

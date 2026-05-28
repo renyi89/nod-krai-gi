@@ -89,6 +89,9 @@ impl SceneGroupRuntime {
         let mut triggers_by_event: HashMap<EventType, Vec<CompiledTrigger>> = HashMap::new();
 
         for trig in &data.triggers {
+            if trig.trigger_count == Some(0) {
+                continue;
+            }
             let cond = (!trig.condition.is_empty())
                 .then_some(trig.condition.as_str())
                 .and_then(|name| env.get::<Function>(name).ok());

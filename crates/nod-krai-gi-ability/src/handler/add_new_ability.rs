@@ -1,6 +1,5 @@
 use crate::util::get_ability_name;
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::GAME_SERVER_CONFIG;
 use nod_krai_gi_entity::common::{EntityById, InstancedAbilities, ProtocolEntityID};
 use nod_krai_gi_event::ability::*;
 
@@ -13,9 +12,7 @@ pub fn handle_add_new_ability(
         let entity = match index.0.get(&invoke.entity_id) {
             Some(e) => *e,
             None => {
-                if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!("[handle_add_new_ability] Entity {} not found", invoke.entity_id);
-                }
+                tracing::debug!(target: "ability", "[handle_add_new_ability] Entity {} not found", invoke.entity_id);
                 continue;
             }
         };
@@ -25,9 +22,7 @@ pub fn handle_add_new_ability(
         >(version, "AbilityMetaAddAbility", &*invoke.ability_data)
         {
             None => {
-                if GAME_SERVER_CONFIG.plugin.ability_log {
-                    tracing::debug!("[handle_add_new_ability] Failed to decode AbilityMetaAddAbility");
-                }
+                tracing::debug!(target: "ability", "[handle_add_new_ability] Failed to decode AbilityMetaAddAbility");
             }
             Some(add_ability) => match entities.get_mut(entity) {
                 Ok((mut instanced_abilities, _)) => match add_ability.ability {
@@ -43,26 +38,22 @@ pub fn handle_add_new_ability(
                                 {
                                     None => {}
                                     Some(_) => {
-                                        if GAME_SERVER_CONFIG.plugin.ability_log {
-                                            tracing::debug!(
-                                                "[handle_add_new_ability] change ability.instanced_ability_id: {} ability_override",
-                                                ability.instanced_ability_id
-                                            );
-                                        }
+                                        tracing::debug!(target: "ability",
+                                            "[handle_add_new_ability] change ability.instanced_ability_id: {} ability_override",
+                                            ability.instanced_ability_id
+                                        );
                                     }
                                 }
                                 continue;
                             }
                         };
 
-                        if GAME_SERVER_CONFIG.plugin.ability_log {
-                            tracing::debug!(
-                                "[handle_add_new_ability] instanced_ability_id: {} ability_name: {} invoke.entity_id: {}",
-                                ability.instanced_ability_id,
-                                ability_name,
-                                invoke.entity_id
-                            );
-                        }
+                        tracing::debug!(target: "ability",
+                            "[handle_add_new_ability] instanced_ability_id: {} ability_name: {} invoke.entity_id: {}",
+                            ability.instanced_ability_id,
+                            ability_name,
+                            invoke.entity_id
+                        );
 
                         match instanced_abilities.add_or_replace_by_instanced_ability_id(
                             ability.instanced_ability_id,
@@ -70,12 +61,10 @@ pub fn handle_add_new_ability(
                         ) {
                             Some(_) => {}
                             None => {
-                                if GAME_SERVER_CONFIG.plugin.ability_log {
-                                    tracing::debug!(
-                                        "[handle_add_new_ability] add_with_instanced_ability_id fail {}",
-                                        ability_name
-                                    );
-                                }
+                                tracing::debug!(target: "ability",
+                                    "[handle_add_new_ability] add_with_instanced_ability_id fail {}",
+                                    ability_name
+                                );
                             }
                         };
                     }

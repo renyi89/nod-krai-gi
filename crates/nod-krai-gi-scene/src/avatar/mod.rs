@@ -353,7 +353,7 @@ pub fn replace_avatar_team(
 
             // commands.entity(avatar_entity).insert(ToBeRemovedMarker);
             // commands
-            //     .entity(avatar_data.equipment_weapon.weapon)
+            //     .entity(avatar_data.avatar_equipment_weapon.0)
             //     .insert(ToBeRemovedMarker);
         }
 

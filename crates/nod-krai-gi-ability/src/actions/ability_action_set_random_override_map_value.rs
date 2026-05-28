@@ -1,5 +1,4 @@
 use bevy_ecs::prelude::*;
-use nod_krai_gi_data::GAME_SERVER_CONFIG;
 
 use nod_krai_gi_entity::common::InstancedAbilities;
 use nod_krai_gi_event::ability::ExecuteActionEvent;
@@ -21,21 +20,17 @@ pub fn ability_action_set_random_override_map_value_event(
         let value_range_max = action.value_range_max;
 
         if override_map_key.is_empty() {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!(
-                    "[ability_action_set_random_override_map_value_event] Missing override_map_key"
-                );
-            }
+            tracing::debug!(target: "ability",
+                "[ability_action_set_random_override_map_value_event] Missing override_map_key"
+            );
             continue;
         }
 
         let Ok(mut abilities) = abilities_query.get_mut(*ability_entity) else {
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!(
-                    "[ability_action_set_random_override_map_value_event] Failed to get abilities for entity {}",
-                    ability_entity
-                );
-            }
+            tracing::debug!(target: "ability",
+                "[ability_action_set_random_override_map_value_event] Failed to get abilities for entity {}",
+                ability_entity
+            );
             continue;
         };
 
@@ -50,15 +45,13 @@ pub fn ability_action_set_random_override_map_value_event(
             ability
                 .ability_specials
                 .insert(override_map_key, random_value);
-            if GAME_SERVER_CONFIG.plugin.ability_log {
-                tracing::debug!(
-                    "[ability_action_set_random_override_map_value_event] Setting random override map key {} to value {} (range: {} - {})",
-                    override_map_key,
-                    random_value,
-                    value_range_min,
-                    value_range_max
-                );
-            }
+            tracing::debug!(target: "ability",
+                "[ability_action_set_random_override_map_value_event] Setting random override map key {} to value {} (range: {} - {})",
+                override_map_key,
+                random_value,
+                value_range_min,
+                value_range_max
+            );
         }
     }
 }
